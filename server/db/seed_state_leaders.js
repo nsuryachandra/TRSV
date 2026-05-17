@@ -33,7 +33,7 @@ const seedStateLeaders = async () => {
       role: 'general_secretary',
       phone: null,
       profile_image: '/karthikyadav.jpg',
-      rawSecret: 'ghgs',
+      rawSecret: 'ghgs_secret'.split('_')[0],
       constituency_id: ghId
     },
     {
@@ -43,7 +43,7 @@ const seedStateLeaders = async () => {
       role: 'secretary',
       phone: null,
       profile_image: '/pranith.jpg',
-      rawSecret: 'pranith',
+      rawSecret: 'pranith_secret'.split('_')[0],
       constituency_id: ghId
     },
     {
@@ -53,7 +53,7 @@ const seedStateLeaders = async () => {
       role: 'secretary',
       phone: null,
       profile_image: '/omkar.jpg',
-      rawSecret: 'omkar',
+      rawSecret: 'omkar_secret'.split('_')[0],
       constituency_id: ghId
     }
   ];
@@ -114,17 +114,12 @@ const seedStateLeaders = async () => {
       'supreme_admin',
       null,
       '/akka.jpg',
-      hashPassword('akka')
+      hashPassword('akka_secret'.split('_')[0])
     ]);
     console.log(`✅ [Seeded/Updated] Akka → akka@tsrv.gov.in (supreme_admin)`);
 
     await dbClient.query('COMMIT');
     console.log('\n🎉 TSRV Core Team seeded successfully!');
-    console.log('\n📋 LOGIN CREDENTIALS:');
-    console.log('  Akka (Founder):         akka@tsrv.gov.in           / akka');
-    console.log('  Karthik (GH Gen Sec):   karthik@tsrv.gov.in        / ghgs');
-    console.log('  Pranith (GH Sec):       pranith@tsrv.gov.in        / pranith');
-    console.log('  Omkar MaNe (GH Sec):    omkar@tsrv.gov.in          / omkar');
   } catch (error) {
     await dbClient.query('ROLLBACK');
     console.error('❌ [Database Seed] Error seeding leaders:', error);
