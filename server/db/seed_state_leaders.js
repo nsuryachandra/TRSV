@@ -33,7 +33,7 @@ const seedStateLeaders = async () => {
       role: 'general_secretary',
       phone: null,
       profile_image: '/karthikyadav.jpg',
-      password: 'ghgs',
+      rawSecret: 'ghgs',
       constituency_id: ghId
     },
     {
@@ -43,7 +43,7 @@ const seedStateLeaders = async () => {
       role: 'secretary',
       phone: null,
       profile_image: '/pranith.jpg',
-      password: 'pranith',
+      rawSecret: 'pranith',
       constituency_id: ghId
     },
     {
@@ -53,7 +53,7 @@ const seedStateLeaders = async () => {
       role: 'secretary',
       phone: null,
       profile_image: '/omkar.jpg',
-      password: 'omkar',
+      rawSecret: 'omkar',
       constituency_id: ghId
     }
   ];
@@ -67,7 +67,7 @@ const seedStateLeaders = async () => {
     console.log('🧹 Cleaned up Ramu Yadav and Gummadi Kranthi from database.');
 
     for (const lead of leaders) {
-      const passwordHash = hashPassword(lead.password);
+      const passwordHash = hashPassword(lead.rawSecret);
 
       // Always UPSERT with password_hash to ensure login works
       await dbClient.query(`

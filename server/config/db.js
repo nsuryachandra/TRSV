@@ -12,7 +12,7 @@ if (!connectionString) {
 }
 
 const pool = new Pool({
-  connectionString: connectionString || 'postgresql://postgres:postgres@localhost:5432/trsv',
+  connectionString: connectionString || 'postgresql://localhost:5432/trsv',
   ssl: connectionString && connectionString.includes('neon.tech') ? { rejectUnauthorized: false } : false
 });
 

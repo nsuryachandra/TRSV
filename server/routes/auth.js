@@ -10,7 +10,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const router = express.Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'tsrv_quantum_super_secure_secret_hash_key_2026';
+const JWT_SECRET = process.env.JWT_SECRET || 'tsrv-development-jwt-signing-secret-placeholder';
 
 // PBKDF2/SHA-512 Secure Salting & Password Hashing Engine
 function hashPassword(password) {
@@ -28,8 +28,14 @@ function verifyPassword(password, storedHash) {
 
 // Load administrator credentials dynamically from secure JSON config file
 let credentials = {
-  supreme_admin: { email: 'supreme.admin@tsrv.gov.in', password: 'TSRV_Supreme_Secured_2026!' },
-  site_admin: { email: 'admin@tsrv.gov.in', password: 'TSRV_Admin_Authorized_2026!' }
+  supreme_admin: { 
+    email: process.env.SUPREME_EMAIL || 'supreme.admin@tsrv.gov.in', 
+    password: process.env.SUPREME_PASSWORD || 'mock-supreme-key-placeholder' 
+  },
+  site_admin: { 
+    email: process.env.SITE_ADMIN_EMAIL || 'admin@tsrv.gov.in', 
+    password: process.env.SITE_ADMIN_PASSWORD || 'mock-admin-key-placeholder' 
+  }
 };
 
 try {
