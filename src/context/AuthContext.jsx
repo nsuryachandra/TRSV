@@ -85,6 +85,8 @@ export const AuthProvider = ({ children }) => {
         const profile = await fetchDbProfile(storedToken);
         if (profile) {
           setCurrentUser({ uid: profile.id, email: profile.email });
+          setUserProfile(profile);
+          setToken(storedToken);
         } else {
           handleSessionClear();
         }

@@ -92,7 +92,10 @@ router.post('/send-otp', async (req, res) => {
         auth: {
           user: smtpUser,
           pass: smtpPass
-        }
+        },
+        connectionTimeout: 3000, // 3s max connection timeout
+        greetingTimeout: 2000,   // 2s greeting timeout
+        socketTimeout: 4000      // 4s socket timeout
       });
 
       const mailOptions = {
