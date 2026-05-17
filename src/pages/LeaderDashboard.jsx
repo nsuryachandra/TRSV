@@ -207,8 +207,8 @@ export default function LeaderDashboard() {
             Active Constituency Operations Command
           </div>
           
-          <h2 className="text-3xl font-black text-slate-850 dark:text-white flex items-center gap-2">
-            Welcome, {userProfile?.full_name?.split(' ')[0]} | <span className="text-gradient-cyan">{getRoleHeaderLabel(userProfile?.role)}</span>
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-slate-850 dark:text-white flex flex-wrap items-center gap-x-2 gap-y-1">
+            Welcome, {userProfile?.full_name?.split(' ')[0]} <span className="text-slate-300 dark:text-slate-700 hidden sm:inline">|</span> <span className="text-gradient-cyan block sm:inline">{getRoleHeaderLabel(userProfile?.role)}</span>
           </h2>
           
           <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 max-w-xl leading-relaxed">

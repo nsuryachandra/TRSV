@@ -364,8 +364,8 @@ export default function StudentDashboard() {
             Student advocates Node
           </div>
           
-          <h2 className="text-3xl font-black text-slate-800 dark:text-white flex items-center gap-2">
-            Welcome, {userProfile?.full_name ? userProfile.full_name.split(' ')[0] : 'Advocate'} | <span className="text-gradient-cyan">Student</span>
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-slate-800 dark:text-white flex flex-wrap items-center gap-x-2 gap-y-1">
+            Welcome, {userProfile?.full_name ? userProfile.full_name.split(' ')[0] : 'Advocate'} <span className="text-slate-300 dark:text-slate-700 hidden sm:inline">|</span> <span className="text-gradient-cyan block sm:inline">Student</span>
           </h2>
           
           <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 max-w-xl leading-relaxed">
@@ -697,33 +697,34 @@ export default function StudentDashboard() {
 
       {showWarningModal && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/80 backdrop-blur-md animate-fadeIn">
-          <div className="max-w-md w-full mx-4 p-8 rounded-3xl bg-slate-900/90 border border-amber-500/35 shadow-2xl text-center flex flex-col items-center gap-5 relative overflow-hidden animate-scaleUp">
+          <div className="max-w-md w-full mx-4 p-8 rounded-3xl bg-white dark:bg-slate-900 border-2 border-amber-500 shadow-2xl text-center flex flex-col items-center gap-5 relative overflow-hidden animate-scaleUp">
             {/* Ambient Background Glow */}
-            <div className="absolute top-0 inset-x-0 h-32 bg-gradient-to-b from-amber-500/10 to-transparent blur-xl pointer-events-none" />
+            <div className="absolute top-0 inset-x-0 h-32 bg-gradient-to-b from-amber-500/15 to-transparent blur-xl pointer-events-none" />
             
             {/* Glowing warning icon container */}
-            <div className="w-16 h-16 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500 shadow-glow-amber/20 animate-bounce">
+            <div className="w-16 h-16 rounded-full bg-amber-500/10 border-2 border-amber-500/40 flex items-center justify-center text-amber-600 dark:text-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.2)] animate-bounce">
               <ShieldAlert className="w-9 h-9" />
             </div>
 
-            <div className="flex flex-col gap-2">
-              <h3 className="text-2xl font-black tracking-wider text-amber-500 uppercase">
-                🚨 Be Alert!
+            <div className="flex flex-col gap-1.5 z-10">
+              <h3 className="text-2xl font-black tracking-wider text-amber-600 dark:text-amber-400 uppercase">
+                ⚠️ Be Alert!
               </h3>
-              <p className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest">
+              <p className="text-[10px] text-slate-550 dark:text-slate-400 font-extrabold uppercase tracking-widest">
                 Official Student Advocate Notice
               </p>
             </div>
 
-            <p className="text-xs text-slate-350 dark:text-slate-300 leading-relaxed font-medium">
+            <p className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed font-semibold z-10">
               Grievance tickets logged in the TSRV Command Node are transmitted directly to regional boards. 
-              <strong> You must file only real and genuine complaints.</strong> Filing simulated, fake, or false complaints is strictly prohibited and will result in permanent advocate credential suspension.
+              <span className="text-amber-600 dark:text-amber-400 font-bold block mt-1">You must file only real and genuine complaints.</span> 
+              Filing simulated, fake, or false complaints is strictly prohibited and will result in permanent advocate credential suspension.
             </p>
 
             <button
               type="button"
               onClick={handleAcceptWarning}
-              className="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black uppercase text-xs tracking-wider transition-all duration-200 shadow-glow-amber/20 active:scale-[0.98] select-none hover:shadow-glow-amber/40 border border-amber-400/20 cursor-pointer"
+              className="w-full z-10 py-3.5 px-6 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black uppercase text-xs tracking-wider transition-all duration-200 shadow-md hover:shadow-lg active:scale-[0.98] select-none cursor-pointer border border-amber-400/20"
             >
               OK, I Accept
             </button>

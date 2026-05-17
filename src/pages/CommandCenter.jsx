@@ -307,8 +307,8 @@ export default function CommandCenter() {
               SUPREME ADMISSION TELEMETRY ACTIVE
             </div>
             
-            <h2 className="text-3xl font-black text-slate-850 dark:text-white leading-tight">
-              Welcome, {userProfile?.full_name || 'Supreme Leader'} | <span className="text-gradient-cyan">Supreme Commander</span>
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-slate-850 dark:text-white flex flex-wrap items-center gap-x-2 gap-y-1">
+              Welcome, {userProfile?.full_name || 'Supreme Leader'} <span className="text-slate-300 dark:text-slate-700 hidden sm:inline">|</span> <span className="text-gradient-cyan block sm:inline">Supreme Commander</span>
             </h2>
             
             <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 max-w-xl leading-relaxed">

@@ -13,6 +13,17 @@ class ErrorBoundary extends React.Component {
 
   componentDidCatch(error, errorInfo) {
     console.error('🚨 [System Failure Caught]:', error, errorInfo);
+    
+    // Auto-recover from dynamic import failures caused by new Vite chunk hashes during redeploys
+    const errorMsg = error?.message || '';
+    if (
+      errorMsg.includes('Failed to fetch dynamically imported module') ||
+      errorMsg.includes('ChunkLoadError') ||
+      errorMsg.includes('Failed to load resource')
+    ) {
+      console.warn('🔄 [Chunk Load Error Detected] Automatically reloading to pull latest frontend build...');
+      window.location.reload();
+    }
   }
 
   handleRecovery = () => {
