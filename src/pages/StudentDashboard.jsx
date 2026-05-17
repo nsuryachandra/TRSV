@@ -31,6 +31,21 @@ export default function StudentDashboard() {
   const [savingMap, setSavingMap] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState('');
 
+  // Evaluate if the resolved college area is active (Greater Hyderabad) or inactive (statewide, complain only)
+  useEffect(() => {
+    if (!selectedConstituencyId || constituencies.length === 0) return;
+    const conId = parseInt(selectedConstituencyId);
+    const matchedCon = constituencies.find(c => c.id === conId);
+    if (matchedCon) {
+      const isGH = matchedCon.id === 23 || matchedCon.parent_id === 23;
+      if (isGH) {
+        setMappedMsg(`✓ Automatically mapped to active regional node: ${matchedCon.constituency_name}`);
+      } else {
+        setMappedMsg(`⚠️ Your area (${matchedCon.constituency_name}) is not active, but you can still register a complaint!`);
+      }
+    }
+  }, [selectedConstituencyId, constituencies]);
+
   // 1. Dynamic Leaflet Stylesheet, JS and Constituencies Loader
   useEffect(() => {
     // Inject Leaflet CSS

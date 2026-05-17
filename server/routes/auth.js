@@ -329,7 +329,7 @@ router.post('/login', async (req, res) => {
 
     // Fetch complete hydrated profile
     const profile = await query(
-      `SELECT u.*, con.constituency_name, con.district, col.college_name 
+      `SELECT u.*, con.constituency_name, con.district, con.parent_id as constituency_parent_id, col.college_name 
        FROM users u
        LEFT JOIN constituencies con ON u.constituency_id = con.id
        LEFT JOIN colleges col ON u.college_id = col.id
@@ -409,7 +409,7 @@ router.get('/profile', async (req, res) => {
 
     // Retrieve user and join location names from PostgreSQL
     const profile = await query(
-      `SELECT u.*, con.constituency_name, con.district, col.college_name 
+      `SELECT u.*, con.constituency_name, con.district, con.parent_id as constituency_parent_id, col.college_name 
        FROM users u
        LEFT JOIN constituencies con ON u.constituency_id = con.id
        LEFT JOIN colleges col ON u.college_id = col.id

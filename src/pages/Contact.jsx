@@ -42,7 +42,14 @@ export default function Contact() {
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files.length > 0) {
-      const newFiles = Array.from(e.target.files).filter(f => f.size <= 5 * 1024 * 1024); // max 5MB
+      setErrorMsg('');
+      const newFiles = Array.from(e.target.files).filter(f => {
+        const isOkSize = f.size <= 10 * 1024 * 1024; // max 10MB for video evidence
+        if (!isOkSize) {
+          setErrorMsg(`File "${f.name}" exceeds the 10MB limit.`);
+        }
+        return isOkSize;
+      });
       setProofFiles(prev => [...prev, ...newFiles]);
     }
   };
@@ -243,6 +250,16 @@ export default function Contact() {
                     </div>
                   </div>
 
+                  {userProfile && !(userProfile.constituency_id === 23 || userProfile.constituency_parent_id === 23) && (
+                    <div className="p-4 text-xs bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 rounded-xl flex items-start gap-2.5 leading-relaxed animate-scaleUp">
+                      <AlertTriangle className="w-4 h-4 shrink-0 text-amber-500 animate-pulse mt-0.5" />
+                      <div>
+                        <strong className="block font-bold mb-0.5">⚠️ Region Node Not Active</strong>
+                        Your college/constituency area (<strong>{userProfile.constituency_name || 'Telangana Region'}</strong>) is not active in the Command Hub yet. However, <strong>you can still register your complaint below!</strong> A statewide board leader will be dispatched to investigate.
+                      </div>
+                    </div>
+                  )}
+
                   {errorMsg && (
                     <div className="p-3 text-xs bg-rose-500/10 text-rose-500 border border-rose-500/20 rounded-xl">
                       {errorMsg}
@@ -355,7 +372,7 @@ export default function Contact() {
                             <input
                               type="file"
                               multiple
-                              accept="image/*,application/pdf"
+                              accept="image/*,application/pdf,video/mp4"
                               onChange={handleFileChange}
                               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                             />
@@ -364,7 +381,7 @@ export default function Contact() {
                             </div>
                             <div className="text-center">
                               <span className="text-sm font-bold text-slate-700 dark:text-white block">Drag & Drop files here</span>
-                              <span className="text-[10px] text-slate-400 uppercase tracking-wider">Up to 5MB (JPG, PNG, PDF)</span>
+                              <span className="text-[10px] text-slate-400 uppercase tracking-wider">Up to 10MB (JPG, PNG, PDF, MP4)</span>
                             </div>
                           </div>
                         </div>
