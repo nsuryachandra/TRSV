@@ -15,7 +15,9 @@ import {
   CheckCircle, 
   Info, 
   MapPin, 
-  FileText 
+  FileText,
+  CreditCard,
+  QrCode
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
@@ -56,6 +58,18 @@ export default function DashboardLayout() {
           path: `/dashboard/${activeRole}`,
           icon: currentOverview.icon,
           desc: currentOverview.desc
+        },
+        {
+          name: 'Digital ID Card',
+          path: '/dashboard/digital-id',
+          icon: <CreditCard className="w-5 h-5" />,
+          desc: 'My Official Credentials'
+        },
+        {
+          name: 'ID Verification Scanner',
+          path: '/dashboard/qr-scanner',
+          icon: <QrCode className="w-5 h-5" />,
+          desc: 'Scan & Authenticate IDs'
         }
       ]
     },
