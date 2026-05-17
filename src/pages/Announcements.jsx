@@ -24,7 +24,7 @@ export default function Announcements() {
       tag: 'LEADERSHIP INITIATIVE',
       icon: <Bell className="w-5 h-5 text-amber-500" />,
       title: 'Statewide Student Coordinator Recruitment 2026 Begins',
-      desc: 'Applications are officially open for verified student advocates looking to serve as campus representatives under district boards. Get credentials training, legal safeguard certificates, and local grievance authority.'
+      desc: 'Applications are officially open for verified student coordinators looking to serve as campus representatives under district boards. Get credentials training, legal safeguard certificates, and local grievance authority.'
     }
   ];
 

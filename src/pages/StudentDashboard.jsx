@@ -361,11 +361,11 @@ export default function StudentDashboard() {
         <div className="flex flex-col gap-2">
           {/* Subtitle/Role Tag badge */}
           <div className="inline-flex items-center gap-1.5 self-start px-2.5 py-1 rounded-full bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 text-[10px] font-extrabold uppercase tracking-wider border border-cyan-500/20">
-            Student advocates Node
+            Student Member Node
           </div>
           
           <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-slate-800 dark:text-white flex flex-wrap items-center gap-x-2 gap-y-1">
-            Welcome, {userProfile?.full_name ? userProfile.full_name.split(' ')[0] : 'Advocate'} <span className="text-slate-300 dark:text-slate-700 hidden sm:inline">|</span> <span className="text-gradient-cyan block sm:inline">Student</span>
+            Welcome, {userProfile?.full_name ? userProfile.full_name.split(' ')[0] : 'Student'} <span className="text-slate-300 dark:text-slate-700 hidden sm:inline">|</span> <span className="text-gradient-cyan block sm:inline">Student</span>
           </h2>
           
           <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 max-w-xl leading-relaxed">
@@ -711,14 +711,14 @@ export default function StudentDashboard() {
                 ⚠️ Be Alert!
               </h3>
               <p className="text-[10px] text-slate-550 dark:text-slate-400 font-extrabold uppercase tracking-widest">
-                Official Student Advocate Notice
+                Official TSRV Student Notice
               </p>
             </div>
 
             <p className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed font-semibold z-10">
               Grievance tickets logged in the TSRV Command Node are transmitted directly to regional boards. 
               <span className="text-amber-600 dark:text-amber-400 font-bold block mt-1">You must file only real and genuine complaints.</span> 
-              Filing simulated, fake, or false complaints is strictly prohibited and will result in permanent advocate credential suspension.
+              Filing simulated, fake, or false complaints is strictly prohibited and will result in permanent student credential suspension.
             </p>
 
             <button

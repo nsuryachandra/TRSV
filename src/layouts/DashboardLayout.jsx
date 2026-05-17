@@ -180,11 +180,13 @@ export default function DashboardLayout() {
 
       {/* Sidebar - Desktop Layout */}
       <aside className="hidden lg:flex flex-col w-80 border-r border-slate-200/50 dark:border-slate-900/60 glass-panel-light dark:glass-panel-dark z-25 shrink-0 relative h-screen">
-        {/* Brand Shield Logo */}
+        {/* Brand Logo and Title */}
         <div className="p-6 border-b border-slate-200/50 dark:border-slate-900/60 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-sky-500 to-cyan-400 flex items-center justify-center shadow-glow-cyan text-white">
-            <Shield className="w-5.5 h-5.5" />
-          </div>
+          <img 
+            src="/trsv.jpeg" 
+            alt="TSRV Logo" 
+            className="w-10 h-10 rounded-2xl object-cover border border-cyan-500/30 shadow-[0_0_8px_rgba(6,182,212,0.15)] shrink-0"
+          />
           <div className="text-left">
             <span className="font-black text-base tracking-tight text-slate-800 dark:text-white uppercase block">
               TSRV State OS
@@ -280,9 +282,11 @@ export default function DashboardLayout() {
             >
               <div className="flex items-center justify-between pb-4 border-b border-slate-200/50 dark:border-slate-900/60">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-cyan-500 flex items-center justify-center text-white shadow-glow-cyan">
-                    <Shield className="w-5 h-5" />
-                  </div>
+                  <img 
+                    src="/trsv.jpeg" 
+                    alt="TSRV Logo" 
+                    className="w-9 h-9 rounded-xl object-cover border border-cyan-500/30 shadow-[0_0_8px_rgba(6,182,212,0.15)] shrink-0"
+                  />
                   <span className="font-extrabold text-sm text-slate-800 dark:text-white uppercase tracking-wider">TSRV OS</span>
                 </div>
                 <button
@@ -370,25 +374,18 @@ export default function DashboardLayout() {
                 <Menu className="w-5 h-5" />
               </button>
               
-              {/* Logo and Compact Title Group */}
-              <div className="flex items-center gap-2.5">
-                <img 
-                  src="/trsv.jpeg" 
-                  alt="TSRV State Logo" 
-                  className="w-8 h-8 rounded-full object-cover border border-cyan-500/30 shadow-[0_0_8px_rgba(6,182,212,0.15)] shrink-0"
-                />
-                <div className="flex flex-col text-left">
-                  <h1 className="text-xs sm:text-sm font-black text-slate-850 dark:text-white uppercase tracking-wider flex items-center gap-2 leading-none">
-                    <span className="hidden sm:inline">State Governance Terminal</span>
-                    <span className="sm:hidden">TSRV OS</span>
-                    <span className="px-1.5 py-0.5 rounded-full text-[8px] font-bold bg-green-500/10 text-green-500 border border-green-500/20 animate-pulse">
-                      Live
-                    </span>
-                  </h1>
-                  <span className="text-[8px] text-slate-400 dark:text-slate-500 uppercase tracking-widest hidden xs:block mt-0.5">
-                    Central Telemetry Node
+              {/* Compact Title Group */}
+              <div className="flex flex-col text-left">
+                <h1 className="text-xs sm:text-sm font-black text-slate-850 dark:text-white uppercase tracking-wider flex items-center gap-2 leading-none">
+                  <span className="hidden sm:inline">State Governance Terminal</span>
+                  <span className="sm:hidden">TSRV OS</span>
+                  <span className="px-1.5 py-0.5 rounded-full text-[8px] font-bold bg-green-500/10 text-green-500 border border-green-500/20 animate-pulse">
+                    Live
                   </span>
-                </div>
+                </h1>
+                <span className="text-[8px] text-slate-400 dark:text-slate-500 uppercase tracking-widest hidden xs:block mt-0.5">
+                  Central Telemetry Node
+                </span>
               </div>
             </div>
 

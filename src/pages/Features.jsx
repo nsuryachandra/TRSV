@@ -54,7 +54,7 @@ export default function Features() {
     {
       icon: <Users className="w-8 h-8 text-green-500" />,
       title: 'Statewide Leadership Council',
-      details: 'A verified, credential-backed network of digital student advocates acting as official state representatives in local regional boards.',
+      details: 'A verified, credential-backed network of digital student coordinators acting as official state representatives in local regional boards.',
       badge: 'Credentialed'
     }
   ];

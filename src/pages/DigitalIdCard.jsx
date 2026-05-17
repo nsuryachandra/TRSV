@@ -146,7 +146,8 @@ export default function DigitalIdCard() {
 
     ctx.fillStyle = cardTheme === 'dark' ? '#38bdf8' : '#0ea5e9';
     ctx.font = '600 13px Outfit, sans-serif';
-    ctx.fillText((userProfile?.role || 'Student').toUpperCase().replace('_', ' '), 24, 142);
+    const dynamicRoleStr = userProfile?.role === 'student' ? 'STUDENT' : 'UNION MEMBER';
+    ctx.fillText(dynamicRoleStr, 24, 142);
 
     ctx.fillStyle = cardTheme === 'dark' ? '#cbd5e1' : '#334155';
     ctx.font = '12px Outfit, sans-serif';
@@ -300,11 +301,7 @@ export default function DigitalIdCard() {
                   <div className="flex flex-col min-w-0 text-left">
                     <h3 className="font-extrabold text-base truncate tracking-tight">{userProfile?.full_name}</h3>
                     <p className="text-[9px] font-bold text-cyan-400 uppercase tracking-widest mt-0.5">
-                      {userProfile?.role === 'supreme_admin' 
-                        ? 'Supreme President' 
-                        : userProfile?.role === 'leader' 
-                        ? 'Student Coordinator' 
-                        : 'Union Member'}
+                      {userProfile?.role === 'student' ? 'Student' : 'Union Member'}
                     </p>
                     <p className="text-[8px] text-slate-400 truncate mt-0.5">
                       Campus: {userProfile?.college_name || 'Academic Campus Node'}

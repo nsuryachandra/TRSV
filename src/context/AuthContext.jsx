@@ -99,7 +99,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   /**
-   * Universal Login handler supporting both standard student advocates and Supreme secret credentials
+   * Universal Login handler supporting both standard students and Supreme secret credentials
    */
   const login = async (email, password) => {
     setLoading(true);
@@ -135,7 +135,7 @@ export const AuthProvider = ({ children }) => {
    * Google Sign-In handler (Deprecated in local JWT migration)
    */
   const loginWithGoogle = async () => {
-    throw new Error('Google SSO authentication is deprecated. Please register a local advocate account.');
+    throw new Error('Google SSO authentication is deprecated. Please register a local student account.');
   };
 
   /**

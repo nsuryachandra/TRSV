@@ -163,7 +163,7 @@ export default function SupportHub() {
           </div>
 
           <p className="text-xs text-slate-500 leading-relaxed mb-1">
-            Student advocates stand ready to represent you. File tickets and coordinate directly with constituency Secretary representatives on campus clusters.
+            Union representatives stand ready to represent you. File tickets and coordinate directly with constituency Secretary representatives on campus clusters.
           </p>
 
           <div className="grid grid-cols-2 gap-4">
