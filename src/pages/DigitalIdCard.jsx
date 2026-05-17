@@ -261,7 +261,7 @@ export default function DigitalIdCard() {
               }}
             >
               {/* --- FRONT SIDE --- */}
-              <div className="absolute inset-0 p-6 flex flex-col justify-between backface-hidden z-10">
+              <div className="absolute inset-0 p-6 flex flex-col justify-between backface-hidden z-25 bg-inherit rounded-2xl">
                 {/* Holographic reflection glint sheet */}
                 <div 
                   className="absolute inset-0 pointer-events-none transition-opacity duration-300 bg-[radial-gradient(circle_at_var(--x,50%)_var(--y,50%),rgba(255,255,255,0.18)_0%,rgba(255,255,255,0)_60%)] mix-blend-overlay"
@@ -273,7 +273,7 @@ export default function DigitalIdCard() {
                 />
 
                 {/* ID Header */}
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between z-10">
                   <div className="flex flex-col text-left">
                     <span className="text-[14px] font-black tracking-widest text-cyan-400 uppercase">TSRV</span>
                     <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">State Governance Card</span>
@@ -285,34 +285,38 @@ export default function DigitalIdCard() {
                 </div>
 
                 {/* Card middle: Avatar & Profile */}
-                <div className="flex items-center gap-4 my-2">
+                <div className="flex items-center gap-4 my-2 z-10">
                   {userProfile?.profile_image ? (
                     <img 
                       src={userProfile.profile_image} 
                       alt={userProfile.full_name} 
-                      className="w-16 h-16 rounded-2xl object-cover border border-cyan-400/30 shadow-glow-cyan shrink-0"
+                      className="w-14 h-14 rounded-xl object-cover border border-cyan-450/30 shadow-glow-cyan shrink-0"
                     />
                   ) : (
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-sky-500 to-cyan-400 text-white font-black text-2xl flex items-center justify-center shadow-glow-cyan uppercase shrink-0">
+                    <div className="w-14 h-14 rounded-xl bg-gradient-to-tr from-sky-500 to-cyan-400 text-white font-black text-xl flex items-center justify-center shadow-glow-cyan uppercase shrink-0">
                       {userProfile?.full_name ? userProfile.full_name.split(' ').map(n => n[0]).join('').substring(0, 2) : 'ST'}
                     </div>
                   )}
                   <div className="flex flex-col min-w-0 text-left">
-                    <h3 className="font-extrabold text-lg truncate tracking-tight">{userProfile?.full_name}</h3>
-                    <p className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest mt-0.5">
-                      {(userProfile?.role || 'student').toUpperCase().replace('_', ' ')}
+                    <h3 className="font-extrabold text-base truncate tracking-tight">{userProfile?.full_name}</h3>
+                    <p className="text-[9px] font-bold text-cyan-400 uppercase tracking-widest mt-0.5">
+                      {userProfile?.role === 'supreme_admin' 
+                        ? 'Supreme President' 
+                        : userProfile?.role === 'leader' 
+                        ? 'Student Coordinator' 
+                        : 'Union Member'}
                     </p>
-                    <p className="text-[9px] text-slate-400 truncate mt-1">
+                    <p className="text-[8px] text-slate-400 truncate mt-0.5">
                       Campus: {userProfile?.college_name || 'Academic Campus Node'}
                     </p>
                   </div>
                 </div>
 
                 {/* Card Footer */}
-                <div className="flex items-end justify-between border-t border-slate-200/20 dark:border-slate-800/80 pt-3">
+                <div className="flex items-end justify-between border-t border-slate-200/20 dark:border-slate-800/80 pt-2.5 z-10">
                   <div className="flex flex-col text-left">
                     <span className="text-[7px] text-slate-400 uppercase tracking-widest">TSRV System Node ID</span>
-                    <span className="text-base font-black font-mono text-cyan-400 tracking-wider mt-0.5">
+                    <span className="text-sm font-black font-mono text-cyan-400 tracking-wider mt-0.5">
                       {identity?.tsrv_member_id}
                     </span>
                   </div>
@@ -322,14 +326,14 @@ export default function DigitalIdCard() {
                     <img 
                       src={`https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=${window.location.origin}/#/verify/${identity?.qr_token}`} 
                       alt="Scannable Security QR" 
-                      className="w-10 h-10"
+                      className="w-8 h-8"
                     />
                   </div>
                 </div>
               </div>
 
               {/* --- BACK SIDE --- */}
-              <div className="absolute inset-0 p-6 flex flex-col justify-between backface-hidden rotate-y-180 z-10">
+              <div className="absolute inset-0 p-6 flex flex-col justify-between backface-hidden rotate-y-180 z-20 bg-inherit rounded-2xl">
                 {/* Back card Header */}
                 <div className="flex items-center justify-between">
                   <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Governance Security Chip</span>
@@ -340,14 +344,14 @@ export default function DigitalIdCard() {
                 </div>
 
                 {/* Back card Middle: Guidelines */}
-                <div className="text-[8px] text-slate-400 leading-relaxed text-left flex flex-col gap-2 my-2 border-l border-cyan-500/20 pl-3">
+                <div className="text-[8px] text-slate-400 leading-relaxed text-left flex flex-col gap-1.5 my-1.5 border-l border-cyan-500/20 pl-3">
                   <p className="font-extrabold uppercase text-cyan-400 tracking-wider">OFFICIAL SYSTEM DISCLOSURE</p>
                   <p>This digital identity wallet represents an authorized representative node of the Telangana Rakshana Sena Vidyarthi Vibhagam (TSRV).</p>
                   <p>Scan the front QR code to verify active database records, grievance resolution performance logs, and commission boundaries.</p>
                 </div>
 
                 {/* Back Card Footer: Emergency Contact info */}
-                <div className="flex items-end justify-between border-t border-slate-200/20 dark:border-slate-800/80 pt-3">
+                <div className="flex items-end justify-between border-t border-slate-200/20 dark:border-slate-800/80 pt-2.5">
                   <div className="flex flex-col text-left">
                     <span className="text-[7px] text-slate-400 uppercase tracking-widest">TSRV Support Node</span>
                     <span className="text-[9px] font-bold mt-1 text-slate-350 flex items-center gap-1">
@@ -415,9 +419,15 @@ export default function DigitalIdCard() {
               </strong>
             </GlassCard>
             <GlassCard className="p-4 flex flex-col text-left gap-1" hoverEffect={false}>
-              <span className="text-[10px] font-bold text-slate-450 uppercase tracking-wider">Advocate Rating</span>
-              <strong className="text-2xl font-black text-slate-800 dark:text-white flex items-center gap-1 text-amber-500">
-                ★ {metrics?.rating || '5.00'}
+              <span className="text-[10px] font-bold text-slate-450 uppercase tracking-wider">Member Rating</span>
+              <strong className={`text-2xl font-black flex items-center gap-1 ${
+                (metrics?.issues_resolved || 0) === 0 ? 'text-slate-400 dark:text-slate-500' : 'text-amber-500'
+              }`}>
+                {(metrics?.issues_resolved || 0) === 0 ? (
+                  <span className="text-xs font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-900/50 px-2 py-0.5 rounded-md">Not Started</span>
+                ) : (
+                  <>★ {parseFloat(metrics?.rating || 5.00).toFixed(2)}</>
+                )}
               </strong>
             </GlassCard>
           </div>
