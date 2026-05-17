@@ -30,6 +30,20 @@ export default function StudentDashboard() {
   const [mapResolving, setMapResolving] = useState(false);
   const [savingMap, setSavingMap] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState('');
+  const [showWarningModal, setShowWarningModal] = useState(false);
+
+  // Trigger luxury security alert modal on dashboard visit
+  useEffect(() => {
+    const accepted = localStorage.getItem('tsrv_warning_accepted');
+    if (!accepted) {
+      setShowWarningModal(true);
+    }
+  }, []);
+
+  const handleAcceptWarning = () => {
+    localStorage.setItem('tsrv_warning_accepted', 'true');
+    setShowWarningModal(false);
+  };
 
   // Evaluate if the resolved college area is active (Greater Hyderabad) or inactive (statewide, complain only)
   useEffect(() => {
@@ -679,6 +693,42 @@ export default function StudentDashboard() {
           onClose={() => setSelectedTicketId(null)} 
           userProfile={userProfile} 
         />
+      )}
+
+      {showWarningModal && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/80 backdrop-blur-md animate-fadeIn">
+          <div className="max-w-md w-full mx-4 p-8 rounded-3xl bg-slate-900/90 border border-amber-500/35 shadow-2xl text-center flex flex-col items-center gap-5 relative overflow-hidden animate-scaleUp">
+            {/* Ambient Background Glow */}
+            <div className="absolute top-0 inset-x-0 h-32 bg-gradient-to-b from-amber-500/10 to-transparent blur-xl pointer-events-none" />
+            
+            {/* Glowing warning icon container */}
+            <div className="w-16 h-16 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500 shadow-glow-amber/20 animate-bounce">
+              <ShieldAlert className="w-9 h-9" />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <h3 className="text-2xl font-black tracking-wider text-amber-500 uppercase">
+                🚨 Be Alert!
+              </h3>
+              <p className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest">
+                Official Student Advocate Notice
+              </p>
+            </div>
+
+            <p className="text-xs text-slate-350 dark:text-slate-300 leading-relaxed font-medium">
+              Grievance tickets logged in the TSRV Command Node are transmitted directly to regional boards. 
+              <strong> You must file only real and genuine complaints.</strong> Filing simulated, fake, or false complaints is strictly prohibited and will result in permanent advocate credential suspension.
+            </p>
+
+            <button
+              type="button"
+              onClick={handleAcceptWarning}
+              className="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black uppercase text-xs tracking-wider transition-all duration-200 shadow-glow-amber/20 active:scale-[0.98] select-none hover:shadow-glow-amber/40 border border-amber-400/20 cursor-pointer"
+            >
+              OK, I Accept
+            </button>
+          </div>
+        </div>
       )}
 
     </div>
