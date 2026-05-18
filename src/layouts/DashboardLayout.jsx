@@ -420,7 +420,7 @@ export default function DashboardLayout() {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 12, scale: 0.95 }}
                         transition={{ duration: 0.15 }}
-                        className="absolute right-0 mt-3.5 w-80 sm:w-96 rounded-2xl glass-panel-light dark:glass-panel-dark border border-slate-200/60 dark:border-slate-850 shadow-2xl p-4 text-left z-40"
+                        className="absolute right-0 mt-3.5 w-80 sm:w-96 rounded-2xl bg-white/98 dark:bg-slate-900/98 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800 shadow-2xl p-4 text-left z-40"
                       >
                         <div className="flex items-center justify-between border-b border-slate-200/50 dark:border-slate-850 pb-2.5 mb-2.5">
                           <div className="flex items-center gap-2">

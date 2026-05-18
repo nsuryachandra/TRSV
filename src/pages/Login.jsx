@@ -156,11 +156,11 @@ export default function Login() {
 
       {/* Password Reset Modal */}
       {showResetModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-md p-4 animate-[fadeIn_0.2s_ease-out]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-md p-4 animate-[fadeIn_0.2s_ease-out]">
           <div className="w-full max-w-md animate-[scaleIn_0.2s_ease-out]">
-            <GlassCard hoverEffect={false} className="p-8 relative border border-white/10 shadow-2xl">
+            <div className="bg-white/98 dark:bg-slate-900/98 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800 p-8 relative rounded-2xl shadow-2xl overflow-hidden">
               {/* Top light bar */}
-              <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-sky-500 to-cyan-400 rounded-t-2xl" />
+              <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-sky-500 to-cyan-400" />
               
               <div className="flex flex-col items-center gap-2 mb-6">
                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-sky-500 to-cyan-400 flex items-center justify-center shadow-glow-cyan text-white">
@@ -169,20 +169,20 @@ export default function Login() {
                 <h3 className="font-extrabold text-xl text-slate-850 dark:text-white mt-1">
                   Recover Pass-key
                 </h3>
-                <p className="text-xs text-slate-400 dark:text-slate-500 text-center px-4">
+                <p className="text-xs text-slate-500 dark:text-slate-400 text-center px-4 leading-relaxed">
                   Enter your authorized email to dispatch a secure decryption reset mailer
                 </p>
               </div>
 
               {resetError && (
-                <div className="mb-4 flex items-start gap-2.5 p-3.5 rounded-xl border border-rose-500/20 bg-rose-500/10 text-rose-500 text-xs text-left animate-[shake_0.3s_ease-in-out]">
+                <div className="mb-4 flex items-start gap-2.5 p-3.5 rounded-xl border border-rose-500/20 bg-rose-500/10 text-rose-600 dark:text-rose-450 text-xs text-left animate-[shake_0.3s_ease-in-out]">
                   <ShieldAlert className="w-4 h-4 shrink-0 mt-0.5" />
                   <span>{resetError}</span>
                 </div>
               )}
 
               {resetSuccess && (
-                <div className="mb-4 flex items-start gap-2.5 p-3.5 rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-550 dark:text-emerald-450 text-xs text-left animate-[bounceIn_0.3s_ease-out]">
+                <div className="mb-4 flex items-start gap-2.5 p-3.5 rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-450 text-xs text-left animate-[bounceIn_0.3s_ease-out]">
                   <div className="w-4 h-4 rounded-full bg-emerald-500 flex items-center justify-center text-white text-[9px] font-bold shrink-0 mt-0.5">✓</div>
                   <span>{resetSuccess}</span>
                 </div>
@@ -190,7 +190,7 @@ export default function Login() {
 
               <form onSubmit={handleResetPassword} className="flex flex-col gap-4 text-left">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Registered Email</label>
+                  <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Registered Email</label>
                   <div className="relative">
                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                     <input
@@ -199,7 +199,7 @@ export default function Login() {
                       placeholder="name@college.edu"
                       value={resetEmail}
                       onChange={(e) => setResetEmail(e.target.value)}
-                      className="w-full pl-11 pr-4 py-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-800 dark:text-slate-100"
+                      className="w-full pl-11 pr-4 py-3 rounded-xl border bg-white dark:bg-slate-950/60 text-sm focus:outline-none focus:border-cyan-400 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100"
                     />
                   </div>
                 </div>
@@ -212,7 +212,7 @@ export default function Login() {
                       setResetSuccess('');
                       setResetError('');
                     }}
-                    className="flex-1 px-4 py-3 rounded-xl border border-slate-200/60 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/40 text-slate-500 dark:text-slate-400 text-xs font-semibold transition-all duration-200"
+                    className="flex-1 px-4 py-3 rounded-xl border border-slate-200/80 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/40 text-slate-600 hover:text-slate-900 dark:text-slate-350 dark:hover:text-slate-100 text-xs font-bold transition-all duration-200"
                   >
                     Cancel
                   </button>
@@ -228,7 +228,7 @@ export default function Login() {
                   </PremiumButton>
                 </div>
               </form>
-            </GlassCard>
+            </div>
           </div>
         </div>
       )}

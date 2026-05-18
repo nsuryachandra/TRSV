@@ -276,12 +276,12 @@ export default function QrScanExperience() {
       {(scanResult || scanError) && (
         <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-[fadeIn_0.2s_ease-out]">
           <div className="w-full max-w-[460px] relative">
-            <GlassCard className="p-8 text-center border-slate-200/50 dark:border-slate-850 relative" hoverEffect={false}>
+            <div className="bg-white/98 dark:bg-slate-900/98 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800 p-8 text-center relative rounded-2xl shadow-2xl overflow-hidden">
               
               {/* Close Button */}
               <button 
                 onClick={closeResultModal}
-                className="absolute top-4 right-4 p-2 rounded-lg bg-slate-100/50 dark:bg-slate-900/50 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                className="absolute top-4 right-4 p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-950 dark:text-slate-400 dark:hover:text-white hover:scale-105 active:scale-95 transition-all cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -301,17 +301,17 @@ export default function QrScanExperience() {
                     {scanResult.verified ? 'Verified Union Member' : 'Invalid Credentials'}
                   </h2>
 
-                  <p className="text-xs text-slate-400 mt-1">
-                    Member ID: <strong className="font-mono text-cyan-400">{scanResult.identity.tsrv_member_id}</strong>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                    Member ID: <strong className="font-mono text-cyan-500">{scanResult.identity.tsrv_member_id}</strong>
                   </p>
 
                   {/* Profile Summary card */}
-                  <div className="w-full bg-slate-100/40 dark:bg-slate-900/50 border border-slate-200/40 dark:border-slate-850 rounded-xl p-4 mt-5 flex items-center gap-3 text-left">
+                  <div className="w-full bg-slate-50 dark:bg-slate-950/60 border border-slate-200/60 dark:border-slate-850 rounded-xl p-4 mt-5 flex items-center gap-3 text-left">
                     {scanResult.profile.profile_image ? (
                       <img 
                         src={scanResult.profile.profile_image} 
                         alt={scanResult.profile.full_name} 
-                        className="w-12 h-12 rounded-xl object-cover"
+                        className="w-12 h-12 rounded-xl object-cover border border-slate-200 dark:border-slate-800"
                       />
                     ) : (
                       <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-sky-500 to-cyan-400 text-white font-black text-lg flex items-center justify-center uppercase shrink-0">
@@ -321,14 +321,14 @@ export default function QrScanExperience() {
                     <div className="flex flex-col min-w-0">
                       <strong className="text-sm font-bold text-slate-850 dark:text-white truncate">{scanResult.profile.full_name}</strong>
                       <span className="text-[10px] text-cyan-500 font-bold uppercase mt-0.5 truncate">{scanResult.profile.role.replace('_', ' ')}</span>
-                      <span className="text-[9px] text-slate-450 mt-0.5 truncate">{scanResult.profile.constituency_name || 'Statewide Headquarters'}</span>
+                      <span className="text-[9px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">{scanResult.profile.constituency_name || 'Statewide Headquarters'}</span>
                     </div>
                   </div>
 
                   {/* Security/Access State Details */}
-                  <div className="w-full flex justify-between items-center text-xs text-slate-450 border-t border-slate-200/20 dark:border-slate-850 pt-4 mt-5">
-                    <span>Audit Result:</span>
-                    <strong className={scanResult.verified ? 'text-emerald-500' : 'text-rose-500'}>
+                  <div className="w-full flex justify-between items-center text-xs text-slate-500 dark:text-slate-400 border-t border-slate-200/50 dark:border-slate-800 pt-4 mt-5">
+                    <span>Audit Status:</span>
+                    <strong className={scanResult.verified ? 'text-emerald-500 font-black' : 'text-rose-500 font-black'}>
                       {scanResult.identity.verification_status.toUpperCase()}
                     </strong>
                   </div>
@@ -363,11 +363,11 @@ export default function QrScanExperience() {
                     Unregistered Token
                   </h2>
 
-                  <p className="text-xs text-rose-550 dark:text-rose-400 font-mono bg-rose-500/5 p-4 rounded-xl border border-rose-500/10 leading-relaxed mt-4 w-full">
+                  <p className="text-xs text-rose-600 dark:text-rose-450 font-mono bg-rose-500/5 p-4 rounded-xl border border-rose-500/10 leading-relaxed mt-4 w-full">
                     {scanError}
                   </p>
 
-                  <p className="text-[9px] text-slate-500 mt-4 leading-relaxed max-w-[280px]">
+                  <p className="text-[9px] text-slate-500 dark:text-slate-400 mt-4 leading-relaxed max-w-[280px]">
                     This QR code contains an expired key, tampered signatures, or resides outside the Telangana R.S.V. secure server network.
                   </p>
 
@@ -382,7 +382,7 @@ export default function QrScanExperience() {
                 </div>
               )}
 
-            </GlassCard>
+            </div>
           </div>
         </div>
       )}
