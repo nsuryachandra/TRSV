@@ -258,7 +258,7 @@ export default function DigitalIdCard() {
               ref={cardRef}
               onMouseMove={handleMouseMove}
               onMouseLeave={handleMouseLeave}
-              className={`w-full h-full rounded-2xl transition-transform duration-700 ease-out preserve-3d relative border border-white/10 shadow-2xl flex flex-col justify-between overflow-hidden p-6 ${cardTheme === 'dark' ? 'bg-slate-950 text-white' : 'bg-slate-50 text-slate-900'}`}
+              className={`w-full h-full rounded-2xl transition-transform duration-700 ease-out preserve-3d relative border border-white/10 shadow-2xl flex flex-col justify-between p-6 ${cardTheme === 'dark' ? 'bg-slate-950 text-white' : 'bg-slate-50 text-slate-900'}`}
               style={{
                 transform: `${tiltStyle.transform} ${isFlipped ? 'rotateY(180deg)' : ''}`,
                 boxShadow: cardTheme === 'dark' 
@@ -267,7 +267,11 @@ export default function DigitalIdCard() {
               }}
             >
               {/* --- FRONT SIDE --- */}
-              <div className="absolute inset-0 p-6 flex flex-col justify-between backface-hidden z-25 bg-inherit rounded-2xl">
+              <div 
+                className={`absolute inset-0 p-6 flex flex-col justify-between backface-hidden bg-inherit rounded-2xl transition-all duration-300 ${
+                  isFlipped ? 'z-10 opacity-0 pointer-events-none' : 'z-25 opacity-100'
+                }`}
+              >
                 {/* Holographic reflection glint sheet */}
                 <div 
                   className="absolute inset-0 pointer-events-none transition-opacity duration-300 bg-[radial-gradient(circle_at_var(--x,50%)_var(--y,50%),rgba(255,255,255,0.18)_0%,rgba(255,255,255,0)_60%)] mix-blend-overlay"
@@ -332,7 +336,11 @@ export default function DigitalIdCard() {
               </div>
 
               {/* --- BACK SIDE --- */}
-              <div className="absolute inset-0 p-6 flex flex-col justify-between backface-hidden rotate-y-180 z-20 bg-inherit rounded-2xl">
+              <div 
+                className={`absolute inset-0 p-6 flex flex-col justify-between backface-hidden rotate-y-180 bg-inherit rounded-2xl transition-all duration-300 ${
+                  isFlipped ? 'z-25 opacity-100' : 'z-10 opacity-0 pointer-events-none'
+                }`}
+              >
                 {/* Back card Header */}
                 <div className="flex items-center justify-between border-b border-slate-200/10 dark:border-slate-800/50 pb-2">
                   <div className="flex flex-col text-left">
