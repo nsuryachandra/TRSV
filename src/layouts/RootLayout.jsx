@@ -110,7 +110,7 @@ export default function RootLayout() {
                 >
                   <div className="flex flex-col items-start leading-tight text-left">
                     <span className="font-extrabold text-xs">Create New Account</span>
-                    <span className="text-[9px] opacity-75 font-normal lowercase">To register a complaint</span>
+                    <span className="text-[9px] opacity-75 font-normal">Register Complaint</span>
                   </div>
                 </PremiumButton>
                 
@@ -121,7 +121,7 @@ export default function RootLayout() {
                 >
                   <div className="flex flex-col items-start leading-tight text-left">
                     <span className="font-extrabold text-xs">Login</span>
-                    <span className="text-[9px] opacity-75 font-normal lowercase">admins also can login</span>
+                    <span className="text-[9px] opacity-75 font-normal">Admins & Leaders</span>
                   </div>
                 </PremiumButton>
               </>
@@ -224,7 +224,7 @@ export default function RootLayout() {
                   >
                     <div className="flex flex-col items-center leading-tight">
                       <span className="font-extrabold text-sm">Create New Account</span>
-                      <span className="text-[10px] opacity-85 font-normal">To Register a Complaint</span>
+                      <span className="text-[10px] opacity-85 font-normal">Register Complaint</span>
                     </div>
                   </PremiumButton>
                   <PremiumButton 
@@ -238,7 +238,7 @@ export default function RootLayout() {
                   >
                     <div className="flex flex-col items-center leading-tight">
                       <span className="font-extrabold text-sm">Login</span>
-                      <span className="text-[10px] opacity-85 font-normal">Admins also can login</span>
+                      <span className="text-[10px] opacity-85 font-normal">Admins & Leaders</span>
                     </div>
                   </PremiumButton>
                 </>

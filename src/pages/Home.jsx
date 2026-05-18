@@ -82,7 +82,7 @@ export default function Home() {
                 >
                   <div className="flex flex-col items-start leading-tight text-left">
                     <span className="font-extrabold text-base sm:text-lg">Create New Account</span>
-                    <span className="text-[11px] opacity-90 font-medium tracking-wide">To Register a Complaint</span>
+                    <span className="text-[11px] opacity-90 font-medium tracking-wide">Register Complaint</span>
                   </div>
                 </PremiumButton>
                 <PremiumButton 
@@ -92,7 +92,7 @@ export default function Home() {
                 >
                   <div className="flex flex-col items-start leading-tight text-left">
                     <span className="font-extrabold text-base sm:text-lg">Login</span>
-                    <span className="text-[11px] opacity-90 font-medium tracking-wide">Admins also can login</span>
+                    <span className="text-[11px] opacity-90 font-medium tracking-wide">Admins & Leaders</span>
                   </div>
                 </PremiumButton>
               </>
