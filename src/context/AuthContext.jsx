@@ -95,33 +95,54 @@ export const AuthProvider = ({ children }) => {
 
   // Local JWT session rehydration on mount
   useEffect(() => {
+    const decodeJwt = (token) => {
+      try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        return JSON.parse(jsonPayload);
+      } catch (e) {
+        return null;
+      }
+    };
+
     const initSession = async () => {
       const storedToken = localStorage.getItem('tsrv_session_token');
-      const cachedProfile = localStorage.getItem('tsrv_cached_profile');
-
-      if (storedToken && cachedProfile) {
-        try {
-          const profile = JSON.parse(cachedProfile);
-          setCurrentUser({ uid: profile.id, email: profile.email });
-          setUserProfile(profile);
-          setToken(storedToken);
-          
-          // Execute background verification without blocking UI initialization.
-          // This keeps the user logged in immediately and recovers seamlessly if Render is sleeping.
-          fetchDbProfile(storedToken).catch((err) => {
-            console.warn('[AuthContext] Background profile validation deferred:', err);
-          });
-        } catch (e) {
-          handleSessionClear();
-        }
-      } else if (storedToken) {
-        // Token exists but no cache, wait for network validation
-        const profile = await fetchDbProfile(storedToken);
-        if (profile) {
-          setCurrentUser({ uid: profile.id, email: profile.email });
-          setUserProfile(profile);
-          setToken(storedToken);
+      
+      if (storedToken) {
+        const decoded = decodeJwt(storedToken);
+        // Expiration check (exp is in seconds)
+        if (decoded && decoded.exp * 1000 > Date.now()) {
+          try {
+            const cachedProfile = localStorage.getItem('tsrv_cached_profile');
+            let profile = cachedProfile ? JSON.parse(cachedProfile) : null;
+            
+            // If cached profile is missing or invalid, reconstruct it from token metadata immediately
+            if (!profile) {
+              profile = {
+                id: decoded.uid,
+                email: decoded.email,
+                role: decoded.role,
+                full_name: decoded.name || 'Advocate',
+                verified: true
+              };
+            }
+            
+            setCurrentUser({ uid: profile.id, email: profile.email });
+            setUserProfile(profile);
+            setToken(storedToken);
+            
+            // Sync with backend database in the background without blocking UI render
+            fetchDbProfile(storedToken).catch((err) => {
+              console.warn('[AuthContext] Background profile sync deferred:', err);
+            });
+          } catch (e) {
+            handleSessionClear();
+          }
         } else {
+          // Token has expired
           handleSessionClear();
         }
       } else {
