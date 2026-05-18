@@ -53,6 +53,14 @@ export default function Login() {
     setResetError('');
     setResetSuccess('');
     setResetLoading(true);
+    
+    const cleanEmail = resetEmail.trim().toLowerCase();
+    if (cleanEmail === 'admin@tsrv.gov.in' || cleanEmail === 'supreme.admin@tsrv.gov.in' || cleanEmail.endsWith('@tsrv.gov.in')) {
+      setResetError('Admin credentials cannot be changed. Contact Developer: Suryachandra.');
+      setResetLoading(false);
+      return;
+    }
+
     try {
       if (resetStep === 1) {
         await resetPassword(resetEmail);
@@ -130,6 +138,11 @@ export default function Login() {
                 <button 
                   type="button" 
                   onClick={() => {
+                    const cleanEmail = email.trim().toLowerCase();
+                    if (cleanEmail === 'admin@tsrv.gov.in' || cleanEmail === 'supreme.admin@tsrv.gov.in' || cleanEmail.endsWith('@tsrv.gov.in')) {
+                      setError('Admin credentials cannot be changed. Contact Developer: Suryachandra.');
+                      return;
+                    }
                     setResetEmail(email);
                     setShowResetModal(true);
                   }} 
