@@ -3,12 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { Camera, Scan, Upload, ShieldCheck, ShieldAlert, X, HelpCircle, User, Info, ArrowRight, Shield } from 'lucide-react';
 import GlassCard from '../components/GlassCard';
 import PremiumButton from '../components/PremiumButton';
-import { Html5Qrcode } from 'html5-qrcode';
+import jsQR from 'jsqr';
 
 export default function QrScanExperience() {
   const navigate = useNavigate();
 
-  // Scanning simulation states
+  // Scanning states
   const [scanning, setScanning] = useState(false);
   const [scanResult, setScanResult] = useState(null);
   const [scanError, setScanError] = useState('');
@@ -16,72 +16,111 @@ export default function QrScanExperience() {
 
   // Real Camera scan states
   const [cameraActive, setCameraActive] = useState(false);
-  const scannerInstanceRef = useRef(null);
+  
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+  const requestRef = useRef(null);
+  const streamRef = useRef(null);
 
-  // Stop scanning
-  const stopCameraScanner = async () => {
-    if (scannerInstanceRef.current) {
-      try {
-        await scannerInstanceRef.current.stop();
-      } catch (err) {
-        console.error("Error stopping camera stream:", err);
-      }
-      scannerInstanceRef.current = null;
+  // Stop camera scanning stream
+  const stopCameraScanner = () => {
+    if (requestRef.current) {
+      cancelAnimationFrame(requestRef.current);
+      requestRef.current = null;
+    }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
     }
     setCameraActive(false);
   };
 
-  // Start scanning
+  // Start camera scanning stream
   const startCameraScanner = async () => {
     setScanError('');
     setScanResult(null);
     setCameraActive(true);
-    
-    // Allow React to paint the #reader DOM node block layout first
-    setTimeout(async () => {
-      try {
-        const html5Qrcode = new Html5Qrcode("reader");
-        scannerInstanceRef.current = html5Qrcode;
+
+    try {
+      const constraints = {
+        video: { 
+          facingMode: 'environment', 
+          width: { ideal: 1280 }, 
+          height: { ideal: 720 } 
+        },
+        audio: false
+      };
+      
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      streamRef.current = stream;
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.setAttribute('playsinline', 'true'); // Required for iOS Safari
         
-        await html5Qrcode.start(
-          { facingMode: "environment" },
-          {
-            fps: 15,
-            qrbox: (width, height) => {
-              const size = Math.min(width, height) * 0.8;
-              return { width: size, height: size };
-            },
-            aspectRatio: 1.0
-          },
-          (decodedText) => {
-            console.log("QR Code read successfully from camera:", decodedText);
-            
-            // Extract the verify token if it's a URL
-            let tokenOrId = decodedText;
-            if (decodedText.includes('/verify/')) {
-              tokenOrId = decodedText.split('/verify/')[1];
-            }
-            
-            executeVerifyQuery(tokenOrId);
-            stopCameraScanner();
-          },
-          (errorMessage) => {
-            // Quietly ignore normal scanning poll messages
+        // Wait for video meta data load to start playback and decode loop
+        videoRef.current.onloadedmetadata = () => {
+          if (videoRef.current) {
+            videoRef.current.play().catch(err => {
+              console.error("Video play failed:", err);
+            });
+            requestRef.current = requestAnimationFrame(tick);
           }
-        );
-      } catch (err) {
-        console.error("Camera startup error:", err);
-        setScanError("Unable to access camera. Please verify camera permissions in your browser.");
-        setCameraActive(false);
+        };
       }
-    }, 150);
+    } catch (err) {
+      console.error("Camera startup error:", err);
+      setScanError("Unable to access camera. Please verify camera permissions in your browser settings.");
+      setCameraActive(false);
+    }
+  };
+
+  // Frame processing loop
+  const tick = () => {
+    if (videoRef.current && videoRef.current.readyState === videoRef.current.HAVE_ENOUGH_DATA) {
+      const video = videoRef.current;
+      const canvas = canvasRef.current || document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const code = jsQR(imageData.data, imageData.width, imageData.height, {
+        inversionAttempts: 'dontInvert'
+      });
+
+      if (code) {
+        console.log("QR Code read successfully from camera:", code.data);
+        
+        // Extract the verify token if it's a URL
+        let tokenOrId = code.data;
+        if (code.data.includes('/verify/')) {
+          tokenOrId = code.data.split('/verify/')[1];
+        }
+        
+        executeVerifyQuery(tokenOrId);
+        stopCameraScanner();
+        return;
+      }
+    }
+    
+    if (cameraActive) {
+      requestRef.current = requestAnimationFrame(tick);
+    }
   };
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (scannerInstanceRef.current) {
-        scannerInstanceRef.current.stop().catch(err => console.error(err));
+      if (requestRef.current) {
+        cancelAnimationFrame(requestRef.current);
+      }
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
       }
     };
   }, []);
@@ -92,7 +131,7 @@ export default function QrScanExperience() {
     setScanError('');
     setScanResult(null);
 
-    // Simulate scanning beam animation duration
+    // Simulate scanning beam duration for high fidelity UI
     setTimeout(async () => {
       try {
         const response = await fetch(`/api/identity/verify/${tokenOrId}`);
@@ -112,7 +151,7 @@ export default function QrScanExperience() {
     }, 1200);
   };
 
-  // Perform REAL QR code decoding from uploaded pass image files
+  // Perform REAL QR code decoding from uploaded pass image files using jsqr
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -122,26 +161,40 @@ export default function QrScanExperience() {
     setScanError('');
     setScanResult(null);
 
-    // Create temporary off-screen Html5Qrcode using our persistent DOM element
-    const html5Qrcode = new Html5Qrcode("reader");
-    
-    html5Qrcode.scanFile(file, false)
-      .then(decodedText => {
-        console.log("QR Code read successfully from file:", decodedText);
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
         
-        // Extract the verify token if it's a URL
-        let tokenOrId = decodedText;
-        if (decodedText.includes('/verify/')) {
-          tokenOrId = decodedText.split('/verify/')[1];
+        try {
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const code = jsQR(imageData.data, imageData.width, imageData.height);
+          
+          if (code) {
+            console.log("QR Code read successfully from file:", code.data);
+            let tokenOrId = code.data;
+            if (code.data.includes('/verify/')) {
+              tokenOrId = code.data.split('/verify/')[1];
+            }
+            executeVerifyQuery(tokenOrId);
+          } else {
+            setScanError("Failed to decode QR: No clear QR code was detected in the uploaded image.");
+            setScanning(false);
+          }
+        } catch (err) {
+          console.error("File processing error:", err);
+          setScanError("Failed to process uploaded image file.");
+          setScanning(false);
         }
-        
-        executeVerifyQuery(tokenOrId);
-      })
-      .catch(err => {
-        console.error("QR Code file scan failed:", err);
-        setScanError("Failed to decode QR: Make sure the uploaded card back face is clearly visible with its QR code.");
-        setScanning(false);
-      });
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
   };
 
   const closeResultModal = () => {
@@ -169,7 +222,7 @@ export default function QrScanExperience() {
           <h2 className="text-3xl font-black text-slate-800 dark:text-white flex items-center gap-2">
             Holographic QR Scanner
           </h2>
-          <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 max-w-xl leading-relaxed">
+          <p className="text-xs text-slate-450 dark:text-slate-500 mt-1 max-w-xl leading-relaxed">
             Verify governance credentials in real-time. Use the terminal scanning viewfinder, upload an identity card file, or run rapid-diagnostic shortcuts.
           </p>
         </div>
@@ -182,12 +235,17 @@ export default function QrScanExperience() {
             {/* Viewfinder Bounding Box */}
             <div className="relative w-full max-w-[340px] aspect-square rounded-2xl border-2 border-slate-800 bg-slate-950 flex items-center justify-center overflow-hidden shadow-2xl mt-4">
               
-              {/* Persistent Scanner viewport DOM element (Needed for both camera start and file upload readers) */}
-              <div 
-                id="reader" 
+              {/* Native HTML5 Video Element for jsqr capture */}
+              <video 
+                ref={videoRef}
                 className="absolute inset-0 w-full h-full object-cover z-10 bg-slate-950" 
                 style={{ display: cameraActive ? 'block' : 'none' }}
+                playsInline
+                muted
               />
+
+              {/* Canvas element for frame calculations */}
+              <canvas ref={canvasRef} className="hidden" />
 
               {!cameraActive && (
                 /* Central QR Reticle visual */
@@ -212,7 +270,7 @@ export default function QrScanExperience() {
                 <div className="absolute left-0 right-0 h-1 bg-cyan-400/90 shadow-[0_0_15px_#22d3ee] z-30 animate-[scanBeam_2s_infinite_ease-in-out]" />
               )}
 
-              {/* Video preview mock text info overlay */}
+              {/* Video preview text info overlay */}
               <div className="absolute bottom-3 left-1/2 -translate-x-1/2 text-[8px] font-bold text-slate-500 uppercase tracking-widest font-mono select-none z-20">
                 {cameraActive ? 'CAMERA TERMINAL ACTIVE' : 'ACTIVE TERMINAL FEED: Ready'}
               </div>

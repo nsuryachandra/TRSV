@@ -78,18 +78,22 @@ export default function Home() {
                 <PremiumButton 
                   variant="primary" 
                   size="lg" 
-                  icon={<ShieldAlert className="w-5 h-5" />}
                   onClick={() => navigate('/signup')}
                 >
-                  Register a Complaint
+                  <div className="flex flex-col items-start leading-tight text-left">
+                    <span className="font-extrabold text-base sm:text-lg">Create New Account</span>
+                    <span className="text-[11px] opacity-90 font-medium tracking-wide">To Register a Complaint</span>
+                  </div>
                 </PremiumButton>
                 <PremiumButton 
                   variant="secondary" 
                   size="lg" 
-                  icon={<ArrowRight className="w-5 h-5" />}
                   onClick={() => navigate('/login')}
                 >
-                  Admin Login
+                  <div className="flex flex-col items-start leading-tight text-left">
+                    <span className="font-extrabold text-base sm:text-lg">Login</span>
+                    <span className="text-[11px] opacity-90 font-medium tracking-wide">Admins also can login</span>
+                  </div>
                 </PremiumButton>
               </>
             )}

@@ -106,19 +106,23 @@ export default function RootLayout() {
                 <PremiumButton 
                   variant="glow" 
                   size="sm" 
-                  icon={<MessageCircle className="w-4 h-4" />}
                   onClick={() => navigate('/signup')}
                 >
-                  Register a Complaint
+                  <div className="flex flex-col items-start leading-tight text-left">
+                    <span className="font-extrabold text-xs">Create New Account</span>
+                    <span className="text-[9px] opacity-75 font-normal lowercase">To register a complaint</span>
+                  </div>
                 </PremiumButton>
                 
                 <PremiumButton 
                   variant="secondary" 
                   size="sm" 
-                  icon={<Key className="w-4 h-4" />}
                   onClick={() => navigate('/login')}
                 >
-                  Admin Login
+                  <div className="flex flex-col items-start leading-tight text-left">
+                    <span className="font-extrabold text-xs">Login</span>
+                    <span className="text-[9px] opacity-75 font-normal lowercase">admins also can login</span>
+                  </div>
                 </PremiumButton>
               </>
             )}
@@ -213,25 +217,29 @@ export default function RootLayout() {
                     variant="primary" 
                     size="md" 
                     className="w-full"
-                    icon={<MessageCircle className="w-4 h-4" />}
                     onClick={() => {
                       setMobileMenuOpen(false);
                       navigate('/signup');
                     }}
                   >
-                    Register a Complaint
+                    <div className="flex flex-col items-center leading-tight">
+                      <span className="font-extrabold text-sm">Create New Account</span>
+                      <span className="text-[10px] opacity-85 font-normal">To Register a Complaint</span>
+                    </div>
                   </PremiumButton>
                   <PremiumButton 
                     variant="secondary" 
                     size="md" 
                     className="w-full"
-                    icon={<Key className="w-4 h-4" />}
                     onClick={() => {
                       setMobileMenuOpen(false);
                       navigate('/login');
                     }}
                   >
-                    Admin Login
+                    <div className="flex flex-col items-center leading-tight">
+                      <span className="font-extrabold text-sm">Login</span>
+                      <span className="text-[10px] opacity-85 font-normal">Admins also can login</span>
+                    </div>
                   </PremiumButton>
                 </>
               )}
