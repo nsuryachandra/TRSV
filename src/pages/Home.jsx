@@ -92,7 +92,7 @@ export default function Home() {
                 >
                   <div className="flex flex-col items-start leading-tight text-left">
                     <span className="font-extrabold text-base sm:text-lg">Login</span>
-                    <span className="text-[11px] opacity-90 font-medium tracking-wide">Admins & Leaders</span>
+                    <span className="text-[11px] opacity-90 font-medium tracking-wide">Users & Admins</span>
                   </div>
                 </PremiumButton>
               </>
