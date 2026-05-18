@@ -148,6 +148,17 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`🚀 [Server] TSRV Phase 4 Governance backend live on http://localhost:${PORT}`);
   
+  // Ensure that users table has reset_otp and reset_otp_expires_at columns to make forgot-password recovery survive server cold starts!
+  pool.query(`
+    ALTER TABLE users 
+    ADD COLUMN IF NOT EXISTS reset_otp VARCHAR(6),
+    ADD COLUMN IF NOT EXISTS reset_otp_expires_at TIMESTAMP;
+  `).then(() => {
+    console.log('🔹 [Database] Users password recovery schema synchronized successfully.');
+  }).catch((err) => {
+    console.error('🚨 [Database] Failed to alter users schema for forgot-password:', err.message);
+  });
+
   // Launch the background automation scheduler (runs auto-escalation check every 4 hours)
   setTimeout(() => {
     runAutoEscalationJob().catch(err => console.error('Initial cron job error:', err.message));

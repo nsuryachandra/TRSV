@@ -541,18 +541,15 @@ router.post('/forgot-password', async (req, res) => {
     // Generate secure 6-digit Reset OTP
     const otpCode = (Math.floor(100000 + Math.random() * 900000)).toString();
 
-    // Initialize global.resetOtps if not defined
-    if (!global.resetOtps) {
-      global.resetOtps = {};
-    }
+    // Store OTP in database directly to survive server restarts/sleeps!
+    await query(
+      `UPDATE users 
+       SET reset_otp = $1, reset_otp_expires_at = NOW() + INTERVAL '15 minutes' 
+       WHERE LOWER(email) = LOWER($2)`,
+      [otpCode, cleanEmail]
+    );
 
-    // Store OTP in memory (expires in 15 minutes)
-    global.resetOtps[cleanEmail] = {
-      code: otpCode,
-      expiresAt: Date.now() + 15 * 60 * 1000
-    };
-
-    console.log(`🔑 [Password Reset OTP] Generated code ${otpCode} for student: ${cleanEmail}`);
+    console.log(`🔑 [Password Reset OTP] Generated code ${otpCode} and stored in DB for student: ${cleanEmail}`);
 
     const smtpUser = process.env.SMTP_USER;
     const smtpPass = process.env.SMTP_PASS;
@@ -623,46 +620,48 @@ router.post('/reset-password', async (req, res) => {
 
   const cleanEmail = email.trim().toLowerCase();
 
-  if (!global.resetOtps || !global.resetOtps[cleanEmail]) {
-    return res.status(400).json({ success: false, message: 'No active recovery request found for this email address.' });
-  }
-
-  const record = global.resetOtps[cleanEmail];
-  if (Date.now() > record.expiresAt) {
-    delete global.resetOtps[cleanEmail];
-    return res.status(400).json({ success: false, message: 'Recovery verification code has expired. Please request a new code.' });
-  }
-
-  if (record.code !== code.trim()) {
-    return res.status(400).json({ success: false, message: 'Invalid 6-digit recovery code.' });
-  }
-
   try {
-    // Generate new secure password hash
-    const passwordHash = hashPassword(newPassword);
-
-    // Update password in Neon PostgreSQL database
-    const updateResult = await query(
-      'UPDATE users SET password_hash = $1, updated_at = NOW() WHERE LOWER(email) = LOWER($2) AND role = $3 RETURNING id',
-      [passwordHash, cleanEmail, 'student']
+    // Check if the user exists, matches role, and has the stored reset_otp
+    const userQuery = await query(
+      'SELECT * FROM users WHERE LOWER(email) = LOWER($1) AND role = $2',
+      [cleanEmail, 'student']
     );
 
-    if (updateResult.rows.length === 0) {
+    if (userQuery.rows.length === 0) {
       return res.status(404).json({ success: false, message: 'Student account not found or unauthorized.' });
     }
 
-    const userId = updateResult.rows[0].id;
+    const user = userQuery.rows[0];
 
-    // Clean memory store
-    if (global.resetOtps && global.resetOtps[cleanEmail]) {
-      delete global.resetOtps[cleanEmail];
+    if (!user.reset_otp || user.reset_otp !== code.trim()) {
+      return res.status(400).json({ success: false, message: 'Invalid 6-digit recovery code.' });
     }
+
+    if (new Date() > new Date(user.reset_otp_expires_at)) {
+      // Clear expired OTP
+      await query(
+        'UPDATE users SET reset_otp = NULL, reset_otp_expires_at = NULL WHERE id = $1',
+        [user.id]
+      );
+      return res.status(400).json({ success: false, message: 'Recovery verification code has expired. Please request a new code.' });
+    }
+
+    // Generate new secure password hash
+    const passwordHash = hashPassword(newPassword);
+
+    // Update password and clear reset fields in Neon PostgreSQL database
+    await query(
+      `UPDATE users 
+       SET password_hash = $1, reset_otp = NULL, reset_otp_expires_at = NULL, updated_at = NOW() 
+       WHERE id = $2`,
+      [passwordHash, user.id]
+    );
 
     // Write audit log
     await query('INSERT INTO activity_logs (user_id, action, details) VALUES ($1, $2, $3)', [
-      userId,
+      user.id,
       'PASSWORD_RESET',
-      'Student account access credentials updated and reset successfully'
+      'Student account access credentials updated and reset successfully via DB-backed OTP'
     ]);
 
     console.log(`✅ [Password Reset Success] Password reset successfully for student: ${cleanEmail}`);
