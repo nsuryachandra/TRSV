@@ -164,16 +164,21 @@ export default function DigitalIdCard() {
     ctx.font = 'bold 12px Outfit, sans-serif';
     ctx.fillText(`VERIFIED OFFICIAL [${identity?.verification_status || 'ACTIVE'}]`, 24, 335);
 
-    // Simulated QR Placement Box
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(410, 100, 150, 150);
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(425, 115, 120, 120);
-    // Overlay dummy white modules to resemble scannable QR
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(445, 135, 80, 80);
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(465, 155, 40, 40);
+    // Draw Circular Verification Security Seal instead of Front QR
+    ctx.fillStyle = cardTheme === 'dark' ? 'rgba(34, 211, 238, 0.1)' : 'rgba(14, 165, 233, 0.1)';
+    ctx.strokeStyle = cardTheme === 'dark' ? '#22d3ee' : '#0ea5e9';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(485, 175, 45, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = cardTheme === 'dark' ? '#22d3ee' : '#0ea5e9';
+    ctx.font = 'bold 11px Outfit, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('VERIFIED', 485, 170);
+    ctx.fillText('SECURE', 485, 185);
+    ctx.textAlign = 'left';
 
     link.href = canvas.toDataURL('image/png');
     link.click();
@@ -318,13 +323,10 @@ export default function DigitalIdCard() {
                     </span>
                   </div>
 
-                  {/* Dynamic scannable QR thumbnail code */}
-                  <div className="p-1 rounded-lg bg-white shrink-0 border border-slate-300/30 shadow-glow-cyan/5">
-                    <img 
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=${window.location.origin}/#/verify/${identity?.qr_token}`} 
-                      alt="Scannable Security QR" 
-                      className="w-8 h-8"
-                    />
+                  {/* Holographic Security seal instead of small QR */}
+                  <div className="flex flex-col items-center justify-center border border-cyan-500/30 bg-cyan-500/10 px-2 py-1 rounded-lg shadow-glow-cyan/5 shrink-0 select-none">
+                    <ShieldCheck className="w-5 h-5 text-cyan-400 animate-pulse" />
+                    <span className="text-[6px] font-black uppercase tracking-widest text-cyan-400 mt-0.5">SECURE</span>
                   </div>
                 </div>
               </div>
@@ -332,33 +334,44 @@ export default function DigitalIdCard() {
               {/* --- BACK SIDE --- */}
               <div className="absolute inset-0 p-6 flex flex-col justify-between backface-hidden rotate-y-180 z-20 bg-inherit rounded-2xl">
                 {/* Back card Header */}
-                <div className="flex items-center justify-between">
-                  <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Union Security Chip</span>
-                  <div className="w-8 h-6 rounded bg-gradient-to-tr from-amber-500 to-amber-300 relative overflow-hidden border border-amber-600/30">
+                <div className="flex items-center justify-between border-b border-slate-200/10 dark:border-slate-800/50 pb-2">
+                  <div className="flex flex-col text-left">
+                    <span className="text-[9px] font-black tracking-widest text-cyan-400 uppercase">TSRV DATABASE GRID</span>
+                    <span className="text-[6px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-widest mt-0.5 font-sans">Verification Portal</span>
+                  </div>
+                  <div className="w-8 h-6 rounded bg-gradient-to-tr from-amber-500 to-amber-300 relative overflow-hidden border border-amber-600/30 shrink-0">
                     <div className="absolute top-1/2 left-0 right-0 h-[1px] bg-amber-700/40" />
                     <div className="absolute left-1/2 top-0 bottom-0 w-[1px] bg-amber-700/40" />
                   </div>
                 </div>
 
-                {/* Back card Middle: Guidelines */}
-                <div className="text-[8px] text-slate-400 leading-relaxed text-left flex flex-col gap-1.5 my-1.5 border-l border-cyan-500/20 pl-3">
-                  <p className="font-extrabold uppercase text-cyan-400 tracking-wider">OFFICIAL SYSTEM DISCLOSURE</p>
-                  <p>This digital identity wallet represents an authorized representative node of the Telangana Rakshana Sena Vidyarthi Vibhagam (TSRV).</p>
-                  <p>Scan the front QR code to verify active database records, grievance resolution performance logs, and commission boundaries.</p>
+                {/* Back card Middle: LARGE CENTRAL QR CODE */}
+                <div className="flex flex-col items-center justify-center my-auto gap-1.5 py-1.5">
+                  <div className="p-1.5 rounded-xl bg-white border border-cyan-500/20 shadow-glow-cyan/15 flex items-center justify-center shrink-0">
+                    <img 
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(window.location.origin + '/#/verify/' + identity?.qr_token)}`} 
+                      alt="Scannable Security QR" 
+                      className="w-24 h-24"
+                    />
+                  </div>
+                  <div className="flex flex-col items-center gap-0.5 mt-0.5">
+                    <span className="text-[7px] font-black text-cyan-400 tracking-widest uppercase">SCAN TO AUDIT PROFILE</span>
+                    <span className="text-[5px] text-slate-500 dark:text-slate-400 uppercase tracking-widest font-mono">NEON POSTGRESQL HOSTED LEDGER</span>
+                  </div>
                 </div>
 
                 {/* Back Card Footer: Support info */}
-                <div className="flex items-end justify-between border-t border-slate-200/20 dark:border-slate-800/80 pt-2.5">
+                <div className="flex items-end justify-between border-t border-slate-200/10 dark:border-slate-800/50 pt-2">
                   <div className="flex flex-col text-left">
-                    <span className="text-[7px] text-slate-400 uppercase tracking-widest">TSRV Support</span>
-                    <span className="text-[9px] font-bold mt-1 text-slate-350 flex items-center gap-1">
-                      support@tsrv.org
+                    <span className="text-[6px] text-slate-450 dark:text-slate-500 uppercase tracking-widest">System Node</span>
+                    <span className="text-[8px] font-extrabold text-slate-350 dark:text-slate-200 mt-0.5 font-mono">
+                      TSRV-V2.5.0
                     </span>
                   </div>
                   <div className="flex flex-col text-right">
-                    <span className="text-[7px] text-slate-400 uppercase tracking-widest">Node Region</span>
-                    <span className="text-[9px] font-bold text-slate-350 mt-0.5">
-                      {userProfile?.constituency_name || 'State Headquarters'}
+                    <span className="text-[6px] text-slate-450 dark:text-slate-500 uppercase tracking-widest">Node Region</span>
+                    <span className="text-[8px] font-extrabold text-slate-350 dark:text-slate-200 mt-0.5">
+                      {userProfile?.constituency_name || 'Statewide Command'}
                     </span>
                   </div>
                 </div>
