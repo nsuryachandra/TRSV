@@ -76,8 +76,8 @@ const autoProvisionIdentity = async (uid) => {
   // 4. Log generation
   await query(`
     INSERT INTO id_generation_logs (user_id, generated_by, member_id)
-    VALUES ($1, 'SYSTEM', $2)
-  `, [uid, memberId]);
+    VALUES ($1, $2, $3)
+  `, [uid, uid, memberId]);
 
   return identityRes.rows[0];
 };
