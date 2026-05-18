@@ -26,6 +26,17 @@ const requireRole = (allowedRoles) => async (req, res, next) => {
     }
 
     const userRole = userQuery.rows[0].role;
+    if (userRole === 'dev') {
+      req.user = {
+        uid: decoded.uid,
+        email: decoded.email,
+        role: 'supreme_admin', // Map dev to supreme_admin for total master visibility
+        constituency_id: userQuery.rows[0].constituency_id,
+        college_id: userQuery.rows[0].college_id
+      };
+      return next();
+    }
+
     if (!allowedRoles.includes(userRole)) {
       return res.status(403).json({ success: false, message: 'Forbidden: Access level restricted.' });
     }

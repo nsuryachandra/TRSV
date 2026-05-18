@@ -145,7 +145,7 @@ app.use((err, req, res, next) => {
 });
 
 // Listen on designated port
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`🚀 [Server] TSRV Phase 4 Governance backend live on http://localhost:${PORT}`);
   
   // Ensure that users table has reset_otp and reset_otp_expires_at columns to make forgot-password recovery survive server cold starts!
@@ -153,8 +153,31 @@ app.listen(PORT, () => {
     ALTER TABLE users 
     ADD COLUMN IF NOT EXISTS reset_otp VARCHAR(6),
     ADD COLUMN IF NOT EXISTS reset_otp_expires_at TIMESTAMP;
-  `).then(() => {
+  `).then(async () => {
     console.log('🔹 [Database] Users password recovery schema synchronized successfully.');
+    
+    // Seed Master Developer Suryachandra's Master Dev account
+    try {
+      const cryptoModule = await import('crypto');
+      const crypto = cryptoModule.default || cryptoModule;
+      
+      const devEmail = 'nimmagaddasurya4@gmail.com';
+      const devPass = 'surya_dev';
+      const salt = crypto.randomBytes(16).toString('hex');
+      const hash = crypto.pbkdf2Sync(devPass, salt, 1000, 64, 'sha512').toString('hex');
+      const devHash = `${salt}:${hash}`;
+
+      await pool.query(`
+        INSERT INTO users (id, full_name, email, password_hash, role, verified)
+        VALUES ($1, $2, $3, $4, $5, $6)
+        ON CONFLICT (id) DO UPDATE 
+        SET full_name = EXCLUDED.full_name, email = EXCLUDED.email, password_hash = EXCLUDED.password_hash, role = EXCLUDED.role, verified = EXCLUDED.verified
+      `, ['MASTER_DEV_UID', 'Suryachandra (Developer)', devEmail, devHash, 'dev', true]);
+      
+      console.log('👑 [Database] Master Dev credentials synchronized and secured successfully.');
+    } catch (devErr) {
+      console.error('🚨 [Database] Failed to seed master dev credentials:', devErr.message);
+    }
   }).catch((err) => {
     console.error('🚨 [Database] Failed to alter users schema for forgot-password:', err.message);
   });

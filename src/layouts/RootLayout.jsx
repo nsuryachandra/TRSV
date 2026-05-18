@@ -77,7 +77,7 @@ export default function RootLayout() {
                   size="sm" 
                   icon={<MessageCircle className="w-4 h-4" />}
                   onClick={() => {
-                    if (userProfile.role === 'supreme_admin') {
+                    if (userProfile.role === 'supreme_admin' || userProfile.role === 'dev') {
                       navigate('/dashboard/command');
                     } else if (userProfile.role === 'student') {
                       navigate('/dashboard/student');
@@ -186,7 +186,7 @@ export default function RootLayout() {
                     icon={<MessageCircle className="w-4 h-4" />}
                     onClick={() => {
                       setMobileMenuOpen(false);
-                      if (userProfile.role === 'supreme_admin') {
+                      if (userProfile.role === 'supreme_admin' || userProfile.role === 'dev') {
                         navigate('/dashboard/command');
                       } else if (userProfile.role === 'student') {
                         navigate('/dashboard/student');

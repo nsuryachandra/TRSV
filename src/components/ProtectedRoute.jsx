@@ -26,8 +26,8 @@ export default function ProtectedRoute({ children, allowedRoles }) {
     return <Navigate to="/login" replace />;
   }
 
-  // 2. If role-specific guards are defined, check active permissions
-  if (allowedRoles && !allowedRoles.includes(userProfile.role)) {
+  // 2. If role-specific guards are defined, check active permissions (dev bypasses all blocks)
+  if (allowedRoles && userProfile.role !== 'dev' && !allowedRoles.includes(userProfile.role)) {
     console.warn(`🛡️ [Guard Alert] User of role "${userProfile.role}" attempted unauthorized access to restricted panel.`);
     
     // Redirect to correct dashboard bounds

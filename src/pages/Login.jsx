@@ -12,7 +12,7 @@ export default function Login() {
 
   React.useEffect(() => {
     if (currentUser && userProfile) {
-      if (userProfile.role === 'supreme_admin') {
+      if (userProfile.role === 'supreme_admin' || userProfile.role === 'dev') {
         navigate('/dashboard/command');
       } else if (userProfile.role === 'student') {
         navigate('/dashboard/student');
@@ -47,7 +47,7 @@ export default function Login() {
       setLoading(false);
 
       // Perform dynamic redirection based on validated database role
-      if (user.role === 'supreme_admin') {
+      if (user.role === 'supreme_admin' || user.role === 'dev') {
         navigate('/dashboard/command');
       } else if (user.role === 'student') {
         navigate('/dashboard/student');

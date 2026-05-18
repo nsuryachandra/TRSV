@@ -50,7 +50,7 @@ export default function Home() {
                   size="lg" 
                   icon={<ShieldCheck className="w-5 h-5" />}
                   onClick={() => {
-                    if (userProfile.role === 'supreme_admin') {
+                    if (userProfile.role === 'supreme_admin' || userProfile.role === 'dev') {
                       navigate('/dashboard/command');
                     } else if (userProfile.role === 'student') {
                       navigate('/dashboard/student');
@@ -460,7 +460,7 @@ export default function Home() {
                   variant="primary" 
                   size="md" 
                   onClick={() => {
-                    if (userProfile.role === 'supreme_admin') {
+                    if (userProfile.role === 'supreme_admin' || userProfile.role === 'dev') {
                       navigate('/dashboard/command');
                     } else if (userProfile.role === 'student') {
                       navigate('/dashboard/student');

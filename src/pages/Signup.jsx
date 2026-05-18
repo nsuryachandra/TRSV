@@ -11,7 +11,7 @@ export default function Signup() {
 
   React.useEffect(() => {
     if (currentUser && userProfile) {
-      if (userProfile.role === 'supreme_admin') {
+      if (userProfile.role === 'supreme_admin' || userProfile.role === 'dev') {
         navigate('/dashboard/command');
       } else if (userProfile.role === 'student') {
         navigate('/dashboard/student');
