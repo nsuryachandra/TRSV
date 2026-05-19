@@ -194,7 +194,7 @@ export default function HubChat({ user }) {
       <div className="col-span-1 border-r border-slate-800/85 pr-4 flex flex-col h-full overflow-hidden">
         <div className="flex items-center gap-2 mb-4">
           <MessageSquare className="w-5 h-5 text-cyan-400" />
-          <h3 className="font-bold text-slate-100 text-lg tracking-wide">Governance Rooms</h3>
+          <h3 className="font-bold text-slate-100 text-lg tracking-wide">Messenger</h3>
         </div>
 
         {/* Channels List */}
