@@ -300,8 +300,15 @@ const handleAssignLeaderLogic = async (req, res) => {
     ]);
 
     // Send direct SMTP invitation / update email if the user is set to an admin/leader role
+    const isPreviousAdmin = ['secretary', 'general_secretary', 'vice_president', 'president', 'supreme_admin'].includes(previousRole);
     const isNewAdmin = ['secretary', 'general_secretary', 'vice_president', 'president', 'supreme_admin'].includes(role);
-    if (isNewAdmin && finalEmail) {
+    const isRoleChanged = previousRole !== role;
+    const isMailChanged = newEmail && newEmail.trim() !== '' && newEmail.trim().toLowerCase() !== oldEmail.toLowerCase();
+
+    // Trigger welcome mail ONLY if they are newly made an admin, OR their admin role changed, OR their email was changed!
+    const shouldSendEmail = (isNewAdmin && !isPreviousAdmin) || (isNewAdmin && isRoleChanged) || (isNewAdmin && isMailChanged);
+
+    if (shouldSendEmail && finalEmail) {
       const smtpUser = process.env.SMTP_USER;
       const smtpPass = process.env.SMTP_PASS;
 
@@ -320,7 +327,7 @@ const handleAssignLeaderLogic = async (req, res) => {
             tls: { rejectUnauthorized: false }
           });
 
-          const isMailChanged = newEmail && newEmail.trim() !== '' && newEmail.trim().toLowerCase() !== oldEmail.toLowerCase();
+
           const emailSubject = isMailChanged
             ? `[TSRV SECURITY GRID] Admin Credentials Calibrated - New Email Access`
             : `[TSRV SECURITY GRID] Administrative Access Granted - Role: ${role.toUpperCase()}`;
