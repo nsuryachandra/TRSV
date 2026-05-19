@@ -8,9 +8,14 @@ export default function HubChat({ user }) {
   const [newMessage, setNewMessage] = useState('');
   const [currentChannel, setCurrentChannel] = useState('GH-Global');
   const [constituencies, setConstituencies] = useState([]);
+  const [activeChannels, setActiveChannels] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [typingUsers, setTypingUsers] = useState({}); // format: { userId: { name, role } }
   const [socketConnected, setSocketConnected] = useState(false);
+
+  // Editing state
+  const [editingMessageId, setEditingMessageId] = useState(null);
+  const [editingText, setEditingText] = useState('');
 
   const socketRef = useRef(null);
   const messagesEndRef = useRef(null);
@@ -18,7 +23,24 @@ export default function HubChat({ user }) {
 
   const isDevOrSupreme = user.role === 'dev' || user.role === 'supreme_admin';
 
-  // 1. Fetch constituencies if user is Dev or Supreme Admin to enable channel switching
+  // 1. Fetch active channels for Dev / Supreme
+  const fetchActiveChannels = () => {
+    if (isDevOrSupreme) {
+      const token = localStorage.getItem('tsrv_session_token') || localStorage.getItem('token') || sessionStorage.getItem('token');
+      fetch('/api/chat/active-channels', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            setActiveChannels(data.channels);
+          }
+        })
+        .catch(err => console.error('Failed to load active channels:', err));
+    }
+  };
+
+  // 2. Fetch constituencies if user is Dev or Supreme Admin to enable channel override switcher
   useEffect(() => {
     if (isDevOrSupreme) {
       fetch('/api/constituencies')
@@ -29,10 +51,12 @@ export default function HubChat({ user }) {
           }
         })
         .catch(err => console.error('Failed to load constituencies:', err));
+      
+      fetchActiveChannels();
     }
   }, [isDevOrSupreme]);
 
-  // 2. Configure socket connection
+  // 3. Configure socket connection
   useEffect(() => {
     const socketUrl = import.meta.env.DEV ? 'http://localhost:5000' : window.location.origin;
     
@@ -62,6 +86,15 @@ export default function HubChat({ user }) {
           return [...prev, msg];
         });
       }
+      // Refresh active channels list dynamically
+      fetchActiveChannels();
+    });
+
+    // Message edited listener
+    socketRef.current.on('message_edited', (editedMsg) => {
+      if (editedMsg.channel_id === currentChannel) {
+        setMessages(prev => prev.map(m => m.id === editedMsg.id ? { ...m, message_text: editedMsg.message_text, is_edited: true } : m));
+      }
     });
 
     // Typing listeners
@@ -89,9 +122,9 @@ export default function HubChat({ user }) {
     };
   }, [currentChannel, user.id]);
 
-  // 3. Load historical messages on channel switch
+  // 4. Load historical messages on channel switch
   useEffect(() => {
-    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    const token = localStorage.getItem('tsrv_session_token') || localStorage.getItem('token') || sessionStorage.getItem('token');
     fetch(`/api/chat/history/${currentChannel}`, {
       headers: {
         'Authorization': `Bearer ${token}`
@@ -116,12 +149,12 @@ export default function HubChat({ user }) {
     }
   }, [currentChannel]);
 
-  // 4. Scroll to bottom
+  // 5. Scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, typingUsers]);
 
-  // 5. Typing Handlers
+  // 6. Typing Handlers
   const handleTyping = () => {
     if (!socketRef.current) return;
 
@@ -147,7 +180,7 @@ export default function HubChat({ user }) {
     }, 2000);
   };
 
-  // 6. Send Message handler
+  // 7. Send Message handler
   const handleSendMessage = (e) => {
     e.preventDefault();
     if (!newMessage.trim() || !socketRef.current) return;
@@ -198,50 +231,89 @@ export default function HubChat({ user }) {
         </div>
 
         {/* Channels List */}
-        <div className="space-y-2 flex-1 overflow-y-auto pr-1">
-          {/* Global channel */}
-          <button
-            onClick={() => setCurrentChannel('GH-Global')}
-            className={`w-full text-left p-3 rounded-xl flex items-center gap-3 transition-all duration-200 ${
-              currentChannel === 'GH-Global'
-                ? 'bg-cyan-500/15 border border-cyan-500/30 text-cyan-200'
-                : 'bg-slate-850/40 border border-transparent text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'
-            }`}
-          >
-            <div className="p-2 rounded-lg bg-slate-800/80">
-              <Users className="w-4 h-4 text-cyan-400" />
-            </div>
-            <div>
-              <div className="font-bold text-sm">Statewide Lounge</div>
-              <div className="text-[10px] text-slate-500">All State Admins</div>
-            </div>
-          </button>
-
-          {/* Regular Admin Constituency channel */}
-          {!isDevOrSupreme && user.constituency_name && (
+        <div className="space-y-4 flex-1 overflow-y-auto pr-1">
+          {/* Main Lounges */}
+          <div className="space-y-2">
+            {/* Global channel */}
             <button
-              onClick={() => setCurrentChannel(`GH-Constituency-${user.constituency_name}`)}
+              onClick={() => setCurrentChannel('GH-Global')}
               className={`w-full text-left p-3 rounded-xl flex items-center gap-3 transition-all duration-200 ${
-                currentChannel === `GH-Constituency-${user.constituency_name}`
+                currentChannel === 'GH-Global'
                   ? 'bg-cyan-500/15 border border-cyan-500/30 text-cyan-200'
                   : 'bg-slate-850/40 border border-transparent text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'
               }`}
             >
               <div className="p-2 rounded-lg bg-slate-800/80">
-                <Shield className="w-4 h-4 text-emerald-400" />
+                <Users className="w-4 h-4 text-cyan-400" />
               </div>
               <div>
-                <div className="font-bold text-sm">{user.constituency_name} Chat</div>
-                <div className="text-[10px] text-slate-500">Local Area Group</div>
+                <div className="font-bold text-sm">Statewide Lounge</div>
+                <div className="text-[10px] text-slate-500">All State Admins</div>
               </div>
             </button>
+
+            {/* Regular Admin Constituency channel */}
+            {!isDevOrSupreme && user.constituency_name && (
+              <button
+                onClick={() => setCurrentChannel(`GH-Constituency-${user.constituency_name}`)}
+                className={`w-full text-left p-3 rounded-xl flex items-center gap-3 transition-all duration-200 ${
+                  currentChannel === `GH-Constituency-${user.constituency_name}`
+                    ? 'bg-cyan-500/15 border border-cyan-500/30 text-cyan-200'
+                    : 'bg-slate-850/40 border border-transparent text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'
+                }`}
+              >
+                <div className="p-2 rounded-lg bg-slate-800/80">
+                  <Shield className="w-4 h-4 text-emerald-400" />
+                </div>
+                <div>
+                  <div className="font-bold text-sm">{user.constituency_name} Chat</div>
+                  <div className="text-[10px] text-slate-500">Local Area Group</div>
+                </div>
+              </button>
+            )}
+          </div>
+
+          {/* Dev/Supreme Admin Active Groups list */}
+          {isDevOrSupreme && activeChannels.filter(c => c.channel_id !== 'GH-Global').length > 0 && (
+            <div className="pt-2 flex flex-col border-t border-slate-800/60">
+              <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest px-1 block mb-2">
+                Active Group Chats
+              </span>
+              <div className="space-y-1.5 max-h-[160px] overflow-y-auto pr-1">
+                {activeChannels.filter(c => c.channel_id !== 'GH-Global').map((ch, idx) => {
+                  const isActive = currentChannel === ch.channel_id;
+                  const constituencyName = ch.channel_id.replace('GH-Constituency-', '');
+                  return (
+                    <button
+                      key={ch.channel_id}
+                      onClick={() => setCurrentChannel(ch.channel_id)}
+                      className={`w-full text-left p-2.5 rounded-xl border transition-all duration-200 ${
+                        isActive
+                          ? 'bg-cyan-500/15 border-cyan-500/30 text-cyan-200 font-bold'
+                          : 'bg-slate-850/30 border-transparent text-slate-450 hover:bg-slate-800/40 hover:text-slate-200'
+                      }`}
+                    >
+                      <div className="text-xs flex items-center justify-between">
+                        <span>Group {idx + 1}: {constituencyName}</span>
+                        {isActive && <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />}
+                      </div>
+                      {ch.participants && ch.participants.length > 0 && (
+                        <div className="text-[9px] text-slate-500 mt-1 truncate">
+                          👥 {ch.participants.map(p => `${p.name} (${formatRole(p.role)})`).join(', ')}
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           )}
 
           {/* Dev or Supreme Admin: Full dropdown access switcher */}
           {isDevOrSupreme && (
-            <div className="pt-2 flex flex-col h-[calc(100%-80px)]">
-              <span className="text-[11px] font-bold text-rose-400 uppercase tracking-widest px-1 block mb-2">
-                Constituency Overrides
+            <div className="pt-2 flex flex-col border-t border-slate-800/60">
+              <span className="text-[10px] font-bold text-rose-400 uppercase tracking-widest px-1 block mb-2">
+                All Area Switcher
               </span>
               
               {/* Search bar */}
@@ -257,7 +329,7 @@ export default function HubChat({ user }) {
               </div>
 
               {/* Scrollable list */}
-              <div className="space-y-1 overflow-y-auto flex-1 max-h-[350px] pr-1">
+              <div className="space-y-1 overflow-y-auto max-h-[160px] pr-1">
                 {filteredConstituencies.map((c) => {
                   const channelKey = `GH-Constituency-${c.constituency_name}`;
                   const isActive = currentChannel === channelKey;
@@ -265,7 +337,7 @@ export default function HubChat({ user }) {
                     <button
                       key={c.id}
                       onClick={() => setCurrentChannel(channelKey)}
-                      className={`w-full text-left py-2 px-3 rounded-lg text-xs transition-all duration-200 flex items-center justify-between ${
+                      className={`w-full text-left py-2 px-3 rounded-lg text-[11px] transition-all duration-200 flex items-center justify-between ${
                         isActive
                           ? 'bg-rose-500/10 border border-rose-500/30 text-rose-300 font-bold'
                           : 'bg-slate-950/20 border border-transparent text-slate-400 hover:bg-slate-800/40 hover:text-slate-300'
@@ -334,6 +406,19 @@ export default function HubChat({ user }) {
                   <span className="text-slate-500">
                     {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </span>
+                  
+                  {isMe && editingMessageId !== msg.id && (
+                    <button 
+                      onClick={() => {
+                        setEditingMessageId(msg.id);
+                        setEditingText(msg.message_text);
+                      }}
+                      className="text-slate-500 hover:text-cyan-400 ml-1 transition-colors duration-150 text-[10px]"
+                      title="Edit message"
+                    >
+                      ✏️ Edit
+                    </button>
+                  )}
                 </div>
 
                 {/* Message Bubble */}
@@ -344,7 +429,53 @@ export default function HubChat({ user }) {
                       : `bg-slate-850/60 text-slate-200 border-slate-700/50 rounded-tl-none ${roleStyle.glow}`
                   }`}
                 >
-                  {msg.message_text}
+                  {editingMessageId === msg.id ? (
+                    <div className="flex flex-col gap-2 min-w-[200px] text-slate-900">
+                      <textarea
+                        value={editingText}
+                        onChange={(e) => setEditingText(e.target.value)}
+                        className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-100 focus:outline-none focus:border-cyan-500"
+                        rows={2}
+                      />
+                      <div className="flex justify-end gap-2 text-[10px]">
+                        <button 
+                          type="button"
+                          onClick={() => setEditingMessageId(null)}
+                          className="px-2 py-1 rounded bg-slate-800 text-slate-400 hover:bg-slate-750"
+                        >
+                          Cancel
+                        </button>
+                        <button 
+                          type="button"
+                          onClick={() => {
+                            if (editingText.trim() && socketRef.current) {
+                              socketRef.current.emit('edit_message', {
+                                id: msg.id,
+                                channel_id: currentChannel,
+                                message_text: editingText.trim()
+                              });
+                            }
+                            setEditingMessageId(null);
+                          }}
+                          className="px-2 py-1 rounded bg-cyan-600 text-white hover:bg-cyan-500"
+                        >
+                          Save
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div>
+                      <span className="break-all whitespace-pre-wrap">{msg.message_text}</span>
+                      {msg.is_edited && (
+                        <span 
+                          className="text-[9px] text-cyan-400/90 ml-1.5 italic font-medium select-none bg-cyan-950/40 border border-cyan-800/40 px-1.5 py-0.5 rounded-full" 
+                          title="Message edited. Stored permanently for security audits."
+                        >
+                          edited
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             );

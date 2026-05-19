@@ -77,6 +77,7 @@ router.get('/history/:channel_id', authenticateAdmin, async (req, res) => {
         m.message_text, 
         m.created_at, 
         m.sender_id, 
+        m.is_edited,
         u.full_name as sender_name, 
         u.role as sender_role
       FROM chat_messages m
@@ -89,6 +90,37 @@ router.get('/history/:channel_id', authenticateAdmin, async (req, res) => {
     res.json({ success: true, messages: messagesQuery.rows });
   } catch (err) {
     console.error('🚨 [Chat API Error]:', err.message);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+/**
+ * GET /active-channels
+ * Fetches all channels that currently contain chat history along with active participant profiles (Dev/Supreme only)
+ */
+router.get('/active-channels', authenticateAdmin, async (req, res) => {
+  const user = req.user;
+  if (user.role !== 'dev' && user.role !== 'supreme_admin') {
+    return res.status(403).json({ success: false, message: 'Access restricted to developers and supreme administrators.' });
+  }
+
+  try {
+    const result = await query(`
+      SELECT DISTINCT m.channel_id,
+        (
+          SELECT COALESCE(json_agg(json_build_object('name', u.full_name, 'role', u.role)), '[]'::json)
+          FROM (
+            SELECT DISTINCT sender_id 
+            FROM chat_messages 
+            WHERE channel_id = m.channel_id
+          ) msg_senders
+          JOIN users u ON u.id = msg_senders.sender_id
+        ) as participants
+      FROM chat_messages m
+    `);
+    res.json({ success: true, channels: result.rows });
+  } catch (err) {
+    console.error('🚨 [Chat API Active Channels Error]:', err.message);
     res.status(500).json({ success: false, error: err.message });
   }
 });

@@ -205,7 +205,29 @@ io.on('connection', (socket) => {
     }
   });
 
-  // 3. Typing Telemetry
+  // 3. Edit Message Telemetry (No delete allowed)
+  socket.on('edit_message', async (data) => {
+    const { id, channel_id, message_text } = data;
+    try {
+      // Update message text and set is_edited flag in PostgreSQL
+      const result = await pool.query(
+        `UPDATE chat_messages 
+         SET message_text = $1, is_edited = TRUE 
+         WHERE id = $2 
+         RETURNING id, channel_id, message_text, is_edited, created_at`,
+        [message_text, id]
+      );
+
+      if (result.rows.length > 0) {
+        // Broadcast edited message to the entire room
+        io.to(channel_id).emit('message_edited', result.rows[0]);
+      }
+    } catch (err) {
+      console.error('🚨 [Socket.io Message Edit Error]:', err.message);
+    }
+  });
+
+  // 4. Typing Telemetry
   socket.on('typing_start', (data) => {
     socket.to(data.channel_id).emit('typing_start', data);
   });
@@ -241,6 +263,7 @@ httpServer.listen(PORT, async () => {
           message_text TEXT NOT NULL,
           created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
         );
+        ALTER TABLE chat_messages ADD COLUMN IF NOT EXISTS is_edited BOOLEAN DEFAULT FALSE;
         CREATE INDEX IF NOT EXISTS idx_chat_messages_channel_id ON chat_messages(channel_id);
       `);
       console.log('🔹 [Database] Chat messages schema and indexes synchronized successfully.');
