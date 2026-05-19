@@ -157,7 +157,6 @@ export const AuthProvider = ({ children }) => {
    * Universal Login handler supporting both standard students and Supreme secret credentials
    */
   const login = async (email, password) => {
-    setLoading(true);
     try {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
@@ -178,10 +177,8 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('tsrv_role', data.user.role);
       localStorage.setItem('tsrv_cached_profile', JSON.stringify(data.user));
 
-      setLoading(false);
       return data.user;
     } catch (error) {
-      setLoading(false);
       throw error;
     }
   };
@@ -197,7 +194,6 @@ export const AuthProvider = ({ children }) => {
    * Student Signup handler with local database registration
    */
   const signup = async (email, password, fullName, phone, constituencyId, collegeId, profileImage) => {
-    setLoading(true);
     try {
       const response = await fetch('/api/auth/signup', {
         method: 'POST',
@@ -229,10 +225,8 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('tsrv_role', 'student');
       localStorage.setItem('tsrv_cached_profile', JSON.stringify(data.user));
       
-      setLoading(false);
       return data.user;
     } catch (error) {
-      setLoading(false);
       throw error;
     }
   };
@@ -241,12 +235,9 @@ export const AuthProvider = ({ children }) => {
    * Global Signout handler
    */
   const logout = async () => {
-    setLoading(true);
     try {
       handleSessionClear();
-      setLoading(false);
     } catch (error) {
-      setLoading(false);
       throw error;
     }
   };
