@@ -168,6 +168,56 @@ router.get('/verify/:token_or_id', async (req, res) => {
     // Fetch performance metrics
     const metricsQuery = await query('SELECT * FROM member_profile_metrics WHERE user_id = $1', [identity.user_id]);
 
+    // Build role-based timeline and statistics
+    let timeline = [];
+    let studentStats = null;
+
+    if (user.role === 'student') {
+      const filedQuery = await query('SELECT COUNT(*) as total FROM complaints WHERE student_id = $1', [user.id]);
+      const resolvedQuery = await query("SELECT COUNT(*) as resolved FROM complaints WHERE student_id = $1 AND status = 'Resolved'", [user.id]);
+      const pendingQuery = await query("SELECT COUNT(*) as pending FROM complaints WHERE student_id = $1 AND status != 'Resolved'", [user.id]);
+      
+      studentStats = {
+        total_complaints: parseInt(filedQuery.rows[0].total || 0),
+        resolved_complaints: parseInt(resolvedQuery.rows[0].resolved || 0),
+        pending_complaints: parseInt(pendingQuery.rows[0].pending || 0)
+      };
+
+      // Account created milestone
+      timeline.push({
+        date: new Date(user.created_at).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }),
+        event: 'Student Profile Created & Registered on TS-State Node'
+      });
+      
+      // Digital ID card issued milestone
+      timeline.push({
+        date: new Date(identity.issued_at).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }),
+        event: 'Digital Student ID Card Issued & QR Key Signed'
+      });
+
+      // Recent complaints milestones
+      const complaintsQuery = await query('SELECT title, created_at, status FROM complaints WHERE student_id = $1 ORDER BY created_at DESC LIMIT 3', [user.id]);
+      complaintsQuery.rows.forEach(c => {
+        timeline.push({
+          date: new Date(c.created_at).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }),
+          event: `Grievance Filed: "${c.title}" [Status: ${c.status}]`
+        });
+      });
+    } else {
+      const milestoneQuery = await query('SELECT event_name, event_date FROM leadership_activity WHERE user_id = $1 ORDER BY event_date DESC LIMIT 5', [user.id]);
+      timeline = milestoneQuery.rows.map(m => ({
+        date: new Date(m.event_date).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }),
+        event: m.event_name
+      }));
+
+      if (timeline.length === 0) {
+        timeline = [
+          { date: new Date(identity.issued_at).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }), event: 'Commissioned as Official State Representative' },
+          { date: new Date(user.created_at).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }), event: 'Governance Node Account Registered' }
+        ];
+      }
+    }
+
     // Check validation bounds
     let result = 'success';
     if (identity.revoked) {
@@ -190,7 +240,11 @@ router.get('/verify/:token_or_id', async (req, res) => {
       result,
       identity,
       profile: user,
-      metrics: metricsQuery.rows[0] || { issues_resolved: 0, issues_pending: 0, active_campaigns: 0, rating: 5.00, timeline: [] }
+      metrics: {
+        ...(metricsQuery.rows[0] || { issues_resolved: 0, issues_pending: 0, active_campaigns: 0, rating: 5.00 }),
+        timeline
+      },
+      studentStats
     });
 
   } catch (error) {
