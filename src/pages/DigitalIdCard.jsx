@@ -271,8 +271,8 @@ export default function DigitalIdCard() {
     ctx.fillStyle = '#cbd5e1';
     ctx.font = '9px Outfit, sans-serif';
     
-    const constituencyVal = `Constituency: ${userProfile?.constituency_name || 'State Headquarters'}`;
-    const campusVal = `Campus: ${userProfile?.college_name || 'Statewide Council Node'}`;
+    const constituencyVal = `Constituency: ${userProfile?.constituency_name || 'Not Registered'}`;
+    const campusVal = `Campus: ${userProfile?.college_name || 'Not Registered'}`;
     const issuedVal = `Issued: ${new Date(identity?.issued_at).toLocaleDateString()}`;
 
     ctx.fillText(constituencyVal, avatarX + avatarSize + 16, avatarY + 54);

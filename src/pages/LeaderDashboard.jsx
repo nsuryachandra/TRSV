@@ -272,7 +272,7 @@ export default function LeaderDashboard() {
                       <div className="flex flex-col text-left">
                         <span className="font-bold text-sm text-slate-850 dark:text-white">{item.title}</span>
                         <span className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider">
-                          {item.college_name || 'Statewide Area'} • Ticket #{item.id} • Student: {item.student_name || 'Anonymous Advocate'}
+                          {item.college_name || 'Statewide Area'} • Ticket #{item.id} • Student: {item.student_name || 'Anonymous Student'}
                         </span>
                         <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 line-clamp-1 italic max-w-xl">
                           "{item.description}"

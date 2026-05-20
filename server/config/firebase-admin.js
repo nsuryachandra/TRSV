@@ -51,7 +51,7 @@ export const verifyIdToken = async (authHeader) => {
           return {
             uid: payload.uid || payload.sub,
             email: payload.email,
-            name: payload.name || 'Student advocate'
+            name: payload.name || 'Student'
           };
         }
       }

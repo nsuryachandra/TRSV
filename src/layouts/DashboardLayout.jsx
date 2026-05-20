@@ -542,7 +542,7 @@ export default function DashboardLayout() {
                 )}
                 <div className="hidden md:flex flex-col text-left">
                   <span className="text-[10px] font-extrabold text-slate-700 dark:text-white truncate max-w-[90px]">
-                    {userProfile?.full_name || 'Advocate'}
+                    {userProfile?.full_name || 'Student'}
                   </span>
                   <span className="text-[8px] text-slate-400 uppercase tracking-wider leading-none mt-0.5">
                     {userProfile?.role === 'supreme_admin' ? 'Supreme Leader' : userProfile?.role || 'Student'}

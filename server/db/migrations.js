@@ -114,7 +114,7 @@ async function runMigrations() {
       ['Safety Issues', 'Escalations of campus security risks, dangerous areas, or lighting'],
       ['Administration Problems', 'Delays in certificates, registry issues, or staff response time'],
       ['Abuse', 'Escalations of physical, verbal, or mental intimidation on campus'],
-      ['Other', 'Miscellaneous advocate grievances under state board jurisdiction']
+      ['Other', 'Miscellaneous student grievances under state board jurisdiction']
     ];
 
     for (const [name, desc] of categories) {

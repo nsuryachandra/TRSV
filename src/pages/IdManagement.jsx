@@ -410,7 +410,7 @@ export default function IdManagement() {
                           </div>
                         )}
                         <div className="flex flex-col min-w-0">
-                          <strong className="text-slate-800 dark:text-slate-200 font-bold truncate max-w-[140px]">{log.full_name || 'Advocate'}</strong>
+                          <strong className="text-slate-800 dark:text-slate-200 font-bold truncate max-w-[140px]">{log.full_name || 'User'}</strong>
                           <span className="text-[8px] font-mono text-cyan-400">{log.tsrv_member_id}</span>
                         </div>
                       </div>

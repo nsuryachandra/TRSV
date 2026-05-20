@@ -388,7 +388,7 @@ export default function CommandCenter() {
                 </div>
                 <div className="h-[1px] bg-slate-200/40 dark:bg-slate-850/80 my-1" />
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-500">Registered Advocates</span>
+                  <span className="text-slate-500">Registered Users</span>
                   <strong className="text-slate-750 dark:text-slate-200">{stats.totalUsers}</strong>
                 </div>
                 <div className="flex justify-between items-center">

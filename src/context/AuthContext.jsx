@@ -209,7 +209,7 @@ export const AuthProvider = ({ children }) => {
           id: decoded.uid,
           email: decoded.email,
           role: decoded.role,
-          full_name: decoded.name || 'Advocate',
+          full_name: decoded.name || 'Student',
           verified: true,
         };
       }

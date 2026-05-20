@@ -211,7 +211,7 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
               
               <div className="grid grid-cols-2 gap-4 mt-5 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
                 <div>
-                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Student Advocate</span>
+                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Student</span>
                   <span className="text-xs font-bold text-slate-800 dark:text-white flex items-center gap-1.5">
                     {complaint.anonymous ? <Shield className="w-3.5 h-3.5 text-cyan-500" /> : null}
                     {complaint.student_name}

@@ -110,14 +110,14 @@ router.post('/send-otp', async (req, res) => {
     const mailOptions = {
       from: `"TSRV Security Grid" <${process.env.SMTP_SENDER || smtpUser}>`,
       to: cleanEmail,
-      subject: `[TSRV] Your Student Advocate Verification Code: ${otpCode}`,
+      subject: `[TSRV] Your Student Verification Code: ${otpCode}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 12px; background-color: #ffffff;">
           <div style="text-align: center; margin-bottom: 20px;">
             <h2 style="color: #06b6d4; margin: 0;">TSRV Governance Grid</h2>
             <span style="font-size: 10px; font-weight: bold; color: #64748b; letter-spacing: 1px; text-transform: uppercase;">Telangana Rakshana Sena Vidyarthi</span>
           </div>
-          <p style="font-size: 14px; color: #334155; line-height: 1.6;">Hello advocate,</p>
+          <p style="font-size: 14px; color: #334155; line-height: 1.6;">Hello Student,</p>
           <p style="font-size: 14px; color: #334155; line-height: 1.6;">To verify your email address and authorize your campus advocacy node on the live Neon database, please enter the following 6-digit verification code:</p>
           <div style="text-align: center; margin: 25px 0;">
             <span style="font-size: 32px; font-weight: 900; color: #0f172a; letter-spacing: 6px; background-color: #f1f5f9; padding: 12px 24px; border-radius: 8px; border: 1px solid #cbd5e1; display: inline-block;">${otpCode}</span>
@@ -176,7 +176,7 @@ router.post('/verify-otp', async (req, res) => {
 
   // Verification successful! Clean the store
   delete global.emailOtps[cleanEmail];
-  console.log(`✅ [Email OTP] Email verified successfully for advocate: ${cleanEmail}`);
+  console.log(`✅ [Email OTP] Email verified successfully for student: ${cleanEmail}`);
   res.json({ success: true, message: 'Email verified successfully. Campus node authorized!' });
 });
 
@@ -260,7 +260,7 @@ router.post('/signup', async (req, res) => {
 });
 
 /**
- * 2. Authenticate a student advocate using standard email/password credentials
+ * 2. Authenticate a student using standard email/password credentials
  */
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
@@ -348,7 +348,7 @@ router.post('/login', async (req, res) => {
     await query('INSERT INTO activity_logs (user_id, action, details) VALUES ($1, $2, $3)', [
       user.id,
       'LOGIN',
-      'Advocate authenticated successfully via local authority'
+      'Student authenticated successfully via local authority'
     ]);
 
     res.json({ success: true, token, user: profile.rows[0] });
@@ -618,7 +618,7 @@ router.post('/forgot-password', async (req, res) => {
             <h2 style="color: #e11d48; margin: 0;">TSRV Password Recovery</h2>
             <span style="font-size: 10px; font-weight: bold; color: #64748b; letter-spacing: 1px; text-transform: uppercase;">Telangana Rakshana Sena Vidyarthi</span>
           </div>
-          <p style="font-size: 14px; color: #334155; line-height: 1.6;">Hello advocate,</p>
+          <p style="font-size: 14px; color: #334155; line-height: 1.6;">Hello Student,</p>
           <p style="font-size: 14px; color: #334155; line-height: 1.6;">A password reset request was initialized for your campus node. To complete your recovery and set a new password, please enter the following 6-digit verification code in the recovery portal:</p>
           <div style="text-align: center; margin: 25px 0;">
             <span style="font-size: 32px; font-weight: 900; color: #e11d48; letter-spacing: 6px; background-color: #f1f5f9; padding: 12px 24px; border-radius: 8px; border: 1px solid #cbd5e1; display: inline-block;">${otpCode}</span>

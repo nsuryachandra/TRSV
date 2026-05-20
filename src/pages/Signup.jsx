@@ -171,7 +171,7 @@ export default function Signup() {
                   <input
                     type="text"
                     required
-                    placeholder="Advocate Name"
+                    placeholder="Full Name"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className="w-full pl-11 pr-4 py-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-800 dark:text-slate-100"
@@ -215,7 +215,7 @@ export default function Signup() {
 
               {/* Phone Number */}
               <div className="flex flex-col gap-1 md:col-span-2">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Advocate Mobile Number</label>
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Mobile Number</label>
                 <div className="relative">
                   <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input
