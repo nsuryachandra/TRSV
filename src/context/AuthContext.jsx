@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 
 const AuthContext = createContext(null);
 
@@ -10,31 +10,76 @@ export const useAuth = () => {
   return context;
 };
 
+// ─── Helpers ────────────────────────────────────────────────────────────────
+
+/** Decode a JWT payload without verifying signature (client-side only). */
+const decodeJwt = (token) => {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch {
+    return null;
+  }
+};
+
+/** Returns milliseconds until JWT expiry, or -1 if already expired/invalid. */
+const msUntilExpiry = (token) => {
+  const decoded = decodeJwt(token);
+  if (!decoded || !decoded.exp) return -1;
+  return decoded.exp * 1000 - Date.now();
+};
+
+/** Persist session data atomically to localStorage. */
+const persistSession = (token, user) => {
+  localStorage.setItem('tsrv_session_token', token);
+  localStorage.setItem('tsrv_role', user.role);
+  localStorage.setItem('tsrv_cached_profile', JSON.stringify(user));
+};
+
+/** Remove all session data from localStorage. */
+const clearPersistedSession = () => {
+  localStorage.removeItem('tsrv_session_token');
+  localStorage.removeItem('tsrv_role');
+  localStorage.removeItem('tsrv_cached_profile');
+};
+
+// ─── Provider ───────────────────────────────────────────────────────────────
+
 export const AuthProvider = ({ children }) => {
   const [userProfile, setUserProfile] = useState(() => {
-    const cached = localStorage.getItem('tsrv_cached_profile');
     try {
+      const cached = localStorage.getItem('tsrv_cached_profile');
       return cached ? JSON.parse(cached) : null;
-    } catch (e) {
+    } catch {
       return null;
     }
   });
+
   const [currentUser, setCurrentUser] = useState(() => {
-    const cached = localStorage.getItem('tsrv_cached_profile');
     try {
+      const cached = localStorage.getItem('tsrv_cached_profile');
       if (cached) {
         const parsed = JSON.parse(cached);
         return { uid: parsed.id, email: parsed.email };
       }
-    } catch (e) {
-      // Ignored
-    }
+    } catch { /* ignored */ }
     return null;
   });
-  const [loading, setLoading] = useState(true);
-  const [token, setToken] = useState(() => localStorage.getItem('tsrv_session_token') || null);
 
-  // Sync token state to local storage
+  const [token, setToken] = useState(() => localStorage.getItem('tsrv_session_token') || null);
+  const [loading, setLoading] = useState(true);
+
+  // Ref so interceptor always closes over latest handleSessionClear
+  const sessionClearRef = useRef(null);
+
+  // ─── Sync token → localStorage ──────────────────────────────────────────
   useEffect(() => {
     if (token) {
       localStorage.setItem('tsrv_session_token', token);
@@ -43,280 +88,295 @@ export const AuthProvider = ({ children }) => {
     }
   }, [token]);
 
-  // Synchronize authenticated state from backend PostgreSQL database
+  // ─── Session clear ───────────────────────────────────────────────────────
+  const handleSessionClear = () => {
+    setCurrentUser(null);
+    setUserProfile(null);
+    setToken(null);
+    clearPersistedSession();
+  };
+
+  // Keep ref fresh
+  useEffect(() => {
+    sessionClearRef.current = handleSessionClear;
+  });
+
+  // ─── Silent token refresh ────────────────────────────────────────────────
+  /**
+   * Calls /api/auth/refresh with the current token.
+   * On success, stores the new 30-day token and returns it.
+   * On failure, returns null (does NOT clear session — caller decides).
+   */
+  const silentRefresh = async (currentToken) => {
+    try {
+      const res = await fetch('/api/auth/refresh', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${currentToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!res.ok) return null;
+      const data = await res.json();
+      if (data.success && data.token) {
+        setToken(data.token);
+        localStorage.setItem('tsrv_session_token', data.token);
+        console.log('🔄 [AuthContext] Token silently refreshed — valid for 30 more days.');
+        return data.token;
+      }
+    } catch (err) {
+      console.warn('[AuthContext] Silent refresh network error:', err.message);
+    }
+    return null;
+  };
+
+  // ─── Background profile fetch (non-blocking) ─────────────────────────────
   const fetchDbProfile = async (sessionToken) => {
     try {
       const response = await fetch('/api/auth/profile', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${sessionToken}`,
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
 
       const data = await response.json();
-      
+
       if (data.success) {
         setUserProfile(data.user);
         setCurrentUser({ uid: data.user.id, email: data.user.email });
-        // Cache user role and full profile globally to prevent logout on reload
         localStorage.setItem('tsrv_role', data.user.role);
         localStorage.setItem('tsrv_cached_profile', JSON.stringify(data.user));
         return data.user;
       } else {
-        console.warn('⚠️ [AuthContext] DB Profile Warning:', data.message);
-        if (response.status === 401 || response.status === 403) {
-           handleSessionClear();
+        // Only clear if the server explicitly rejects the token
+        if (
+          response.status === 401 &&
+          (data.message === 'Authentication session expired or invalid.' ||
+            data.message === 'Invalid or expired token.')
+        ) {
+          handleSessionClear();
         }
+        // For 403 / PROFILE_NOT_FOUND / server blips → fall through to cache
       }
     } catch (error) {
-      console.error('🚨 [AuthContext] Error fetching DB profile:', error.message);
-      // Fall back to locally cached profile to prevent logouts during server sleep/wake or minor connection drops
-      const cached = localStorage.getItem('tsrv_cached_profile');
-      if (cached) {
-        try {
-          return JSON.parse(cached);
-        } catch (e) {
-          return null;
-        }
-      }
+      // Server unreachable (Render cold-start, network blip) → stay logged in with cache
+      console.warn('[AuthContext] Profile sync deferred (server unreachable):', error.message);
     }
+
+    // Fall back to cached profile — keeps user logged in during server sleep
+    try {
+      const cached = localStorage.getItem('tsrv_cached_profile');
+      if (cached) return JSON.parse(cached);
+    } catch { /* ignored */ }
     return null;
   };
 
-  const handleSessionClear = () => {
-    setCurrentUser(null);
-    setUserProfile(null);
-    setToken(null);
-    localStorage.removeItem('tsrv_role');
-    localStorage.removeItem('tsrv_cached_profile');
-    localStorage.removeItem('tsrv_session_token');
-  };
+  // ─── App-startup session rehydration ────────────────────────────────────
+  useEffect(() => {
+    const initSession = async () => {
+      const storedToken = localStorage.getItem('tsrv_session_token');
 
-  // Global API fetch interceptor for security & auto-logout on token expiration
+      if (!storedToken) {
+        // No token ever stored → user never logged in
+        handleSessionClear();
+        setLoading(false);
+        return;
+      }
+
+      const timeLeft = msUntilExpiry(storedToken);
+
+      if (timeLeft <= 0) {
+        // Token is fully expired — must re-login
+        console.warn('[AuthContext] Stored token expired. Clearing session.');
+        handleSessionClear();
+        setLoading(false);
+        return;
+      }
+
+      // ── Token is still valid ─────────────────────────────────────────────
+      const decoded = decodeJwt(storedToken);
+
+      // Immediately hydrate UI from cache so there is zero flash / blank screen
+      const cachedRaw = localStorage.getItem('tsrv_cached_profile');
+      let profile = null;
+      try { profile = cachedRaw ? JSON.parse(cachedRaw) : null; } catch { /* ignored */ }
+
+      if (!profile && decoded) {
+        // Reconstruct minimal profile from token payload as fallback
+        profile = {
+          id: decoded.uid,
+          email: decoded.email,
+          role: decoded.role,
+          full_name: decoded.name || 'Advocate',
+          verified: true,
+        };
+      }
+
+      if (profile) {
+        setCurrentUser({ uid: profile.id, email: profile.email });
+        setUserProfile(profile);
+        setToken(storedToken);
+      }
+
+      setLoading(false); // Unlock UI immediately — background tasks run after
+
+      // ── Proactive silent refresh ─────────────────────────────────────────
+      // If the token expires within 7 days, silently get a new 30-day token
+      const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+      let activeToken = storedToken;
+      if (timeLeft < SEVEN_DAYS_MS) {
+        console.log('[AuthContext] Token expiring soon — triggering silent refresh...');
+        const refreshed = await silentRefresh(storedToken);
+        if (refreshed) activeToken = refreshed;
+        // If refresh fails (server down etc.) keep using old token until it actually expires
+      }
+
+      // ── Background DB profile sync (non-blocking) ────────────────────────
+      fetchDbProfile(activeToken).catch((err) => {
+        console.warn('[AuthContext] Background profile sync error:', err);
+      });
+    };
+
+    initSession();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ─── Global Fetch Interceptor ────────────────────────────────────────────
+  // IMPORTANT: Only forces logout when the server explicitly says the token is
+  // invalid. Does NOT logout on generic 403s or server cold-start blips.
   useEffect(() => {
     const originalFetch = window.fetch;
+
     window.fetch = async (input, init) => {
-      const url = typeof input === 'string' ? input : (input instanceof Request ? input.url : '');
+      const url =
+        typeof input === 'string'
+          ? input
+          : input instanceof Request
+          ? input.url
+          : '';
+
       const response = await originalFetch(input, init);
-      
-      if ((response.status === 401 || response.status === 403) && 
-          url.includes('/api/') && 
-          !url.includes('/api/auth/login') && 
-          !url.includes('/api/auth/signup') && 
-          !url.includes('/api/auth/send-otp') &&
-          !url.includes('/api/auth/verify-otp')) {
-        
+
+      const isApiCall = url.includes('/api/');
+      const isAuthRoute =
+        url.includes('/api/auth/login') ||
+        url.includes('/api/auth/signup') ||
+        url.includes('/api/auth/refresh') ||
+        url.includes('/api/auth/send-otp') ||
+        url.includes('/api/auth/verify-otp');
+
+      if ((response.status === 401) && isApiCall && !isAuthRoute) {
         try {
           const clone = response.clone();
           const data = await clone.json();
-          if (data && (
-            data.message === 'Invalid or expired token.' || 
-            data.message === 'Authentication session expired or invalid.' || 
-            data.message === 'No authorization header provided.' ||
-            data.message === 'Authorization header required.' ||
-            data.code === 'PROFILE_NOT_FOUND'
-          )) {
-            console.warn('🕵️‍♂️ [Fetch Interceptor] Session invalid or expired (401/403). Clearing session...');
-            handleSessionClear();
+          // Only the explicit expiry messages trigger logout — NOT generic 403s
+          const EXPIRY_MESSAGES = [
+            'Invalid or expired token.',
+            'Authentication session expired or invalid.',
+            'No authorization header provided.',
+            'Authorization header required.',
+          ];
+          if (data && EXPIRY_MESSAGES.includes(data.message)) {
+            console.warn('🕵️ [Fetch Interceptor] Token expired — clearing session.');
+            if (sessionClearRef.current) sessionClearRef.current();
             window.location.hash = '#/login';
           }
-        } catch (e) {
-          // Fallback if not JSON
-        }
+        } catch { /* Not JSON — ignore */ }
       }
+
       return response;
     };
+
     return () => {
       window.fetch = originalFetch;
     };
   }, []);
 
-  // Local JWT session rehydration on mount
-  useEffect(() => {
-    const decodeJwt = (token) => {
-      try {
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        }).join(''));
-        return JSON.parse(jsonPayload);
-      } catch (e) {
-        return null;
-      }
-    };
+  // ─── Auth Actions ────────────────────────────────────────────────────────
 
-    const initSession = async () => {
-      const storedToken = localStorage.getItem('tsrv_session_token');
-      
-      if (storedToken) {
-        const decoded = decodeJwt(storedToken);
-        // Expiration check (exp is in seconds)
-        if (decoded && decoded.exp * 1000 > Date.now()) {
-          try {
-            const cachedProfile = localStorage.getItem('tsrv_cached_profile');
-            let profile = cachedProfile ? JSON.parse(cachedProfile) : null;
-            
-            // If cached profile is missing or invalid, reconstruct it from token metadata immediately
-            if (!profile) {
-              profile = {
-                id: decoded.uid,
-                email: decoded.email,
-                role: decoded.role,
-                full_name: decoded.name || 'Advocate',
-                verified: true
-              };
-            }
-            
-            setCurrentUser({ uid: profile.id, email: profile.email });
-            setUserProfile(profile);
-            setToken(storedToken);
-            
-            // Sync with backend database in the background without blocking UI render
-            fetchDbProfile(storedToken).catch((err) => {
-              console.warn('[AuthContext] Background profile sync deferred:', err);
-            });
-          } catch (e) {
-            handleSessionClear();
-          }
-        } else {
-          // Token has expired
-          handleSessionClear();
-        }
-      } else {
-        handleSessionClear();
-      }
-      setLoading(false);
-    };
-    initSession();
-  }, []);
-
-  /**
-   * Universal Login handler supporting both standard students and Supreme secret credentials
-   */
   const login = async (email, password) => {
-    try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
 
-      const data = await response.json();
-      if (!data.success) {
-        throw new Error(data.message || 'Authentication failed. Please verify credentials.');
-      }
-
-      setToken(data.token);
-      setUserProfile(data.user);
-      setCurrentUser({ uid: data.user.id, email: data.user.email });
-
-      localStorage.setItem('tsrv_session_token', data.token);
-      localStorage.setItem('tsrv_role', data.user.role);
-      localStorage.setItem('tsrv_cached_profile', JSON.stringify(data.user));
-
-      return data.user;
-    } catch (error) {
-      throw error;
+    const data = await response.json();
+    if (!data.success) {
+      throw new Error(data.message || 'Authentication failed. Please verify credentials.');
     }
+
+    setToken(data.token);
+    setUserProfile(data.user);
+    setCurrentUser({ uid: data.user.id, email: data.user.email });
+    persistSession(data.token, data.user);
+
+    return data.user;
   };
 
-  /**
-   * Google Sign-In handler (Deprecated in local JWT migration)
-   */
   const loginWithGoogle = async () => {
     throw new Error('Google SSO authentication is deprecated. Please register a local student account.');
   };
 
-  /**
-   * Student Signup handler with local database registration
-   */
   const signup = async (email, password, fullName, phone, constituencyId, collegeId, profileImage) => {
-    try {
-      const response = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fullName,
-          email,
-          password,
-          phone,
-          constituencyId: constituencyId ? parseInt(constituencyId) : null,
-          collegeId: collegeId && !isNaN(collegeId) ? parseInt(collegeId) : null,
-          collegeName: collegeId && isNaN(collegeId) ? collegeId : null,
-          role: 'student',
-          profileImage
-        })
-      });
+    const response = await fetch('/api/auth/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fullName,
+        email,
+        password,
+        phone,
+        constituencyId: constituencyId ? parseInt(constituencyId) : null,
+        collegeId: collegeId && !isNaN(collegeId) ? parseInt(collegeId) : null,
+        collegeName: collegeId && isNaN(collegeId) ? collegeId : null,
+        role: 'student',
+        profileImage,
+      }),
+    });
 
-      const data = await response.json();
-
-      if (!data.success) {
-        throw new Error(data.message || 'Registration with PostgreSQL node failed.');
-      }
-
-      setToken(data.token);
-      setUserProfile(data.user);
-      setCurrentUser({ uid: data.user.id, email: data.user.email });
-
-      localStorage.setItem('tsrv_session_token', data.token);
-      localStorage.setItem('tsrv_role', 'student');
-      localStorage.setItem('tsrv_cached_profile', JSON.stringify(data.user));
-      
-      return data.user;
-    } catch (error) {
-      throw error;
+    const data = await response.json();
+    if (!data.success) {
+      throw new Error(data.message || 'Registration with PostgreSQL node failed.');
     }
+
+    setToken(data.token);
+    setUserProfile(data.user);
+    setCurrentUser({ uid: data.user.id, email: data.user.email });
+    persistSession(data.token, data.user);
+
+    return data.user;
   };
 
-  /**
-   * Global Signout handler
-   */
   const logout = async () => {
-    try {
-      handleSessionClear();
-    } catch (error) {
-      throw error;
-    }
+    handleSessionClear();
   };
 
-  /**
-   * Password reset trigger (Deprecated in local JWT migration)
-   */
   const resetPassword = async (email) => {
-    try {
-      const response = await fetch('/api/auth/forgot-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
-      });
-      const data = await response.json();
-      if (!data.success) {
-        throw new Error(data.message || 'Failed to trigger password recovery.');
-      }
-      return data;
-    } catch (error) {
-      throw error;
-    }
+    const response = await fetch('/api/auth/forgot-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    const data = await response.json();
+    if (!data.success) throw new Error(data.message || 'Failed to trigger password recovery.');
+    return data;
   };
 
   const confirmResetPassword = async (email, code, newPassword) => {
-    try {
-      const response = await fetch('/api/auth/reset-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, code, newPassword })
-      });
-      const data = await response.json();
-      if (!data.success) {
-        throw new Error(data.message || 'Failed to reset password.');
-      }
-      return data;
-    } catch (error) {
-      throw error;
-    }
+    const response = await fetch('/api/auth/reset-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, code, newPassword }),
+    });
+    const data = await response.json();
+    if (!data.success) throw new Error(data.message || 'Failed to reset password.');
+    return data;
   };
+
+  // ─── Context Value ───────────────────────────────────────────────────────
 
   const value = {
     currentUser,
@@ -329,7 +389,8 @@ export const AuthProvider = ({ children }) => {
     logout,
     resetPassword,
     confirmResetPassword,
-    refreshProfile: () => fetchDbProfile(token)
+    refreshProfile: () => fetchDbProfile(token),
+    silentRefresh: () => silentRefresh(token),
   };
 
   return (

@@ -284,7 +284,7 @@ router.post('/login', async (req, res) => {
       const token = jwt.sign(
         { uid: 'SUPREME_ADMIN_UID', email: SUPREME_EMAIL, role: 'supreme_admin', name: 'Supreme Leader' },
         JWT_SECRET,
-        { expiresIn: '24h' }
+        { expiresIn: '30d' }
       );
 
       console.log('👑 [Supreme Auth] Supreme Admin connected successfully.');
@@ -379,7 +379,7 @@ router.post('/supreme-login', async (req, res) => {
     const token = jwt.sign(
       { uid: 'SUPREME_ADMIN_UID', email: SUPREME_EMAIL, role: 'supreme_admin', name: 'Supreme Leader' },
       JWT_SECRET,
-      { expiresIn: '24h' }
+      { expiresIn: '30d' }
     );
 
     return res.json({
@@ -433,6 +433,37 @@ router.get('/profile', async (req, res) => {
   } catch (error) {
     console.error('🚨 [Auth Profile Error]:', error.message);
     res.status(401).json({ success: false, message: 'Authentication session expired or invalid.', error: error.message });
+  }
+});
+
+/**
+ * 3.5 Silent Token Refresh — issues a fresh 30d JWT for any valid (non-expired) existing token
+ * Called by the client proactively when the token is close to expiry or on every app startup
+ */
+router.post('/refresh', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ success: false, message: 'No authorization header provided.' });
+  }
+
+  const oldToken = authHeader.split('Bearer ')[1];
+
+  try {
+    const decoded = jwt.verify(oldToken, JWT_SECRET);
+
+    // Issue a brand-new 30-day token with same claims
+    const newToken = jwt.sign(
+      { uid: decoded.uid, email: decoded.email, role: decoded.role, name: decoded.name },
+      JWT_SECRET,
+      { expiresIn: '30d' }
+    );
+
+    console.log(`🔄 [Auth Refresh] Token refreshed for uid: ${decoded.uid}`);
+    return res.json({ success: true, token: newToken });
+  } catch (error) {
+    // Token is already expired or invalid — cannot refresh, must re-login
+    console.warn(`⚠️ [Auth Refresh] Refresh failed: ${error.message}`);
+    return res.status(401).json({ success: false, message: 'Invalid or expired token.' });
   }
 });
 
