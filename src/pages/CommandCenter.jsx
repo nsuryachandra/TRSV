@@ -359,8 +359,8 @@ export default function CommandCenter() {
       {activeTab === 'telemetry' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full items-stretch animate-scaleUp">
           <div className="flex flex-col gap-6 lg:col-span-1">
-            <div className="p-6 flex flex-col gap-4 rounded-xl border border-slate-200/50 dark:border-slate-850 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
-              <div className="flex items-center justify-between border-b border-slate-200/50 dark:border-slate-850 pb-3">
+            <div className="p-6 flex flex-col gap-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-premium-light dark:shadow-premium-dark">
+              <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
                 <span className="font-extrabold text-sm text-slate-700 dark:text-white uppercase tracking-wider">Server Infrastructure</span>
                 <Server className="w-4 h-4 text-cyan-500" />
               </div>
@@ -402,8 +402,8 @@ export default function CommandCenter() {
               </div>
             </div>
 
-            <div className="p-6 flex flex-col gap-4 border-l-2 border-rose-500 rounded-xl border border-slate-200/50 dark:border-slate-850 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
-              <div className="flex items-center justify-between border-b border-slate-200/50 dark:border-slate-850 pb-3">
+            <div className="p-6 flex flex-col gap-4 border-l-2 border-rose-500 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-premium-light dark:shadow-premium-dark">
+              <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
                 <span className="font-extrabold text-sm text-slate-700 dark:text-white uppercase tracking-wider">Emergency Dispatches</span>
                 <ShieldAlert className="w-4 h-4 text-rose-500 animate-pulse" />
               </div>
@@ -434,7 +434,7 @@ export default function CommandCenter() {
 
           <div className="lg:col-span-2 flex flex-col gap-6">
             <div className="h-[250px]">
-              <div className="p-4 h-full flex flex-col gap-2 rounded-xl border border-slate-200/50 dark:border-slate-850 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
+              <div className="p-4 h-full flex flex-col gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-premium-light dark:shadow-premium-dark">
                 <span className="font-extrabold text-xs text-slate-700 dark:text-white uppercase tracking-wider pl-2">Statewide Incident Velocity (30 Days)</span>
                 <div className="flex-1 min-h-0">
                   <TrendChart data={trends} />
@@ -452,8 +452,8 @@ export default function CommandCenter() {
       {activeTab === 'nodes' && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full items-start animate-scaleUp">
           {/* Mapped regional constituencies list & inject form */}
-          <div className="p-6 flex flex-col gap-4 text-left rounded-xl border border-slate-200/50 dark:border-slate-850 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
-            <h3 className="font-extrabold text-sm text-slate-700 dark:text-white uppercase tracking-wider flex items-center gap-2 border-b border-slate-200/50 dark:border-slate-850 pb-3">
+          <div className="p-6 flex flex-col gap-4 text-left rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-premium-light dark:shadow-premium-dark">
+            <h3 className="font-extrabold text-sm text-slate-700 dark:text-white uppercase tracking-wider flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
               <MapPin className="w-4 h-4 text-cyan-500" />
               Telangana Constituency Registry
             </h3>
@@ -469,7 +469,7 @@ export default function CommandCenter() {
               ))}
             </div>
 
-            <form onSubmit={handleAddConstituency} className="flex flex-col gap-3.5 border-t border-slate-200/50 dark:border-slate-850 pt-4 mt-1">
+            <form onSubmit={handleAddConstituency} className="flex flex-col gap-3.5 border-t border-slate-200 dark:border-slate-800 pt-4 mt-1">
               <span className="text-[10px] font-black text-slate-450 uppercase tracking-widest block">Inject Constituency Node</span>
               <div className="grid grid-cols-2 gap-3">
                 <input
@@ -478,7 +478,7 @@ export default function CommandCenter() {
                   placeholder="Kukatpally Constituency"
                   value={newConName}
                   onChange={(e) => setNewConName(e.target.value)}
-                  className="p-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-xs focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-800 dark:text-slate-100"
+                  className="p-3 rounded-xl border bg-slate-50 dark:bg-slate-950 text-xs focus:outline-none focus:border-cyan-400 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100"
                 />
                 <input
                   type="text"
@@ -486,7 +486,7 @@ export default function CommandCenter() {
                   placeholder="Medchal-Malkajgiri"
                   value={newConDistrict}
                   onChange={(e) => setNewConDistrict(e.target.value)}
-                  className="p-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-xs focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-800 dark:text-slate-100"
+                  className="p-3 rounded-xl border bg-slate-50 dark:bg-slate-950 text-xs focus:outline-none focus:border-cyan-400 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100"
                 />
               </div>
               <PremiumButton type="submit" variant="primary" size="sm" className="w-full" disabled={loading}>
@@ -496,8 +496,8 @@ export default function CommandCenter() {
           </div>
 
           {/* Mapped academic campuses list & inject form */}
-          <div className="p-6 flex flex-col gap-4 text-left rounded-xl border border-slate-200/50 dark:border-slate-850 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
-            <h3 className="font-extrabold text-sm text-slate-700 dark:text-white uppercase tracking-wider flex items-center gap-2 border-b border-slate-200/50 dark:border-slate-850 pb-3">
+          <div className="p-6 flex flex-col gap-4 text-left rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-premium-light dark:shadow-premium-dark">
+            <h3 className="font-extrabold text-sm text-slate-700 dark:text-white uppercase tracking-wider flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
               <Building className="w-4 h-4 text-cyan-500" />
               Academic Campus Nodes (Colleges)
             </h3>
@@ -508,7 +508,7 @@ export default function CommandCenter() {
                 <select
                   value={selectedConId}
                   onChange={(e) => setSelectedConId(e.target.value)}
-                  className="p-2.5 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-xs focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-850 dark:text-slate-100"
+                  className="p-2.5 rounded-xl border bg-slate-50 dark:bg-slate-955 text-xs focus:outline-none focus:border-cyan-400 border-slate-200 dark:border-slate-800 text-slate-850 dark:text-slate-100"
                 >
                   {constituencies.map(con => (
                     <option key={con.id} value={con.id}>{con.constituency_name}</option>
@@ -534,7 +534,7 @@ export default function CommandCenter() {
               </div>
             </div>
 
-            <form onSubmit={handleAddCollege} className="flex flex-col gap-3.5 border-t border-slate-200/50 dark:border-slate-850 pt-4 mt-1">
+            <form onSubmit={handleAddCollege} className="flex flex-col gap-3.5 border-t border-slate-200 dark:border-slate-800 pt-4 mt-1">
               <span className="text-[10px] font-black text-slate-450 uppercase tracking-widest block">Inject Campus Academic Node</span>
               <div className="grid grid-cols-2 gap-3">
                 <input
@@ -543,7 +543,7 @@ export default function CommandCenter() {
                   placeholder="JNTU Hyderabad"
                   value={newCollegeName}
                   onChange={(e) => setNewCollegeName(e.target.value)}
-                  className="p-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-xs focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-800 dark:text-slate-100"
+                  className="p-3 rounded-xl border bg-slate-50 dark:bg-slate-955 text-xs focus:outline-none focus:border-cyan-400 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100"
                 />
                 <input
                   type="text"
@@ -551,7 +551,7 @@ export default function CommandCenter() {
                   placeholder="JNTUH-99"
                   value={newCollegeCode}
                   onChange={(e) => setNewCollegeCode(e.target.value)}
-                  className="p-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-xs focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-800 dark:text-slate-100"
+                  className="p-3 rounded-xl border bg-slate-50 dark:bg-slate-955 text-xs focus:outline-none focus:border-cyan-400 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100"
                 />
               </div>
               <PremiumButton type="submit" variant="primary" size="sm" className="w-full" disabled={loading}>
@@ -575,14 +575,13 @@ export default function CommandCenter() {
             </p>
 
             <form onSubmit={handlePromote} className="flex flex-col gap-5">
-              
-              {/* Select student to promote */}
+                         {/* Select student to promote */}
               <div className="flex flex-col gap-1.5">
                 <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Select Registered Coordinator Profile</label>
                 <select
                   value={promoUserId}
                   onChange={(e) => setPromoUserId(e.target.value)}
-                  className="w-full p-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-xs focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-850 dark:text-slate-100"
+                  className="w-full p-3 rounded-xl border bg-slate-50 dark:bg-slate-950 text-xs focus:outline-none focus:border-cyan-400 border-slate-200 dark:border-slate-800 text-slate-850 dark:text-slate-100"
                 >
                   {allUsers.map(user => (
                     <option key={user.id} value={user.id}>
@@ -599,7 +598,7 @@ export default function CommandCenter() {
                   <select
                     value={promoRole}
                     onChange={(e) => setPromoRole(e.target.value)}
-                    className="w-full p-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-xs focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-850 dark:text-slate-100"
+                    className="w-full p-3 rounded-xl border bg-slate-50 dark:bg-slate-950 text-xs focus:outline-none focus:border-cyan-400 border-slate-200 dark:border-slate-800 text-slate-855 dark:text-slate-100"
                   >
                     <option value="secretary">Campus Secretary</option>
                     <option value="general_secretary">General Secretary</option>
@@ -613,7 +612,7 @@ export default function CommandCenter() {
                   <select
                     value={promoConId}
                     onChange={(e) => setPromoConId(e.target.value)}
-                    className="w-full p-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-xs focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-850 dark:text-slate-100"
+                    className="w-full p-3 rounded-xl border bg-slate-50 dark:bg-slate-950 text-xs focus:outline-none focus:border-cyan-400 border-slate-200 dark:border-slate-800 text-slate-850 dark:text-slate-100"
                   >
                     {constituencies.map(con => (
                       <option key={con.id} value={con.id}>{con.constituency_name}</option>
@@ -630,7 +629,7 @@ export default function CommandCenter() {
                     value={promoColId}
                     onChange={(e) => setPromoColId(e.target.value)}
                     disabled={promoFilteredColleges.length === 0}
-                    className="w-full p-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-xs focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-850 dark:text-slate-100 disabled:opacity-50"
+                    className="w-full p-3 rounded-xl border bg-slate-50 dark:bg-slate-955 text-xs focus:outline-none focus:border-cyan-400 border-slate-200 dark:border-slate-800 text-slate-850 dark:text-slate-100 disabled:opacity-50"
                   >
                     {promoFilteredColleges.length > 0 ? (
                       promoFilteredColleges.map(col => (

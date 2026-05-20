@@ -54,29 +54,18 @@ app.use(helmet({
       imgSrc: [
         "'self'", 
         "data:", 
-        "https://unpkg.com", 
-        "https://*.tile.openstreetmap.org", 
-        "https://tile.openstreetmap.org", 
-        "https://*.basemaps.cartocdn.com",
-        "https://basemaps.cartocdn.com",
-        "https://server.arcgisonline.com",
-        "https://api.qrserver.com",
-        "https://*.supabase.co",
-        "https://*.googleusercontent.com",
-        "https://firebasestorage.googleapis.com",
-        "https://*.unsplash.com"
+        "blob:",
+        "https:",
+        "http:",
+        "*"
       ],
       connectSrc: [
         "'self'", 
         "ws:",
         "wss:",
-        "https://*.tile.openstreetmap.org", 
-        "https://tile.openstreetmap.org",
-        "https://nominatim.openstreetmap.org",
-        "https://unpkg.com",
-        "https://*.supabase.co",
-        "https://*.googleapis.com",
-        "https://*.firebaseio.com"
+        "https:",
+        "http:",
+        "*"
       ],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       objectSrc: ["'none'"],

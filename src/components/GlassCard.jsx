@@ -49,9 +49,6 @@ export default function GlassCard({
         ${className}
       `}
     >
-      {/* Dynamic Glow Spotlight (Background decoration) */}
-      <div className="absolute -inset-40 bg-gradient-to-tr from-sky-400/5 via-cyan-400/0 to-blue-500/5 rounded-full pointer-events-none blur-3xl opacity-0 hover:opacity-100 transition-opacity duration-700" />
-      
       <div className="relative z-10 w-full h-full">
         {children}
       </div>

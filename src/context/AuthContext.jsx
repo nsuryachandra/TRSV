@@ -65,7 +65,7 @@ export const AuthProvider = ({ children }) => {
         return data.user;
       } else {
         console.warn('⚠️ [AuthContext] DB Profile Warning:', data.message);
-        if (response.status === 401) {
+        if (response.status === 401 || response.status === 403) {
            handleSessionClear();
         }
       }
@@ -92,6 +92,45 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('tsrv_cached_profile');
     localStorage.removeItem('tsrv_session_token');
   };
+
+  // Global API fetch interceptor for security & auto-logout on token expiration
+  useEffect(() => {
+    const originalFetch = window.fetch;
+    window.fetch = async (input, init) => {
+      const url = typeof input === 'string' ? input : (input instanceof Request ? input.url : '');
+      const response = await originalFetch(input, init);
+      
+      if ((response.status === 401 || response.status === 403) && 
+          url.includes('/api/') && 
+          !url.includes('/api/auth/login') && 
+          !url.includes('/api/auth/signup') && 
+          !url.includes('/api/auth/send-otp') &&
+          !url.includes('/api/auth/verify-otp')) {
+        
+        try {
+          const clone = response.clone();
+          const data = await clone.json();
+          if (data && (
+            data.message === 'Invalid or expired token.' || 
+            data.message === 'Authentication session expired or invalid.' || 
+            data.message === 'No authorization header provided.' ||
+            data.message === 'Authorization header required.' ||
+            data.code === 'PROFILE_NOT_FOUND'
+          )) {
+            console.warn('🕵️‍♂️ [Fetch Interceptor] Session invalid or expired (401/403). Clearing session...');
+            handleSessionClear();
+            window.location.hash = '#/login';
+          }
+        } catch (e) {
+          // Fallback if not JSON
+        }
+      }
+      return response;
+    };
+    return () => {
+      window.fetch = originalFetch;
+    };
+  }, []);
 
   // Local JWT session rehydration on mount
   useEffect(() => {

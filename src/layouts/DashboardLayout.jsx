@@ -330,7 +330,7 @@ export default function DashboardLayout() {
               animate={{ x: 0 }}
               exit={{ x: -320 }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed inset-y-0 left-0 w-80 bg-white/98 dark:bg-slate-950/98 backdrop-blur-xl border-r border-slate-200/60 dark:border-slate-900 z-45 lg:hidden flex flex-col p-4 max-h-screen overflow-hidden shadow-2xl"
+              className="fixed inset-y-0 left-0 w-80 bg-white dark:bg-slate-950 border-r border-slate-200/60 dark:border-slate-900 z-45 lg:hidden flex flex-col p-4 max-h-screen overflow-hidden shadow-2xl"
             >
               <div className="flex items-center justify-between pb-4 border-b border-slate-200/50 dark:border-slate-900/60">
                 <div className="flex items-center gap-3">
@@ -472,7 +472,7 @@ export default function DashboardLayout() {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 12, scale: 0.95 }}
                         transition={{ duration: 0.15 }}
-                        className="absolute right-0 mt-3.5 w-80 sm:w-96 rounded-2xl bg-white/98 dark:bg-slate-900/98 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800 shadow-2xl p-4 text-left z-40"
+                        className="absolute right-0 mt-3.5 w-80 sm:w-96 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-2xl p-4 text-left z-40"
                       >
                         <div className="flex items-center justify-between border-b border-slate-200/50 dark:border-slate-850 pb-2.5 mb-2.5">
                           <div className="flex items-center gap-2">
