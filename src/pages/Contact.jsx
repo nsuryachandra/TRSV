@@ -8,7 +8,7 @@ import { uploadGrievanceMedia } from '../config/supabase';
 import ComplaintDetailsModal from '../components/ComplaintDetailsModal';
 
 export default function Contact() {
-  const { user, userProfile } = useAuth();
+  const { currentUser: user, userProfile } = useAuth();
   
   // Complainant Mandatory Details
   const [complainantName, setComplainantName] = useState(userProfile?.full_name || '');

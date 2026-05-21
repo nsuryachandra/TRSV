@@ -51,6 +51,10 @@ export default function StudentDashboard() {
     const conId = parseInt(selectedConstituencyId);
     const matchedCon = constituencies.find(c => c.id === conId);
     if (matchedCon) {
+      if (matchedCon.constituency_name === 'Upcoming Area') {
+        setMappedMsg(`⚠️ Campus in future expansion node. TSRV is launching in all constituencies soon!`);
+        return;
+      }
       const isGH = matchedCon.id === 23 || matchedCon.parent_id === 23;
       if (isGH) {
         setMappedMsg(`✓ Automatically mapped to active regional node: ${matchedCon.constituency_name}`);
@@ -264,6 +268,11 @@ export default function StudentDashboard() {
         setSelectedConstituencyId(textMatch.id.toString());
         setMappedMsg(`✓ Automatically mapped to regional node: ${textMatch.constituency_name}`);
       } else {
+        // Auto-select "Upcoming Area" instead of leaving a random constituency
+        const upcomingCon = constituencies.find(con => con.constituency_name === 'Upcoming Area');
+        if (upcomingCon) {
+          setSelectedConstituencyId(upcomingCon.id.toString());
+        }
         setMappedMsg(`⚠️ Campus in future expansion node. TSRV is launching in all constituencies soon!`);
       }
     }
