@@ -12,7 +12,6 @@ export default function JoinTSRV() {
     fullName: '',
     email: '',
     phone: '',
-    collegeName: '',
     constituencyId: '',
     reason: ''
   });
@@ -69,7 +68,6 @@ export default function JoinTSRV() {
           fullName: userProfile?.full_name || '',
           email: userProfile?.email || '',
           phone: userProfile?.phone || '',
-          collegeName: '',
           constituencyId: '',
           reason: ''
         });
@@ -164,7 +162,7 @@ export default function JoinTSRV() {
                   onChange={handleInputChange}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200/80 dark:border-slate-800 text-slate-800 dark:text-slate-200 focus:border-cyan-500 focus:outline-none transition-colors duration-200 text-xs"
                 >
-                  <option value="" className="bg-white dark:bg-slate-950 text-slate-400">Select Constituency</option>
+                  <option value="" className="bg-white dark:bg-slate-950 text-slate-400">Select Area / Constituency</option>
                   {constituencies.map((con) => (
                     <option key={con.id} value={con.id} className="bg-white dark:bg-slate-955 text-slate-800 dark:text-slate-200">
                       {con.constituency_name} ({con.district})
@@ -172,21 +170,6 @@ export default function JoinTSRV() {
                   ))}
                 </select>
               </div>
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-bold text-slate-400 dark:text-slate-550 uppercase tracking-wider">
-                College / Affiliated Campus Name <span className="text-rose-500">*</span>
-              </label>
-              <input
-                type="text"
-                name="collegeName"
-                required
-                value={form.collegeName}
-                onChange={handleInputChange}
-                placeholder="Enter your full college name"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200/80 dark:border-slate-800 text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:border-cyan-500 focus:outline-none transition-colors duration-200 text-xs"
-              />
             </div>
 
             <div className="flex flex-col gap-1.5">

@@ -732,7 +732,7 @@ export default function CommandCenter() {
                         </span>
                       </div>
                       <p className="mt-0.5">Email: <span className="text-slate-700 dark:text-slate-350">{req.email}</span> | Phone: <span className="text-slate-700 dark:text-slate-350">{req.phone}</span></p>
-                      <p>College: <span className="text-slate-750 dark:text-slate-300 font-semibold">{req.college_name}</span> | Constituency: <span className="text-slate-750 dark:text-slate-300 font-semibold">{req.constituency_name || 'Not Registered'}</span></p>
+                       <p>Constituency Area: <span className="text-slate-750 dark:text-slate-300 font-semibold">{req.constituency_name || 'Not Registered'} ({req.district || ''})</span></p>
                       <div className="mt-1 bg-slate-100/50 dark:bg-slate-950/40 p-2.5 rounded-lg border border-slate-200/30 dark:border-slate-850 text-slate-600 dark:text-slate-400">
                         <span className="font-extrabold text-[10px] text-slate-450 dark:text-slate-500 uppercase block mb-1">Statement of Motivation</span>
                         {req.reason}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Users, Radio, CheckCircle, AlertTriangle, Play, ChevronRight, Phone, RefreshCw, X } from 'lucide-react';
+import { Shield, Users, Radio, CheckCircle, AlertTriangle, Play, ChevronRight, Phone, RefreshCw, X, Check } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import GlassCard from '../components/GlassCard';
 import PremiumButton from '../components/PremiumButton';
@@ -12,6 +12,11 @@ import HubChat from '../components/HubChat';
 
 export default function LeaderDashboard() {
   const { userProfile } = useAuth();
+  const [activeTab, setActiveTab] = useState('grievances'); // 'grievances', 'applications'
+  const [joinRequests, setJoinRequests] = useState([]);
+  const [fetchingRequests, setFetchingRequests] = useState(false);
+  const [requestMessage, setRequestMessage] = useState({ text: '', type: '' });
+
   const [stats, setStats] = useState({
     totalComplaints: 0,
     pendingComplaints: 0,
@@ -31,6 +36,53 @@ export default function LeaderDashboard() {
   const [localCategories, setLocalCategories] = useState([]);
   const [localActivity, setLocalActivity] = useState([]);
   const [constituencyList, setConstituencyList] = useState([]);
+
+  const fetchJoinRequests = async () => {
+    setFetchingRequests(true);
+    try {
+      const token = localStorage.getItem('tsrv_session_token');
+      const res = await fetch('/api/join-trsv', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) {
+        setJoinRequests(data.requests || []);
+      }
+    } catch (err) {
+      console.error('Failed to fetch join requests:', err);
+    } finally {
+      setFetchingRequests(false);
+    }
+  };
+
+  const handleUpdateRequestStatus = async (id, status) => {
+    try {
+      const token = localStorage.getItem('tsrv_session_token');
+      const res = await fetch(`/api/join-trsv/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setRequestMessage({ text: `Application ${status === 'Approved' ? 'approved' : 'rejected'} successfully.`, type: 'success' });
+        fetchJoinRequests();
+      } else {
+        setRequestMessage({ text: data.message || 'Failed to update application status.', type: 'error' });
+      }
+    } catch (err) {
+      setRequestMessage({ text: 'Network failure updating application.', type: 'error' });
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'applications') {
+      fetchJoinRequests();
+    }
+  }, [activeTab]);
 
   const fetchDashboardData = async () => {
     try {
@@ -247,81 +299,189 @@ export default function LeaderDashboard() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch w-full">
-        
-        {/* District Action Queue */}
-        <div className="lg:col-span-2">
-          <GlassCard hoverEffect={false} className="p-6 h-full flex flex-col justify-between gap-4 min-h-[400px]">
-            <div className="flex items-center justify-between border-b border-slate-200/50 dark:border-slate-850 pb-3">
-              <span className="font-extrabold text-sm text-slate-700 dark:text-white uppercase tracking-wider">Grievance Incident Dispatch Queue</span>
-              <span className="text-xs text-rose-500 font-extrabold flex items-center gap-1">
-                <AlertTriangle className="w-3.5 h-3.5" />
-                Action Center
-              </span>
-            </div>
+      {/* Tab Switcher */}
+      <div className="flex border-b border-slate-200 dark:border-slate-850 gap-6 mt-2">
+        <button
+          onClick={() => setActiveTab('grievances')}
+          className={`pb-3 text-xs font-bold uppercase tracking-wider transition-all relative ${
+            activeTab === 'grievances'
+              ? 'text-cyan-500 border-b-2 border-cyan-500'
+              : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-350'
+          }`}
+        >
+          Grievance Operations
+        </button>
+        <button
+          onClick={() => setActiveTab('applications')}
+          className={`pb-3 text-xs font-bold uppercase tracking-wider transition-all relative ${
+            activeTab === 'applications'
+              ? 'text-cyan-500 border-b-2 border-cyan-500'
+              : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'
+          }`}
+        >
+          Join Requests Panel
+        </button>
+      </div>
 
-            {loading ? (
-              <div className="py-12 flex justify-center">
-                <div className="w-8 h-8 rounded-full border-2 border-t-cyan-500 border-r-transparent border-slate-850 animate-spin" />
+      {activeTab === 'grievances' && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch w-full animate-fadeIn">
+          
+          {/* District Action Queue */}
+          <div className="lg:col-span-2">
+            <GlassCard hoverEffect={false} className="p-6 h-full flex flex-col justify-between gap-4 min-h-[400px]">
+              <div className="flex items-center justify-between border-b border-slate-200/50 dark:border-slate-850 pb-3">
+                <span className="font-extrabold text-sm text-slate-700 dark:text-white uppercase tracking-wider">Grievance Incident Dispatch Queue</span>
+                <span className="text-xs text-rose-500 font-extrabold flex items-center gap-1">
+                  <AlertTriangle className="w-3.5 h-3.5" />
+                  Action Center
+                </span>
               </div>
-            ) : (
-              <div className="flex flex-col gap-3 my-2 max-h-[350px] overflow-y-auto pr-1 custom-sidebar-scrollbar">
-                {filteredQueue.length > 0 ? (
-                  filteredQueue.map((item) => (
-                    <div key={item.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl bg-slate-100/50 dark:bg-slate-900/40 border border-slate-200/40 dark:border-slate-850 gap-4">
-                      <div className="flex flex-col text-left">
-                        <span className="font-bold text-sm text-slate-850 dark:text-white">{item.title}</span>
-                        <span className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider">
-                          {item.college_name || 'Statewide Area'} • Ticket #{item.id} • Student: {item.student_name || 'Anonymous Student'}
-                        </span>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 line-clamp-1 italic max-w-xl">
-                          "{item.description}"
-                        </p>
-                      </div>
 
-                      <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
-                        <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded border ${getUrgencyColor(item.urgency)}`}>
-                          {item.urgency}
-                        </span>
-                        <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-500 border border-cyan-500/20">
-                          {item.status}
-                        </span>
-                        <button
-                          onClick={() => setSelectedTicketId(item.id)}
-                          className="p-2 rounded-xl bg-cyan-500 text-white hover:bg-cyan-600 transition-colors shadow-glow-cyan"
-                          title="Evaluate & update status"
-                        >
-                          <Play className="w-4 h-4 fill-white" />
-                        </button>
+              {loading ? (
+                <div className="py-12 flex justify-center">
+                  <div className="w-8 h-8 rounded-full border-2 border-t-cyan-500 border-r-transparent border-slate-855 animate-spin" />
+                </div>
+              ) : (
+                <div className="flex flex-col gap-3 my-2 max-h-[350px] overflow-y-auto pr-1 custom-sidebar-scrollbar">
+                  {filteredQueue.length > 0 ? (
+                    filteredQueue.map((item) => (
+                      <div key={item.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl bg-slate-100/50 dark:bg-slate-900/40 border border-slate-200/40 dark:border-slate-850 gap-4">
+                        <div className="flex flex-col text-left">
+                          <span className="font-bold text-sm text-slate-850 dark:text-white">{item.title}</span>
+                          <span className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider">
+                            {item.college_name || 'Statewide Area'} • Ticket #{item.id} • Student: {item.student_name || 'Anonymous Student'}
+                          </span>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 line-clamp-1 italic max-w-xl">
+                            "{item.description}"
+                          </p>
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+                          <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded border ${getUrgencyColor(item.urgency)}`}>
+                            {item.urgency}
+                          </span>
+                          <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-500 border border-cyan-500/20">
+                            {item.status}
+                          </span>
+                          <button
+                            onClick={() => setSelectedTicketId(item.id)}
+                            className="p-2 rounded-xl bg-cyan-500 text-white hover:bg-cyan-600 transition-colors shadow-glow-cyan"
+                            title="Evaluate & update status"
+                          >
+                            <Play className="w-4 h-4 fill-white" />
+                          </button>
+                        </div>
                       </div>
+                    ))
+                  ) : (
+                    <div className="py-10 text-center text-slate-400 text-sm">
+                      No matching grievances found matching your matrix query filters.
                     </div>
-                  ))
-                ) : (
-                  <div className="py-10 text-center text-slate-400 text-sm">
-                    No matching grievances found matching your matrix query filters.
-                  </div>
-                )}
-              </div>
-            )}
-          </GlassCard>
-        </div>
-
-        {/* Localized Analytics & Feed */}
-        <div className="lg:col-span-1 flex flex-col gap-6">
-          <div className="h-[200px]">
-            <GlassCard hoverEffect={false} className="p-4 h-full flex flex-col gap-2">
-              <span className="font-extrabold text-[10px] text-slate-700 dark:text-white uppercase tracking-wider pl-2 text-center">Category Distribution</span>
-              <div className="flex-1 min-h-0">
-                <CategoryPieChart data={localCategories} />
-              </div>
+                  )}
+                </div>
+              )}
             </GlassCard>
           </div>
-          <div className="flex-1 min-h-[250px]">
-            <RealtimeActivityFeed activities={localActivity} title="Local Feeds" />
+
+          {/* Localized Analytics & Feed */}
+          <div className="lg:col-span-1 flex flex-col gap-6">
+            <div className="h-[200px]">
+              <GlassCard hoverEffect={false} className="p-4 h-full flex flex-col gap-2">
+                <span className="font-extrabold text-[10px] text-slate-700 dark:text-white uppercase tracking-wider pl-2 text-center">Category Distribution</span>
+                <div className="flex-1 min-h-0">
+                  <CategoryPieChart data={localCategories} />
+                </div>
+              </GlassCard>
+            </div>
+            <div className="flex-1 min-h-[250px]">
+              <RealtimeActivityFeed activities={localActivity} title="Local Feeds" />
+            </div>
+          </div>
+
+        </div>
+      )}
+
+      {activeTab === 'applications' && (
+        <div className="w-full flex flex-col gap-6 animate-fadeIn">
+          <div className="p-6 flex flex-col gap-4 text-left rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-premium-light dark:shadow-premium-dark">
+            <h3 className="font-extrabold text-sm text-slate-700 dark:text-white uppercase tracking-wider flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
+              <Users className="w-4 h-4 text-cyan-500" />
+              Join TSRV Regional Requests
+            </h3>
+
+            {requestMessage.text && (
+              <div className={`p-4 rounded-xl border text-xs font-semibold ${
+                requestMessage.type === 'success'
+                  ? 'bg-green-500/10 text-green-550 border-green-500/20'
+                  : 'bg-rose-500/10 text-rose-500 border-rose-500/20'
+              }`}>
+                {requestMessage.text}
+              </div>
+            )}
+
+            {fetchingRequests ? (
+              <div className="py-12 text-center text-xs text-slate-400 dark:text-slate-550 italic">
+                Loading applications network node...
+              </div>
+            ) : joinRequests.length > 0 ? (
+              <div className="flex flex-col gap-4">
+                {joinRequests.map((req) => (
+                  <div key={req.id} className="p-4 sm:p-5 rounded-2xl bg-slate-50/50 dark:bg-slate-900/40 border border-slate-200/50 dark:border-slate-850 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex flex-col gap-1.5 text-xs text-slate-500">
+                      <div className="flex items-center gap-2">
+                        <strong className="text-sm font-bold text-slate-800 dark:text-white">{req.full_name}</strong>
+                        <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold ${
+                          req.status === 'Approved'
+                            ? 'bg-green-500/10 text-green-555 border border-green-500/20'
+                            : req.status === 'Rejected'
+                            ? 'bg-rose-500/10 text-rose-500 border border-rose-500/20'
+                            : 'bg-amber-500/10 text-amber-500 border border-amber-500/20 animate-pulse'
+                        }`}>
+                          {req.status}
+                        </span>
+                      </div>
+                      <p className="mt-0.5">Email: <span className="text-slate-700 dark:text-slate-350">{req.email}</span> | Phone: <span className="text-slate-700 dark:text-slate-350">{req.phone}</span></p>
+                      <p>Constituency: <span className="text-slate-750 dark:text-slate-300 font-semibold">{req.constituency_name || 'Not Registered'} ({req.district || ''})</span></p>
+                      <div className="mt-1 bg-slate-100/50 dark:bg-slate-950/40 p-2.5 rounded-lg border border-slate-200/30 dark:border-slate-850 text-slate-600 dark:text-slate-400">
+                        <span className="font-extrabold text-[10px] text-slate-450 dark:text-slate-550 uppercase block mb-1">Statement of Motivation</span>
+                        {req.reason}
+                      </div>
+                      <span className="text-[9px] text-slate-400 mt-1 block">Applied: {new Date(req.created_at).toLocaleString()}</span>
+                    </div>
+
+                    {req.status === 'Pending' && (
+                      <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                        <PremiumButton
+                          variant="glow"
+                          size="sm"
+                          onClick={() => handleUpdateRequestStatus(req.id, 'Approved')}
+                          icon={<Check className="w-3.5 h-3.5" />}
+                          className="bg-green-600 border-green-600 text-white"
+                        >
+                          Approve
+                        </PremiumButton>
+                        <PremiumButton
+                          variant="glow"
+                          size="sm"
+                          onClick={() => handleUpdateRequestStatus(req.id, 'Rejected')}
+                          icon={<X className="w-3.5 h-3.5" />}
+                          className="bg-rose-600 border-rose-600 text-white"
+                        >
+                          Reject
+                        </PremiumButton>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="py-12 text-center text-slate-400 text-sm italic">
+                No join applications submitted to your constituency yet.
+              </div>
+            )}
           </div>
         </div>
-
-      </div>
+      )}
 
       {userProfile && (
         <div className="w-full mt-2">
