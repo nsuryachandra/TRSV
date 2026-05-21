@@ -290,6 +290,18 @@ httpServer.listen(PORT, async () => {
     } catch (devErr) {
       console.error('🚨 [Database] Failed to seed master dev credentials:', devErr.message);
     }
+
+    // Ensure "Upcoming Area" constituency exists
+    try {
+      await pool.query(`
+        INSERT INTO constituencies (constituency_name, district, status)
+        VALUES ('Upcoming Area', 'Statewide', 'active')
+        ON CONFLICT (constituency_name) DO NOTHING
+      `);
+      console.log('🔹 [Database] Upcoming Area constituency synchronized successfully.');
+    } catch (upcomingErr) {
+      console.error('🚨 [Database] Failed to ensure Upcoming Area constituency:', upcomingErr.message);
+    }
   }).catch((err) => {
     console.error('🚨 [Database] Failed to alter users schema for forgot-password:', err.message);
   });
