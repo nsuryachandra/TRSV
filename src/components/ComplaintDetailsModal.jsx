@@ -602,6 +602,12 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
                   <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Constituency Hub</span>
                   <span className="text-xs font-bold text-slate-800 dark:text-white block">{complaint.constituency_name || 'State Scope'}</span>
                 </div>
+                <div className="col-span-1 sm:col-span-2 break-words border-t border-slate-100 dark:border-slate-800/80 pt-3">
+                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Claimed Leader / Handler</span>
+                  <span className="text-xs font-extrabold text-cyan-600 dark:text-cyan-400 block">
+                    {complaint.handler_name ? `${complaint.handler_name} (${complaint.handler_role ? complaint.handler_role.replace('_', ' ').toUpperCase() : ''})` : 'Not Claimed Yet (Pending Redressal)'}
+                  </span>
+                </div>
               </div>
             </section>
 

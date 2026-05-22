@@ -225,7 +225,7 @@ router.get('/verify/:token_or_id', async (req, res) => {
       complaintsQuery.rows.forEach(c => {
         timeline.push({
           date: new Date(c.created_at).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }),
-          event: `Grievance Filed: "${c.title}" [Status: ${c.status}]`
+          event: `Complaint Filed: "${c.title}" [Status: ${c.status}]`
         });
       });
     } else {

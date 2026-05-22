@@ -292,7 +292,7 @@ export default function RootLayout() {
               <span className="font-black text-xl tracking-tight text-slate-800 dark:text-white">TSRV</span>
             </div>
             <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-              Telangana Rakshana Sena Vidyarthi Vibhagam is a premier student union organization offering campus representation, peer mentorship, transparency auditing, and grievance assistance.
+              Telangana Rakshana Sena Vidyarthi Vibhagam is a premier student union organization offering campus representation, peer mentorship, transparency auditing, and complaint assistance.
             </p>
             <div className="flex items-center gap-3 text-slate-400 dark:text-slate-500 text-sm">
               <Globe className="w-4 h-4 text-cyan-500" />

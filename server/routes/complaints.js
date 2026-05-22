@@ -107,6 +107,25 @@ router.post('/', requireRole(['student']), async (req, res) => {
   }
 
   try {
+    // Anti-Spam Submission Cooldown (6 hours check)
+    const lastComplaint = await query(
+      'SELECT created_at FROM complaints WHERE student_id = $1 ORDER BY created_at DESC LIMIT 1',
+      [req.user.uid]
+    );
+
+    if (lastComplaint.rows.length > 0) {
+      const lastTime = new Date(lastComplaint.rows[0].created_at).getTime();
+      const diffMs = Date.now() - lastTime;
+      const cooldownMs = 6 * 60 * 60 * 1000;
+      if (diffMs < cooldownMs) {
+        return res.status(429).json({
+          success: false,
+          message: 'Submission cooldown active. Please wait before lodging another complaint.',
+          cooldownRemaining: cooldownMs - diffMs
+        });
+      }
+    }
+
     // Read the student location profiles from database to auto-stamp
     const studentUser = await query('SELECT constituency_id, college_id FROM users WHERE id = $1', [req.user.uid]);
     const profileConstituencyId = studentUser.rows[0].constituency_id;
@@ -361,7 +380,7 @@ router.get('/', requireRole(['student', 'secretary', 'general_secretary', 'vice_
 });
 
 /**
- * 3. Fetch completely populated detailed Grievance Ticket
+ * 3. Fetch completely populated detailed Complaint Ticket
  */
 router.get('/:id', requireRole(['student', 'secretary', 'general_secretary', 'vice_president', 'president', 'state_president', 'supreme_admin', 'dev']), async (req, res) => {
   const { id } = req.params;
@@ -384,6 +403,35 @@ router.get('/:id', requireRole(['student', 'secretary', 'general_secretary', 'vi
     }
 
     const complaint = complaintResult.rows[0];
+
+    // Location Scope and Role-based Access Control checks
+    const { role: userRole, uid: userUid, constituency_id: userConId, college_id: userColId } = req.user;
+    if (userRole === 'student') {
+      if (complaint.student_id !== userUid) {
+        return res.status(403).json({ success: false, message: 'Access Denied: You are not authorized to view this complaint.' });
+      }
+      delete complaint.student_qr_token;
+    } else {
+      const isStatewide = ['supreme_admin', 'dev', 'state_president', 'president'].includes(userRole) || 
+        ((userRole === 'general_secretary' || userRole === 'vice_president') && !userConId);
+        
+      if (!isStatewide) {
+        if (userRole === 'secretary') {
+          if (complaint.college_id !== userColId) {
+            return res.status(403).json({ success: false, message: 'Access Denied: This complaint is outside your campus scope.' });
+          }
+        } else {
+          const subRes = await query(
+            `SELECT id FROM constituencies WHERE id = $1 OR parent_id = $1`,
+            [userConId]
+          );
+          const scopedIds = subRes.rows.map(r => r.id);
+          if (!scopedIds.includes(complaint.constituency_id)) {
+            return res.status(403).json({ success: false, message: 'Access Denied: This complaint is outside your constituency jurisdiction.' });
+          }
+        }
+      }
+    }
 
     // Protect anonymous identity if user is not in supreme circle
     if (complaint.anonymous && !['supreme_admin', 'dev', 'state_president', 'president'].includes(req.user.role)) {
@@ -430,11 +478,34 @@ router.put('/:id/status', requireRole(['secretary', 'general_secretary', 'vice_p
   if (!status) return res.status(400).json({ success: false, message: 'New status string required.' });
 
   try {
-    const check = await query('SELECT status, student_id FROM complaints WHERE id = $1', [id]);
+    const check = await query('SELECT status, student_id, constituency_id, college_id FROM complaints WHERE id = $1', [id]);
     if (check.rows.length === 0) return res.status(404).json({ success: false, message: 'Complaint ticket not found.' });
 
-    const currentStatus = check.rows[0].status;
-    const studentId = check.rows[0].student_id;
+    const complaint = check.rows[0];
+    const currentStatus = complaint.status;
+    const studentId = complaint.student_id;
+
+    // Check location scope and role authorization
+    const { role: userRole, constituency_id: userConId, college_id: userColId } = req.user;
+    const isStatewide = ['supreme_admin', 'dev', 'state_president', 'president'].includes(userRole) || 
+      ((userRole === 'general_secretary' || userRole === 'vice_president') && !userConId);
+      
+    if (!isStatewide) {
+      if (userRole === 'secretary') {
+        if (complaint.college_id !== userColId) {
+          return res.status(403).json({ success: false, message: 'Access Denied: This complaint is outside your campus scope.' });
+        }
+      } else {
+        const subRes = await query(
+          `SELECT id FROM constituencies WHERE id = $1 OR parent_id = $1`,
+          [userConId]
+        );
+        const scopedIds = subRes.rows.map(r => r.id);
+        if (!scopedIds.includes(complaint.constituency_id)) {
+          return res.status(403).json({ success: false, message: 'Access Denied: This complaint is outside your constituency jurisdiction.' });
+        }
+      }
+    }
 
     const updated = await query(
       `UPDATE complaints SET 
@@ -480,7 +551,7 @@ router.post('/:id/discuss', requireRole(['student', 'secretary', 'general_secret
 
   try {
     // 1. Fetch complaint details
-    const compCheck = await query('SELECT student_id, title, constituency_id, current_handler FROM complaints WHERE id = $1', [id]);
+    const compCheck = await query('SELECT student_id, title, constituency_id, college_id, current_handler FROM complaints WHERE id = $1', [id]);
     if (compCheck.rows.length === 0) {
       return res.status(404).json({ success: false, message: 'Complaint not found.' });
     }
@@ -489,6 +560,34 @@ router.post('/:id/discuss', requireRole(['student', 'secretary', 'general_secret
     const studentId = complaint.student_id;
     const currentHandler = complaint.current_handler;
     const constituencyId = complaint.constituency_id;
+
+    // Check location scope and role authorization
+    const { role: userRole, constituency_id: userConId, college_id: userColId } = req.user;
+    if (userRole === 'student') {
+      if (studentId !== uid) {
+        return res.status(403).json({ success: false, message: 'Access Denied: You are not authorized to discuss this complaint.' });
+      }
+    } else {
+      const isStatewide = ['supreme_admin', 'dev', 'state_president', 'president'].includes(userRole) || 
+        ((userRole === 'general_secretary' || userRole === 'vice_president') && !userConId);
+        
+      if (!isStatewide) {
+        if (userRole === 'secretary') {
+          if (complaint.college_id !== userColId) {
+            return res.status(403).json({ success: false, message: 'Access Denied: This complaint is outside your campus scope.' });
+          }
+        } else {
+          const subRes = await query(
+            `SELECT id FROM constituencies WHERE id = $1 OR parent_id = $1`,
+            [userConId]
+          );
+          const scopedIds = subRes.rows.map(r => r.id);
+          if (!scopedIds.includes(complaint.constituency_id)) {
+            return res.status(403).json({ success: false, message: 'Access Denied: This complaint is outside your constituency jurisdiction.' });
+          }
+        }
+      }
+    }
 
     // 2. Fetch sender name
     const senderQuery = await query('SELECT full_name FROM users WHERE id = $1', [uid]);

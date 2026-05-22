@@ -16,6 +16,17 @@ export default function StudentDashboard() {
   const [syncing, setSyncing] = useState(false);
   const [selectedTicketId, setSelectedTicketId] = useState(null);
 
+  // 6-hour submission cooldown
+  const [cooldownRemaining, setCooldownRemaining] = useState(0);
+
+  const formatCooldown = (ms) => {
+    const totalSecs = Math.floor(ms / 1000);
+    const hours = Math.floor(totalSecs / 3600);
+    const minutes = Math.floor((totalSecs % 3600) / 60);
+    const seconds = totalSecs % 60;
+    return `${String(hours).padStart(2, '0')}h ${String(minutes).padStart(2, '0')}m ${String(seconds).padStart(2, '0')}s`;
+  };
+
   useEffect(() => {
     if (openTicketId) {
       setSelectedTicketId(parseInt(openTicketId));
@@ -340,7 +351,7 @@ export default function StudentDashboard() {
         setTickets(data.complaints);
       }
     } catch (error) {
-      console.error('Failed to load student grievances:', error.message);
+      console.error('Failed to load student complaints:', error.message);
     } finally {
       setLoading(false);
     }
@@ -349,6 +360,30 @@ export default function StudentDashboard() {
   useEffect(() => {
     fetchComplaints();
   }, []);
+
+  // Compute cooldown from latest ticket
+  useEffect(() => {
+    if (tickets && tickets.length > 0) {
+      const latestTime = new Date(tickets[0].created_at).getTime();
+      const diffMs = Date.now() - latestTime;
+      const cooldownMs = 6 * 60 * 60 * 1000;
+      setCooldownRemaining(diffMs < cooldownMs ? cooldownMs - diffMs : 0);
+    } else {
+      setCooldownRemaining(0);
+    }
+  }, [tickets]);
+
+  // Tick cooldown timer every second
+  useEffect(() => {
+    if (cooldownRemaining <= 0) return;
+    const interval = setInterval(() => {
+      setCooldownRemaining(prev => {
+        if (prev <= 1000) { clearInterval(interval); return 0; }
+        return prev - 1000;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [cooldownRemaining > 0]);
 
   const handleSync = async () => {
     setSyncing(true);
@@ -620,15 +655,25 @@ export default function StudentDashboard() {
               </div>
             )}
 
-            <PremiumButton 
-              type="button"
-              variant="primary" 
-              size="sm" 
-              className="w-full mt-2" 
-              onClick={() => navigate('/dashboard/contact')}
-            >
-              Log New Incident Ticket
-            </PremiumButton>
+            {cooldownRemaining > 0 ? (
+              <div className="mt-2 flex flex-col items-center gap-1.5 p-3 rounded-xl bg-amber-500/10 border border-amber-500/25">
+                <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider">⏳ Cooldown</span>
+                  <span className="font-mono font-black text-sm">{formatCooldown(cooldownRemaining)}</span>
+                </div>
+                <p className="text-[9px] text-slate-400 text-center">Next complaint available after cooldown expires.</p>
+              </div>
+            ) : (
+              <PremiumButton
+                type="button"
+                variant="primary"
+                size="sm"
+                className="w-full mt-2"
+                onClick={() => navigate('/dashboard/contact')}
+              >
+                Log New Incident Ticket
+              </PremiumButton>
+            )}
           </GlassCard>
         </div>
 

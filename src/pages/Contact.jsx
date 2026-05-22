@@ -32,6 +32,17 @@ export default function Contact() {
   const [errorMsg, setErrorMsg] = useState('');
   const [assignedTicketId, setAssignedTicketId] = useState('');
 
+  // 6-hour submission cooldown state
+  const [cooldownRemaining, setCooldownRemaining] = useState(0);
+
+  const formatCooldown = (ms) => {
+    const totalSecs = Math.floor(ms / 1000);
+    const hours = Math.floor(totalSecs / 3600);
+    const minutes = Math.floor((totalSecs % 3600) / 60);
+    const seconds = totalSecs % 60;
+    return `${String(hours).padStart(2, '0')}h ${String(minutes).padStart(2, '0')}m ${String(seconds).padStart(2, '0')}s`;
+  };
+
   // Fetch all active constituencies on mount
   React.useEffect(() => {
     const fetchConstituencies = async () => {
@@ -84,6 +95,30 @@ export default function Contact() {
       fetchTickets();
     }
   }, [user]);
+
+  // Compute initial cooldown from the latest ticket
+  React.useEffect(() => {
+    if (tickets && tickets.length > 0) {
+      const latestTime = new Date(tickets[0].created_at).getTime();
+      const diffMs = Date.now() - latestTime;
+      const cooldownMs = 6 * 60 * 60 * 1000;
+      setCooldownRemaining(diffMs < cooldownMs ? cooldownMs - diffMs : 0);
+    } else {
+      setCooldownRemaining(0);
+    }
+  }, [tickets]);
+
+  // Tick cooldown timer every second
+  React.useEffect(() => {
+    if (cooldownRemaining <= 0) return;
+    const interval = setInterval(() => {
+      setCooldownRemaining(prev => {
+        if (prev <= 1000) { clearInterval(interval); return 0; }
+        return prev - 1000;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [cooldownRemaining > 0]);
 
   // Sync initial profile values if loaded after render
   React.useEffect(() => {
@@ -156,7 +191,7 @@ export default function Contact() {
     try {
       const uploadedProofs = [];
       
-      // Upload grievance attachments sequentially to Supabase
+      // Upload complaint proof attachments sequentially to Supabase
       if (proofFiles.length > 0) {
         for (const file of proofFiles) {
           const publicUrl = await uploadGrievanceMedia(file);
@@ -331,16 +366,26 @@ export default function Contact() {
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-3 w-full justify-center">
-                  <PremiumButton 
-                    variant="primary" 
-                    size="md" 
-                    onClick={() => {
-                      setComplaintSubmitted(false);
-                      setAssignedTicketId('');
-                    }}
-                  >
-                    Submit Another Complaint
-                  </PremiumButton>
+                  {cooldownRemaining > 0 ? (
+                    <div className="w-full flex flex-col items-center gap-2">
+                      <div className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-amber-500/10 border border-amber-500/25 text-amber-600 dark:text-amber-400">
+                        <span className="text-xs font-extrabold uppercase tracking-wider">⏳ Cooldown Active</span>
+                        <span className="font-mono font-black text-sm">{formatCooldown(cooldownRemaining)}</span>
+                      </div>
+                      <p className="text-[10px] text-slate-400 text-center">You may submit another complaint once the cooldown expires.</p>
+                    </div>
+                  ) : (
+                    <PremiumButton
+                      variant="primary"
+                      size="md"
+                      onClick={() => {
+                        setComplaintSubmitted(false);
+                        setAssignedTicketId('');
+                      }}
+                    >
+                      Submit Another Complaint
+                    </PremiumButton>
+                  )}
                 </div>
               </div>
             ) : (
@@ -558,15 +603,25 @@ export default function Contact() {
                   </label>
                 </div>
 
-                <PremiumButton 
-                  type="submit" 
-                  variant="primary" 
-                  size="md" 
-                  className={`w-full mt-2 ${isEmergency ? 'bg-rose-500 hover:bg-rose-600 shadow-glow-rose before:from-rose-400 before:to-rose-600' : ''}`}
-                  disabled={submitting}
-                >
-                  {submitting ? 'Transmitting Evidences & Lodge...' : (isEmergency ? 'Trigger Emergency Dispatch' : 'Lodge Union Complaint')}
-                </PremiumButton>
+                {cooldownRemaining > 0 ? (
+                  <div className="w-full mt-2 flex flex-col items-center gap-2 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/25">
+                    <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
+                      <span className="text-xs font-extrabold uppercase tracking-wider">⏳ Submission Cooldown</span>
+                      <span className="font-mono font-black text-base">{formatCooldown(cooldownRemaining)}</span>
+                    </div>
+                    <p className="text-[10px] text-slate-400 text-center">Your previous complaint was lodged recently. You can submit another once this timer expires.</p>
+                  </div>
+                ) : (
+                  <PremiumButton
+                    type="submit"
+                    variant="primary"
+                    size="md"
+                    className={`w-full mt-2 ${isEmergency ? 'bg-rose-500 hover:bg-rose-600 shadow-glow-rose before:from-rose-400 before:to-rose-600' : ''}`}
+                    disabled={submitting}
+                  >
+                    {submitting ? 'Transmitting Evidences & Lodge...' : (isEmergency ? 'Trigger Emergency Dispatch' : 'Lodge Union Complaint')}
+                  </PremiumButton>
+                )}
               </form>
             )
           ) : (

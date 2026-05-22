@@ -70,7 +70,7 @@ router.get('/insights', async (req, res) => {
       insights.push({
         type: 'cluster_alert',
         severity: 'high',
-        text: `Constituency [${row.constituency_name}] has detected a recurring cluster of critical student grievances. Intervention recommended.`
+        text: `Constituency [${row.constituency_name}] has detected a recurring cluster of critical student complaints. Intervention recommended.`
       });
     });
 

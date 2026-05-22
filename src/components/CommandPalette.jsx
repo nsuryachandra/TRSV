@@ -91,7 +91,7 @@ export default function CommandPalette() {
           <input
             ref={inputRef}
             type="text"
-            placeholder="Search grievances, regions, broadcasts..."
+            placeholder="Search complaints, regions, broadcasts..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="flex-1 bg-transparent border-none outline-none text-slate-800 dark:text-white placeholder:text-slate-500 font-medium text-lg"

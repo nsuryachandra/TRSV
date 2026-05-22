@@ -707,7 +707,7 @@ export default function CommandCenter() {
             </h3>
 
             <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed bg-slate-100/50 dark:bg-slate-900/60 p-4 rounded-xl border border-slate-200/40 dark:border-slate-850">
-              Select any registered student representative profile from the network and calibrate their state administrative coordinates, authorizing specific local campus or constituency grievance dispatch permissions.
+              Select any registered student representative profile from the network and calibrate their state administrative coordinates, authorizing specific local campus or constituency complaint dispatch permissions.
             </p>
 
             <form onSubmit={handlePromote} className="flex flex-col gap-5">
