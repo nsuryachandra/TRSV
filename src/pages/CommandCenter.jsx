@@ -33,12 +33,6 @@ export default function CommandCenter() {
   const openTicketId = searchParams.get('open_ticket_id');
   const [activeTab, setActiveTab] = useState('telemetry'); // 'telemetry', 'nodes', 'promotions'
 
-  useEffect(() => {
-    if (openTicketId) {
-      setSelectedTicketId(parseInt(openTicketId));
-      setActiveTab('complaints');
-    }
-  }, [openTicketId]);
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalLeaders: 0,
@@ -76,10 +70,18 @@ export default function CommandCenter() {
   const [joinRequests, setJoinRequests] = useState([]);
   const [fetchingRequests, setFetchingRequests] = useState(false);
 
-  // Tab 5: Grievance Operations queue states
+  // Tab 5: Complaint Operations queue states
   const [allComplaints, setAllComplaints] = useState([]);
   const [filteredComplaints, setFilteredComplaints] = useState([]);
   const [selectedTicketId, setSelectedTicketId] = useState(null);
+
+  useEffect(() => {
+    if (openTicketId) {
+      setSelectedTicketId(parseInt(openTicketId));
+      setActiveTab('complaints');
+    }
+  }, [openTicketId]);
+
   const [loadingComplaints, setLoadingComplaints] = useState(false);
   const [complaintFilters, setComplaintFilters] = useState({
     search: '',
@@ -530,7 +532,7 @@ export default function CommandCenter() {
                   <strong className="text-slate-750 dark:text-slate-200">{stats.totalLeaders}</strong>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-500">Active Grievances</span>
+                  <span className="text-slate-500">Active Complaints</span>
                   <strong className="text-slate-750 dark:text-slate-200">{stats.totalComplaints - stats.resolvedComplaints}</strong>
                 </div>
               </div>

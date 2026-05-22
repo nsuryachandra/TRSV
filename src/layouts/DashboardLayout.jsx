@@ -37,6 +37,32 @@ export default function DashboardLayout() {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const activeLinkRef = useRef(null);
 
+  const [toasts, setToasts] = useState([]);
+  const prevNotificationsRef = useRef([]);
+
+  const playNotificationSound = () => {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+      osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.12);
+      
+      gain.gain.setValueAtTime(0.15, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+      
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      
+      osc.start();
+      osc.stop(ctx.currentTime + 0.4);
+    } catch (e) {
+      console.warn('AudioContext blocked or unsupported:', e);
+    }
+  };
+
   const unreadCount = notifications.filter(n => !n.read).length;
 
   const formatTimeAgo = (dateStr) => {
@@ -73,6 +99,24 @@ export default function DashboardLayout() {
     const interval = setInterval(fetchNotifications, 5000);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    // Only trigger toasts if we already had a baseline notifications fetch (i.e. prevNotificationsRef is not empty)
+    if (prevNotificationsRef.current.length > 0) {
+      const newUnread = notifications.filter(n => !n.read && !prevNotificationsRef.current.some(p => p.id === n.id));
+      if (newUnread.length > 0) {
+        playNotificationSound();
+        newUnread.forEach(n => {
+          const toastId = Math.random().toString(36).substring(2, 9);
+          setToasts(prev => [...prev, { id: toastId, message: n.message, title: n.title || 'System Notification' }]);
+          setTimeout(() => {
+            setToasts(prev => prev.filter(t => t.id !== toastId));
+          }, 4500);
+        });
+      }
+    }
+    prevNotificationsRef.current = notifications;
+  }, [notifications]);
 
   // Scroll active sidebar link into view on load and navigation changes
   useEffect(() => {
@@ -569,6 +613,40 @@ export default function DashboardLayout() {
           <Outlet />
         </main>
 
+      </div>
+
+      {/* Toast notifications container */}
+      <div className="fixed bottom-6 right-6 z-[9999] flex flex-col gap-3 max-w-sm pointer-events-none">
+        <AnimatePresence>
+          {toasts.map(toast => (
+            <motion.div
+              key={toast.id}
+              initial={{ opacity: 0, y: 30, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, x: 50 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+              className="pointer-events-auto bg-slate-900/95 dark:bg-slate-950/95 border border-cyan-500/30 text-white rounded-2xl shadow-[0_10px_30px_-10px_rgba(34,211,238,0.3)] p-4 flex gap-3 text-left w-full backdrop-blur-md"
+            >
+              <div className="w-8 h-8 rounded-full bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shrink-0">
+                <Bell className="w-4 h-4 animate-pulse" />
+              </div>
+              <div className="flex flex-col min-w-0">
+                <span className="text-[10px] font-black uppercase tracking-wider text-cyan-400">
+                  {toast.title}
+                </span>
+                <p className="text-xs text-slate-200 mt-0.5 leading-relaxed font-bold">
+                  {toast.message}
+                </p>
+              </div>
+              <button 
+                onClick={() => setToasts(prev => prev.filter(t => t.id !== toast.id))}
+                className="text-slate-400 hover:text-white p-1 ml-auto self-start shrink-0 cursor-pointer"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
     </div>
   );

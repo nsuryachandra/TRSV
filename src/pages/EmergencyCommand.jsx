@@ -87,7 +87,7 @@ export default function EmergencyCommand() {
                 Emergency Command HQ
               </h1>
               <p className="text-slate-400 text-sm mt-1 max-w-xl">
-                Statewide high-velocity panic dispatch grid. Authorized state-level nodes can intercept, acknowledge, and override critical student grievances immediately.
+                Statewide high-velocity panic dispatch grid. Authorized state-level nodes can intercept, acknowledge, and override critical student complaints immediately.
               </p>
             </div>
           </div>

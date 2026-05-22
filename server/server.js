@@ -351,12 +351,12 @@ httpServer.listen(PORT, async () => {
     console.error('🚨 [Database] Failed to sync constituency hierarchy:', conErr.message);
   }
 
-  // STEP 7: Grievance form columns on complaints (each column separate to avoid multi-statement rejection)
+  // STEP 7: Complaint details columns on complaints (each column separate to avoid multi-statement rejection)
   try {
     await pool.query(`ALTER TABLE complaints ADD COLUMN IF NOT EXISTS complainant_name VARCHAR(255)`);
     await pool.query(`ALTER TABLE complaints ADD COLUMN IF NOT EXISTS complainant_mobile VARCHAR(20)`);
     await pool.query(`ALTER TABLE complaints ADD COLUMN IF NOT EXISTS college_school_address TEXT`);
-    console.log('🔹 [Database] Complaints grievance form columns synchronized.');
+    console.log('🔹 [Database] Complaints form columns synchronized.');
   } catch (colErr) {
     console.error('🚨 [Database] Failed to sync complaint columns:', colErr.message);
   }

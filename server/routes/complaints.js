@@ -429,7 +429,7 @@ router.put('/:id/status', requireRole(['secretary', 'general_secretary', 'vice_p
 
   try {
     const check = await query('SELECT status, student_id FROM complaints WHERE id = $1', [id]);
-    if (check.rows.length === 0) return res.status(404).json({ success: false, message: 'Grievance ticket not found.' });
+    if (check.rows.length === 0) return res.status(404).json({ success: false, message: 'Complaint ticket not found.' });
 
     const currentStatus = check.rows[0].status;
     const studentId = check.rows[0].student_id;
@@ -437,11 +437,11 @@ router.put('/:id/status', requireRole(['secretary', 'general_secretary', 'vice_p
     const updated = await query(
       `UPDATE complaints SET 
        status = COALESCE($1, status), 
-       current_handler = COALESCE($2, current_handler), 
+       current_handler = COALESCE($2, current_handler, $5), 
        resolution_notes = COALESCE($3, resolution_notes), 
        updated_at = NOW() 
        WHERE id = $4 RETURNING *`,
-      [status, current_handler || null, resolution_notes || null, id]
+      [status, current_handler || null, resolution_notes || null, id, updaterUid]
     );
 
     await query(
@@ -451,7 +451,7 @@ router.put('/:id/status', requireRole(['secretary', 'general_secretary', 'vice_p
 
     await query(
       'INSERT INTO notifications (user_id, title, message) VALUES ($1, $2, $3)',
-      [studentId, 'Grievance Status Updated', `Your ticket #${id} status changed to "${status}".`]
+      [studentId, 'Complaint Status Updated', `Your ticket #${id} status changed to "${status}".`]
     );
 
     await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details) VALUES ($1, $2, $3)', [
@@ -460,7 +460,7 @@ router.put('/:id/status', requireRole(['secretary', 'general_secretary', 'vice_p
       `Ticket #${id} status updated to '${status}'`
     ]);
 
-    res.json({ success: true, message: 'Grievance status updated and logged.', complaint: updated.rows[0] });
+    res.json({ success: true, message: 'Complaint status updated and logged.', complaint: updated.rows[0] });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Failed to update complaint status.', error: error.message });
   }
@@ -567,7 +567,7 @@ router.post('/:id/escalate', requireRole(['secretary', 'general_secretary', 'vic
 
   try {
     const comp = await query('SELECT escalation_level FROM complaints WHERE id = $1', [id]);
-    if (comp.rows.length === 0) return res.status(404).json({ success: false, message: 'Grievance ticket not found.' });
+    if (comp.rows.length === 0) return res.status(404).json({ success: false, message: 'Complaint ticket not found.' });
     const level_from = comp.rows[0].escalation_level;
 
     const updated = await query(
@@ -591,7 +591,7 @@ router.post('/:id/escalate', requireRole(['secretary', 'general_secretary', 'vic
       `Ticket #${id} escalated to level ${level_to}`
     ]);
 
-    res.json({ success: true, message: 'Grievance escalated successfully.', complaint: updated.rows[0] });
+    res.json({ success: true, message: 'Complaint escalated successfully.', complaint: updated.rows[0] });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Failed to escalate complaint.', error: error.message });
   }
@@ -607,7 +607,7 @@ router.delete('/:id', requireRole(['supreme_admin', 'state_president', 'dev']), 
   try {
     const check = await query('SELECT id, title, student_id FROM complaints WHERE id = $1', [id]);
     if (check.rows.length === 0) {
-      return res.status(404).json({ success: false, message: 'Grievance ticket not found.' });
+      return res.status(404).json({ success: false, message: 'Complaint ticket not found.' });
     }
 
     const ticket = check.rows[0];
@@ -628,7 +628,7 @@ router.delete('/:id', requireRole(['supreme_admin', 'state_president', 'dev']), 
     ]);
 
     console.log(`🗑️ [Admin] Complaint #${id} deleted by ${uid}`);
-    res.json({ success: true, message: `Grievance ticket #${id} has been permanently deleted.` });
+    res.json({ success: true, message: `Complaint ticket #${id} has been permanently deleted.` });
   } catch (error) {
     console.error('🚨 [Complaint Delete Error]:', error.message);
     res.status(500).json({ success: false, message: 'Failed to delete complaint.', error: error.message });

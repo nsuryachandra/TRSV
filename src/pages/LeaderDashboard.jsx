@@ -17,11 +17,6 @@ export default function LeaderDashboard() {
   const openTicketId = searchParams.get('open_ticket_id');
   const [activeTab, setActiveTab] = useState('complaints'); // 'complaints', 'applications'
 
-  useEffect(() => {
-    if (openTicketId) {
-      setSelectedTicketId(parseInt(openTicketId));
-    }
-  }, [openTicketId]);
   const [joinRequests, setJoinRequests] = useState([]);
   const [fetchingRequests, setFetchingRequests] = useState(false);
   const [requestMessage, setRequestMessage] = useState({ text: '', type: '' });
@@ -41,6 +36,12 @@ export default function LeaderDashboard() {
   const [loading, setLoading] = useState(true);
   const [selectedTicketId, setSelectedTicketId] = useState(null);
   const [connectionDropped, setConnectionDropped] = useState(false);
+
+  useEffect(() => {
+    if (openTicketId) {
+      setSelectedTicketId(parseInt(openTicketId));
+    }
+  }, [openTicketId]);
   
   const [localCategories, setLocalCategories] = useState([]);
   const [localActivity, setLocalActivity] = useState([]);
