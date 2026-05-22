@@ -99,7 +99,7 @@ export default function CommandCenter() {
   };
 
   useEffect(() => {
-    if (activeTab === 'grievances') {
+    if (activeTab === 'complaints') {
       fetchAllComplaints();
     }
   }, [activeTab]);
@@ -444,7 +444,7 @@ export default function CommandCenter() {
 
         <div className="shrink-0 self-start lg:self-center">
           <div className="flex flex-wrap gap-2">
-            {['telemetry', 'grievances', 'nodes', 'promotions', 'applications'].map((tab) => (
+            {['telemetry', 'complaints', 'nodes', 'promotions', 'applications'].map((tab) => (
               <button
                 key={tab}
                 onClick={() => {
@@ -457,7 +457,7 @@ export default function CommandCenter() {
                     : 'bg-slate-100/50 dark:bg-slate-900/60 border-slate-200/50 dark:border-slate-800 text-slate-500 hover:text-slate-850 dark:hover:text-white'
                 }`}
               >
-                {tab === 'nodes' ? 'Academic Grid' : tab === 'applications' ? 'Join Requests' : tab === 'grievances' ? 'Grievance Operations' : tab}
+                {tab === 'nodes' ? 'Academic Grid' : tab === 'applications' ? 'Join Requests' : tab === 'complaints' ? 'Complaints' : tab}
               </button>
             ))}
           </div>
@@ -846,7 +846,7 @@ export default function CommandCenter() {
           </div>
         </div>
       )}
-      {activeTab === 'grievances' && (
+      {activeTab === 'complaints' && (
         <div className="w-full flex flex-col gap-6 animate-scaleUp">
           <GrievanceFilters 
             onFilterChange={setComplaintFilters} 
@@ -856,7 +856,7 @@ export default function CommandCenter() {
           <div className="p-6 flex flex-col gap-4 text-left rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-premium-light dark:shadow-premium-dark">
             <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
               <span className="font-extrabold text-sm text-slate-700 dark:text-white uppercase tracking-wider">
-                Grievance Operations Queue ({filteredComplaints.length})
+                Complaint Operations Queue ({filteredComplaints.length})
               </span>
               <span className="text-xs text-slate-400">Total {allComplaints.length} Lodged</span>
             </div>
@@ -922,7 +922,7 @@ export default function CommandCenter() {
               </div>
             ) : (
               <div className="py-12 text-center text-slate-400 text-xs italic">
-                No matching grievances found in this constituency query.
+                No matching complaints found in this constituency query.
               </div>
             )}
           </div>

@@ -122,7 +122,7 @@ router.post('/', requireRole(['student']), async (req, res) => {
       `INSERT INTO complaints (title, description, category, urgency, status, student_id, constituency_id, college_id, attachment_url, anonymous, emergency_flag, complainant_name, complainant_mobile, college_school_address) 
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) RETURNING *`,
       [
-        title || `Grievance from ${complainant_name}`,
+        title || `Complaint from ${complainant_name}`,
         description,
         category,
         normalizedUrgency,
@@ -165,7 +165,7 @@ router.post('/', requireRole(['student']), async (req, res) => {
     await query(
       `INSERT INTO complaint_timeline (complaint_id, action_by, status, note) 
        VALUES ($1, $2, $3, $4)`,
-      [complaintId, req.user.uid, isEmergency ? 'Emergency Dispatched' : 'Complaint Registered', 'Grievance successfully submitted to the statewide TRSV security grid.']
+      [complaintId, req.user.uid, isEmergency ? 'Emergency Dispatched' : 'Complaint Registered', 'Complaint successfully submitted to the statewide TRSV security grid.']
     );
 
     // Create a self-service notification
@@ -217,14 +217,14 @@ router.post('/', requireRole(['student']), async (req, res) => {
       }
 
       // 4. Bulk insert notifications (skip the reporter themselves)
-      const complaintTitle = title || `Grievance from ${complainant_name}`;
+      const complaintTitle = title || `Complaint from ${complainant_name}`;
       for (const leaderId of leaderIds) {
         if (leaderId !== req.user.uid) {
           await query(
             'INSERT INTO notifications (user_id, title, message) VALUES ($1, $2, $3)',
             [
               leaderId,
-              '🆕 New Grievance Registered',
+              '🆕 New Complaint Registered',
               `Issue #${complaintId} filed${isUpcomingArea ? ' (Upcoming Area)' : ''}: "${complaintTitle.substring(0, 60)}${complaintTitle.length > 60 ? '...' : ''}"`
             ]
           );
@@ -239,13 +239,13 @@ router.post('/', requireRole(['student']), async (req, res) => {
     await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details) VALUES ($1, $2, $3)', [
       req.user.uid,
       'COMPLAINT_RAISED',
-      `Student raised a ${isEmergency ? 'CRITICAL ' : ''}grievance: ${title}`
+      `Student raised a ${isEmergency ? 'CRITICAL ' : ''}complaint: ${title}`
     ]);
 
-    res.status(201).json({ success: true, message: 'Grievance submitted successfully.', complaint: result.rows[0] });
+    res.status(201).json({ success: true, message: 'Complaint submitted successfully.', complaint: result.rows[0] });
   } catch (error) {
     console.error('🚨 [Complaint Submission Error]:', error.message);
-    res.status(500).json({ success: false, message: 'Grievance logging failed.', error: error.message });
+    res.status(500).json({ success: false, message: 'Complaint logging failed.', error: error.message });
   }
 });
 
@@ -257,7 +257,7 @@ router.get('/', requireRole(['student', 'secretary', 'general_secretary', 'vice_
 
   try {
     let result;
-    const isStatewide = ['supreme_admin', 'dev', 'state_president'].includes(role) || 
+    const isStatewide = ['supreme_admin', 'dev', 'state_president', 'president'].includes(role) || 
       ((role === 'general_secretary' || role === 'vice_president') && !constituency_id);
 
     if (role === 'student') {
@@ -341,13 +341,13 @@ router.get('/:id', requireRole(['student', 'secretary', 'general_secretary', 'vi
     );
 
     if (complaintResult.rows.length === 0) {
-      return res.status(404).json({ success: false, message: 'Grievance ticket not found.' });
+      return res.status(404).json({ success: false, message: 'Complaint ticket not found.' });
     }
 
     const complaint = complaintResult.rows[0];
 
     // Protect anonymous identity if user is not in supreme circle
-    if (complaint.anonymous && !['supreme_admin', 'dev', 'state_president'].includes(req.user.role)) {
+    if (complaint.anonymous && !['supreme_admin', 'dev', 'state_president', 'president'].includes(req.user.role)) {
       complaint.student_name = 'Anonymous Student Coordinator';
       complaint.student_id = 'HIDDEN';
     }

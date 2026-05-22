@@ -160,6 +160,8 @@ router.get('/stats', requireRole(['student', 'secretary', 'general_secretary', '
           totalComplaints: parseInt(complaints.rows[0].count),
           resolvedComplaints: parseInt(resolved.rows[0].count),
           criticalComplaints: parseInt(critical.rows[0].count),
+          pendingComplaints: parseInt(complaints.rows[0].count) - parseInt(resolved.rows[0].count),
+          activeColleges: parseInt(colleges.rows[0].count),
           systemLogs: logs.rows
         }
       });

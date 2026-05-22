@@ -12,7 +12,7 @@ import HubChat from '../components/HubChat';
 
 export default function LeaderDashboard() {
   const { userProfile } = useAuth();
-  const [activeTab, setActiveTab] = useState('grievances'); // 'grievances', 'applications'
+  const [activeTab, setActiveTab] = useState('complaints'); // 'complaints', 'applications'
   const [joinRequests, setJoinRequests] = useState([]);
   const [fetchingRequests, setFetchingRequests] = useState(false);
   const [requestMessage, setRequestMessage] = useState({ text: '', type: '' });
@@ -192,7 +192,7 @@ export default function LeaderDashboard() {
       ];
     } else if (userProfile?.role === 'general_secretary') {
       return [
-        { label: 'Constituency Grievances', val: stats.totalComplaints || 0, color: 'text-sky-500' },
+        { label: 'Constituency Complaints', val: stats.totalComplaints || 0, color: 'text-sky-500' },
         { label: 'Active Escaped Reviews', val: stats.pendingComplaints || 0, color: 'text-rose-500 animate-pulse' },
         { label: 'Resolved Telemetries', val: stats.resolvedComplaints || 0, color: 'text-green-500' },
         { label: 'Active Colleges Nodes', val: stats.collegeNodes || 0, color: 'text-cyan-400' }
@@ -302,14 +302,14 @@ export default function LeaderDashboard() {
       {/* Tab Switcher */}
       <div className="flex border-b border-slate-200 dark:border-slate-850 gap-6 mt-2">
         <button
-          onClick={() => setActiveTab('grievances')}
+          onClick={() => setActiveTab('complaints')}
           className={`pb-3 text-xs font-bold uppercase tracking-wider transition-all relative ${
-            activeTab === 'grievances'
+            activeTab === 'complaints'
               ? 'text-cyan-500 border-b-2 border-cyan-500'
               : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-350'
           }`}
         >
-          Grievance Operations
+          Complaints
         </button>
         <button
           onClick={() => setActiveTab('applications')}
@@ -323,14 +323,14 @@ export default function LeaderDashboard() {
         </button>
       </div>
 
-      {activeTab === 'grievances' && (
+      {activeTab === 'complaints' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch w-full animate-fadeIn">
           
           {/* District Action Queue */}
           <div className="lg:col-span-2">
             <GlassCard hoverEffect={false} className="p-6 h-full flex flex-col justify-between gap-4 min-h-[400px]">
               <div className="flex items-center justify-between border-b border-slate-200/50 dark:border-slate-850 pb-3">
-                <span className="font-extrabold text-sm text-slate-700 dark:text-white uppercase tracking-wider">Grievance Incident Dispatch Queue</span>
+                <span className="font-extrabold text-sm text-slate-700 dark:text-white uppercase tracking-wider">Complaint Incident Dispatch Queue</span>
                 <span className="text-xs text-rose-500 font-extrabold flex items-center gap-1">
                   <AlertTriangle className="w-3.5 h-3.5" />
                   Action Center
@@ -375,7 +375,7 @@ export default function LeaderDashboard() {
                     ))
                   ) : (
                     <div className="py-10 text-center text-slate-400 text-sm">
-                      No matching grievances found matching your matrix query filters.
+                      No matching complaints found matching your matrix query filters.
                     </div>
                   )}
                 </div>
