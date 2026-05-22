@@ -55,7 +55,7 @@ router.get('/', requireRole(['student', 'secretary', 'general_secretary', 'vice_
  * 2. Create statewide announcement circulars (General Secretary, President, and Supreme Admin/State President/Dev only)
  */
 router.post('/', requireRole(['general_secretary', 'president', 'state_president', 'supreme_admin', 'dev']), async (req, res) => {
-  const { title, content, targetAudience } = req.body;
+  const { title, content, targetAudience, imageUrl } = req.body;
   const authorUid = req.user.uid || 'SUPREME_ADMIN_UID';
 
   if (!title || !content) {
@@ -64,9 +64,9 @@ router.post('/', requireRole(['general_secretary', 'president', 'state_president
 
   try {
     const result = await query(
-      `INSERT INTO announcements (title, content, target_audience, author_id) 
-       VALUES ($1, $2, $3, $4) RETURNING *`,
-      [title, content, targetAudience || 'all', authorUid]
+      `INSERT INTO announcements (title, content, target_audience, author_id, image_url) 
+       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+      [title, content, targetAudience || 'all', authorUid, imageUrl || null]
     );
 
     const announcementId = result.rows[0].id;

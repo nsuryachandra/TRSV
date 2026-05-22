@@ -361,6 +361,14 @@ httpServer.listen(PORT, async () => {
     console.error('🚨 [Database] Failed to sync complaint columns:', colErr.message);
   }
 
+  // STEP 8: Announcements image_url column
+  try {
+    await pool.query(`ALTER TABLE announcements ADD COLUMN IF NOT EXISTS image_url TEXT`);
+    console.log('🔹 [Database] Announcements image_url column synchronized.');
+  } catch (imgErr) {
+    console.error('🚨 [Database] Failed to sync announcements image_url column:', imgErr.message);
+  }
+
   // Background auto-escalation scheduler
   setTimeout(() => {
     runAutoEscalationJob().catch(err => console.error('Initial cron job error:', err.message));

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Volume2, Bell, AlertOctagon, Calendar, ArrowRight, BookOpen, Send, PlusCircle, CheckCircle, ShieldAlert, User, Trash2 } from 'lucide-react';
+import { Volume2, Bell, AlertOctagon, Calendar, ArrowRight, BookOpen, Send, PlusCircle, CheckCircle, ShieldAlert, User, Trash2, UploadCloud, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import GlassCard from '../components/GlassCard';
 import AnimatedSection from '../components/AnimatedSection';
 import PremiumButton from '../components/PremiumButton';
+import { uploadGrievanceMedia } from '../config/supabase';
 
 const formatRole = (role) => {
   if (role === 'supreme_admin') return 'TRSV Founder';
@@ -26,8 +27,34 @@ export default function Announcements() {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [targetAudience, setTargetAudience] = useState('all');
+  const [imageUrl, setImageUrl] = useState('');
+  const [imageFile, setImageFile] = useState(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
+
+  const handleImageChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingImage(true);
+    setError('');
+    try {
+      const url = await uploadGrievanceMedia(file);
+      setImageUrl(url);
+      setImageFile(file);
+    } catch (err) {
+      console.error(err);
+      setError('Failed to upload announcement image.');
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const removeImage = () => {
+    setImageUrl('');
+    setImageFile(null);
+  };
 
   // Authorized roles to post circulars: general_secretary, president, state_president, supreme_admin, dev
   const isAuthorizedToPost = userProfile && ['dev', 'supreme_admin', 'president', 'state_president', 'general_secretary'].includes(userProfile.role);
@@ -79,7 +106,8 @@ export default function Announcements() {
         body: JSON.stringify({
           title: title.trim(),
           content: content.trim(),
-          targetAudience
+          targetAudience,
+          imageUrl
         })
       });
 
@@ -89,6 +117,8 @@ export default function Announcements() {
         setTitle('');
         setContent('');
         setTargetAudience('all');
+        setImageUrl('');
+        setImageFile(null);
         setShowForm(false);
         // Refresh feed
         fetchAnnouncements();
@@ -214,6 +244,56 @@ export default function Announcements() {
                 />
               </div>
 
+              {/* Image upload field */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                  Announcement Graphic / Image (Optional)
+                </label>
+                
+                {imageUrl ? (
+                  <div className="relative rounded-xl overflow-hidden border border-slate-200/60 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/55 p-2 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <img 
+                        src={imageUrl} 
+                        alt="Uploaded Preview" 
+                        className="w-16 h-16 rounded-lg object-cover border border-slate-200/50 dark:border-slate-850"
+                      />
+                      <div className="flex flex-col text-left">
+                        <span className="text-xs font-bold text-slate-700 dark:text-white truncate max-w-[200px]">
+                          {imageFile?.name || 'Uploaded Graphic'}
+                        </span>
+                        <span className="text-[10px] text-emerald-500 font-bold uppercase tracking-wider">
+                          ✓ Uploaded to System Node
+                        </span>
+                      </div>
+                    </div>
+                    <button 
+                      type="button" 
+                      onClick={removeImage}
+                      className="p-2 text-rose-500 hover:text-rose-600 rounded-lg hover:bg-rose-500/10 transition-colors cursor-pointer"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="relative group cursor-pointer border border-dashed border-slate-200/60 dark:border-slate-850 hover:border-cyan-500/60 rounded-xl bg-slate-100/30 dark:bg-slate-900/30 p-4 text-center transition-all">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
+                      disabled={uploadingImage}
+                    />
+                    <div className="flex flex-col items-center gap-1.5 pointer-events-none select-none">
+                      <UploadCloud className="w-6 h-6 text-cyan-500 group-hover:scale-110 transition-transform duration-200" />
+                      <span className="text-xs font-bold text-slate-700 dark:text-white block">
+                        {uploadingImage ? 'Uploading image...' : 'Click or drag image file here'}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <button
                 type="submit"
                 disabled={submitting || !title.trim() || !content.trim()}
@@ -291,6 +371,16 @@ export default function Announcements() {
                 <p className="text-sm text-slate-600 dark:text-slate-350 leading-relaxed whitespace-pre-wrap">
                   {note.content}
                 </p>
+
+                {note.image_url && (
+                  <div className="mt-3.5 rounded-xl overflow-hidden border border-slate-200/40 dark:border-slate-850/50 bg-slate-100/30 dark:bg-slate-900/30 max-h-[360px] flex items-center justify-center">
+                    <img 
+                      src={note.image_url} 
+                      alt={note.title} 
+                      className="w-full max-h-[360px] object-contain"
+                    />
+                  </div>
+                )}
 
                 {/* Author Credentials metadata */}
                 <div className="pt-3.5 border-t border-slate-200/40 dark:border-slate-850/50 flex items-center gap-2.5 text-[11px] text-slate-500 dark:text-slate-400">
