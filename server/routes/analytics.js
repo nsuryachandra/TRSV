@@ -85,7 +85,7 @@ router.get('/emergency-heatmap', requireRole(['secretary', 'general_secretary', 
       SELECT con.constituency_name as name, COUNT(c.id) as emergencies 
       FROM complaints c
       JOIN constituencies con ON c.constituency_id = con.id
-      WHERE c.emergency_flag = TRUE AND c.status != 'Resolved'
+      WHERE c.emergency_flag = TRUE AND c.status NOT IN ('Resolved', 'Solved')
       GROUP BY con.constituency_name 
       ORDER BY emergencies DESC
     `);
@@ -104,9 +104,9 @@ router.get('/rankings', requireRole(['vice_president', 'president', 'state_presi
     const result = await query(`
       SELECT con.constituency_name as name, 
              COUNT(c.id) as total_tickets,
-             SUM(CASE WHEN c.status = 'Resolved' THEN 1 ELSE 0 END) as resolved_tickets,
+             SUM(CASE WHEN c.status IN ('Resolved', 'Solved') THEN 1 ELSE 0 END) as resolved_tickets,
              ROUND(
-               (SUM(CASE WHEN c.status = 'Resolved' THEN 1 ELSE 0 END)::numeric / NULLIF(COUNT(c.id), 0)) * 100, 2
+               (SUM(CASE WHEN c.status IN ('Resolved', 'Solved') THEN 1 ELSE 0 END)::numeric / NULLIF(COUNT(c.id), 0)) * 100, 2
              ) as resolution_rate
       FROM constituencies con
       LEFT JOIN complaints c ON c.constituency_id = con.id

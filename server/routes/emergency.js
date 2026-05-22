@@ -24,7 +24,7 @@ router.get('/active', requireRole(['vice_president', 'president', 'state_preside
       LEFT JOIN constituencies con ON c.constituency_id = con.id
       LEFT JOIN colleges col ON c.college_id = col.id
       LEFT JOIN users u ON c.student_id = u.id
-      WHERE e.resolution_status = 'active' OR c.status != 'Resolved'
+      WHERE e.resolution_status = 'active' OR c.status NOT IN ('Resolved', 'Solved')
       ORDER BY e.dispatched_at DESC
     `);
 

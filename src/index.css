@@ -284,3 +284,19 @@ html.dark .glass-card-border-dark:hover {
 .font-extrabold {
   font-weight: 700 !important; /* Soften from 800 to 700 */
 }
+
+/* Scan-line animation for security scanning */
+@keyframes scan-line {
+  0% {
+    top: 0%;
+  }
+  50% {
+    top: 100%;
+  }
+  100% {
+    top: 0%;
+  }
+}
+.animate-scan-line {
+  animation: scan-line 3s linear infinite;
+}

@@ -211,12 +211,12 @@ export default function DashboardLayout() {
           icon: <CreditCard className="w-5 h-5" />,
           desc: 'My digital identity card'
         },
-        {
+        ...(userProfile?.role !== 'student' ? [{
           name: 'QR Scanner',
           path: '/dashboard/qr-scanner',
           icon: <QrCode className="w-5 h-5" />,
           desc: 'Verify student ID cards'
-        }
+        }] : [])
       ]
     },
     {
@@ -466,7 +466,7 @@ export default function DashboardLayout() {
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative z-10 h-screen">
         
         {/* Top bar dashboard control strips */}
-        <header className="sticky top-0 z-30 w-full px-4 sm:px-6 py-4">
+        <header className="sticky top-0 z-20 w-full px-4 sm:px-6 py-4">
           <div className="glass-panel-light dark:glass-panel-dark glass-card-border-light dark:glass-card-border-dark px-4 sm:px-6 py-3 rounded-2xl flex items-center justify-between shadow-premium-light dark:shadow-premium-dark relative">
             
             {/* Sidebar mobile toggle trigger & Official Branding */}
@@ -609,7 +609,7 @@ export default function DashboardLayout() {
         </header>
 
         {/* Dashboard Content Outlet with zero-overflow margins */}
-        <main className="flex-1 p-4 sm:p-6 max-w-7xl mx-auto w-full relative z-10 overflow-y-auto">
+        <main className="flex-1 p-4 sm:p-6 max-w-7xl mx-auto w-full relative overflow-y-auto">
           <Outlet />
         </main>
 

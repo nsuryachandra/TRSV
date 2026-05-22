@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, ShieldAlert, AlertTriangle, FileText, Clock, MessageSquare, Shield, CheckCircle, Send, Play } from 'lucide-react';
+import { X, ShieldAlert, AlertTriangle, FileText, Clock, MessageSquare, Shield, CheckCircle, Send, Play, Camera, Scan, Upload, User } from 'lucide-react';
 import PremiumButton from './PremiumButton';
+import jsQR from 'jsqr';
 
 export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, onUpdateSuccess }) {
   const navigate = useNavigate();
@@ -20,6 +21,236 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
   const [resolutionNotes, setResolutionNotes] = useState('');
   const [escalateLevel, setEscalateLevel] = useState('');
   const [updating, setUpdating] = useState(false);
+
+  // Interactive Holographic Scanner states
+  const [showScannerChamber, setShowScannerChamber] = useState(false);
+  const [scannerCameraActive, setScannerCameraActive] = useState(false);
+  const [scannerResult, setScannerResult] = useState(null);
+  const [scannerError, setScannerError] = useState('');
+  const [scannerLoading, setScannerLoading] = useState(false);
+  const [scannerUploadedFile, setScannerUploadedFile] = useState(null);
+
+  const scannerVideoRef = useRef(null);
+  const scannerCanvasRef = useRef(null);
+  const scannerStreamRef = useRef(null);
+  const scannerRequestRef = useRef(null);
+  const scannerCameraActiveRef = useRef(false);
+
+  const stopScannerCamera = () => {
+    scannerCameraActiveRef.current = false;
+    if (scannerRequestRef.current) {
+      cancelAnimationFrame(scannerRequestRef.current);
+      scannerRequestRef.current = null;
+    }
+    if (scannerStreamRef.current) {
+      scannerStreamRef.current.getTracks().forEach(track => track.stop());
+      scannerStreamRef.current = null;
+    }
+    if (scannerVideoRef.current) {
+      scannerVideoRef.current.srcObject = null;
+    }
+    setScannerCameraActive(false);
+  };
+
+  const startScannerCamera = async () => {
+    setScannerError('');
+    setScannerResult(null);
+    setScannerCameraActive(true);
+    scannerCameraActiveRef.current = true;
+
+    try {
+      const constraints = {
+        video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
+        audio: false
+      };
+      
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      scannerStreamRef.current = stream;
+
+      if (scannerVideoRef.current) {
+        scannerVideoRef.current.srcObject = stream;
+        scannerVideoRef.current.setAttribute('playsinline', 'true');
+        
+        scannerVideoRef.current.onloadedmetadata = () => {
+          if (scannerVideoRef.current) {
+            scannerVideoRef.current.play().catch(err => {
+              console.error("Video play failed:", err);
+            });
+            scannerRequestRef.current = requestAnimationFrame(scannerTick);
+          }
+        };
+      }
+    } catch (err) {
+      console.error("Camera startup error:", err);
+      setScannerError("Unable to access camera. Please verify permissions in browser settings.");
+      setScannerCameraActive(false);
+    }
+  };
+
+  const scannerTick = () => {
+    if (!scannerCameraActiveRef.current) return;
+
+    try {
+      if (scannerVideoRef.current && scannerVideoRef.current.readyState === scannerVideoRef.current.HAVE_ENOUGH_DATA) {
+        const video = scannerVideoRef.current;
+        const videoW = video.videoWidth;
+        const videoH = video.videoHeight;
+
+        if (videoW > 0 && videoH > 0) {
+          const canvas = scannerCanvasRef.current || document.createElement('canvas');
+          canvas.width = videoW;
+          canvas.height = videoH;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(video, 0, 0, videoW, videoH);
+          
+          const imageData = ctx.getImageData(0, 0, videoW, videoH);
+          const code = jsQR(imageData.data, imageData.width, imageData.height, {
+            inversionAttempts: 'attemptBoth'
+          });
+
+          if (code) {
+            let tokenOrId = code.data;
+            if (code.data.includes('/verify/')) {
+              tokenOrId = code.data.split('/verify/')[1];
+            }
+            executeScannerVerifyQuery(tokenOrId);
+            stopScannerCamera();
+            return;
+          }
+        }
+      }
+    } catch (error) {
+      console.warn("Frame scan iteration error (handled):", error);
+    }
+    
+    if (scannerCameraActiveRef.current) {
+      scannerRequestRef.current = requestAnimationFrame(scannerTick);
+    }
+  };
+
+  const executeScannerVerifyQuery = async (tokenOrId) => {
+    setScannerLoading(true);
+    setScannerError('');
+    setScannerResult(null);
+
+    // Simulate scanning beam animation duration
+    setTimeout(async () => {
+      try {
+        const response = await fetch(`/api/identity/verify/${tokenOrId}`);
+        const json = await response.json();
+        
+        if (json.success) {
+          setScannerResult(json);
+        } else {
+          setScannerError(json.message || 'Decryption failed: Token is not registered or contains corrupted headers.');
+        }
+      } catch (err) {
+        console.error(err);
+        setScannerError('TSRV node communication failed. Server unreachable.');
+      } finally {
+        setScannerLoading(false);
+      }
+    }, 1200);
+  };
+
+  const handleSimulateScan = () => {
+    const token = data?.complaint?.student_qr_token || data?.complaint?.student_member_id || 'supreme_secure_qr_token_surya_2026';
+    executeScannerVerifyQuery(token);
+  };
+
+  const handleScannerFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setScannerUploadedFile(file.name);
+    setScannerLoading(true);
+    setScannerError('');
+    setScannerResult(null);
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        
+        try {
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const code = jsQR(imageData.data, imageData.width, imageData.height, {
+            inversionAttempts: 'attemptBoth'
+          });
+          
+          if (code) {
+            let tokenOrId = code.data;
+            if (code.data.includes('/verify/')) {
+              tokenOrId = code.data.split('/verify/')[1];
+            }
+            executeScannerVerifyQuery(tokenOrId);
+          } else {
+            setScannerError("Failed to decode QR: No clear QR code was detected in the uploaded image.");
+            setScannerLoading(false);
+          }
+        } catch (err) {
+          console.error("File processing error:", err);
+          setScannerError("Failed to process uploaded image file.");
+          setScannerLoading(false);
+        }
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleConfirmVerificationAndStart = async () => {
+    if (!scannerResult?.profile?.id) return;
+    
+    if (scannerResult.profile.id !== data?.complaint?.student_id) {
+      if (!window.confirm("WARNING: Scanned member ID does not match the student who filed this complaint! Do you still want to proceed and verify?")) {
+        return;
+      }
+    }
+
+    setUpdating(true);
+    try {
+      const token = localStorage.getItem('tsrv_session_token');
+      const note = updateNote || 'Solving started after student ID verification.';
+      
+      const res = await fetch(`/api/complaints/${ticketId}/status`, {
+        method: 'PUT',
+        headers: { 
+          'Authorization': `Bearer ${token}`, 
+          'Content-Type': 'application/json' 
+        },
+        body: JSON.stringify({ 
+          status: 'Solving Started', 
+          note: `${note} (Verified Complainant ID: ${scannerResult.identity.tsrv_member_id})`,
+          resolution_notes: resolutionNotes || '',
+          current_handler: userProfile.id
+        })
+      });
+      
+      const json = await res.json();
+      if (json.success) {
+        setUpdateNote('');
+        setResolutionNotes('');
+        setShowScannerChamber(false);
+        stopScannerCamera();
+        setScannerResult(null);
+        if (onUpdateSuccess) onUpdateSuccess();
+        await fetchDetails();
+      } else {
+        alert(json.message || 'Failed to update ticket status.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Failed to connect to database node.');
+    } finally {
+      setUpdating(false);
+    }
+  };
 
   const fetchDetailsSilently = async () => {
     try {
@@ -44,7 +275,10 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
       fetchDetailsSilently();
     }, 3000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      stopScannerCamera();
+    };
   }, [ticketId]);
 
   const fetchDetails = async () => {
@@ -101,12 +335,7 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
   const handleUpdateStatus = async (e) => {
     e.preventDefault();
     if (updateStatus === 'Solving Started') {
-      localStorage.setItem('tsrv_solve_ticket_id', ticketId);
-      localStorage.setItem('tsrv_solve_source_path', window.location.hash.split('?')[0]);
-      localStorage.setItem('tsrv_solve_note', updateNote || 'Solving started after student ID verification.');
-      localStorage.setItem('tsrv_solve_resolution', resolutionNotes || '');
-      onClose();
-      navigate(`/dashboard/qr-scanner?solve_ticket_id=${ticketId}`);
+      setShowScannerChamber(true);
       return;
     }
     setUpdating(true);
@@ -241,12 +470,7 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
                 className={`flex flex-col items-center gap-1.5 flex-1 min-w-0 ${isClickableSolve ? 'cursor-pointer group/step' : ''}`}
                 onClick={() => {
                   if (isClickableSolve) {
-                    localStorage.setItem('tsrv_solve_ticket_id', ticketId);
-                    localStorage.setItem('tsrv_solve_source_path', window.location.hash.split('?')[0]);
-                    localStorage.setItem('tsrv_solve_note', 'Solving started after student ID verification.');
-                    localStorage.setItem('tsrv_solve_resolution', '');
-                    onClose();
-                    navigate(`/dashboard/qr-scanner?solve_ticket_id=${ticketId}`);
+                    setShowScannerChamber(true);
                   }
                 }}
                 title={isClickableSolve ? 'Click to scan student ID and start solving' : undefined}
@@ -429,162 +653,397 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
           </div>
 
           {/* Right Column: Discussions & Controls */}
-          <div className="w-full lg:w-1/2 flex flex-col bg-slate-50/50 dark:bg-slate-900 overflow-visible lg:overflow-hidden">
-            
-            {/* Threaded Discussion Panel */}
-            <div className="flex flex-col flex-1 overflow-visible lg:overflow-hidden p-6 border-b border-slate-200/50 dark:border-slate-800">
-              <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 dark:text-white mb-4 flex items-center gap-2 shrink-0">
-                <MessageSquare className="w-4 h-4 text-cyan-500" /> Operations Discussion
-              </h3>
-              
-              <div ref={scrollRef} className="flex-1 min-h-[300px] lg:min-h-0 overflow-y-auto pr-2 custom-sidebar-scrollbar flex flex-col gap-4">
-                {discussions.length > 0 ? discussions.map(msg => {
-                  const isMine = msg.user_id === userProfile.id;
-                  const isLeaderRole = msg.user_role !== 'student';
-                  return (
-                    <div key={msg.id} className={`flex flex-col max-w-[85%] ${isMine ? 'self-end items-end text-right' : 'self-start items-start text-left'}`}>
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400">
-                          {msg.user_name}
-                        </span>
-                        {isLeaderRole && (
-                          <span className="text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 border border-amber-500/20">
-                            {msg.user_role.replace('_', ' ')}
-                          </span>
-                        )}
-                      </div>
-                      <div className={`p-3 rounded-2xl text-sm ${isMine ? 'bg-cyan-500 text-white shadow-glow-cyan rounded-tr-none' : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-tl-none'}`}>
-                        {msg.message}
-                      </div>
-                      <span className="text-[9px] text-slate-400 mt-1">
-                        {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </span>
-                    </div>
-                  );
-                }) : (
-                  <div className="flex flex-col items-center justify-center h-full text-slate-400 opacity-60">
-                    <MessageSquare className="w-8 h-8 mb-2" />
-                    <span className="text-xs font-bold uppercase tracking-wider">No coordination logs yet.</span>
+          <div className="w-full lg:w-1/2 flex flex-col bg-slate-50/50 dark:bg-slate-900 overflow-visible lg:overflow-hidden relative">
+            {showScannerChamber ? (
+              // Holographic Scanner Panel
+              <div className="flex flex-col flex-1 p-6 overflow-y-auto custom-sidebar-scrollbar relative text-left bg-slate-950 text-slate-100 font-mono select-none">
+                {/* Header Section */}
+                <div className="flex items-center justify-between border-b border-cyan-500/20 pb-4 mb-4 shrink-0">
+                  <div className="flex flex-col text-left">
+                    <span className="text-[10px] text-cyan-450 font-black tracking-widest uppercase">TRSV Security Subsystem</span>
+                    <h3 className="text-sm font-black text-white uppercase tracking-wider flex items-center gap-1.5 mt-0.5">
+                      <Scan className="w-4 h-4 text-cyan-400 animate-pulse" /> Member Verification Chamber
+                    </h3>
                   </div>
-                )}
-              </div>
-
-              <form onSubmit={handlePostComment} className="mt-4 flex gap-2 shrink-0 relative">
-                <input 
-                  type="text"
-                  placeholder="Post coordination message or update..."
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  className="flex-1 px-4 py-3 rounded-xl border border-slate-200/60 dark:border-slate-800 bg-white dark:bg-slate-850 text-sm focus:outline-none focus:border-cyan-400 text-slate-800 dark:text-white"
-                />
-                <button 
-                  type="submit"
-                  disabled={postingComment || !newComment.trim()}
-                  className="p-3 rounded-xl bg-cyan-500 hover:bg-cyan-600 text-white transition-colors shadow-glow-cyan disabled:opacity-50 disabled:shadow-none"
-                >
-                  <Send className="w-5 h-5" />
-                </button>
-              </form>
-            </div>
-
-            {/* Leader Override & Escalation Panel */}
-            {isLeader && (complaint.status !== 'Solved' || isSupremeUser) && (
-              <div className="p-6 bg-slate-100 dark:bg-slate-850 shrink-0">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                    <Play className="w-3 h-3 text-cyan-500" /> Leadership Handler Actions
-                  </h3>
-                  {isSupremeUser && (
-                    <button
-                      onClick={handleDeleteComplaint}
-                      className="text-[10px] font-extrabold uppercase tracking-wider text-rose-500 hover:text-rose-600 flex items-center gap-1 cursor-pointer bg-rose-500/10 px-2.5 py-1 rounded-md border border-rose-500/20 hover:bg-rose-500/20 transition-all font-black"
-                      title="Permanently Delete Ticket"
-                    >
-                      Delete Ticket
-                    </button>
-                  )}
+                  <button 
+                    onClick={() => {
+                      setShowScannerChamber(false);
+                      stopScannerCamera();
+                      setScannerResult(null);
+                    }}
+                    className="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-white transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
                 </div>
-                
-                <div className="flex flex-col gap-3">
-                  {(complaint.status === 'Complaint Verified' || complaint.status === 'Verified') && (
-                    <div className="p-4 rounded-xl border border-cyan-500/20 bg-cyan-500/5 flex flex-col sm:flex-row items-center justify-between gap-4 text-left animate-fadeIn">
-                      <div className="flex-1 min-w-0">
-                        <strong className="text-xs font-bold text-slate-800 dark:text-white block">👈 Click Step 3 or Scan ID to Start Solving</strong>
-                        <p className="text-[10px] text-slate-500 mt-0.5 leading-relaxed">
-                          To advance this ticket to the <strong>Solving Started</strong> stage, you must perform a secure student ID verification check. Click scan to open camera.
-                        </p>
+
+                {/* Body Details: If not scanned yet, show camera stream / simulation triggers */}
+                {!scannerResult ? (
+                  <div className="flex-1 flex flex-col gap-4">
+                    
+                    {/* Instructions */}
+                    <div className="p-3.5 rounded-xl border border-cyan-500/20 bg-cyan-950/20 text-xs text-slate-300 leading-relaxed font-sans">
+                      To advance this complaint to the <strong>Solving Started</strong> phase, scan or verify the complainant's state digital identity card.
+                    </div>
+
+                    {/* Camera view / scanner viewport */}
+                    <div className="relative aspect-video w-full rounded-2xl border border-cyan-500/30 bg-slate-900 overflow-hidden shadow-[0_0_15px_rgba(6,182,212,0.15)] flex flex-col items-center justify-center">
+                      
+                      {scannerCameraActive ? (
+                        <>
+                          <video 
+                            ref={scannerVideoRef} 
+                            className="w-full h-full object-cover"
+                            playsInline
+                          />
+                          <canvas ref={scannerCanvasRef} className="hidden" />
+                          
+                          {/* Holographic scanning overlay beam */}
+                          <div className="absolute inset-x-0 h-0.5 bg-cyan-450 shadow-[0_0_10px_#06b6d4] animate-scan-line z-10" />
+                          <div className="absolute inset-0 bg-gradient-to-b from-cyan-500/5 to-transparent pointer-events-none" />
+                        </>
+                      ) : (
+                        <div className="flex flex-col items-center justify-center gap-3 p-6 text-center font-sans">
+                          <div className="p-4 rounded-full bg-cyan-950/40 border border-cyan-500/20 text-cyan-400 shadow-glow-cyan">
+                            <Camera className="w-8 h-8" />
+                          </div>
+                          <span className="text-xs font-bold text-slate-300">Camera Feed Offline</span>
+                          <span className="text-[10px] text-slate-500 max-w-xs leading-relaxed">Activate camera scanner or simulate student credentials to proceed.</span>
+                        </div>
+                      )}
+
+                      {/* Laser target brackets */}
+                      <div className="absolute top-4 left-4 w-4 h-4 border-t-2 border-l-2 border-cyan-400" />
+                      <div className="absolute top-4 right-4 w-4 h-4 border-t-2 border-r-2 border-cyan-400" />
+                      <div className="absolute bottom-4 left-4 w-4 h-4 border-b-2 border-l-2 border-cyan-400" />
+                      <div className="absolute bottom-4 right-4 w-4 h-4 border-b-2 border-r-2 border-cyan-400" />
+                    </div>
+
+                    {/* Scanner Error Display */}
+                    {scannerError && (
+                      <div className="p-3 rounded-xl border border-rose-500/20 bg-rose-950/20 text-rose-450 text-xs font-extrabold flex items-start gap-2 font-sans">
+                        <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+                        <span>{scannerError}</span>
                       </div>
+                    )}
+
+                    {/* Controller Triggers */}
+                    <div className="flex flex-col gap-2.5 mt-auto">
+                      <div className="flex gap-2">
+                        {!scannerCameraActive ? (
+                          <PremiumButton 
+                            type="button" 
+                            variant="primary" 
+                            className="flex-1 !border-cyan-500/30 !text-cyan-400 hover:!bg-cyan-500 hover:!text-white font-extrabold uppercase tracking-wider text-xs shadow-glow-cyan/5 py-3"
+                            onClick={startScannerCamera}
+                          >
+                            📷 Enable Webcam
+                          </PremiumButton>
+                        ) : (
+                          <PremiumButton 
+                            type="button" 
+                            variant="secondary" 
+                            className="flex-1 !border-rose-550 !text-rose-400 hover:!bg-rose-500 hover:!text-white font-extrabold uppercase tracking-wider text-xs py-3"
+                            onClick={stopScannerCamera}
+                          >
+                            ⏹ Stop Webcam
+                          </PremiumButton>
+                        )}
+                        
+                        <label className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs font-black border border-cyan-500/30 bg-cyan-950/10 text-cyan-450 hover:bg-cyan-500 hover:text-white transition-all duration-300 cursor-pointer shadow-glow-cyan/5 font-sans">
+                          <Upload className="w-4 h-4 text-cyan-400" />
+                          <span>Upload Card QR</span>
+                          <input 
+                            type="file" 
+                            accept="image/*" 
+                            onChange={handleScannerFileUpload} 
+                            className="hidden" 
+                          />
+                        </label>
+                      </div>
+
+                      <div className="h-[1px] bg-slate-800 my-1" />
+
                       <PremiumButton 
                         type="button" 
                         variant="glow" 
-                        size="sm" 
-                        className="shrink-0 font-extrabold uppercase tracking-wider text-[10px] shadow-glow-cyan"
-                        onClick={() => {
-                          localStorage.setItem('tsrv_solve_ticket_id', ticketId);
-                          localStorage.setItem('tsrv_solve_source_path', window.location.hash.split('?')[0]);
-                          localStorage.setItem('tsrv_solve_note', 'Solving started after student ID verification.');
-                          localStorage.setItem('tsrv_solve_resolution', '');
-                          onClose();
-                          navigate(`/dashboard/qr-scanner?solve_ticket_id=${ticketId}`);
-                        }}
+                        className="w-full font-black uppercase tracking-wider text-xs shadow-glow-cyan bg-cyan-500 text-white py-3.5"
+                        onClick={handleSimulateScan}
+                        disabled={scannerLoading}
                       >
-                        📷 Scan Card
+                        {scannerLoading ? 'Decrypting Credentials...' : '⚡ Simulate Student Card Tap'}
                       </PremiumButton>
                     </div>
-                  )}
 
-                  <form onSubmit={handleUpdateStatus} className="flex items-end gap-3">
-                    <div className="flex-1">
-                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Shift Status</label>
-                      <select 
-                        value={updateStatus}
-                        onChange={(e) => setUpdateStatus(e.target.value)}
-                        className="w-full p-2.5 rounded-lg border border-slate-200/60 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs focus:outline-none focus:border-cyan-400 text-slate-800 dark:text-white"
-                      >
-                        <option value="Complaint Registered">Complaint Registered</option>
-                        <option value="Complaint Verified">Complaint Verified</option>
-                        <option value="Solving Started">Solving Started</option>
-                        <option value="Solved">Solved</option>
-                        <option value="Dismissed">Dismissed</option>
-                      </select>
-                    </div>
-                    <div className="flex-1">
-                      <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Timeline Note</label>
-                      <input 
-                        type="text"
-                        placeholder="Action details..."
-                        value={updateNote}
-                        onChange={(e) => setUpdateNote(e.target.value)}
-                        className="w-full p-2.5 rounded-lg border border-slate-200/60 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs focus:outline-none focus:border-cyan-400 text-slate-800 dark:text-white"
-                      />
-                    </div>
-                    <PremiumButton type="submit" variant="primary" size="sm" disabled={updating}>Commit</PremiumButton>
-                  </form>
+                  </div>
+                ) : (
+                  // Scanned/Decoded verification results profile card display
+                  <div className="flex-1 flex flex-col gap-5 animate-fadeIn">
+                    
+                    {/* Match banner */}
+                    {scannerResult.profile.id === complaint.student_id ? (
+                      <div className="p-3.5 rounded-xl border border-emerald-500/30 bg-emerald-950/20 text-emerald-400 text-xs font-black flex items-center gap-2 font-sans">
+                        <CheckCircle className="w-5 h-5 text-emerald-450 shrink-0" />
+                        <span>SECURITY MATCH CONFIRMED: TICKET OWNER VERIFIED</span>
+                      </div>
+                    ) : (
+                      <div className="p-3.5 rounded-xl border border-rose-500/30 bg-rose-950/20 text-rose-450 text-xs font-black flex items-start gap-2 font-sans text-left">
+                        <AlertTriangle className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
+                        <div>
+                          <strong className="block text-white">ID MISMATCH DETECTED</strong>
+                          <span className="text-[10px] opacity-90 leading-relaxed font-normal block mt-0.5">The scanned credentials belong to "{scannerResult.profile.full_name}", but this complaint was filed by "{complaint.student_name}".</span>
+                        </div>
+                      </div>
+                    )}
 
-                  {/* Manual Escalation Override */}
-                  <form onSubmit={handleEscalate} className="flex items-end gap-3 mt-1 pt-3 border-t border-slate-200/50 dark:border-slate-700">
-                    <div className="flex-1">
-                      <label className="text-[9px] font-bold text-rose-400 uppercase tracking-wider block mb-1">Force Escalate Hierarchy</label>
-                      <select 
-                        value={escalateLevel}
-                        onChange={(e) => setEscalateLevel(e.target.value)}
-                        className="w-full p-2.5 rounded-lg border border-rose-200/60 dark:border-rose-900/40 bg-rose-50/50 dark:bg-rose-900/10 text-xs focus:outline-none focus:border-rose-400 text-slate-800 dark:text-white"
-                      >
-                        <option value="">Select Level...</option>
-                        <option value="0">0: College Node</option>
-                        <option value="1">1: Constituency Level</option>
-                        <option value="2">2: State Governance</option>
-                      </select>
+                    {/* Certified Holographic Identity Pass Widget */}
+                    <div className="relative overflow-hidden rounded-2xl border border-cyan-500/30 bg-gradient-to-b from-slate-900 to-slate-950 p-5 shadow-[0_0_20px_rgba(6,182,212,0.1)] flex gap-4 items-start font-sans">
+                      <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-cyan-500/10 to-transparent blur-xl pointer-events-none" />
+                      
+                      {/* Avatar picture */}
+                      <div className="w-16 h-16 rounded-xl border border-cyan-500/30 overflow-hidden bg-slate-950 shrink-0 relative flex items-center justify-center text-cyan-400">
+                        {scannerResult.profile.profile_image ? (
+                          <img 
+                            src={scannerResult.profile.profile_image} 
+                            alt="Scanned profile photo" 
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <User className="w-8 h-8" />
+                        )}
+                        {/* Tiny live scanner lines */}
+                        <div className="absolute inset-x-0 h-0.5 bg-cyan-400 shadow-[0_0_5px_#06b6d4] animate-scan-line pointer-events-none" />
+                      </div>
+
+                      {/* Profile details */}
+                      <div className="flex-1 flex flex-col gap-1 min-w-0 text-left">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-black text-white truncate">{scannerResult.profile.full_name}</span>
+                          <span className="px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wider bg-cyan-500/10 text-cyan-450 border border-cyan-500/20">
+                            {scannerResult.profile.role.replace('_', ' ')}
+                          </span>
+                        </div>
+                        <span className="text-[10px] text-slate-400 truncate">{scannerResult.profile.email}</span>
+                        <span className="text-[10px] text-slate-400 truncate">{scannerResult.profile.college_name || 'State Node'}</span>
+                        
+                        <div className="mt-2 pt-2 border-t border-slate-800 flex flex-col gap-1">
+                          <span className="text-[8px] text-slate-500 uppercase tracking-widest">TS-State Member ID</span>
+                          <span className="text-[11px] text-cyan-400 font-extrabold font-mono tracking-wide">{scannerResult.identity.tsrv_member_id}</span>
+                        </div>
+                      </div>
                     </div>
-                    <PremiumButton type="submit" variant="secondary" size="sm" disabled={updating || !escalateLevel} className="!border-rose-500/30 !text-rose-500 hover:!bg-rose-500 hover:!text-white">Escalate Up</PremiumButton>
+
+                    {/* Timeline verification check list */}
+                    <div className="flex flex-col gap-2 text-xs text-left">
+                      <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Node Verification Ledger Check</span>
+                      <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 flex flex-col gap-1.5 font-normal text-slate-350 font-sans">
+                        <div className="flex items-center gap-1.5 text-emerald-450">
+                          <span>✓</span> <span>Identity key validated on blockchain ledger</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-emerald-450">
+                          <span>✓</span> <span>Security status: ACTIVE ({scannerResult.identity.verification_status})</span>
+                        </div>
+                        {scannerResult.profile.id === complaint.student_id ? (
+                          <div className="flex items-center gap-1.5 text-emerald-450">
+                            <span>✓</span> <span>Ownership validation: MATCH (complainant match)</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-1.5 text-amber-450">
+                            <span>⚠</span> <span>Ownership validation: MISMATCH (alternative member)</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex flex-col gap-2 mt-auto">
+                      <div className="flex gap-2">
+                        <PremiumButton 
+                          type="button" 
+                          variant="secondary"
+                          className="flex-1 !border-slate-800 !text-slate-400 hover:!bg-slate-800 hover:!text-white font-extrabold uppercase tracking-wider text-xs py-3"
+                          onClick={() => setScannerResult(null)}
+                        >
+                          🔄 Scan Again
+                        </PremiumButton>
+                        <PremiumButton 
+                          type="button" 
+                          variant="primary"
+                          className={`flex-1 font-black uppercase tracking-wider text-xs shadow-glow-cyan py-3 ${scannerResult.profile.id === complaint.student_id ? '!bg-emerald-600 !border-emerald-600 text-white hover:!bg-emerald-700' : '!bg-cyan-500 !border-cyan-500 text-white hover:!bg-cyan-600'}`}
+                          onClick={handleConfirmVerificationAndStart}
+                          disabled={updating}
+                        >
+                          {updating ? 'Authorizing...' : 'Authorize & Start Solving'}
+                        </PremiumButton>
+                      </div>
+
+                      <button 
+                        onClick={() => {
+                          setShowScannerChamber(false);
+                          stopScannerCamera();
+                          setScannerResult(null);
+                        }}
+                        className="text-[10px] text-slate-500 hover:text-slate-400 underline font-extrabold uppercase tracking-wider text-center py-2"
+                      >
+                        Cancel Verification
+                      </button>
+                    </div>
+
+                  </div>
+                )}
+
+              </div>
+            ) : (
+              // Threaded Discussion Panel
+              <>
+                <div className="flex flex-col flex-1 overflow-visible lg:overflow-hidden p-6 border-b border-slate-200/50 dark:border-slate-800">
+                  <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 dark:text-white mb-4 flex items-center gap-2 shrink-0">
+                    <MessageSquare className="w-4 h-4 text-cyan-500" /> Operations Discussion
+                  </h3>
+                  
+                  <div ref={scrollRef} className="flex-1 min-h-[300px] lg:min-h-0 overflow-y-auto pr-2 custom-sidebar-scrollbar flex flex-col gap-4">
+                    {discussions.length > 0 ? discussions.map(msg => {
+                      const isMine = msg.user_id === userProfile.id;
+                      const isLeaderRole = msg.user_role !== 'student';
+                      return (
+                        <div key={msg.id} className={`flex flex-col max-w-[85%] ${isMine ? 'self-end items-end text-right' : 'self-start items-start text-left'}`}>
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400">
+                              {msg.user_name}
+                            </span>
+                            {isLeaderRole && (
+                              <span className="text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                                {msg.user_role.replace('_', ' ')}
+                              </span>
+                            )}
+                          </div>
+                          <div className={`p-3 rounded-2xl text-sm ${isMine ? 'bg-cyan-500 text-white shadow-glow-cyan rounded-tr-none' : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-tl-none'}`}>
+                            {msg.message}
+                          </div>
+                          <span className="text-[9px] text-slate-400 mt-1">
+                            {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </div>
+                      );
+                    }) : (
+                      <div className="flex flex-col items-center justify-center h-full text-slate-400 opacity-60">
+                        <MessageSquare className="w-8 h-8 mb-2" />
+                        <span className="text-xs font-bold uppercase tracking-wider">No coordination logs yet.</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <form onSubmit={handlePostComment} className="mt-4 flex gap-2 shrink-0 relative">
+                    <input 
+                      type="text"
+                      placeholder="Post coordination message or update..."
+                      value={newComment}
+                      onChange={(e) => setNewComment(e.target.value)}
+                      className="flex-1 px-4 py-3 rounded-xl border border-slate-200/60 dark:border-slate-800 bg-white dark:bg-slate-850 text-sm focus:outline-none focus:border-cyan-400 text-slate-800 dark:text-white"
+                    />
+                    <button 
+                      type="submit"
+                      disabled={postingComment || !newComment.trim()}
+                      className="p-3 rounded-xl bg-cyan-500 hover:bg-cyan-600 text-white transition-colors shadow-glow-cyan disabled:opacity-50 disabled:shadow-none"
+                    >
+                      <Send className="w-5 h-5" />
+                    </button>
                   </form>
                 </div>
 
-              </div>
+                {/* Leader Override & Escalation Panel */}
+                {isLeader && (complaint.status !== 'Solved' || isSupremeUser) && (
+                  <div className="p-6 bg-slate-100 dark:bg-slate-850 shrink-0">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                        <Play className="w-3 h-3 text-cyan-500" /> Leadership Handler Actions
+                      </h3>
+                      {isSupremeUser && (
+                        <button
+                          onClick={handleDeleteComplaint}
+                          className="text-[10px] font-extrabold uppercase tracking-wider text-rose-500 hover:text-rose-600 flex items-center gap-1 cursor-pointer bg-rose-500/10 px-2.5 py-1 rounded-md border border-rose-500/20 hover:bg-rose-500/20 transition-all font-black animate-pulse"
+                          title="Permanently Delete Ticket"
+                        >
+                          Delete Ticket
+                        </button>
+                      )}
+                    </div>
+                    
+                    <div className="flex flex-col gap-3">
+                      {(complaint.status === 'Complaint Verified' || complaint.status === 'Verified') && (
+                        <div className="p-4 rounded-xl border border-cyan-500/20 bg-cyan-500/5 flex flex-col sm:flex-row items-center justify-between gap-4 text-left animate-fadeIn">
+                          <div className="flex-1 min-w-0">
+                            <strong className="text-xs font-bold text-slate-800 dark:text-white block">👈 Click Step 3 or Scan ID to Start Solving</strong>
+                            <p className="text-[10px] text-slate-500 mt-0.5 leading-relaxed">
+                              To advance this ticket to the <strong>Solving Started</strong> stage, you must perform a secure student ID verification check. Click scan to open camera.
+                            </p>
+                          </div>
+                          <PremiumButton 
+                            type="button" 
+                            variant="glow" 
+                            size="sm" 
+                            className="shrink-0 font-extrabold uppercase tracking-wider text-[10px] shadow-glow-cyan"
+                            onClick={() => {
+                              setShowScannerChamber(true);
+                            }}
+                          >
+                            📷 Scan Card
+                          </PremiumButton>
+                        </div>
+                      )}
+
+                      <form onSubmit={handleUpdateStatus} className="flex items-end gap-3">
+                        <div className="flex-1">
+                          <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Shift Status</label>
+                          <select 
+                            value={updateStatus}
+                            onChange={(e) => setUpdateStatus(e.target.value)}
+                            className="w-full p-2.5 rounded-lg border border-slate-200/60 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs focus:outline-none focus:border-cyan-400 text-slate-800 dark:text-white"
+                          >
+                            <option value="Complaint Registered">Complaint Registered</option>
+                            <option value="Complaint Verified">Complaint Verified</option>
+                            <option value="Solving Started">Solving Started</option>
+                            <option value="Solved">Solved</option>
+                            <option value="Dismissed">Dismissed</option>
+                          </select>
+                        </div>
+                        <div className="flex-1">
+                          <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Timeline Note</label>
+                          <input 
+                            type="text"
+                            placeholder="Action details..."
+                            value={updateNote}
+                            onChange={(e) => setUpdateNote(e.target.value)}
+                            className="w-full p-2.5 rounded-lg border border-slate-200/60 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs focus:outline-none focus:border-cyan-400 text-slate-800 dark:text-white"
+                          />
+                        </div>
+                        <PremiumButton type="submit" variant="primary" size="sm" disabled={updating}>Commit</PremiumButton>
+                      </form>
+
+                      {/* Manual Escalation Override */}
+                      <form onSubmit={handleEscalate} className="flex items-end gap-3 mt-1 pt-3 border-t border-slate-200/50 dark:border-slate-700">
+                        <div className="flex-1">
+                          <label className="text-[9px] font-bold text-rose-400 uppercase tracking-wider block mb-1">Force Escalate Hierarchy</label>
+                          <select 
+                            value={escalateLevel}
+                            onChange={(e) => setEscalateLevel(e.target.value)}
+                            className="w-full p-2.5 rounded-lg border border-rose-200/60 dark:border-rose-900/40 bg-rose-50/50 dark:bg-rose-900/10 text-xs focus:outline-none focus:border-rose-400 text-slate-800 dark:text-white"
+                          >
+                            <option value="">Select Level...</option>
+                            <option value="0">0: College Node</option>
+                            <option value="1">1: Constituency Level</option>
+                            <option value="2">2: State Governance</option>
+                          </select>
+                        </div>
+                        <PremiumButton type="submit" variant="secondary" size="sm" disabled={updating || !escalateLevel} className="!border-rose-500/30 !text-rose-500 hover:!bg-rose-500 hover:!text-white">Escalate Up</PremiumButton>
+                      </form>
+                    </div>
+
+                  </div>
+                )}
+              </>
             )}
-
           </div>
-
         </div>
 
       </div>

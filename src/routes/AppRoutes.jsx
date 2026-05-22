@@ -123,7 +123,11 @@ export default function AppRoutes() {
           } />
           
           <Route path="digital-id" element={<DigitalIdCard />} />
-          <Route path="qr-scanner" element={<QrScanExperience />} />
+          <Route path="qr-scanner" element={
+            <ProtectedRoute allowedRoles={['secretary', 'general_secretary', 'vice_president', 'president', 'state_president', 'supreme_admin']}>
+              <QrScanExperience />
+            </ProtectedRoute>
+          } />
           <Route path="support" element={<SupportHub />} />
           <Route path="districts" element={<Districts />} />
           <Route path="transparency" element={<Transparency />} />

@@ -51,7 +51,7 @@ router.get('/insights', async (req, res) => {
       SELECT c.constituency_name, c.id as constituency_id, COUNT(comp.id) as critical_count
       FROM constituencies c
       JOIN complaints comp ON comp.constituency_id = c.id
-      WHERE comp.urgency = 'critical' AND comp.status != 'Resolved'
+      WHERE comp.urgency = 'critical' AND comp.status NOT IN ('Resolved', 'Solved')
       GROUP BY c.id, c.constituency_name
       HAVING COUNT(comp.id) >= 2
     `);

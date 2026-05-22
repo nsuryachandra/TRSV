@@ -368,12 +368,14 @@ router.get('/:id', requireRole(['student', 'secretary', 'general_secretary', 'vi
   try {
     const complaintResult = await query(
       `SELECT c.*, con.constituency_name, col.college_name, u.full_name as student_name, 
-              h.full_name as handler_name, h.role as handler_role
+              h.full_name as handler_name, h.role as handler_role,
+              mi.tsrv_member_id as student_member_id, mi.qr_token as student_qr_token
        FROM complaints c
        LEFT JOIN constituencies con ON c.constituency_id = con.id
        LEFT JOIN colleges col ON c.college_id = col.id
        LEFT JOIN users u ON c.student_id = u.id
        LEFT JOIN users h ON c.current_handler = h.id
+       LEFT JOIN member_identities mi ON c.student_id = mi.user_id
        WHERE c.id = $1`, [id]
     );
 

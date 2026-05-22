@@ -117,8 +117,8 @@ router.get('/directory', async (req, res) => {
               LIMIT 1
           ) AS coordinator_phone,
           (SELECT COUNT(*)::int FROM colleges col WHERE col.constituency_id = con.id) AS college_count,
-          (SELECT COUNT(*)::int FROM complaints comp WHERE comp.constituency_id = con.id AND comp.status != 'Resolved') AS active_tickets,
-          (SELECT COUNT(*)::int FROM complaints comp WHERE comp.constituency_id = con.id AND comp.status = 'Resolved') AS resolved_tickets
+          (SELECT COUNT(*)::int FROM complaints comp WHERE comp.constituency_id = con.id AND comp.status NOT IN ('Resolved', 'Solved')) AS active_tickets,
+          (SELECT COUNT(*)::int FROM complaints comp WHERE comp.constituency_id = con.id AND comp.status IN ('Resolved', 'Solved')) AS resolved_tickets
       FROM constituencies con
       ORDER BY con.constituency_name ASC
     `);

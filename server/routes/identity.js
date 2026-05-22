@@ -113,11 +113,36 @@ router.get('/my-id', requireRole(['student', 'secretary', 'general_secretary', '
 
     const metricsQuery = await query('SELECT * FROM member_profile_metrics WHERE user_id = $1', [uid]);
 
+    const profile = profileQuery.rows[0];
+    const userRole = profile?.role || 'student';
+
+    let resolvedCount = 0;
+    let pendingCount = 0;
+
+    if (userRole === 'student') {
+      const resolvedRes = await query("SELECT COUNT(*) FROM complaints WHERE student_id = $1 AND status IN ('Resolved', 'Solved')", [uid]);
+      const pendingRes = await query("SELECT COUNT(*) FROM complaints WHERE student_id = $1 AND status NOT IN ('Resolved', 'Solved', 'Dismissed')", [uid]);
+      resolvedCount = parseInt(resolvedRes.rows[0].count || 0);
+      pendingCount = parseInt(pendingRes.rows[0].count || 0);
+    } else {
+      const resolvedRes = await query("SELECT COUNT(*) FROM complaints WHERE current_handler = $1 AND status IN ('Resolved', 'Solved')", [uid]);
+      const pendingRes = await query("SELECT COUNT(*) FROM complaints WHERE current_handler = $1 AND status NOT IN ('Resolved', 'Solved', 'Dismissed')", [uid]);
+      resolvedCount = parseInt(resolvedRes.rows[0].count || 0);
+      pendingCount = parseInt(pendingRes.rows[0].count || 0);
+    }
+
+    const metricsDb = metricsQuery.rows[0] || { issues_resolved: 0, issues_pending: 0, active_campaigns: 0, rating: 5.00, timeline: [] };
+    const metrics = {
+      ...metricsDb,
+      issues_resolved: resolvedCount,
+      issues_pending: pendingCount
+    };
+
     res.json({
       success: true,
       identity,
-      profile: profileQuery.rows[0],
-      metrics: metricsQuery.rows[0] || { issues_resolved: 0, issues_pending: 0, active_campaigns: 0, rating: 5.00, timeline: [] }
+      profile,
+      metrics
     });
 
   } catch (error) {
@@ -247,6 +272,21 @@ router.get('/verify/:token_or_id', async (req, res) => {
       VALUES ($1, NULL, $2, $3, $4)
     `, [identity.id, result, deviceInfo, ipAddress]);
 
+    let resolvedCount = 0;
+    let pendingCount = 0;
+
+    if (user.role === 'student') {
+      const resolvedRes = await query("SELECT COUNT(*) FROM complaints WHERE student_id = $1 AND status IN ('Resolved', 'Solved')", [user.id]);
+      const pendingRes = await query("SELECT COUNT(*) FROM complaints WHERE student_id = $1 AND status NOT IN ('Resolved', 'Solved', 'Dismissed')", [user.id]);
+      resolvedCount = parseInt(resolvedRes.rows[0].count || 0);
+      pendingCount = parseInt(pendingRes.rows[0].count || 0);
+    } else {
+      const resolvedRes = await query("SELECT COUNT(*) FROM complaints WHERE current_handler = $1 AND status IN ('Resolved', 'Solved')", [user.id]);
+      const pendingRes = await query("SELECT COUNT(*) FROM complaints WHERE current_handler = $1 AND status NOT IN ('Resolved', 'Solved', 'Dismissed')", [user.id]);
+      resolvedCount = parseInt(resolvedRes.rows[0].count || 0);
+      pendingCount = parseInt(pendingRes.rows[0].count || 0);
+    }
+
     res.json({
       success: true,
       verified: result === 'success',
@@ -255,6 +295,8 @@ router.get('/verify/:token_or_id', async (req, res) => {
       profile: user,
       metrics: {
         ...(metricsQuery.rows[0] || { issues_resolved: 0, issues_pending: 0, active_campaigns: 0, rating: 5.00 }),
+        issues_resolved: resolvedCount,
+        issues_pending: pendingCount,
         timeline
       },
       studentStats,

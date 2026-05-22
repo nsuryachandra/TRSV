@@ -10,15 +10,15 @@ const router = express.Router();
 router.get('/metrics', async (req, res) => {
   try {
     const total = await query('SELECT COUNT(*) FROM complaints');
-    const resolved = await query("SELECT COUNT(*) FROM complaints WHERE status = 'Resolved'");
-    const active = await query("SELECT COUNT(*) FROM complaints WHERE status != 'Resolved' AND status != 'Dismissed'");
+    const resolved = await query("SELECT COUNT(*) FROM complaints WHERE status IN ('Resolved', 'Solved')");
+    const active = await query("SELECT COUNT(*) FROM complaints WHERE status NOT IN ('Resolved', 'Solved', 'Dismissed')");
     const emergencies = await query("SELECT COUNT(*) FROM complaints WHERE emergency_flag = TRUE");
     
     // Calculate average resolution time (rough estimate)
     const avgRes = await query(`
       SELECT AVG(EXTRACT(EPOCH FROM (updated_at - created_at))/3600) as avg_hours 
       FROM complaints 
-      WHERE status = 'Resolved'
+      WHERE status IN ('Resolved', 'Solved')
     `);
 
     res.json({
@@ -45,9 +45,9 @@ router.get('/rankings', async (req, res) => {
     const result = await query(`
       SELECT con.constituency_name as name, 
              COUNT(c.id) as total_tickets,
-             SUM(CASE WHEN c.status = 'Resolved' THEN 1 ELSE 0 END) as resolved_tickets,
+             SUM(CASE WHEN c.status IN ('Resolved', 'Solved') THEN 1 ELSE 0 END) as resolved_tickets,
              ROUND(
-               (SUM(CASE WHEN c.status = 'Resolved' THEN 1 ELSE 0 END)::numeric / NULLIF(COUNT(c.id), 0)) * 100, 1
+               (SUM(CASE WHEN c.status IN ('Resolved', 'Solved') THEN 1 ELSE 0 END)::numeric / NULLIF(COUNT(c.id), 0)) * 100, 1
              ) as resolution_rate
       FROM constituencies con
       LEFT JOIN complaints c ON c.constituency_id = con.id
