@@ -8,7 +8,7 @@ const router = express.Router();
  * 1. Fetch Active Emergency Dispatch Queue
  * Only available to State-level leaders (VP, President, Supreme Admin)
  */
-router.get('/active', requireRole(['vice_president', 'president', 'state_president', 'supreme_admin']), async (req, res) => {
+router.get('/active', requireRole(['vice_president', 'president', 'state_president', 'supreme_admin', 'dev']), async (req, res) => {
   try {
     const result = await query(`
       SELECT c.*, 
@@ -38,7 +38,7 @@ router.get('/active', requireRole(['vice_president', 'president', 'state_preside
  * 2. Rapid Emergency Override & Acknowledgment
  * Immediately updates status and logs an audit trail.
  */
-router.put('/:id/acknowledge', requireRole(['vice_president', 'president', 'state_president', 'supreme_admin']), async (req, res) => {
+router.put('/:id/acknowledge', requireRole(['vice_president', 'president', 'state_president', 'supreme_admin', 'dev']), async (req, res) => {
   const { id } = req.params;
   const { action_note } = req.body;
   const uid = req.user.uid;

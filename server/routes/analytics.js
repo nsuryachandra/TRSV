@@ -7,7 +7,7 @@ const router = express.Router();
 /**
  * 1. Fetch Complaint Growth Trends (For Area/Line Charts)
  */
-router.get('/trends', requireRole(['secretary', 'general_secretary', 'vice_president', 'president', 'supreme_admin']), async (req, res) => {
+router.get('/trends', requireRole(['secretary', 'general_secretary', 'vice_president', 'president', 'state_president', 'supreme_admin', 'dev']), async (req, res) => {
   const { role, constituency_id, college_id } = req.user;
 
   try {
@@ -45,7 +45,7 @@ router.get('/trends', requireRole(['secretary', 'general_secretary', 'vice_presi
 /**
  * 2. Fetch Category Distribution (For Pie/Radar Charts)
  */
-router.get('/categories', requireRole(['secretary', 'general_secretary', 'vice_president', 'president', 'supreme_admin']), async (req, res) => {
+router.get('/categories', requireRole(['secretary', 'general_secretary', 'vice_president', 'president', 'state_president', 'supreme_admin', 'dev']), async (req, res) => {
   const { role, constituency_id, college_id } = req.user;
 
   try {
@@ -79,7 +79,7 @@ router.get('/categories', requireRole(['secretary', 'general_secretary', 'vice_p
 /**
  * 3. Fetch Active Emergency Heatmap
  */
-router.get('/emergency-heatmap', requireRole(['secretary', 'general_secretary', 'vice_president', 'president', 'supreme_admin']), async (req, res) => {
+router.get('/emergency-heatmap', requireRole(['secretary', 'general_secretary', 'vice_president', 'president', 'state_president', 'supreme_admin', 'dev']), async (req, res) => {
   try {
     const result = await query(`
       SELECT con.constituency_name as name, COUNT(c.id) as emergencies 
@@ -99,7 +99,7 @@ router.get('/emergency-heatmap', requireRole(['secretary', 'general_secretary', 
 /**
  * 4. Constituency Performance Rankings
  */
-router.get('/rankings', requireRole(['vice_president', 'president', 'supreme_admin']), async (req, res) => {
+router.get('/rankings', requireRole(['vice_president', 'president', 'state_president', 'supreme_admin', 'dev']), async (req, res) => {
   try {
     const result = await query(`
       SELECT con.constituency_name as name, 

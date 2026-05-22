@@ -85,7 +85,7 @@ const autoProvisionIdentity = async (uid) => {
 /**
  * 1. Fetch current user's digital ID card & metrics (Supports Auto-provisioning)
  */
-router.get('/my-id', requireRole(['student', 'secretary', 'general_secretary', 'vice_president', 'president', 'state_president', 'supreme_admin']), async (req, res) => {
+router.get('/my-id', requireRole(['student', 'secretary', 'general_secretary', 'vice_president', 'president', 'state_president', 'supreme_admin', 'dev']), async (req, res) => {
   const uid = req.user.uid || 'SUPREME_ADMIN_UID';
 
   try {
@@ -270,7 +270,7 @@ router.get('/verify/:token_or_id', async (req, res) => {
 /**
  * 3. Fetch latest 50 security scan audit logs (Supreme Admin Only)
  */
-router.get('/logs', requireRole(['supreme_admin']), async (req, res) => {
+router.get('/logs', requireRole(['supreme_admin', 'state_president', 'dev']), async (req, res) => {
   try {
     const logsRes = await query(`
       SELECT ql.*, mi.tsrv_member_id, u.full_name, u.role, u.profile_image
@@ -293,7 +293,7 @@ router.get('/logs', requireRole(['supreme_admin']), async (req, res) => {
 /**
  * 4. Update an ID Card's verification status dynamically (Supreme Admin Only)
  */
-router.post('/update-status', requireRole(['supreme_admin']), async (req, res) => {
+router.post('/update-status', requireRole(['supreme_admin', 'state_president', 'dev']), async (req, res) => {
   const { identityId, newStatus } = req.body;
 
   if (!identityId || !newStatus) {
@@ -361,7 +361,7 @@ router.post('/update-status', requireRole(['supreme_admin']), async (req, res) =
 /**
  * 5. Manual provision Request Trigger (Supreme Admin Only)
  */
-router.post('/generate', requireRole(['supreme_admin']), async (req, res) => {
+router.post('/generate', requireRole(['supreme_admin', 'state_president', 'dev']), async (req, res) => {
   const { targetUserId } = req.body;
 
   if (!targetUserId) {

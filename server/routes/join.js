@@ -32,7 +32,7 @@ router.post('/', async (req, res) => {
 });
 
 // 2. Fetch Join Requests (Accessible to Admins and Regional Leaders)
-router.get('/', requireRole(['supreme_admin', 'president', 'state_president', 'vice_president', 'general_secretary', 'secretary']), async (req, res) => {
+router.get('/', requireRole(['supreme_admin', 'president', 'state_president', 'vice_president', 'general_secretary', 'secretary', 'dev']), async (req, res) => {
   const { role, constituency_id } = req.user;
 
   try {
@@ -64,7 +64,7 @@ router.get('/', requireRole(['supreme_admin', 'president', 'state_president', 'v
 });
 
 // 3. Update Join Request Status (Accessible to Admins and Regional Leaders)
-router.patch('/:id', requireRole(['supreme_admin', 'president', 'state_president', 'vice_president', 'general_secretary', 'secretary']), async (req, res) => {
+router.patch('/:id', requireRole(['supreme_admin', 'president', 'state_president', 'vice_president', 'general_secretary', 'secretary', 'dev']), async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
   const { role, constituency_id } = req.user;

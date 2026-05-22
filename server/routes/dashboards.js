@@ -7,7 +7,7 @@ const router = express.Router();
 /**
  * 1. Fetch Dynamic Scoped Dashboard Statistics & Counters
  */
-router.get('/stats', requireRole(['student', 'secretary', 'general_secretary', 'vice_president', 'president', 'state_president', 'supreme_admin']), async (req, res) => {
+router.get('/stats', requireRole(['student', 'secretary', 'general_secretary', 'vice_president', 'president', 'state_president', 'supreme_admin', 'dev']), async (req, res) => {
   const { role, uid, constituency_id, college_id } = req.user;
 
   try {
@@ -91,7 +91,7 @@ router.get('/stats', requireRole(['student', 'secretary', 'general_secretary', '
       }
     }
 
-    if (role === 'vice_president' || role === 'president' || role === 'state_president') {
+    if (role === 'vice_president' || role === 'president') {
       const isLocal = constituency_id !== null && constituency_id !== undefined;
       
       let total, pending, resolved, constituencies, colleges, categoryStats;
@@ -132,7 +132,7 @@ router.get('/stats', requireRole(['student', 'secretary', 'general_secretary', '
       });
     }
 
-    if (role === 'supreme_admin') {
+    if (['supreme_admin', 'state_president', 'dev'].includes(role)) {
       // Calculate complete server metrics
       const users = await query('SELECT COUNT(*) FROM users');
       const leaders = await query("SELECT COUNT(*) FROM users WHERE role != 'student'");
@@ -174,7 +174,7 @@ router.get('/stats', requireRole(['student', 'secretary', 'general_secretary', '
 /**
  * 2. Fetch complete Activity Audit Logs (Supreme Admin Only)
  */
-router.get('/logs', requireRole(['supreme_admin']), async (req, res) => {
+router.get('/logs', requireRole(['supreme_admin', 'state_president', 'dev']), async (req, res) => {
   try {
     const result = await query(
       `SELECT al.*, u.full_name, u.role, u.email 
@@ -191,7 +191,7 @@ router.get('/logs', requireRole(['supreme_admin']), async (req, res) => {
 /**
  * 3. Fetch list of all active non-student leaders in the system (Supreme Admin Only)
  */
-router.get('/leaders', requireRole(['supreme_admin']), async (req, res) => {
+router.get('/leaders', requireRole(['supreme_admin', 'state_president', 'dev']), async (req, res) => {
   try {
     const result = await query(
       `SELECT u.id, u.full_name, u.email, u.role, u.phone, u.verified, u.profile_image, 
@@ -211,7 +211,7 @@ router.get('/leaders', requireRole(['supreme_admin']), async (req, res) => {
 /**
  * 4. Fetch list of eligible users to promote to a leader role (Supreme Admin Only)
  */
-router.get('/eligible-users', requireRole(['supreme_admin']), async (req, res) => {
+router.get('/eligible-users', requireRole(['supreme_admin', 'state_president', 'dev']), async (req, res) => {
   try {
     const result = await query(
       "SELECT id, full_name, email, role FROM users WHERE role = 'student' ORDER BY full_name ASC"
@@ -392,7 +392,7 @@ const handleAssignLeaderLogic = async (req, res) => {
   }
 };
 
-router.post('/assign-leader', requireRole(['supreme_admin']), handleAssignLeaderLogic);
-router.put('/promote', requireRole(['supreme_admin']), handleAssignLeaderLogic);
+router.post('/assign-leader', requireRole(['supreme_admin', 'state_president', 'dev']), handleAssignLeaderLogic);
+router.put('/promote', requireRole(['supreme_admin', 'state_president', 'dev']), handleAssignLeaderLogic);
 
 export default router;

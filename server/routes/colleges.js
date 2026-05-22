@@ -40,7 +40,7 @@ router.get('/constituency/:constituencyId', async (req, res) => {
 /**
  * 3. Add college node (Supreme Admin Only)
  */
-router.post('/', requireRole(['supreme_admin']), async (req, res) => {
+router.post('/', requireRole(['supreme_admin', 'state_president', 'dev']), async (req, res) => {
   const collegeName = req.body.collegeName || req.body.college_name;
   const constituencyId = req.body.constituencyId || req.body.constituency_id;
 
@@ -69,7 +69,7 @@ router.post('/', requireRole(['supreme_admin']), async (req, res) => {
 /**
  * 4. Delete college node (Supreme Admin Only)
  */
-router.delete('/:id', requireRole(['supreme_admin']), async (req, res) => {
+router.delete('/:id', requireRole(['supreme_admin', 'state_president', 'dev']), async (req, res) => {
   const { id } = req.params;
 
   try {

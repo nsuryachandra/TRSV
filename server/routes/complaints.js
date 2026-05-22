@@ -251,12 +251,12 @@ router.post('/', requireRole(['student']), async (req, res) => {
 /**
  * 2. Retrieve Complaints (Dynamic Role-based Location Scope filters)
  */
-router.get('/', requireRole(['student', 'secretary', 'general_secretary', 'vice_president', 'president', 'state_president', 'supreme_admin']), async (req, res) => {
+router.get('/', requireRole(['student', 'secretary', 'general_secretary', 'vice_president', 'president', 'state_president', 'supreme_admin', 'dev']), async (req, res) => {
   const { role, uid, constituency_id, college_id } = req.user;
 
   try {
     let result;
-    const isStatewide = ['supreme_admin', 'dev', 'president', 'state_president'].includes(role) || 
+    const isStatewide = ['supreme_admin', 'dev', 'state_president'].includes(role) || 
       ((role === 'general_secretary' || role === 'vice_president') && !constituency_id);
 
     if (role === 'student') {
@@ -325,7 +325,7 @@ router.get('/', requireRole(['student', 'secretary', 'general_secretary', 'vice_
 /**
  * 3. Fetch completely populated detailed Grievance Ticket
  */
-router.get('/:id', requireRole(['student', 'secretary', 'general_secretary', 'vice_president', 'president', 'state_president', 'supreme_admin']), async (req, res) => {
+router.get('/:id', requireRole(['student', 'secretary', 'general_secretary', 'vice_president', 'president', 'state_president', 'supreme_admin', 'dev']), async (req, res) => {
   const { id } = req.params;
   try {
     const complaintResult = await query(
@@ -346,7 +346,7 @@ router.get('/:id', requireRole(['student', 'secretary', 'general_secretary', 'vi
     const complaint = complaintResult.rows[0];
 
     // Protect anonymous identity if user is not in supreme circle
-    if (complaint.anonymous && !['supreme_admin', 'dev', 'president', 'state_president'].includes(req.user.role)) {
+    if (complaint.anonymous && !['supreme_admin', 'dev', 'state_president'].includes(req.user.role)) {
       complaint.student_name = 'Anonymous Student Coordinator';
       complaint.student_id = 'HIDDEN';
     }
@@ -382,7 +382,7 @@ router.get('/:id', requireRole(['student', 'secretary', 'general_secretary', 'vi
 /**
  * 4. Update Complaint Status & Resolution
  */
-router.put('/:id/status', requireRole(['secretary', 'general_secretary', 'vice_president', 'president', 'state_president', 'supreme_admin']), async (req, res) => {
+router.put('/:id/status', requireRole(['secretary', 'general_secretary', 'vice_president', 'president', 'state_president', 'supreme_admin', 'dev']), async (req, res) => {
   const { id } = req.params;
   const { status, note, current_handler, resolution_notes } = req.body;
   const updaterUid = req.user.uid || 'SUPREME_ADMIN_UID';
@@ -431,7 +431,7 @@ router.put('/:id/status', requireRole(['secretary', 'general_secretary', 'vice_p
 /**
  * 5. Add Discussion Comment
  */
-router.post('/:id/discuss', requireRole(['student', 'secretary', 'general_secretary', 'vice_president', 'president', 'state_president', 'supreme_admin']), async (req, res) => {
+router.post('/:id/discuss', requireRole(['student', 'secretary', 'general_secretary', 'vice_president', 'president', 'state_president', 'supreme_admin', 'dev']), async (req, res) => {
   const { id } = req.params;
   const { message } = req.body;
   const uid = req.user.uid;
@@ -452,7 +452,7 @@ router.post('/:id/discuss', requireRole(['student', 'secretary', 'general_secret
 /**
  * 6. Escalate Complaint
  */
-router.post('/:id/escalate', requireRole(['secretary', 'general_secretary', 'vice_president', 'president', 'state_president', 'supreme_admin']), async (req, res) => {
+router.post('/:id/escalate', requireRole(['secretary', 'general_secretary', 'vice_president', 'president', 'state_president', 'supreme_admin', 'dev']), async (req, res) => {
   const { id } = req.params;
   const { level_to, reason } = req.body;
   const uid = req.user.uid;
@@ -492,7 +492,7 @@ router.post('/:id/escalate', requireRole(['secretary', 'general_secretary', 'vic
 /**
  * 7. Delete Complaint (Dev & Supreme Admin only — full cascade cleanup)
  */
-router.delete('/:id', requireRole(['supreme_admin', 'president', 'state_president']), async (req, res) => {
+router.delete('/:id', requireRole(['supreme_admin', 'state_president', 'dev']), async (req, res) => {
   const { id } = req.params;
   const uid = req.user.uid;
 

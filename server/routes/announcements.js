@@ -7,7 +7,7 @@ const router = express.Router();
 /**
  * 1. Fetch announcements based on user role audience filters
  */
-router.get('/', requireRole(['student', 'secretary', 'general_secretary', 'vice_president', 'president', 'supreme_admin']), async (req, res) => {
+router.get('/', requireRole(['student', 'secretary', 'general_secretary', 'vice_president', 'president', 'state_president', 'supreme_admin', 'dev']), async (req, res) => {
   const { role } = req.user;
 
   try {
@@ -35,7 +35,7 @@ router.get('/', requireRole(['student', 'secretary', 'general_secretary', 'vice_
         [role]
       );
     } else {
-      // Supreme Admin sees all circulars
+      // Supreme Admin (supreme_admin, state_president, dev) sees all circulars
       result = await query(
         `SELECT a.*, u.full_name as author_name, u.role as author_role, con.constituency_name as author_constituency 
          FROM announcements a
@@ -52,9 +52,9 @@ router.get('/', requireRole(['student', 'secretary', 'general_secretary', 'vice_
 });
 
 /**
- * 2. Create statewide announcement circulars (General Secretary, President, and Supreme Admin only)
+ * 2. Create statewide announcement circulars (General Secretary, President, and Supreme Admin/State President/Dev only)
  */
-router.post('/', requireRole(['general_secretary', 'president', 'supreme_admin']), async (req, res) => {
+router.post('/', requireRole(['general_secretary', 'president', 'state_president', 'supreme_admin', 'dev']), async (req, res) => {
   const { title, content, targetAudience } = req.body;
   const authorUid = req.user.uid || 'SUPREME_ADMIN_UID';
 
@@ -115,7 +115,7 @@ router.post('/', requireRole(['general_secretary', 'president', 'supreme_admin']
 /**
  * 3. Delete circular (General Secretary, President, and Supreme Admin/Dev only)
  */
-router.delete('/:id', requireRole(['general_secretary', 'president', 'supreme_admin']), async (req, res) => {
+router.delete('/:id', requireRole(['supreme_admin', 'state_president', 'dev']), async (req, res) => {
   const { id } = req.params;
   const authorUid = req.user.uid || 'SUPREME_ADMIN_UID';
 

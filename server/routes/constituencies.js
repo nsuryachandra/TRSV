@@ -199,7 +199,7 @@ router.get('/leaders-grid', async (req, res) => {
 /**
  * 2. Create dynamic constituency node (Supreme Admin Only)
  */
-router.post('/', requireRole(['supreme_admin']), async (req, res) => {
+router.post('/', requireRole(['supreme_admin', 'state_president', 'dev']), async (req, res) => {
   const constituencyName = req.body.constituencyName || req.body.constituency_name;
   const district = req.body.district;
 
@@ -229,7 +229,7 @@ router.post('/', requireRole(['supreme_admin']), async (req, res) => {
 /**
  * 3. Update constituency properties (Supreme Admin Only)
  */
-router.put('/:id', requireRole(['supreme_admin']), async (req, res) => {
+router.put('/:id', requireRole(['supreme_admin', 'state_president', 'dev']), async (req, res) => {
   const { id } = req.params;
   const { constituencyName, district, status } = req.body;
 
@@ -263,7 +263,7 @@ router.put('/:id', requireRole(['supreme_admin']), async (req, res) => {
 /**
  * 4. Delete constituency node (Supreme Admin Only)
  */
-router.delete('/:id', requireRole(['supreme_admin']), async (req, res) => {
+router.delete('/:id', requireRole(['supreme_admin', 'state_president', 'dev']), async (req, res) => {
   const { id } = req.params;
 
   try {
