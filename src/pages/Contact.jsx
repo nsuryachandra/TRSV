@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Mail, Phone, MapPin, Send, ShieldAlert, CheckCircle, Lock, Sparkles, ChevronRight, ChevronLeft, UploadCloud, EyeOff, FileText, X, AlertTriangle, RefreshCw } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import GlassCard from '../components/GlassCard';
@@ -48,9 +49,17 @@ export default function Contact() {
   }, []);
 
   // Complaint list tracking states
+  const [searchParams] = useSearchParams();
+  const openTicketId = searchParams.get('open_ticket_id');
   const [tickets, setTickets] = useState([]);
   const [loadingTickets, setLoadingTickets] = useState(true);
   const [selectedTicketId, setSelectedTicketId] = useState(null);
+
+  React.useEffect(() => {
+    if (openTicketId) {
+      setSelectedTicketId(parseInt(openTicketId));
+    }
+  }, [openTicketId]);
   const [ticketTab, setTicketTab] = useState('active'); // 'active' | 'resolved'
 
   const fetchTickets = async () => {

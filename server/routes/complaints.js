@@ -254,6 +254,7 @@ router.post('/', requireRole(['student']), async (req, res) => {
  */
 router.get('/', requireRole(['student', 'secretary', 'general_secretary', 'vice_president', 'president', 'state_president', 'supreme_admin', 'dev']), async (req, res) => {
   const { role, uid, constituency_id, college_id } = req.user;
+  const { student_id } = req.query;
 
   try {
     let result;
@@ -272,28 +273,52 @@ router.get('/', requireRole(['student', 'secretary', 'general_secretary', 'vice_
       );
     } else if (isStatewide) {
       // Vice Presidents, Presidents, and Supreme Admins with statewide access see everything
-      result = await query(
-        `SELECT c.*, con.constituency_name, col.college_name, u.full_name as student_name 
-         FROM complaints c
-         LEFT JOIN constituencies con ON c.constituency_id = con.id
-         LEFT JOIN colleges col ON c.college_id = col.id
-         LEFT JOIN users u ON c.student_id = u.id
-         ORDER BY c.created_at DESC`
-      );
+      if (student_id) {
+        result = await query(
+          `SELECT c.*, con.constituency_name, col.college_name, u.full_name as student_name 
+           FROM complaints c
+           LEFT JOIN constituencies con ON c.constituency_id = con.id
+           LEFT JOIN colleges col ON c.college_id = col.id
+           LEFT JOIN users u ON c.student_id = u.id
+           WHERE c.student_id = $1 ORDER BY c.created_at DESC`,
+          [student_id]
+        );
+      } else {
+        result = await query(
+          `SELECT c.*, con.constituency_name, col.college_name, u.full_name as student_name 
+           FROM complaints c
+           LEFT JOIN constituencies con ON c.constituency_id = con.id
+           LEFT JOIN colleges col ON c.college_id = col.id
+           LEFT JOIN users u ON c.student_id = u.id
+           ORDER BY c.created_at DESC`
+        );
+      }
     } else if (role === 'secretary') {
       // Secretary monitors only their designated college
       if (!college_id) {
         return res.json({ success: true, complaints: [], message: 'No college bound to active credentials.' });
       }
-      result = await query(
-        `SELECT c.*, con.constituency_name, col.college_name, u.full_name as student_name 
-         FROM complaints c
-         LEFT JOIN constituencies con ON c.constituency_id = con.id
-         LEFT JOIN colleges col ON c.college_id = col.id
-         LEFT JOIN users u ON c.student_id = u.id
-         WHERE c.college_id = $1 ORDER BY c.created_at DESC`,
-        [college_id]
-      );
+      if (student_id) {
+        result = await query(
+          `SELECT c.*, con.constituency_name, col.college_name, u.full_name as student_name 
+           FROM complaints c
+           LEFT JOIN constituencies con ON c.constituency_id = con.id
+           LEFT JOIN colleges col ON c.college_id = col.id
+           LEFT JOIN users u ON c.student_id = u.id
+           WHERE c.college_id = $1 AND c.student_id = $2 ORDER BY c.created_at DESC`,
+          [college_id, student_id]
+        );
+      } else {
+        result = await query(
+          `SELECT c.*, con.constituency_name, col.college_name, u.full_name as student_name 
+           FROM complaints c
+           LEFT JOIN constituencies con ON c.constituency_id = con.id
+           LEFT JOIN colleges col ON c.college_id = col.id
+           LEFT JOIN users u ON c.student_id = u.id
+           WHERE c.college_id = $1 ORDER BY c.created_at DESC`,
+          [college_id]
+        );
+      }
     } else {
       // Local & hub leaders: see their own constituency + all sub-constituencies (if they are a parent hub)
       if (!constituency_id) {
@@ -305,15 +330,27 @@ router.get('/', requireRole(['student', 'secretary', 'general_secretary', 'vice_
         [constituency_id]
       );
       const scopedIds = subRes.rows.map(r => r.id);
-      result = await query(
-        `SELECT c.*, con.constituency_name, col.college_name, u.full_name as student_name 
-         FROM complaints c
-         LEFT JOIN constituencies con ON c.constituency_id = con.id
-         LEFT JOIN colleges col ON c.college_id = col.id
-         LEFT JOIN users u ON c.student_id = u.id
-         WHERE c.constituency_id = ANY($1::int[]) ORDER BY c.created_at DESC`,
-        [scopedIds]
-      );
+      if (student_id) {
+        result = await query(
+          `SELECT c.*, con.constituency_name, col.college_name, u.full_name as student_name 
+           FROM complaints c
+           LEFT JOIN constituencies con ON c.constituency_id = con.id
+           LEFT JOIN colleges col ON c.college_id = col.id
+           LEFT JOIN users u ON c.student_id = u.id
+           WHERE c.constituency_id = ANY($1::int[]) AND c.student_id = $2 ORDER BY c.created_at DESC`,
+           [scopedIds, student_id]
+        );
+      } else {
+        result = await query(
+          `SELECT c.*, con.constituency_name, col.college_name, u.full_name as student_name 
+           FROM complaints c
+           LEFT JOIN constituencies con ON c.constituency_id = con.id
+           LEFT JOIN colleges col ON c.college_id = col.id
+           LEFT JOIN users u ON c.student_id = u.id
+           WHERE c.constituency_id = ANY($1::int[]) ORDER BY c.created_at DESC`,
+           [scopedIds]
+        );
+      }
     }
 
     res.json({ success: true, complaints: result.rows });

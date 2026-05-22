@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Shield, Users, Radio, CheckCircle, AlertTriangle, Play, ChevronRight, Phone, RefreshCw, X, Check } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useSearchParams } from 'react-router-dom';
 import GlassCard from '../components/GlassCard';
 import PremiumButton from '../components/PremiumButton';
 import ComplaintDetailsModal from '../components/ComplaintDetailsModal';
@@ -12,7 +13,15 @@ import HubChat from '../components/HubChat';
 
 export default function LeaderDashboard() {
   const { userProfile } = useAuth();
+  const [searchParams] = useSearchParams();
+  const openTicketId = searchParams.get('open_ticket_id');
   const [activeTab, setActiveTab] = useState('complaints'); // 'complaints', 'applications'
+
+  useEffect(() => {
+    if (openTicketId) {
+      setSelectedTicketId(parseInt(openTicketId));
+    }
+  }, [openTicketId]);
   const [joinRequests, setJoinRequests] = useState([]);
   const [fetchingRequests, setFetchingRequests] = useState(false);
   const [requestMessage, setRequestMessage] = useState({ text: '', type: '' });

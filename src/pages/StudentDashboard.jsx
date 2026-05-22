@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ShieldCheck, BookOpen, Download, HelpCircle, FileText, ChevronRight, CheckCircle2, RefreshCw, AlertTriangle, ShieldAlert, Building, MapPin } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import GlassCard from '../components/GlassCard';
@@ -8,11 +8,19 @@ import ComplaintDetailsModal from '../components/ComplaintDetailsModal';
 
 export default function StudentDashboard() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const openTicketId = searchParams.get('open_ticket_id');
   const { userProfile, refreshProfile } = useAuth();
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
   const [selectedTicketId, setSelectedTicketId] = useState(null);
+
+  useEffect(() => {
+    if (openTicketId) {
+      setSelectedTicketId(parseInt(openTicketId));
+    }
+  }, [openTicketId]);
 
   // OpenStreetMap Autocomplete & Live Map States
   const [constituencies, setConstituencies] = useState([]);

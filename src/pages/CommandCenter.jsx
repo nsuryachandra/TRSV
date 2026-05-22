@@ -18,6 +18,7 @@ import {
   Users
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useSearchParams } from 'react-router-dom';
 import PremiumButton from '../components/PremiumButton';
 import GlassCard from '../components/GlassCard';
 import RealtimeActivityFeed from '../components/RealtimeActivityFeed';
@@ -28,7 +29,16 @@ import ComplaintDetailsModal from '../components/ComplaintDetailsModal';
 
 export default function CommandCenter() {
   const { userProfile } = useAuth();
+  const [searchParams] = useSearchParams();
+  const openTicketId = searchParams.get('open_ticket_id');
   const [activeTab, setActiveTab] = useState('telemetry'); // 'telemetry', 'nodes', 'promotions'
+
+  useEffect(() => {
+    if (openTicketId) {
+      setSelectedTicketId(parseInt(openTicketId));
+      setActiveTab('complaints');
+    }
+  }, [openTicketId]);
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalLeaders: 0,

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Camera, Scan, Upload, ShieldCheck, ShieldAlert, X, HelpCircle, User, Info, ArrowRight, Shield } from 'lucide-react';
 import GlassCard from '../components/GlassCard';
 import PremiumButton from '../components/PremiumButton';
@@ -7,6 +7,51 @@ import jsQR from 'jsqr';
 
 export default function QrScanExperience() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const solveTicketId = searchParams.get('solve_ticket_id');
+  const [updatingTicketId, setUpdatingTicketId] = useState(null);
+
+  const handleSelectComplaintToSolve = async (ticketId) => {
+    setUpdatingTicketId(ticketId);
+    try {
+      const token = localStorage.getItem('tsrv_session_token');
+      const note = localStorage.getItem('tsrv_solve_note') || 'Solving started after student ID verification.';
+      const resNotes = localStorage.getItem('tsrv_solve_resolution') || '';
+      
+      const res = await fetch(`/api/complaints/${ticketId}/status`, {
+        method: 'PUT',
+        headers: { 
+          'Authorization': `Bearer ${token}`, 
+          'Content-Type': 'application/json' 
+        },
+        body: JSON.stringify({ 
+          status: 'Solving Started', 
+          note: `${note} (Verified member ID: ${scanResult?.identity?.tsrv_member_id})`,
+          resolution_notes: resNotes
+        })
+      });
+      
+      const json = await res.json();
+      if (json.success) {
+        localStorage.removeItem('tsrv_solve_ticket_id');
+        localStorage.removeItem('tsrv_solve_note');
+        localStorage.removeItem('tsrv_solve_resolution');
+        
+        const redirectPath = localStorage.getItem('tsrv_solve_source_path') || '/dashboard/leader';
+        localStorage.removeItem('tsrv_solve_source_path');
+        
+        closeResultModal();
+        navigate(`${redirectPath}?open_ticket_id=${ticketId}`);
+      } else {
+        alert(json.message || 'Failed to update ticket status.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Failed to connect to database node.');
+    } finally {
+      setUpdatingTicketId(null);
+    }
+  };
 
   // Scanning states
   const [scanning, setScanning] = useState(false);
@@ -153,6 +198,19 @@ export default function QrScanExperience() {
         const data = await response.json();
         
         if (data.success) {
+          const token = localStorage.getItem('tsrv_session_token');
+          const studentId = data.profile.id;
+          try {
+            const compRes = await fetch(`/api/complaints?student_id=${studentId}`, {
+              headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const compJson = await compRes.json();
+            if (compJson.success) {
+              data.activeComplaints = compJson.complaints.filter(c => c.status !== 'Solved' && c.status !== 'Dismissed');
+            }
+          } catch (compErr) {
+            console.error('Failed to load student complaints', compErr);
+          }
           setScanResult(data);
         } else {
           setScanError(data.message || 'Decryption failed: Token is not registered or contains corrupted headers.');
@@ -424,6 +482,52 @@ export default function QrScanExperience() {
                       <span className="text-[9px] text-slate-500 dark:text-slate-400 mt-0.5 truncate">{scanResult.profile.constituency_name || 'Statewide Headquarters'}</span>
                     </div>
                   </div>
+
+                  {/* Student Active Complaints list */}
+                  {scanResult.activeComplaints && scanResult.activeComplaints.length > 0 ? (
+                    <div className="w-full mt-5 border-t border-slate-200/50 dark:border-slate-800 pt-4 text-left">
+                      <span className="text-[10px] font-black uppercase tracking-wider text-cyan-500 block mb-2">
+                        Active Complaints to Solve
+                      </span>
+                      <div className="flex flex-col gap-2 max-h-[160px] overflow-y-auto pr-1 custom-sidebar-scrollbar">
+                        {scanResult.activeComplaints.map((item) => {
+                          const isTarget = solveTicketId && parseInt(solveTicketId) === item.id;
+                          return (
+                            <div 
+                              key={item.id} 
+                              onClick={() => !updatingTicketId && handleSelectComplaintToSolve(item.id)}
+                              className={`p-3 rounded-xl border text-xs cursor-pointer transition-all flex flex-col gap-1 ${
+                                isTarget 
+                                  ? 'bg-cyan-500/10 border-cyan-500 shadow-glow-cyan' 
+                                  : 'bg-slate-50 dark:bg-slate-950/40 border-slate-200/60 dark:border-slate-850 hover:border-cyan-500/50'
+                              }`}
+                            >
+                              <div className="flex justify-between items-start gap-2">
+                                <span className="font-bold text-slate-850 dark:text-white truncate max-w-[200px]">{item.title}</span>
+                                <span className={`text-[8px] font-black px-1.5 py-0.5 rounded border uppercase shrink-0 ${
+                                  item.urgency === 'Critical' 
+                                    ? 'bg-rose-500/10 text-rose-500 border-rose-500/20' 
+                                    : 'bg-sky-500/10 text-sky-500 border-sky-500/20'
+                                }`}>
+                                  {item.urgency}
+                                </span>
+                              </div>
+                              <div className="flex justify-between items-center text-[9px] text-slate-450 dark:text-slate-500 mt-1">
+                                <span>Ticket #{item.id}</span>
+                                <span className="font-bold text-cyan-500">
+                                  {updatingTicketId === item.id ? 'Starting Solve Stage...' : isTarget ? '👉 Click to Verify & Start Solving' : 'Click to Solve'}
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ) : scanResult.verified ? (
+                    <div className="w-full mt-5 border-t border-slate-200/50 dark:border-slate-800 pt-4 text-center text-xs text-slate-400 italic">
+                      No active complaints found for this student.
+                    </div>
+                  ) : null}
 
                   {/* Security/Access State Details */}
                   <div className="w-full flex justify-between items-center text-xs text-slate-500 dark:text-slate-400 border-t border-slate-200/50 dark:border-slate-800 pt-4 mt-5">

@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { X, ShieldAlert, AlertTriangle, FileText, Clock, MessageSquare, Shield, CheckCircle, Send, Play } from 'lucide-react';
 import PremiumButton from './PremiumButton';
 
 export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, onUpdateSuccess }) {
+  const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -76,6 +78,15 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
 
   const handleUpdateStatus = async (e) => {
     e.preventDefault();
+    if (updateStatus === 'Solving Started') {
+      localStorage.setItem('tsrv_solve_ticket_id', ticketId);
+      localStorage.setItem('tsrv_solve_source_path', window.location.hash.split('?')[0]);
+      localStorage.setItem('tsrv_solve_note', updateNote || 'Solving started after student ID verification.');
+      localStorage.setItem('tsrv_solve_resolution', resolutionNotes || '');
+      onClose();
+      navigate(`/dashboard/qr-scanner?solve_ticket_id=${ticketId}`);
+      return;
+    }
     setUpdating(true);
     try {
       const token = localStorage.getItem('tsrv_session_token');
@@ -290,7 +301,7 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
         </div>
 
         {/* Multi-Pane Body */}
-        <div className="flex flex-col lg:flex-row flex-1 overflow-hidden">
+        <div className="flex flex-col lg:flex-row flex-1 overflow-y-auto lg:overflow-hidden">
           
           {/* Left Column: Details & Timeline */}
           <div className="w-full lg:w-1/2 flex flex-col border-r border-slate-200/50 dark:border-slate-800 bg-white dark:bg-slate-900/50 overflow-y-auto custom-sidebar-scrollbar p-6 gap-8">
@@ -306,25 +317,25 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
                 {complaint.description}
               </p>
               
-              <div className="grid grid-cols-2 gap-4 mt-5 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
-                <div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                <div className="break-words">
                   <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Student</span>
                   <span className="text-xs font-bold text-slate-800 dark:text-white flex items-center gap-1.5">
                     {complaint.anonymous ? <Shield className="w-3.5 h-3.5 text-cyan-500" /> : null}
                     {complaint.student_name}
                   </span>
                 </div>
-                <div>
+                <div className="break-words">
                   <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Category</span>
                   <span className="text-xs font-bold text-slate-800 dark:text-white">{complaint.category}</span>
                 </div>
-                <div>
+                <div className="col-span-1 sm:col-span-2 break-words">
                   <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1">College Node</span>
-                  <span className="text-xs font-bold text-slate-800 dark:text-white truncate" title={complaint.college_name}>{complaint.college_name || 'State Scope'}</span>
+                  <span className="text-xs font-bold text-slate-800 dark:text-white block" title={complaint.college_name}>{complaint.college_name || 'State Scope'}</span>
                 </div>
-                <div>
+                <div className="col-span-1 sm:col-span-2 break-words">
                   <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Constituency Hub</span>
-                  <span className="text-xs font-bold text-slate-800 dark:text-white truncate">{complaint.constituency_name || 'State Scope'}</span>
+                  <span className="text-xs font-bold text-slate-800 dark:text-white block">{complaint.constituency_name || 'State Scope'}</span>
                 </div>
               </div>
             </section>
@@ -377,15 +388,15 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
           </div>
 
           {/* Right Column: Discussions & Controls */}
-          <div className="w-full lg:w-1/2 flex flex-col bg-slate-50/50 dark:bg-slate-900 overflow-hidden">
+          <div className="w-full lg:w-1/2 flex flex-col bg-slate-50/50 dark:bg-slate-900 overflow-visible lg:overflow-hidden">
             
             {/* Threaded Discussion Panel */}
-            <div className="flex flex-col flex-1 overflow-hidden p-6 border-b border-slate-200/50 dark:border-slate-800">
+            <div className="flex flex-col flex-1 overflow-visible lg:overflow-hidden p-6 border-b border-slate-200/50 dark:border-slate-800">
               <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 dark:text-white mb-4 flex items-center gap-2 shrink-0">
                 <MessageSquare className="w-4 h-4 text-cyan-500" /> Operations Discussion
               </h3>
               
-              <div ref={scrollRef} className="flex-1 overflow-y-auto pr-2 custom-sidebar-scrollbar flex flex-col gap-4">
+              <div ref={scrollRef} className="flex-1 min-h-[300px] lg:min-h-0 overflow-y-auto pr-2 custom-sidebar-scrollbar flex flex-col gap-4">
                 {discussions.length > 0 ? discussions.map(msg => {
                   const isMine = msg.user_id === userProfile.id;
                   const isLeaderRole = msg.user_role !== 'student';

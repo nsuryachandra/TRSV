@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { ShieldAlert, AlertTriangle, Crosshair, MapPin, Zap, CheckCircle2, Clock } from 'lucide-react';
 import GlassCard from '../components/GlassCard';
 import PremiumButton from '../components/PremiumButton';
@@ -8,10 +9,18 @@ import { useAuth } from '../context/AuthContext';
 
 export default function EmergencyCommand() {
   const { userProfile } = useAuth();
+  const [searchParams] = useSearchParams();
+  const openTicketId = searchParams.get('open_ticket_id');
   const [emergencies, setEmergencies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedTicketId, setSelectedTicketId] = useState(null);
   const [acknowledging, setAcknowledging] = useState(null);
+
+  useEffect(() => {
+    if (openTicketId) {
+      setSelectedTicketId(parseInt(openTicketId));
+    }
+  }, [openTicketId]);
 
   useEffect(() => {
     fetchEmergencies();
