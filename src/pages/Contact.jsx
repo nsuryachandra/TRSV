@@ -286,13 +286,13 @@ export default function Contact() {
       <AnimatedSection direction="up" className="text-center max-w-3xl mx-auto flex flex-col gap-4">
         <span className="text-xs font-bold text-cyan-600 dark:text-cyan-400 tracking-widest uppercase flex items-center justify-center gap-1.5">
           <Sparkles className="w-3.5 h-3.5" />
-          OFFICIAL GRIEVANCE REDRESSAL PORTAL
+          OFFICIAL COMPLAINT REDRESSAL PORTAL
         </span>
         <h1 className="fluid-heading-2 font-black text-slate-850 dark:text-white leading-tight text-center">
-          State Grievance Submission Gate
+          State Complaint Submission Gate
         </h1>
         <p className="text-base sm:text-lg text-slate-500 dark:text-slate-400 leading-relaxed text-center">
-          Lodge your academic, campus-safety, or administrative grievance directly into the TSRV Command Node. Every submission is digitally routed to local and statewide leaders.
+          Lodge your academic, campus-safety, or administrative complaint directly into the TSRV Command Node. Every submission is digitally routed to local and statewide leaders.
         </p>
       </AnimatedSection>
 
@@ -310,7 +310,7 @@ export default function Contact() {
                 
                 <div className="flex flex-col gap-2">
                   <h3 className="font-extrabold text-2xl text-slate-850 dark:text-white">
-                    Grievance Logged Successfully
+                    Complaint Logged Successfully
                   </h3>
                   <span className="text-xs font-bold text-cyan-500 font-mono tracking-widest uppercase bg-cyan-500/10 px-3 py-1 rounded-full self-center border border-cyan-500/15">
                     Ticket ID: #{assignedTicketId}
@@ -318,7 +318,7 @@ export default function Contact() {
                 </div>
 
                 <p className="text-sm text-slate-550 dark:text-slate-400 leading-relaxed">
-                  Your grievance has been successfully recorded in the Neon database. The regional leaders mapped to your constituency area have been notified. You can track the progress of this ticket in the tracking section below.
+                  Your complaint has been successfully recorded in the Neon database. The regional leaders mapped to your constituency area have been notified. You can track the progress of this ticket in the tracking section below.
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-3 w-full justify-center">
@@ -330,7 +330,7 @@ export default function Contact() {
                       setAssignedTicketId('');
                     }}
                   >
-                    Submit Another Grievance
+                    Submit Another Complaint
                   </PremiumButton>
                 </div>
               </div>
@@ -340,7 +340,7 @@ export default function Contact() {
                 <div className="flex flex-col gap-1 pb-3 border-b border-slate-200/50 dark:border-slate-850">
                   <h3 className="font-black text-lg text-slate-850 dark:text-white flex items-center gap-2">
                     <ShieldAlert className="w-5 h-5 text-cyan-500" />
-                    Lodge Official Grievance
+                    Lodge Official Complaint
                   </h3>
                   <p className="text-xs text-slate-400">
                     All fields are mandatory. Filing false complaints will result in permanent credential suspension.
@@ -413,17 +413,15 @@ export default function Contact() {
                         </option>
                       ))}
                     </select>
-                  </div>
-
-                  {/* Category Selection Dropdown */}
+                                  {/* Category Selection Dropdown */}
                   <div className="flex flex-col gap-1.5">
                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                      Grievance Category <span className="text-rose-500">*</span>
+                      Complaint Category <span className="text-rose-500">*</span>
                     </label>
                     <select
                       value={category}
                       onChange={(e) => setCategory(e.target.value)}
-                      className="w-full p-3.5 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-855 dark:text-slate-100 font-bold font-bold"
+                      className="w-full p-3.5 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-855 dark:text-slate-100 font-bold"
                       required
                     >
                       <option value="Anti-Ragging">Anti-Ragging (Ragging protection)</option>
@@ -436,7 +434,7 @@ export default function Contact() {
                       <option value="Safety Issues">Campus Security & Safety risks</option>
                       <option value="Administration Problems">Administrative delays</option>
                       <option value="Abuse">Physical or verbal abuse</option>
-                      <option value="Other">Other grievances</option>
+                      <option value="Other">Other complaints</option>
                     </select>
                   </div>
 
@@ -495,7 +493,7 @@ export default function Contact() {
                 {/* Proofs Drag and Drop field */}
                 <div className="flex flex-col gap-2">
                   <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                    Grievance Proof Attachments <span className="text-rose-500">*</span>
+                    Complaint Proof Attachments <span className="text-rose-500">*</span>
                   </label>
                   
                   <div className="relative group cursor-pointer border-2 border-dashed border-slate-200/60 dark:border-slate-800 hover:border-cyan-500/60 dark:hover:border-cyan-400/60 rounded-2xl bg-white/10 dark:bg-slate-900/10 p-6 text-center transition-all">
@@ -522,8 +520,8 @@ export default function Contact() {
                     {proofFiles.map((file, idx) => (
                       <div key={idx} className="flex items-center justify-between p-2.5 rounded-lg border bg-white/50 dark:bg-slate-850/50 border-slate-200/50 dark:border-slate-800">
                         <div className="flex items-center gap-2 min-w-0">
-                          <FileText className="w-3.5 h-3.5 text-cyan-500 shrink-0" />
-                          <span className="text-[11px] font-bold text-slate-700 dark:text-slate-200 truncate">{file.name}</span>
+                           <FileText className="w-3.5 h-3.5 text-cyan-500 shrink-0" />
+                           <span className="text-[11px] font-bold text-slate-700 dark:text-slate-200 truncate">{file.name}</span>
                         </div>
                         <div className="flex items-center gap-3 shrink-0">
                           <span className="text-[9px] text-slate-400">{(file.size / 1024 / 1024).toFixed(2)} MB</span>
@@ -557,7 +555,7 @@ export default function Contact() {
                   className={`w-full mt-2 ${isEmergency ? 'bg-rose-500 hover:bg-rose-600 shadow-glow-rose before:from-rose-400 before:to-rose-600' : ''}`}
                   disabled={submitting}
                 >
-                  {submitting ? 'Transmitting Evidences & Lodge...' : (isEmergency ? 'Trigger Emergency Dispatch' : 'Lodge Union Grievance')}
+                  {submitting ? 'Transmitting Evidences & Lodge...' : (isEmergency ? 'Trigger Emergency Dispatch' : 'Lodge Union Complaint')}
                 </PremiumButton>
               </form>
             )
@@ -571,7 +569,7 @@ export default function Contact() {
                 Secure Submission Required
               </h3>
               <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed text-center">
-                To lodge an official student grievance and track its lifecycle, you must log in to your verified student advocate account first.
+                To lodge an official student complaint and track its lifecycle, you must log in to your verified student advocate account first.
               </p>
               <div className="flex gap-3">
                 <PremiumButton variant="primary" size="sm" onClick={() => window.location.hash = '#/login'}>
@@ -585,13 +583,13 @@ export default function Contact() {
           )}
         </GlassCard>
 
-        {/* 4. Grievance Tracking Section */}
+        {/* 4. Complaint Tracking Section */}
         {user && (
           <GlassCard hoverEffect={false} className="p-6 sm:p-8 w-full border border-slate-200/50 dark:border-slate-850 text-left">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200/50 dark:border-slate-850 pb-4">
               <div className="flex flex-col gap-1">
                 <h3 className="font-black text-lg text-slate-850 dark:text-white uppercase tracking-wider">
-                  Grievance Tickets Tracking
+                  Complaint Tickets Tracking
                 </h3>
                 <p className="text-xs text-slate-400">
                   Monitor the real-time resolution timeline of your submitted cases. Click any ticket for complete logs.

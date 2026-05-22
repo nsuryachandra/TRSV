@@ -522,12 +522,12 @@ export default function StudentDashboard() {
           </div>
         </GlassCard>
 
-        {/* 3. Grievances Dispatch Tracker */}
+        {/* 3. Complaints Dispatch Tracker */}
         <div className="lg:col-span-2">
           <GlassCard hoverEffect={false} className="p-6 h-full flex flex-col justify-between gap-4 text-left">
             <div className="flex flex-col gap-2 border-b border-slate-200/50 dark:border-slate-850 pb-3">
               <div className="flex items-center justify-between">
-                <span className="font-extrabold text-sm text-slate-700 dark:text-white uppercase tracking-wider">Grievance Dispatch Tracker</span>
+                <span className="font-extrabold text-sm text-slate-700 dark:text-white uppercase tracking-wider">Complaint Dispatch Tracker</span>
                 <span className="text-xs text-slate-400">{tickets.length} Logged</span>
               </div>
               
@@ -542,7 +542,7 @@ export default function StudentDashboard() {
                       : 'bg-white/40 dark:bg-slate-900/40 border-slate-200/60 dark:border-slate-800 text-slate-500 dark:text-slate-400'
                   }`}
                 >
-                  Active Grievances ({activeTickets.length})
+                  Active Complaints ({activeTickets.length})
                 </button>
                 <button
                   type="button"
@@ -553,7 +553,7 @@ export default function StudentDashboard() {
                       : 'bg-white/40 dark:bg-slate-900/40 border-slate-200/60 dark:border-slate-800 text-slate-500 dark:text-slate-400'
                   }`}
                 >
-                  Resolved Grievances ({resolvedTickets.length})
+                  Resolved Complaints ({resolvedTickets.length})
                 </button>
               </div>
             </div>
@@ -825,7 +825,7 @@ export default function StudentDashboard() {
             </div>
 
             <p className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed font-semibold z-10">
-              Grievance tickets logged in the TSRV Command Node are transmitted directly to regional boards. 
+              Complaint tickets logged in the TSRV Command Node are transmitted directly to regional boards. 
               <span className="text-amber-600 dark:text-amber-400 font-bold block mt-1">You must file only real and genuine complaints.</span> 
               Filing simulated, fake, or false complaints is strictly prohibited and will result in permanent student credential suspension.
             </p>
