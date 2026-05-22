@@ -21,8 +21,30 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
   const [escalateLevel, setEscalateLevel] = useState('');
   const [updating, setUpdating] = useState(false);
 
+  const fetchDetailsSilently = async () => {
+    try {
+      const token = localStorage.getItem('tsrv_session_token');
+      const res = await fetch(`/api/complaints/${ticketId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const json = await res.json();
+      if (json.success) {
+        setData(json);
+      }
+    } catch (err) {
+      console.error('Silent fetch failed', err);
+    }
+  };
+
   useEffect(() => {
     fetchDetails();
+
+    // Live update messages/coordination logs periodically every 3 seconds
+    const interval = setInterval(() => {
+      fetchDetailsSilently();
+    }, 3000);
+
+    return () => clearInterval(interval);
   }, [ticketId]);
 
   const fetchDetails = async () => {

@@ -477,12 +477,82 @@ router.post('/:id/discuss', requireRole(['student', 'secretary', 'general_secret
   if (!message) return res.status(400).json({ success: false, message: 'Message cannot be empty.' });
 
   try {
+    // 1. Fetch complaint details
+    const compCheck = await query('SELECT student_id, title, constituency_id, current_handler FROM complaints WHERE id = $1', [id]);
+    if (compCheck.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Complaint not found.' });
+    }
+
+    const complaint = compCheck.rows[0];
+    const studentId = complaint.student_id;
+    const currentHandler = complaint.current_handler;
+    const constituencyId = complaint.constituency_id;
+
+    // 2. Fetch sender name
+    const senderQuery = await query('SELECT full_name FROM users WHERE id = $1', [uid]);
+    const senderName = senderQuery.rows[0]?.full_name || 'Member';
+
+    // 3. Insert message
     const result = await query(
       'INSERT INTO complaint_discussions (complaint_id, user_id, message) VALUES ($1, $2, $3) RETURNING *',
       [id, uid, message]
     );
-    res.json({ success: true, message: 'Comment added.', discussion: result.rows[0] });
+
+    // 4. Generate notifications
+    const snippet = message.length > 60 ? `${message.substring(0, 60)}...` : message;
+    
+    if (uid === studentId) {
+      // Sender is the student, notify the handler and active leaders of this constituency or supreme circles
+      if (currentHandler) {
+        await query(
+          'INSERT INTO notifications (user_id, title, message) VALUES ($1, $2, $3)',
+          [currentHandler, 'New Message on Complaint', `${senderName} (Student) sent a message on Ticket #${id}: "${snippet}"`]
+        );
+      }
+
+      const leaders = await query(
+        `SELECT id FROM users 
+         WHERE role IN ('secretary', 'general_secretary', 'vice_president', 'president', 'state_president', 'supreme_admin', 'dev') 
+         AND (constituency_id = $1 OR role IN ('state_president', 'supreme_admin', 'dev'))
+         AND id != $2`,
+        [constituencyId, uid]
+      );
+
+      for (const leader of leaders.rows) {
+        if (leader.id !== currentHandler) {
+          await query(
+            'INSERT INTO notifications (user_id, title, message) VALUES ($1, $2, $3)',
+            [leader.id, 'New Message on Complaint', `${senderName} (Student) sent a message on Ticket #${id}: "${snippet}"`]
+          );
+        }
+      }
+    } else {
+      // Sender is a leader/admin, notify the student
+      await query(
+        'INSERT INTO notifications (user_id, title, message) VALUES ($1, $2, $3)',
+        [studentId, 'New Message from Leadership', `Leader ${senderName} sent a message on Ticket #${id}: "${snippet}"`]
+      );
+
+      // Also notify other leaders/admins on this ticket
+      const leaders = await query(
+        `SELECT id FROM users 
+         WHERE role IN ('secretary', 'general_secretary', 'vice_president', 'president', 'state_president', 'supreme_admin', 'dev') 
+         AND (constituency_id = $1 OR role IN ('state_president', 'supreme_admin', 'dev'))
+         AND id != $2`,
+        [constituencyId, uid]
+      );
+
+      for (const leader of leaders.rows) {
+        await query(
+          'INSERT INTO notifications (user_id, title, message) VALUES ($1, $2, $3)',
+          [leader.id, 'New Message on Complaint', `${senderName} sent a message on Ticket #${id}: "${snippet}"`]
+        );
+      }
+    }
+
+    res.json({ success: true, message: 'Comment added and notifications sent.', discussion: result.rows[0] });
   } catch (error) {
+    console.error('🚨 [Discuss POST Error]:', error.message);
     res.status(500).json({ success: false, message: 'Failed to add discussion comment.', error: error.message });
   }
 });

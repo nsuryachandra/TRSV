@@ -172,7 +172,7 @@ export default function Contact() {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          title: `Grievance from ${complainantName}`,
+          title: `Complaint from ${complainantName}`,
           description,
           category,
           urgency,
@@ -681,7 +681,7 @@ export default function Contact() {
                 ) : (
                   <div className="flex flex-col items-center justify-center py-12 text-slate-400 text-xs border-2 border-dashed border-slate-200/20 dark:border-slate-800 rounded-2xl bg-slate-50/50 dark:bg-slate-905/30">
                     <AlertTriangle className="w-8 h-8 text-slate-400 mb-2 opacity-50 animate-pulse" />
-                    No tickets in this section. Lodge a grievance to activate real-time tracking.
+                    No tickets in this section. Lodge a complaint to activate real-time tracking.
                   </div>
                 )}
               </div>

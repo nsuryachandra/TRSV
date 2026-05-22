@@ -312,19 +312,19 @@ export default function PublicVerification() {
             {profile.role === 'student' ? (
               <>
                 <GlassCard className="p-4 flex flex-col text-left gap-1" hoverEffect={false}>
-                  <span className="text-[9px] font-black text-slate-450 uppercase tracking-wider">Total Grievances</span>
+                  <span className="text-[9px] font-black text-slate-450 uppercase tracking-wider">Total Complaints</span>
                   <strong className="text-xl font-black text-slate-800 dark:text-white">
                     {data.studentStats?.total_complaints || 0}
                   </strong>
                 </GlassCard>
                 <GlassCard className="p-4 flex flex-col text-left gap-1" hoverEffect={false}>
-                  <span className="text-[9px] font-black text-slate-450 uppercase tracking-wider">Resolved Grievances</span>
+                  <span className="text-[9px] font-black text-slate-450 uppercase tracking-wider">Resolved Complaints</span>
                   <strong className="text-xl font-black text-emerald-500">
                     {data.studentStats?.resolved_complaints || 0}
                   </strong>
                 </GlassCard>
                 <GlassCard className="p-4 flex flex-col text-left gap-1" hoverEffect={false}>
-                  <span className="text-[9px] font-black text-slate-450 uppercase tracking-wider">Pending Grievances</span>
+                  <span className="text-[9px] font-black text-slate-450 uppercase tracking-wider">Pending Complaints</span>
                   <strong className="text-xl font-black text-cyan-500">
                     {data.studentStats?.pending_complaints || 0}
                   </strong>
@@ -371,7 +371,7 @@ export default function PublicVerification() {
             <div className="flex items-center justify-between border-b border-slate-200/50 dark:border-slate-850 pb-3">
               <h3 className="font-extrabold text-base text-slate-800 dark:text-white flex items-center gap-2">
                 <Activity className="w-5 h-5 text-cyan-400" />
-                {profile.role === 'student' ? 'Academic & Grievance History' : 'Leadership Milestones'}
+                {profile.role === 'student' ? 'Academic & Complaint History' : 'Leadership Milestones'}
               </h3>
               <span className="text-[8px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-widest font-mono">
                 Postgres Audit History
@@ -405,7 +405,7 @@ export default function PublicVerification() {
               <div className="flex items-center justify-between border-b border-slate-200/50 dark:border-slate-850 pb-3">
                 <h3 className="font-extrabold text-base text-slate-850 dark:text-white flex items-center gap-2">
                   <Activity className="w-5 h-5 text-cyan-400" />
-                  Active Grievances & Life Cycle
+                  Active Complaints & Life Cycle
                 </h3>
                 <span className="text-[8px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-widest font-mono">
                   Live SaaS Pipeline
@@ -460,7 +460,7 @@ export default function PublicVerification() {
                   ))
                 ) : (
                   <div className="text-xs text-slate-400 py-6 italic text-center">
-                    No registered grievances found for this student.
+                    No registered complaints found for this student.
                   </div>
                 )}
               </div>
