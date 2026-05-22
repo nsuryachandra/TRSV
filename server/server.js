@@ -141,6 +141,10 @@ app.get('*', (req, res) => {
   if (req.url.startsWith('/api/')) {
     return res.status(404).json({ success: false, message: 'API route not found.' });
   }
+  // Prevent serving index.html for missing static files with extensions (e.g. .css, .js)
+  if (path.extname(req.path)) {
+    return res.status(404).send('Not Found');
+  }
   res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
 
