@@ -131,6 +131,35 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
     }
   };
 
+  const handleDeleteComplaint = async () => {
+    if (!window.confirm(`WARNING: Are you sure you want to PERMANENTLY delete ticket #${ticketId}? This action cannot be undone.`)) {
+      return;
+    }
+    
+    setUpdating(true);
+    try {
+      const token = localStorage.getItem('tsrv_session_token');
+      const res = await fetch(`/api/complaints/${ticketId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const json = await res.json();
+      if (json.success) {
+        alert(json.message);
+        if (onUpdateSuccess) onUpdateSuccess();
+        onClose();
+      } else {
+        alert(json.message || 'Failed to delete complaint.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Network error while requesting complaint deletion.');
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+
   const getUrgencyColor = (urgency) => {
     const maps = {
       critical: 'bg-rose-500/10 text-rose-500 border-rose-500/30',
@@ -227,6 +256,7 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
   const { complaint, timeline, files, discussions } = data;
   const isEmergency = complaint.emergency_flag || complaint.urgency === 'Critical';
   const isLeader = userProfile?.role && userProfile.role !== 'student';
+  const isSupremeUser = userProfile?.role && ['supreme_admin', 'dev', 'president', 'state_president'].includes(userProfile.role);
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/70 backdrop-blur-md p-2 sm:p-6 animate-fadeIn">
@@ -406,11 +436,22 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
             </div>
 
             {/* Leader Override & Escalation Panel */}
-            {isLeader && complaint.status !== 'Solved' && complaint.status !== 'Resolved' && (
+            {isLeader && (complaint.status !== 'Solved' || isSupremeUser) && (
               <div className="p-6 bg-slate-100 dark:bg-slate-850 shrink-0">
-                <h3 className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3 flex items-center gap-2">
-                  <Play className="w-3 h-3 text-cyan-500" /> Leadership Handler Actions
-                </h3>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                    <Play className="w-3 h-3 text-cyan-500" /> Leadership Handler Actions
+                  </h3>
+                  {isSupremeUser && (
+                    <button
+                      onClick={handleDeleteComplaint}
+                      className="text-[10px] font-extrabold uppercase tracking-wider text-rose-500 hover:text-rose-600 flex items-center gap-1 cursor-pointer bg-rose-500/10 px-2.5 py-1 rounded-md border border-rose-500/20 hover:bg-rose-500/20 transition-all font-black"
+                      title="Permanently Delete Ticket"
+                    >
+                      Delete Ticket
+                    </button>
+                  )}
+                </div>
                 
                 <div className="flex flex-col gap-3">
                   <form onSubmit={handleUpdateStatus} className="flex items-end gap-3">

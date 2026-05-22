@@ -5,7 +5,7 @@ import { requireRole } from './constituencies.js';
 const router = express.Router();
 
 // GET /api/notifications -> fetch last 15 notifications for the user
-router.get('/', requireRole(['student', 'secretary', 'general_secretary', 'vice_president', 'president', 'supreme_admin', 'dev']), async (req, res) => {
+router.get('/', requireRole(['student', 'secretary', 'general_secretary', 'vice_president', 'president', 'state_president', 'supreme_admin', 'dev']), async (req, res) => {
   const userId = req.user.uid;
   try {
     const result = await query(
@@ -23,7 +23,7 @@ router.get('/', requireRole(['student', 'secretary', 'general_secretary', 'vice_
 });
 
 // POST /api/notifications/mark-read/:id -> mark specific notification as read
-router.post('/mark-read/:id', requireRole(['student', 'secretary', 'general_secretary', 'vice_president', 'president', 'supreme_admin', 'dev']), async (req, res) => {
+router.post('/mark-read/:id', requireRole(['student', 'secretary', 'general_secretary', 'vice_president', 'president', 'state_president', 'supreme_admin', 'dev']), async (req, res) => {
   const { id } = req.params;
   const userId = req.user.uid;
   try {
@@ -40,7 +40,7 @@ router.post('/mark-read/:id', requireRole(['student', 'secretary', 'general_secr
 });
 
 // POST /api/notifications/mark-all-read -> mark all notifications as read
-router.post('/mark-all-read', requireRole(['student', 'secretary', 'general_secretary', 'vice_president', 'president', 'supreme_admin', 'dev']), async (req, res) => {
+router.post('/mark-all-read', requireRole(['student', 'secretary', 'general_secretary', 'vice_president', 'president', 'state_president', 'supreme_admin', 'dev']), async (req, res) => {
   const userId = req.user.uid;
   try {
     await query(

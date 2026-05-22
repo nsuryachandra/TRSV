@@ -80,36 +80,39 @@ router.get('/directory', async (req, res) => {
           (
               SELECT u.full_name 
               FROM users u 
-              WHERE u.constituency_id = con.id AND u.role IN ('president', 'general_secretary', 'secretary')
+              WHERE u.constituency_id = con.id AND u.role IN ('president', 'state_president', 'general_secretary', 'secretary')
               ORDER BY CASE u.role 
-                  WHEN 'president' THEN 1 
-                  WHEN 'general_secretary' THEN 2 
-                  WHEN 'secretary' THEN 3 
-                  ELSE 4 
+                  WHEN 'state_president' THEN 1 
+                  WHEN 'president' THEN 2 
+                  WHEN 'general_secretary' THEN 3 
+                  WHEN 'secretary' THEN 4 
+                  ELSE 5 
               END ASC, u.created_at ASC
               LIMIT 1
           ) AS coordinator_name,
           (
               SELECT u.role 
               FROM users u 
-              WHERE u.constituency_id = con.id AND u.role IN ('president', 'general_secretary', 'secretary')
+              WHERE u.constituency_id = con.id AND u.role IN ('president', 'state_president', 'general_secretary', 'secretary')
               ORDER BY CASE u.role 
-                  WHEN 'president' THEN 1 
-                  WHEN 'general_secretary' THEN 2 
-                  WHEN 'secretary' THEN 3 
-                  ELSE 4 
+                  WHEN 'state_president' THEN 1 
+                  WHEN 'president' THEN 2 
+                  WHEN 'general_secretary' THEN 3 
+                  WHEN 'secretary' THEN 4 
+                  ELSE 5 
               END ASC, u.created_at ASC
               LIMIT 1
           ) AS coordinator_role,
           (
               SELECT u.phone 
               FROM users u 
-              WHERE u.constituency_id = con.id AND u.role IN ('president', 'general_secretary', 'secretary')
+              WHERE u.constituency_id = con.id AND u.role IN ('president', 'state_president', 'general_secretary', 'secretary')
               ORDER BY CASE u.role 
-                  WHEN 'president' THEN 1 
-                  WHEN 'general_secretary' THEN 2 
-                  WHEN 'secretary' THEN 3 
-                  ELSE 4 
+                  WHEN 'state_president' THEN 1 
+                  WHEN 'president' THEN 2 
+                  WHEN 'general_secretary' THEN 3 
+                  WHEN 'secretary' THEN 4 
+                  ELSE 5 
               END ASC, u.created_at ASC
               LIMIT 1
           ) AS coordinator_phone,
@@ -135,11 +138,12 @@ router.get('/leaders-grid', async (req, res) => {
     const stateResult = await query(`
       SELECT u.id, u.full_name, u.email, u.role, u.phone, u.profile_image, u.verified
       FROM users u
-      WHERE u.role IN ('president', 'general_secretary') AND u.constituency_id IS NULL
+      WHERE u.role IN ('president', 'state_president', 'general_secretary') AND u.constituency_id IS NULL
       ORDER BY CASE u.role
-        WHEN 'president' THEN 1
-        WHEN 'general_secretary' THEN 2
-        ELSE 3
+        WHEN 'state_president' THEN 1
+        WHEN 'president' THEN 2
+        WHEN 'general_secretary' THEN 3
+        ELSE 4
       END ASC, u.full_name ASC
     `);
 
@@ -153,10 +157,11 @@ router.get('/leaders-grid', async (req, res) => {
         AND u.constituency_id IS NOT NULL
         AND con.parent_id IS NULL
       ORDER BY con.constituency_name ASC, CASE u.role
-        WHEN 'president' THEN 1
-        WHEN 'general_secretary' THEN 2
-        WHEN 'secretary' THEN 3
-        ELSE 4
+        WHEN 'state_president' THEN 1
+        WHEN 'president' THEN 2
+        WHEN 'general_secretary' THEN 3
+        WHEN 'secretary' THEN 4
+        ELSE 5
       END ASC
     `);
 
@@ -170,10 +175,11 @@ router.get('/leaders-grid', async (req, res) => {
         AND u.constituency_id IS NOT NULL
         AND con.parent_id IS NOT NULL
       ORDER BY con.constituency_name ASC, CASE u.role
-        WHEN 'president' THEN 1
-        WHEN 'general_secretary' THEN 2
-        WHEN 'secretary' THEN 3
-        ELSE 4
+        WHEN 'state_president' THEN 1
+        WHEN 'president' THEN 2
+        WHEN 'general_secretary' THEN 3
+        WHEN 'secretary' THEN 4
+        ELSE 5
       END ASC
     `);
 

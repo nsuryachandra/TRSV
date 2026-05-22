@@ -112,7 +112,7 @@ export default function DashboardLayout() {
   const getActiveRole = () => {
     if (!userProfile) return 'student';
     if (userProfile.role === 'supreme_admin' || userProfile.role === 'dev') return 'command';
-    if (['secretary', 'general_secretary', 'vice_president', 'president'].includes(userProfile.role)) return 'leader';
+    if (['secretary', 'general_secretary', 'vice_president', 'president', 'state_president'].includes(userProfile.role)) return 'leader';
     return 'student';
   };
 

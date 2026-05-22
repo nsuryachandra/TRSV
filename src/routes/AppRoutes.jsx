@@ -99,7 +99,7 @@ export default function AppRoutes() {
           } />
           
           <Route path="leader" element={
-            <ProtectedRoute allowedRoles={['secretary', 'general_secretary', 'vice_president', 'president']}>
+            <ProtectedRoute allowedRoles={['secretary', 'general_secretary', 'vice_president', 'president', 'state_president']}>
               <LeaderDashboard />
             </ProtectedRoute>
           } />
@@ -117,7 +117,7 @@ export default function AppRoutes() {
           } />
           
           <Route path="emergency" element={
-            <ProtectedRoute allowedRoles={['vice_president', 'president', 'supreme_admin']}>
+            <ProtectedRoute allowedRoles={['vice_president', 'president', 'state_president', 'supreme_admin']}>
               <EmergencyCommand />
             </ProtectedRoute>
           } />
@@ -137,7 +137,7 @@ export default function AppRoutes() {
             </ProtectedRoute>
           } />
           <Route path="messenger" element={
-            <ProtectedRoute allowedRoles={['secretary', 'general_secretary', 'vice_president', 'president', 'supreme_admin']}>
+            <ProtectedRoute allowedRoles={['secretary', 'general_secretary', 'vice_president', 'president', 'state_president', 'supreme_admin']}>
               <MessengerPage />
             </ProtectedRoute>
           } />

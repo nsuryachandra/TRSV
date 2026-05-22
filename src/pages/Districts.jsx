@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 
 const formatRole = (role, tier) => {
   if (role === 'supreme_admin') return 'TRSV Founder';
-  if (role === 'president') {
+  if (role === 'president' || role === 'state_president') {
     if (tier === 'state') return 'State President';
     if (tier === 'hub') return 'Greater Hyderabad President';
     return 'Local President';
@@ -57,7 +57,7 @@ const LeaderCard = ({ lead, tier, color = 'cyan', constName = '' }) => {
       {/* Photo */}
       <div className="w-20 h-20 shrink-0 m-3">
         <img
-          src={lead.profile_image || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=256'}
+          src={lead.profile_image || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=256'}
           alt={lead.full_name}
           className={`w-full h-full rounded-xl object-cover object-top ${s.img}`}
         />
@@ -279,7 +279,7 @@ export default function Districts() {
               let leadRoleLabel = 'Board Assignment Pending';
               if (dist.coordinator_role) {
                 if (dist.coordinator_role === 'supreme_admin') leadRoleLabel = 'TRSV Founder';
-                else if (dist.coordinator_role === 'president') leadRoleLabel = 'President';
+                else if (dist.coordinator_role === 'president' || dist.coordinator_role === 'state_president') leadRoleLabel = 'State President';
                 else if (dist.coordinator_role === 'general_secretary') leadRoleLabel = 'General Secretary';
                 else leadRoleLabel = dist.coordinator_role.replace(/_/g, ' ').toUpperCase();
                 leadRoleLabel = `${leadRoleLabel} — ${dist.constituency_name}`;

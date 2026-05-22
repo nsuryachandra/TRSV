@@ -8,7 +8,7 @@ import PremiumButton from '../components/PremiumButton';
 const formatRole = (role) => {
   if (role === 'supreme_admin') return 'TRSV Founder';
   if (role === 'dev') return 'Developer';
-  if (role === 'president') return 'State President';
+  if (role === 'president' || role === 'state_president') return 'State President';
   if (role === 'general_secretary') return 'General Secretary';
   if (role === 'vice_president') return 'Vice President';
   if (role === 'secretary') return 'Secretary';
@@ -29,8 +29,8 @@ export default function Announcements() {
   const [submitting, setSubmitting] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
 
-  // Authorized roles to post circulars: general_secretary, president, supreme_admin, dev
-  const isAuthorizedToPost = userProfile && ['dev', 'supreme_admin', 'president', 'general_secretary'].includes(userProfile.role);
+  // Authorized roles to post circulars: general_secretary, president, state_president, supreme_admin, dev
+  const isAuthorizedToPost = userProfile && ['dev', 'supreme_admin', 'president', 'state_president', 'general_secretary'].includes(userProfile.role);
 
   const fetchAnnouncements = async () => {
     setLoading(true);

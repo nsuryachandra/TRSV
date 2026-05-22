@@ -223,7 +223,7 @@ router.post('/signup', async (req, res) => {
 
     let userRole = role || 'student';
     // Students cannot register as supreme_admin or other administrative roles directly on signup
-    if (userRole === 'supreme_admin' || userRole === 'president') {
+    if (userRole === 'supreme_admin' || userRole === 'president' || userRole === 'state_president') {
       userRole = 'student';
     }
 

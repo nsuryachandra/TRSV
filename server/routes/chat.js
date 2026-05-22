@@ -29,7 +29,7 @@ const authenticateAdmin = async (req, res, next) => {
     const user = userQuery.rows[0];
     
     // Check if the user is an admin or dev
-    const allowedRoles = ['dev', 'supreme_admin', 'president', 'vice_president', 'general_secretary', 'secretary'];
+    const allowedRoles = ['dev', 'supreme_admin', 'president', 'state_president', 'vice_president', 'general_secretary', 'secretary'];
     if (!allowedRoles.includes(user.role)) {
       return res.status(403).json({ success: false, message: 'Access denied. Administrator clearance required.' });
     }

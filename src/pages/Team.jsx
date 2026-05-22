@@ -5,9 +5,9 @@ import AnimatedSection from '../components/AnimatedSection';
 
 const formatRole = (role, tier) => {
   if (role === 'supreme_admin') return 'TRSV Founder';
-  if (role === 'president' && tier === 'state') return 'State President';
-  if (role === 'president' && tier === 'hub') return 'Greater Hyderabad President';
-  if (role === 'president') return 'Local President';
+  if ((role === 'president' || role === 'state_president') && tier === 'state') return 'State President';
+  if ((role === 'president' || role === 'state_president') && tier === 'hub') return 'Greater Hyderabad President';
+  if (role === 'president' || role === 'state_president') return 'Local President';
   if (role === 'general_secretary' && tier === 'hub') return 'Greater Hyderabad General Secretary';
   if (role === 'general_secretary') return 'General Secretary';
   if (role === 'vice_president') return 'Vice President';
@@ -17,10 +17,10 @@ const formatRole = (role, tier) => {
 
 const getRoleDesc = (role, tier) => {
   if (role === 'supreme_admin') return 'Founding director of TSRV — established the statewide student rights movement, legal advocacy networks, and the digital governance infrastructure protecting students across Telangana.';
-  if (role === 'president' && tier === 'state') return 'Commands all constituency hub operations, campus safety cell deployments, emergency dispatches, and district-level governance protocols across the state.';
-  if (role === 'president' && tier === 'hub') return 'Directs the Greater Hyderabad regional assembly operations, on-ground safety squads, issue escalation chains, and district executive coordination networks.';
+  if ((role === 'president' || role === 'state_president') && tier === 'state') return 'Commands all constituency hub operations, campus safety cell deployments, emergency dispatches, and district-level governance protocols across the state.';
+  if ((role === 'president' || role === 'state_president') && tier === 'hub') return 'Directs the Greater Hyderabad regional assembly operations, on-ground safety squads, issue escalation chains, and district executive coordination networks.';
   if (role === 'general_secretary' && tier === 'hub') return 'Manages compliance documentation, college cluster governance nodes, grievance escalation records, and administrative coordination across Greater Hyderabad.';
-  if (role === 'president') return 'Leads local constituency operations, campus safety coordination, and grievance redressal processes for assigned student communities.';
+  if (role === 'president' || role === 'state_president') return 'Leads local constituency operations, campus safety coordination, and grievance redressal processes for assigned student communities.';
   if (role === 'general_secretary') return 'Handles constituency documentation, issue tracking, representative coordination, and administrative escalation workflows.';
   return 'Board coordinator providing governance support, legal aid, and dispute resolution tracking in the assigned region.';
 };

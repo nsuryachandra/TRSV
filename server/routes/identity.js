@@ -85,7 +85,7 @@ const autoProvisionIdentity = async (uid) => {
 /**
  * 1. Fetch current user's digital ID card & metrics (Supports Auto-provisioning)
  */
-router.get('/my-id', requireRole(['student', 'secretary', 'general_secretary', 'vice_president', 'president', 'supreme_admin']), async (req, res) => {
+router.get('/my-id', requireRole(['student', 'secretary', 'general_secretary', 'vice_president', 'president', 'state_president', 'supreme_admin']), async (req, res) => {
   const uid = req.user.uid || 'SUPREME_ADMIN_UID';
 
   try {

@@ -303,6 +303,53 @@ httpServer.listen(PORT, async () => {
       console.error('🚨 [Database] Failed to ensure Upcoming Area constituency:', upcomingErr.message);
     }
 
+    // Ensure parent_id exists in constituencies table (Phase 7 hierarchical setup)
+    try {
+      await pool.query(`
+        ALTER TABLE constituencies 
+        ADD COLUMN IF NOT EXISTS parent_id INT REFERENCES constituencies(id) ON DELETE CASCADE;
+      `);
+      
+      // Check if Greater Hyderabad already exists
+      let ghRes = await pool.query("SELECT id FROM constituencies WHERE constituency_name = 'Greater Hyderabad'");
+      let ghId;
+
+      if (ghRes.rows.length > 0) {
+        ghId = ghRes.rows[0].id;
+        // Check if Hyderabad (Parliament) exists, if so migrate its relations to Greater Hyderabad and delete it
+        const oldHydRes = await pool.query("SELECT id FROM constituencies WHERE constituency_name = 'Hyderabad (Parliament)'");
+        if (oldHydRes.rows.length > 0) {
+          const oldId = oldHydRes.rows[0].id;
+          await pool.query("UPDATE users SET constituency_id = $1 WHERE constituency_id = $2", [ghId, oldId]);
+          await pool.query("UPDATE colleges SET constituency_id = $1 WHERE constituency_id = $2", [ghId, oldId]);
+          await pool.query("UPDATE complaints SET constituency_id = $1 WHERE constituency_id = $2", [ghId, oldId]);
+          await pool.query("DELETE FROM constituencies WHERE id = $1", [oldId]);
+        }
+      } else {
+        await pool.query(`
+          UPDATE constituencies 
+          SET constituency_name = 'Greater Hyderabad' 
+          WHERE constituency_name = 'Hyderabad (Parliament)';
+        `);
+        ghRes = await pool.query("SELECT id FROM constituencies WHERE constituency_name = 'Greater Hyderabad'");
+        if (ghRes.rows.length > 0) {
+          ghId = ghRes.rows[0].id;
+        }
+      }
+
+      if (ghId) {
+        // Map existing Hyderabad district constituencies (excluding Greater Hyderabad) as sub-constituencies
+        await pool.query(`
+          UPDATE constituencies 
+          SET parent_id = $1 
+          WHERE district = 'Hyderabad' AND id != $1 AND parent_id IS NULL;
+        `, [ghId]);
+      }
+      console.log('🔹 [Database] Constituencies parent-child hierarchy synchronized successfully.');
+    } catch (conErr) {
+      console.error('🚨 [Database] Failed to sync constituencies hierarchy:', conErr.message);
+    }
+
     // Ensure complainant columns exist on complaints table (Phase 8 auto-sync)
     try {
       await pool.query(`
@@ -316,14 +363,14 @@ httpServer.listen(PORT, async () => {
       console.error('🚨 [Database] Failed to sync complaint columns:', colErr.message);
     }
 
-    // Ensure 'dev' role is allowed in users table CHECK constraint
+    // Ensure 'dev' and 'state_president' roles are allowed in users table CHECK constraint
     try {
       await pool.query(`
         ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_check;
         ALTER TABLE users ADD CONSTRAINT users_role_check 
-          CHECK (role IN ('student', 'secretary', 'general_secretary', 'vice_president', 'president', 'supreme_admin', 'dev'));
+          CHECK (role IN ('student', 'secretary', 'general_secretary', 'vice_president', 'president', 'state_president', 'supreme_admin', 'dev'));
       `);
-      console.log('🔹 [Database] Users role constraint updated to include dev role.');
+      console.log('🔹 [Database] Users role constraint updated to include dev and state_president roles.');
     } catch (roleErr) {
       // Constraint may already be correct — safe to ignore
       console.warn('⚠️ [Database] Role constraint update skipped:', roleErr.message);

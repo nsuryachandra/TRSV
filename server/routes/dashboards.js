@@ -7,7 +7,7 @@ const router = express.Router();
 /**
  * 1. Fetch Dynamic Scoped Dashboard Statistics & Counters
  */
-router.get('/stats', requireRole(['student', 'secretary', 'general_secretary', 'vice_president', 'president', 'supreme_admin']), async (req, res) => {
+router.get('/stats', requireRole(['student', 'secretary', 'general_secretary', 'vice_president', 'president', 'state_president', 'supreme_admin']), async (req, res) => {
   const { role, uid, constituency_id, college_id } = req.user;
 
   try {
@@ -91,7 +91,7 @@ router.get('/stats', requireRole(['student', 'secretary', 'general_secretary', '
       }
     }
 
-    if (role === 'vice_president' || role === 'president') {
+    if (role === 'vice_president' || role === 'president' || role === 'state_president') {
       const isLocal = constituency_id !== null && constituency_id !== undefined;
       
       let total, pending, resolved, constituencies, colleges, categoryStats;
@@ -234,7 +234,7 @@ const handleAssignLeaderLogic = async (req, res) => {
 
   try {
     // Validate target role bounds
-    if (!['secretary', 'general_secretary', 'vice_president', 'president', 'student', 'supreme_admin'].includes(role)) {
+    if (!['secretary', 'general_secretary', 'vice_president', 'president', 'state_president', 'student', 'supreme_admin'].includes(role)) {
       return res.status(400).json({ success: false, message: 'Invalid target role designation.' });
     }
 
@@ -300,8 +300,8 @@ const handleAssignLeaderLogic = async (req, res) => {
     ]);
 
     // Send direct SMTP invitation / update email if the user is set to an admin/leader role
-    const isPreviousAdmin = ['secretary', 'general_secretary', 'vice_president', 'president', 'supreme_admin'].includes(previousRole);
-    const isNewAdmin = ['secretary', 'general_secretary', 'vice_president', 'president', 'supreme_admin'].includes(role);
+    const isPreviousAdmin = ['secretary', 'general_secretary', 'vice_president', 'president', 'state_president', 'supreme_admin'].includes(previousRole);
+    const isNewAdmin = ['secretary', 'general_secretary', 'vice_president', 'president', 'state_president', 'supreme_admin'].includes(role);
     const isRoleChanged = previousRole !== role;
     const isMailChanged = newEmail && newEmail.trim() !== '' && newEmail.trim().toLowerCase() !== oldEmail.toLowerCase();
 
