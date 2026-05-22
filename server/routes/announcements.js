@@ -112,4 +112,34 @@ router.post('/', requireRole(['general_secretary', 'president', 'supreme_admin']
   }
 });
 
+/**
+ * 3. Delete circular (General Secretary, President, and Supreme Admin/Dev only)
+ */
+router.delete('/:id', requireRole(['general_secretary', 'president', 'supreme_admin']), async (req, res) => {
+  const { id } = req.params;
+  const authorUid = req.user.uid || 'SUPREME_ADMIN_UID';
+
+  try {
+    const check = await query('SELECT id, title FROM announcements WHERE id = $1', [id]);
+    if (check.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Circular not found.' });
+    }
+
+    const title = check.rows[0].title;
+
+    await query('DELETE FROM announcements WHERE id = $1', [id]);
+
+    await query('INSERT INTO activity_logs (user_id, action, details) VALUES ($1, $2, $3)', [
+      authorUid,
+      'DELETE_ANNOUNCEMENT',
+      `Circular bulletin '${title}' (ID: ${id}) deleted by admin/dev`
+    ]);
+
+    res.json({ success: true, message: 'Circular deleted successfully.' });
+  } catch (error) {
+    console.error('🚨 [Announcement Delete Error]:', error.message);
+    res.status(500).json({ success: false, message: 'Failed to delete circular.', error: error.message });
+  }
+});
+
 export default router;

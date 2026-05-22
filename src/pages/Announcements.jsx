@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Volume2, Bell, AlertOctagon, Calendar, ArrowRight, BookOpen, Send, PlusCircle, CheckCircle, ShieldAlert, User } from 'lucide-react';
+import { Volume2, Bell, AlertOctagon, Calendar, ArrowRight, BookOpen, Send, PlusCircle, CheckCircle, ShieldAlert, User, Trash2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import GlassCard from '../components/GlassCard';
 import AnimatedSection from '../components/AnimatedSection';
@@ -102,6 +102,33 @@ export default function Announcements() {
       setSubmitting(false);
     }
   };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to permanently delete this statewide circular?")) return;
+    
+    setError('');
+    setSuccessMsg('');
+    try {
+      const token = localStorage.getItem('tsrv_session_token');
+      const response = await fetch(`/api/announcements/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      const data = await response.json();
+      if (data.success) {
+        setSuccessMsg('Statewide circular deleted successfully.');
+        fetchAnnouncements();
+      } else {
+        setError(data.message || 'Failed to delete circular.');
+      }
+    } catch (err) {
+      console.error(err);
+      setError('Connection failure while requesting circular deletion.');
+    }
+  };
+
 
   return (
     <div className="w-full flex flex-col gap-10 py-4 text-left">
@@ -236,14 +263,25 @@ export default function Announcements() {
                   <span className="text-cyan-500 bg-cyan-500/10 px-2.5 py-0.5 rounded-md border border-cyan-500/20">
                     Scope: {note.target_audience}
                   </span>
-                  <span className="text-slate-400 flex items-center gap-1">
-                    <Calendar className="w-3.5 h-3.5" />
-                    {new Date(note.created_at).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric'
-                    })}
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-slate-400 flex items-center gap-1">
+                      <Calendar className="w-3.5 h-3.5" />
+                      {new Date(note.created_at).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric'
+                      })}
+                    </span>
+                    {isAuthorizedToPost && (
+                      <button
+                        onClick={() => handleDelete(note.id)}
+                        className="text-slate-400 hover:text-rose-500 transition-colors p-1 rounded hover:bg-rose-500/10 cursor-pointer"
+                        title="Delete Circular"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 <h2 className="font-extrabold text-xl text-slate-850 dark:text-white leading-snug">
