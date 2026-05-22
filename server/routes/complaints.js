@@ -114,8 +114,9 @@ router.post('/', requireRole(['student']), async (req, res) => {
     
     const finalConstituencyId = constituencyId ? parseInt(constituencyId) : profileConstituencyId;
     const finalCollegeId = profileCollegeId;
-
-    const isEmergency = urgency === 'critical' || emergency_flag === true;
+    
+    const normalizedUrgency = (urgency || 'medium').toLowerCase();
+    const isEmergency = normalizedUrgency === 'critical' || emergency_flag === true;
 
     const result = await query(
       `INSERT INTO complaints (title, description, category, urgency, status, student_id, constituency_id, college_id, attachment_url, anonymous, emergency_flag, complainant_name, complainant_mobile, college_school_address) 
@@ -124,7 +125,7 @@ router.post('/', requireRole(['student']), async (req, res) => {
         title || `Grievance from ${complainant_name}`,
         description,
         category,
-        urgency || 'medium',
+        normalizedUrgency,
         isEmergency ? 'Emergency Dispatched' : 'Complaint Registered',
         req.user.uid,
         finalConstituencyId,
