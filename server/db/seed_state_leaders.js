@@ -32,7 +32,7 @@ const seedStateLeaders = async () => {
       email: 'karthikyadavtjsf@gmail.com',
       role: 'general_secretary',
       phone: '8142443684',
-      profile_image: '/karthikyadav.jpg',
+      profile_image: '/karthiknew.jpeg',
       rawSecret: 'ghgs_secret'.split('_')[0],
       constituency_id: ghId
     }

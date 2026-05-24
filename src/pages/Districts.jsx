@@ -8,13 +8,15 @@ const formatRole = (role, tier) => {
   if (role === 'supreme_admin') return 'TRSV Founder';
   if (role === 'president' || role === 'state_president') {
     if (tier === 'state') return 'State President';
-    if (tier === 'hub') return 'Greater Hyderabad President';
+    if (tier === 'hub') return 'President';
     return 'Local President';
   }
   if (role === 'general_secretary') {
-    if (tier === 'hub') return 'Greater Hyderabad General Secretary';
+    if (tier === 'hub') return 'General Secretary';
     return 'General Secretary';
   }
+  if (role === 'digital_operations_president') return 'Digital Operations President';
+  if (role === 'dev') return 'Developer & Digital Operations President';
   if (role === 'vice_president') return 'Vice President';
   if (role === 'secretary') return 'Secretary';
   return role.replace(/_/g, ' ').toUpperCase();
@@ -69,7 +71,7 @@ const LeaderCard = ({ lead, tier, color = 'cyan', constName = '' }) => {
           {lead.full_name}
         </span>
         <span className={`text-[9.5px] font-black uppercase tracking-wider ${s.role}`}>
-          {formatRole(lead.role, tier)}{constName ? ` — ${constName}` : ''}
+          {formatRole(lead.role, tier)}{constName && tier !== 'hub' && tier !== 'state' ? ` — ${constName}` : ''}
         </span>
       </div>
     </div>

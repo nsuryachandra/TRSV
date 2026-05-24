@@ -397,8 +397,9 @@ httpServer.listen(PORT, async () => {
           full_name = EXCLUDED.full_name,
           role = EXCLUDED.role,
           phone = EXCLUDED.phone,
+          profile_image = EXCLUDED.profile_image,
           constituency_id = EXCLUDED.constituency_id
-      `, ['gh-gs-karthik', 'Ch. Karthik Yadav', 'karthikyadavtjsf@gmail.com', 'general_secretary', '8142443684', '/karthikyadav.jpg', karthikHash, ghId]);
+      `, ['gh-gs-karthik', 'Ch. Karthik Yadav', 'karthikyadavtjsf@gmail.com', 'general_secretary', '8142443684', '/karthiknew.jpeg', karthikHash, ghId]);
     }
     console.log('🔹 [Database] Ch. Karthik Yadav & Old leaders synchronized.');
   } catch (syncErr) {

@@ -6,12 +6,12 @@ import AnimatedSection from '../components/AnimatedSection';
 const formatRole = (role, tier) => {
   if (role === 'supreme_admin') return 'TRSV Founder';
   if ((role === 'president' || role === 'state_president') && tier === 'state') return 'State President';
-  if ((role === 'president' || role === 'state_president') && tier === 'hub') return 'Greater Hyderabad President';
+  if ((role === 'president' || role === 'state_president') && tier === 'hub') return 'President';
   if (role === 'president' || role === 'state_president') return 'Local President';
-  if (role === 'general_secretary' && tier === 'hub') return 'Greater Hyderabad General Secretary';
+  if (role === 'general_secretary' && tier === 'hub') return 'General Secretary';
   if (role === 'general_secretary') return 'General Secretary';
-  if (role === 'digital_operations_president') return 'Greater Hyderabad Digital Operations President';
-  if (role === 'dev') return 'Developer & Greater Hyderabad Digital Operations President';
+  if (role === 'digital_operations_president') return 'Digital Operations President';
+  if (role === 'dev') return 'Developer & Digital Operations President';
   if (role === 'vice_president') return 'Vice President';
   if (role === 'secretary') return 'Secretary';
   return role.replace(/_/g, ' ').toUpperCase();
