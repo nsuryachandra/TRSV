@@ -116,14 +116,14 @@ app.get('/api/health', async (req, res) => {
     const dbCheck = await pool.query('SELECT NOW()');
     res.json({
       status: 'healthy',
-      service: 'TSRV Governance Core Node',
+      service: 'TRSV Governance Core Node',
       database: 'connected',
       timestamp: dbCheck.rows[0].now
     });
   } catch (error) {
     res.status(500).json({
       status: 'degraded',
-      service: 'TSRV Governance Core Node',
+      service: 'TRSV Governance Core Node',
       database: 'disconnected',
       error: error.message
     });
@@ -248,7 +248,7 @@ io.on('connection', (socket) => {
 // semicolon-separated multi-statement strings.
 // ─────────────────────────────────────────────────────────────────────────────
 httpServer.listen(PORT, async () => {
-  console.log(`🚀 [Server] TSRV Phase 4 Governance backend live on http://localhost:${PORT}`);
+  console.log(`🚀 [Server] TRSV Phase 4 Governance backend live on http://localhost:${PORT}`);
 
   // STEP 1: Fix role CHECK constraint FIRST — must run before any role-dependent seeds
   try {
@@ -379,7 +379,7 @@ httpServer.listen(PORT, async () => {
     const ghId = ghRes.rows.length > 0 ? ghRes.rows[0].id : null;
 
     // 1. Delete Pranith and Omkar
-    await pool.query("DELETE FROM users WHERE email IN ('pranith@tsrv.gov.in', 'omkar@tsrv.gov.in')");
+    await pool.query("DELETE FROM users WHERE email IN ('pranith@trsv.gov.in', 'omkar@trsv.gov.in')");
 
     // 2. Upsert Ch. Karthik Yadav as digital_operations_president
     if (ghId) {
@@ -404,6 +404,25 @@ httpServer.listen(PORT, async () => {
     console.log('🔹 [Database] Ch. Karthik Yadav & Old leaders synchronized.');
   } catch (syncErr) {
     console.error('🚨 [Database] Failed to sync Ch. Karthik Yadav & old leaders:', syncErr.message);
+  }
+
+  // STEP 10: Rename member_identities column tsrv_member_id to trsv_member_id if exists
+  try {
+    await pool.query(`
+      DO $$ 
+      BEGIN 
+        IF EXISTS (
+          SELECT 1 
+          FROM information_schema.columns 
+          WHERE table_name='member_identities' AND column_name='tsrv_member_id'
+        ) THEN 
+          ALTER TABLE member_identities RENAME COLUMN tsrv_member_id TO trsv_member_id;
+        END IF;
+      END $$;
+    `);
+    console.log('🔹 [Database] Digital ID member identifier column synchronized to trsv_member_id.');
+  } catch (colErr) {
+    console.error('🚨 [Database] Failed to rename identity column:', colErr.message);
   }
 
 

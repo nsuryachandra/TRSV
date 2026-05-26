@@ -15,10 +15,10 @@ const cleanup = async () => {
 
     // Delete stale/duplicate records (old goshamahal-mapped entries replaced by GH entries)
     const toDelete = [
-      'gosha-president-kranthi',   // old: kranthi.gh@tsrv.gov.in mapped to goshamahal
-      'gosha-gs-karthik',          // old: karthik.gh@tsrv.gov.in mapped to goshamahal  
-      'hyd-president-ramuanna',    // old: ramu.hyd@tsrv.gov.in
-      'sec-president-ramuanna',    // old: ramu.sec@tsrv.gov.in
+      'gosha-president-kranthi',   // old: kranthi.gh@trsv.gov.in mapped to goshamahal
+      'gosha-gs-karthik',          // old: karthik.gh@trsv.gov.in mapped to goshamahal  
+      'hyd-president-ramuanna',    // old: ramu.hyd@trsv.gov.in
+      'sec-president-ramuanna',    // old: ramu.sec@trsv.gov.in
       'state-vp-akka',             // old: akka statewide entry
     ];
 
@@ -30,7 +30,7 @@ const cleanup = async () => {
     }
 
     // Also delete any orphaned emails from old seeding rounds
-    const oldEmails = ['kranthi.gh@tsrv.gov.in', 'karthik.gh@tsrv.gov.in', 'ramu.hyd@tsrv.gov.in', 'ramu.sec@tsrv.gov.in', 'surya@tsrv.gov.in', 'vijay@tsrv.gov.in'];
+    const oldEmails = ['kranthi.gh@trsv.gov.in', 'karthik.gh@trsv.gov.in', 'ramu.hyd@trsv.gov.in', 'ramu.sec@trsv.gov.in', 'surya@trsv.gov.in', 'vijay@trsv.gov.in'];
     for (const email of oldEmails) {
       const r = await client.query('DELETE FROM users WHERE email = $1 RETURNING email', [email]);
       if (r.rows.length > 0) {

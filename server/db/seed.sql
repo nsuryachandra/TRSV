@@ -1,4 +1,4 @@
--- TSRV Regional Database Seed Data
+-- TRSV Regional Database Seed Data
 
 -- 1. Insert Core Telangana Constituencies
 INSERT INTO constituencies (constituency_name, district, status) VALUES

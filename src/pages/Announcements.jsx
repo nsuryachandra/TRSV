@@ -63,7 +63,7 @@ export default function Announcements() {
     setLoading(true);
     setError('');
     try {
-      const token = localStorage.getItem('tsrv_session_token');
+      const token = localStorage.getItem('trsv_session_token');
       const response = await fetch('/api/announcements', {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -96,7 +96,7 @@ export default function Announcements() {
     setError('');
 
     try {
-      const token = localStorage.getItem('tsrv_session_token');
+      const token = localStorage.getItem('trsv_session_token');
       const response = await fetch('/api/announcements', {
         method: 'POST',
         headers: {
@@ -139,7 +139,7 @@ export default function Announcements() {
     setError('');
     setSuccessMsg('');
     try {
-      const token = localStorage.getItem('tsrv_session_token');
+      const token = localStorage.getItem('trsv_session_token');
       const response = await fetch(`/api/announcements/${id}`, {
         method: 'DELETE',
         headers: {

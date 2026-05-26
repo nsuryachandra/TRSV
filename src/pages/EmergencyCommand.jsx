@@ -30,7 +30,7 @@ export default function EmergencyCommand() {
 
   const fetchEmergencies = async () => {
     try {
-      const token = localStorage.getItem('tsrv_session_token');
+      const token = localStorage.getItem('trsv_session_token');
       const res = await fetch('/api/emergency/active', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -49,7 +49,7 @@ export default function EmergencyCommand() {
     e.stopPropagation();
     setAcknowledging(id);
     try {
-      const token = localStorage.getItem('tsrv_session_token');
+      const token = localStorage.getItem('trsv_session_token');
       const res = await fetch(`/api/emergency/${id}/acknowledge`, {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },

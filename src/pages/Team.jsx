@@ -18,14 +18,14 @@ const formatRole = (role, tier) => {
 };
 
 const getRoleDesc = (role, tier) => {
-  if (role === 'supreme_admin') return 'Founding director of TSRV — established the statewide student rights movement, legal advocacy networks, and the digital governance infrastructure protecting students across Telangana.';
+  if (role === 'supreme_admin') return 'Founding director of TRSV — established the statewide student rights movement, legal advocacy networks, and the digital governance infrastructure protecting students across Telangana.';
   if ((role === 'president' || role === 'state_president') && tier === 'state') return 'Commands all constituency hub operations, campus safety cell deployments, emergency dispatches, and district-level governance protocols across the state.';
   if ((role === 'president' || role === 'state_president') && tier === 'hub') return 'Directs the Greater Hyderabad regional assembly operations, on-ground safety squads, issue escalation chains, and district executive coordination networks.';
   if (role === 'general_secretary' && tier === 'hub') return 'Manages compliance documentation, college cluster governance nodes, complaint escalation records, and administrative coordination across Greater Hyderabad.';
   if (role === 'president' || role === 'state_president') return 'Leads local constituency operations, campus safety coordination, and complaint redressal processes for assigned student communities.';
   if (role === 'general_secretary') return 'Handles constituency documentation, issue tracking, representative coordination, and administrative escalation workflows.';
   if (role === 'digital_operations_president') return 'Commands Greater Hyderabad digital operations, managing real-time security telemetry, constituency hub networks, and the online safety portal.';
-  if (role === 'dev') return 'Digital Architect of TSRV — designs, implements, and maintains the high-fidelity secure operating portal, database clusters, and student emergency telemetry networks, and commands Greater Hyderabad digital operations.';
+  if (role === 'dev') return 'Digital Architect of TRSV — designs, implements, and maintains the high-fidelity secure operating portal, database clusters, and student emergency telemetry networks, and commands Greater Hyderabad digital operations.';
   return 'Board coordinator providing governance support, legal aid, and dispute resolution tracking in the assigned region.';
 };
 
@@ -172,13 +172,13 @@ export default function Team() {
       {/* Header */}
       <AnimatedSection direction="up" className="text-center max-w-3xl mx-auto flex flex-col gap-4">
         <span className="text-xs font-bold text-cyan-600 dark:text-cyan-400 tracking-widest uppercase">
-          TSRV DIRECTORY
+          TRSV DIRECTORY
         </span>
         <h1 className="fluid-heading-2 font-black text-slate-850 dark:text-white leading-tight">
           Executive Board & Command Council
         </h1>
         <p className="text-base sm:text-lg text-slate-500 dark:text-slate-400 leading-relaxed">
-          The 3-tier governance leadership of TSRV — from Statewide Command down to Greater Hyderabad and local constituency officers.
+          The 3-tier governance leadership of TRSV — from Statewide Command down to Greater Hyderabad and local constituency officers.
         </p>
       </AnimatedSection>
 

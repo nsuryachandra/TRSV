@@ -9,8 +9,8 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: 'TSRV Governance',
-        short_name: 'TSRV',
+        name: 'TRSV Governance',
+        short_name: 'TRSV',
         description: 'Statewide Governance & Issue Resolution Network',
         theme_color: '#0f172a',
         icons: [

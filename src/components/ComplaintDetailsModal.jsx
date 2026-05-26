@@ -146,7 +146,7 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
         }
       } catch (err) {
         console.error(err);
-        setScannerError('TSRV node communication failed. Server unreachable.');
+        setScannerError('TRSV node communication failed. Server unreachable.');
       } finally {
         setScannerLoading(false);
       }
@@ -215,7 +215,7 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
 
     setUpdating(true);
     try {
-      const token = localStorage.getItem('tsrv_session_token');
+      const token = localStorage.getItem('trsv_session_token');
       const note = updateNote || 'Solving started after student ID verification.';
       
       const res = await fetch(`/api/complaints/${ticketId}/status`, {
@@ -226,7 +226,7 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
         },
         body: JSON.stringify({ 
           status: 'Solving Started', 
-          note: `${note} (Verified Complainant ID: ${scannerResult.identity.tsrv_member_id})`,
+          note: `${note} (Verified Complainant ID: ${scannerResult.identity.trsv_member_id})`,
           resolution_notes: resolutionNotes || '',
           current_handler: userProfile.id
         })
@@ -254,7 +254,7 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
 
   const fetchDetailsSilently = async () => {
     try {
-      const token = localStorage.getItem('tsrv_session_token');
+      const token = localStorage.getItem('trsv_session_token');
       const res = await fetch(`/api/complaints/${ticketId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -283,7 +283,7 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
 
   const fetchDetails = async () => {
     try {
-      const token = localStorage.getItem('tsrv_session_token');
+      const token = localStorage.getItem('trsv_session_token');
       const res = await fetch(`/api/complaints/${ticketId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -314,7 +314,7 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
 
     setPostingComment(true);
     try {
-      const token = localStorage.getItem('tsrv_session_token');
+      const token = localStorage.getItem('trsv_session_token');
       const res = await fetch(`/api/complaints/${ticketId}/discuss`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
@@ -340,7 +340,7 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
     }
     setUpdating(true);
     try {
-      const token = localStorage.getItem('tsrv_session_token');
+      const token = localStorage.getItem('trsv_session_token');
       const res = await fetch(`/api/complaints/${ticketId}/status`, {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
@@ -371,7 +371,7 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
     if (!escalateLevel) return;
     setUpdating(true);
     try {
-      const token = localStorage.getItem('tsrv_session_token');
+      const token = localStorage.getItem('trsv_session_token');
       const res = await fetch(`/api/complaints/${ticketId}/escalate`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
@@ -400,7 +400,7 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
     
     setUpdating(true);
     try {
-      const token = localStorage.getItem('tsrv_session_token');
+      const token = localStorage.getItem('trsv_session_token');
       const res = await fetch(`/api/complaints/${ticketId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
@@ -834,7 +834,7 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
                         
                         <div className="mt-2 pt-2 border-t border-slate-800 flex flex-col gap-1">
                           <span className="text-[8px] text-slate-500 uppercase tracking-widest">TS-State Member ID</span>
-                          <span className="text-[11px] text-cyan-400 font-extrabold font-mono tracking-wide">{scannerResult.identity.tsrv_member_id}</span>
+                          <span className="text-[11px] text-cyan-400 font-extrabold font-mono tracking-wide">{scannerResult.identity.trsv_member_id}</span>
                         </div>
                       </div>
                     </div>

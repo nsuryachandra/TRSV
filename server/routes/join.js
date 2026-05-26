@@ -22,7 +22,7 @@ router.post('/', async (req, res) => {
 
     res.status(201).json({ 
       success: true, 
-      message: 'Your application to join TSRV has been registered successfully! Our regional committee will review it shortly.', 
+      message: 'Your application to join TRSV has been registered successfully! Our regional committee will review it shortly.', 
       request: result.rows[0] 
     });
   } catch (error) {

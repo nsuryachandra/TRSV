@@ -46,12 +46,12 @@ const StudentDashboard = lazy(() => import('../pages/StudentDashboard'));
 const LeaderDashboard = lazy(() => import('../pages/LeaderDashboard'));
 const CommandCenter = lazy(() => import('../pages/CommandCenter'));
 const EmergencyCommand = lazy(() => import('../pages/EmergencyCommand'));
-const JoinTSRV = lazy(() => import('../pages/JoinTSRV'));
+const JoinTRSV = lazy(() => import('../pages/JoinTRSV'));
 
 // Futuristic Holographic Loading Spinner
 function PageLoader() {
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-tsrv-bg-light dark:bg-tsrv-bg-dark transition-colors duration-300">
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-trsv-bg-light dark:bg-trsv-bg-dark transition-colors duration-300">
       <div className="relative flex flex-col items-center">
         {/* Glowing rings */}
         <div className="w-20 h-20 border-4 border-slate-200 dark:border-slate-880 rounded-full" />
@@ -63,7 +63,7 @@ function PageLoader() {
         <div className="absolute top-[32px] left-[32px] w-4 h-4 bg-cyan-500 rounded-full shadow-glow-cyan-strong" />
 
         <h3 className="mt-8 font-semibold tracking-wider text-sm uppercase text-slate-600 dark:text-cyan-400 animate-pulse">
-          TSRV Quantum Terminal
+          TRSV Quantum Terminal
         </h3>
         <p className="mt-1 text-xs text-slate-440 dark:text-slate-550">
           Syncing statewide governance node...
@@ -137,7 +137,7 @@ export default function AppRoutes() {
           <Route path="contact" element={<Contact />} />
           <Route path="join" element={
             <ProtectedRoute allowedRoles={['student']}>
-              <JoinTSRV />
+              <JoinTRSV />
             </ProtectedRoute>
           } />
           <Route path="messenger" element={

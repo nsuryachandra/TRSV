@@ -68,7 +68,7 @@ export default function Login() {
     setResetLoading(true);
     
     const cleanEmail = resetEmail.trim().toLowerCase();
-    if (cleanEmail === 'admin@tsrv.gov.in' || cleanEmail === 'supreme.admin@tsrv.gov.in' || cleanEmail.endsWith('@tsrv.gov.in')) {
+    if (cleanEmail === 'admin@trsv.gov.in' || cleanEmail === 'admin@trsv.gov.in' || cleanEmail === 'supreme.admin@trsv.gov.in' || cleanEmail === 'supreme.admin@trsv.gov.in' || cleanEmail.endsWith('@trsv.gov.in') || cleanEmail.endsWith('@trsv.gov.in')) {
       setResetError('For safety purposes, admin credentials cannot be changed. Please contact Developer Suryachandra.');
       setResetLoading(false);
       return;
@@ -152,7 +152,7 @@ export default function Login() {
                   type="button" 
                   onClick={() => {
                     const cleanEmail = email.trim().toLowerCase();
-                    if (cleanEmail === 'admin@tsrv.gov.in' || cleanEmail === 'supreme.admin@tsrv.gov.in' || cleanEmail.endsWith('@tsrv.gov.in')) {
+                    if (cleanEmail === 'admin@trsv.gov.in' || cleanEmail === 'admin@trsv.gov.in' || cleanEmail === 'supreme.admin@trsv.gov.in' || cleanEmail === 'supreme.admin@trsv.gov.in' || cleanEmail.endsWith('@trsv.gov.in') || cleanEmail.endsWith('@trsv.gov.in')) {
                       setError('Admin credentials cannot be changed. Contact Developer: Suryachandra.');
                       return;
                     }

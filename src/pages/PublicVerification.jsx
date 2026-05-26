@@ -40,7 +40,7 @@ export default function PublicVerification() {
     setActionLoading(complaintId);
     setActionMessage('');
     try {
-      const token = localStorage.getItem('tsrv_session_token');
+      const token = localStorage.getItem('trsv_session_token');
       const res = await fetch(`/api/complaints/${complaintId}/status`, {
         method: 'PUT',
         headers: {
@@ -160,7 +160,7 @@ export default function PublicVerification() {
           </p>
           <div className="text-[10px] text-slate-450 mt-6 leading-relaxed">
             TELANGANA RAKSHANA SENA VIDYARTHI VIBHAGAM<br />
-            State Audit Security Node: <span className="font-mono">TSRV-SEC-CORE</span>
+            State Audit Security Node: <span className="font-mono">TRSV-SEC-CORE</span>
           </div>
         </GlassCard>
       </div>
@@ -226,7 +226,7 @@ export default function PublicVerification() {
           {statusVisual.icon}
         </div>
         <div className="flex flex-col text-center md:text-left gap-1.5 min-w-0">
-          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">TSRV Public Verification Node</span>
+          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">TRSV Public Verification Node</span>
           <h1 className={`text-3xl font-black tracking-tight ${statusVisual.textClass}`}>
             {statusVisual.title}
           </h1>
@@ -248,7 +248,7 @@ export default function PublicVerification() {
                 Profile Identity
               </h2>
               <span className="text-[8px] font-mono font-bold text-slate-450 dark:text-slate-500 uppercase tracking-widest">
-                TSRV-ID-{identity.id}
+                TRSV-ID-{identity.id}
               </span>
             </div>
 
@@ -278,7 +278,7 @@ export default function PublicVerification() {
             <div className="flex flex-col gap-3 text-xs border-t border-slate-200/50 dark:border-slate-850 pt-5">
               <div className="flex justify-between items-center py-1">
                 <span className="text-slate-450">Unique Member ID:</span>
-                <strong className="font-mono text-cyan-500 text-sm font-bold">{identity.tsrv_member_id}</strong>
+                <strong className="font-mono text-cyan-500 text-sm font-bold">{identity.trsv_member_id}</strong>
               </div>
               <div className="flex justify-between items-center py-1">
                 <span className="text-slate-450">Active Constituency:</span>

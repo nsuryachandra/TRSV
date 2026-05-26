@@ -23,7 +23,7 @@ export default function About() {
     {
       icon: <Flag className="w-8 h-8 text-amber-500" />,
       title: 'Statewide Representative Action',
-      desc: 'TSRV operates a scalable State → Constituency → College network. We empower students to stand as coordinators, resolve local college issues, and direct rapid mediation dispatches.'
+      desc: 'TRSV operates a scalable State → Constituency → College network. We empower students to stand as coordinators, resolve local college issues, and direct rapid mediation dispatches.'
     }
   ];
 
@@ -39,7 +39,7 @@ export default function About() {
           Telangana Rakshana Sena Vidyarthi Vibhagam
         </h1>
         <p className="text-base sm:text-lg text-slate-500 dark:text-slate-400 leading-relaxed">
-          Founded as a statewide digital-first student governance organization, TSRV shields millions of students across campuses from exploitation, ragging, and institutional harassment.
+          Founded as a statewide digital-first student governance organization, TRSV shields millions of students across campuses from exploitation, ragging, and institutional harassment.
         </p>
       </AnimatedSection>
 
@@ -65,7 +65,7 @@ export default function About() {
         <GlassCard className="p-8 sm:p-12 text-left relative">
           <h2 className="font-extrabold text-2xl text-slate-850 dark:text-white mb-6 border-b border-slate-200/50 dark:border-slate-850 pb-4 flex items-center gap-2.5">
             <ShieldCheck className="w-6.5 h-6.5 text-cyan-500" />
-            TSRV State Student Charter Principles
+            TRSV State Student Charter Principles
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
             <div className="flex items-start gap-3">

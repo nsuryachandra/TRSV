@@ -75,7 +75,7 @@ export default function Contact() {
 
   const fetchTickets = async () => {
     try {
-      const token = localStorage.getItem('tsrv_session_token');
+      const token = localStorage.getItem('trsv_session_token');
       const response = await fetch('/api/complaints', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -199,7 +199,7 @@ export default function Contact() {
         }
       }
 
-      const token = localStorage.getItem('tsrv_session_token');
+      const token = localStorage.getItem('trsv_session_token');
       const response = await fetch('/api/complaints', {
         method: 'POST',
         headers: {
@@ -336,7 +336,7 @@ export default function Contact() {
           State Complaint Submission Gate
         </h1>
         <p className="text-base sm:text-lg text-slate-500 dark:text-slate-400 leading-relaxed text-center">
-          Lodge your academic, campus-safety, or administrative complaint directly into the TSRV Command Node. Every submission is digitally routed to local and statewide leaders.
+          Lodge your academic, campus-safety, or administrative complaint directly into the TRSV Command Node. Every submission is digitally routed to local and statewide leaders.
         </p>
       </AnimatedSection>
 
@@ -406,7 +406,7 @@ export default function Contact() {
                   <AlertTriangle className="w-4.5 h-4.5 shrink-0 text-rose-500 mt-0.5" />
                   <div>
                     <strong className="block font-extrabold uppercase mb-1">⚠️ Mandatory Disclaimer</strong>
-                    By submitting this complaint, you declare under union regulations that all facts, details, and attachments are genuine and true. Lodging simulated, fake, or false reports is strictly prohibited under the TSRV State Charter, and will result in immediate suspension of student credentials and potential legal actions.
+                    By submitting this complaint, you declare under union regulations that all facts, details, and attachments are genuine and true. Lodging simulated, fake, or false reports is strictly prohibited under the TRSV State Charter, and will result in immediate suspension of student credentials and potential legal actions.
                   </div>
                 </div>
 

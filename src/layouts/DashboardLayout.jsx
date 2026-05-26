@@ -80,7 +80,7 @@ export default function DashboardLayout() {
 
   const fetchNotifications = async () => {
     try {
-      const token = localStorage.getItem('tsrv_session_token');
+      const token = localStorage.getItem('trsv_session_token');
       if (!token) return;
       const res = await fetch('/api/notifications', {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -127,7 +127,7 @@ export default function DashboardLayout() {
 
   const handleMarkAllRead = async () => {
     try {
-      const token = localStorage.getItem('tsrv_session_token');
+      const token = localStorage.getItem('trsv_session_token');
       await fetch('/api/notifications/mark-all-read', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` }
@@ -141,7 +141,7 @@ export default function DashboardLayout() {
   const handleToggleRead = async (id, currentRead) => {
     if (currentRead) return;
     try {
-      const token = localStorage.getItem('tsrv_session_token');
+      const token = localStorage.getItem('trsv_session_token');
       await fetch(`/api/notifications/mark-read/${id}`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` }
@@ -189,10 +189,10 @@ export default function DashboardLayout() {
         }] : []),
         // Only student roles can apply to join the union
         ...(userProfile?.role === 'student' ? [{
-          name: 'Join TSRV',
+          name: 'Join TRSV',
           path: '/dashboard/join',
           icon: <UserPlus className="w-5 h-5" />,
-          desc: 'Apply to join TSRV'
+          desc: 'Apply to join TRSV'
         }] : []),
         ...(userProfile?.role !== 'student' ? [{
           name: 'Messenger',
@@ -241,13 +241,13 @@ export default function DashboardLayout() {
           desc: 'Verifiable complaint list'
         },
         {
-          name: 'About TSRV',
+          name: 'About TRSV',
           path: '/dashboard/about',
           icon: <Info className="w-5 h-5" />,
-          desc: 'About TSRV union'
+          desc: 'About TRSV union'
         },
         {
-          name: 'TSRV Team',
+          name: 'TRSV Team',
           path: '/dashboard/team',
           icon: <Users className="w-5 h-5" />,
           desc: 'Union state leaders'
@@ -272,7 +272,7 @@ export default function DashboardLayout() {
   };
 
   return (
-    <div className="min-h-screen flex bg-tsrv-bg-light dark:bg-tsrv-bg-dark transition-colors duration-500 overflow-hidden relative font-sans select-none">
+    <div className="min-h-screen flex bg-trsv-bg-light dark:bg-trsv-bg-dark transition-colors duration-500 overflow-hidden relative font-sans select-none">
       
       {/* Background canvas particles */}
       <FloatingParticles />
@@ -287,12 +287,12 @@ export default function DashboardLayout() {
         <div className="p-6 border-b border-slate-200/50 dark:border-slate-900/60 flex items-center gap-3">
           <img 
             src="/trsv.jpeg" 
-            alt="TSRV Logo" 
+            alt="TRSV Logo" 
             className="w-10 h-10 rounded-2xl object-cover border border-cyan-500/30 shadow-[0_0_8px_rgba(6,182,212,0.15)] shrink-0"
           />
           <div className="text-left">
             <span className="font-black text-base tracking-tight text-slate-800 dark:text-white uppercase block">
-              TSRV State OS
+              TRSV State OS
             </span>
             <span className="text-[10px] font-extrabold text-cyan-600 dark:text-cyan-400 tracking-widest uppercase block mt-0.5">
               STATE CONTROL TERM
@@ -388,10 +388,10 @@ export default function DashboardLayout() {
                 <div className="flex items-center gap-3">
                   <img 
                     src="/trsv.jpeg" 
-                    alt="TSRV Logo" 
+                    alt="TRSV Logo" 
                     className="w-9 h-9 rounded-xl object-cover border border-cyan-500/30 shadow-[0_0_8px_rgba(6,182,212,0.15)] shrink-0"
                   />
-                  <span className="font-extrabold text-sm text-slate-800 dark:text-white uppercase tracking-wider">TSRV OS</span>
+                  <span className="font-extrabold text-sm text-slate-800 dark:text-white uppercase tracking-wider">TRSV OS</span>
                 </div>
                 <button
                   onClick={() => setSidebarOpen(false)}
@@ -482,7 +482,7 @@ export default function DashboardLayout() {
               <div className="flex flex-col text-left">
                 <h1 className="text-xs sm:text-sm font-black text-slate-850 dark:text-white uppercase tracking-wider flex items-center gap-2 leading-none">
                   <span className="hidden sm:inline">State Governance Terminal</span>
-                  <span className="sm:hidden">TSRV OS</span>
+                  <span className="sm:hidden">TRSV OS</span>
                   <span className="px-1.5 py-0.5 rounded-full text-[8px] font-bold bg-green-500/10 text-green-500 border border-green-500/20 animate-pulse">
                     Live
                   </span>

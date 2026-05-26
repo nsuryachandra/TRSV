@@ -14,9 +14,9 @@ export default function QrScanExperience() {
   const handleSelectComplaintToSolve = async (ticketId) => {
     setUpdatingTicketId(ticketId);
     try {
-      const token = localStorage.getItem('tsrv_session_token');
-      const note = localStorage.getItem('tsrv_solve_note') || 'Solving started after student ID verification.';
-      const resNotes = localStorage.getItem('tsrv_solve_resolution') || '';
+      const token = localStorage.getItem('trsv_session_token');
+      const note = localStorage.getItem('trsv_solve_note') || 'Solving started after student ID verification.';
+      const resNotes = localStorage.getItem('trsv_solve_resolution') || '';
       
       const res = await fetch(`/api/complaints/${ticketId}/status`, {
         method: 'PUT',
@@ -26,19 +26,19 @@ export default function QrScanExperience() {
         },
         body: JSON.stringify({ 
           status: 'Solving Started', 
-          note: `${note} (Verified member ID: ${scanResult?.identity?.tsrv_member_id})`,
+          note: `${note} (Verified member ID: ${scanResult?.identity?.trsv_member_id})`,
           resolution_notes: resNotes
         })
       });
       
       const json = await res.json();
       if (json.success) {
-        localStorage.removeItem('tsrv_solve_ticket_id');
-        localStorage.removeItem('tsrv_solve_note');
-        localStorage.removeItem('tsrv_solve_resolution');
+        localStorage.removeItem('trsv_solve_ticket_id');
+        localStorage.removeItem('trsv_solve_note');
+        localStorage.removeItem('trsv_solve_resolution');
         
-        const redirectPath = localStorage.getItem('tsrv_solve_source_path') || '/dashboard/leader';
-        localStorage.removeItem('tsrv_solve_source_path');
+        const redirectPath = localStorage.getItem('trsv_solve_source_path') || '/dashboard/leader';
+        localStorage.removeItem('trsv_solve_source_path');
         
         closeResultModal();
         navigate(`${redirectPath}?open_ticket_id=${ticketId}`);
@@ -198,7 +198,7 @@ export default function QrScanExperience() {
         const data = await response.json();
         
         if (data.success) {
-          const token = localStorage.getItem('tsrv_session_token');
+          const token = localStorage.getItem('trsv_session_token');
           const studentId = data.profile.id;
           try {
             const compRes = await fetch(`/api/complaints?student_id=${studentId}`, {
@@ -217,7 +217,7 @@ export default function QrScanExperience() {
         }
       } catch (err) {
         console.error(err);
-        setScanError('TSRV node communication failed. Server unreachable.');
+        setScanError('TRSV node communication failed. Server unreachable.');
       } finally {
         setScanning(false);
       }
@@ -279,7 +279,7 @@ export default function QrScanExperience() {
   };
 
   const quickScans = [
-    { label: 'Audit Supreme Leader ID', token: 'TSRV-HQ-0001', desc: 'Queries Surya\'s Verified Official Card' },
+    { label: 'Audit Supreme Leader ID', token: 'TRSV-HQ-0001', desc: 'Queries Surya\'s Verified Official Card' },
     { label: 'Scan secure QR Token', token: 'supreme_secure_qr_token_surya_2026', desc: 'Validates raw QR cryptographic JWT key' },
     { label: 'Simulate Corrupt QR Scan', token: 'corrupted_token_abc_123', desc: 'Triggers active error database alert logs' }
   ];
@@ -292,7 +292,7 @@ export default function QrScanExperience() {
         
         <div className="flex flex-col gap-2">
           <div className="inline-flex items-center gap-1.5 self-start px-2.5 py-1 rounded-full bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 text-[10px] font-extrabold uppercase tracking-wider border border-cyan-500/20">
-            TSRV Verification Terminal
+            TRSV Verification Terminal
           </div>
           <h2 className="text-3xl font-black text-slate-800 dark:text-white flex items-center gap-2">
             Holographic QR Scanner
@@ -452,7 +452,7 @@ export default function QrScanExperience() {
                   </div>
 
                   <span className={`text-[10px] font-black uppercase tracking-widest ${scanResult.verified ? 'text-emerald-500' : 'text-rose-500'}`}>
-                    TSRV System Decrypted
+                    TRSV System Decrypted
                   </span>
 
                   <h2 className="text-2xl font-black text-slate-800 dark:text-white mt-1">
@@ -460,7 +460,7 @@ export default function QrScanExperience() {
                   </h2>
 
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                    Member ID: <strong className="font-mono text-cyan-500">{scanResult.identity.tsrv_member_id}</strong>
+                    Member ID: <strong className="font-mono text-cyan-500">{scanResult.identity.trsv_member_id}</strong>
                   </p>
 
                   {/* Profile Summary card */}
@@ -543,7 +543,7 @@ export default function QrScanExperience() {
                     className="w-full mt-6"
                     onClick={() => {
                       closeResultModal();
-                      navigate(`/verify/${scanResult.identity.tsrv_member_id}`);
+                      navigate(`/verify/${scanResult.identity.trsv_member_id}`);
                     }}
                     icon={<ArrowRight className="w-4 h-4" />}
                   >

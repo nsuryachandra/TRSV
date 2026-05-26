@@ -5,7 +5,7 @@ const ThemeContext = createContext();
 export const ThemeProvider = ({ children }) => {
   // Default to light theme as requested by the user
   const [theme, setTheme] = useState(() => {
-    const savedTheme = localStorage.getItem('tsrv-theme');
+    const savedTheme = localStorage.getItem('trsv-theme');
     return savedTheme ? savedTheme : 'light';
   });
 
@@ -16,7 +16,7 @@ export const ThemeProvider = ({ children }) => {
     } else {
       root.classList.remove('dark');
     }
-    localStorage.setItem('tsrv-theme', theme);
+    localStorage.setItem('trsv-theme', theme);
   }, [theme]);
 
   const toggleTheme = () => {

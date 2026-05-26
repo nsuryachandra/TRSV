@@ -170,7 +170,7 @@ export default function Districts() {
           Regional Command Hubs
         </h1>
         <p className="text-base sm:text-lg text-slate-500 dark:text-slate-400 leading-relaxed">
-          TSRV operates a 3-tier governance structure: <strong className="text-cyan-500">State → Greater Hyderabad → Local Constituency</strong>. Select any constituency below to see its full command chain.
+          TRSV operates a 3-tier governance structure: <strong className="text-cyan-500">State → Greater Hyderabad → Local Constituency</strong>. Select any constituency below to see its full command chain.
         </p>
       </AnimatedSection>
 

@@ -53,14 +53,14 @@ export default function StudentDashboard() {
 
   // Trigger luxury security alert modal on dashboard visit
   useEffect(() => {
-    const accepted = localStorage.getItem('tsrv_warning_accepted');
+    const accepted = localStorage.getItem('trsv_warning_accepted');
     if (!accepted) {
       setShowWarningModal(true);
     }
   }, []);
 
   const handleAcceptWarning = () => {
-    localStorage.setItem('tsrv_warning_accepted', 'true');
+    localStorage.setItem('trsv_warning_accepted', 'true');
     setShowWarningModal(false);
   };
 
@@ -71,7 +71,7 @@ export default function StudentDashboard() {
     const matchedCon = constituencies.find(c => c.id === conId);
     if (matchedCon) {
       if (matchedCon.constituency_name === 'Upcoming Area') {
-        setMappedMsg(`⚠️ Campus in future expansion node. TSRV is launching in all constituencies soon!`);
+        setMappedMsg(`⚠️ Campus in future expansion node. TRSV is launching in all constituencies soon!`);
         return;
       }
       const isGH = matchedCon.id === 23 || matchedCon.parent_id === 23;
@@ -292,7 +292,7 @@ export default function StudentDashboard() {
         if (upcomingCon) {
           setSelectedConstituencyId(upcomingCon.id.toString());
         }
-        setMappedMsg(`⚠️ Campus in future expansion node. TSRV is launching in all constituencies soon!`);
+        setMappedMsg(`⚠️ Campus in future expansion node. TRSV is launching in all constituencies soon!`);
       }
     }
 
@@ -310,7 +310,7 @@ export default function StudentDashboard() {
     setSavingMap(true);
     setSaveSuccess('');
     try {
-      const tokenVal = localStorage.getItem('tsrv_session_token');
+      const tokenVal = localStorage.getItem('trsv_session_token');
       const response = await fetch('/api/auth/update-college', {
         method: 'POST',
         headers: {
@@ -340,7 +340,7 @@ export default function StudentDashboard() {
   // Fetch real student complaints raised from database
   const fetchComplaints = async () => {
     try {
-      const token = localStorage.getItem('tsrv_session_token');
+      const token = localStorage.getItem('trsv_session_token');
       const response = await fetch('/api/complaints', {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -873,12 +873,12 @@ export default function StudentDashboard() {
                 ⚠️ Be Alert!
               </h3>
               <p className="text-[10px] text-slate-550 dark:text-slate-400 font-extrabold uppercase tracking-widest">
-                Official TSRV Student Notice
+                Official TRSV Student Notice
               </p>
             </div>
 
             <p className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed font-semibold z-10">
-              Complaint tickets logged in the TSRV Command Node are transmitted directly to regional boards. 
+              Complaint tickets logged in the TRSV Command Node are transmitted directly to regional boards. 
               <span className="text-amber-600 dark:text-amber-400 font-bold block mt-1">You must file only real and genuine complaints.</span> 
               Filing simulated, fake, or false complaints is strictly prohibited and will result in permanent student credential suspension.
             </p>

@@ -94,7 +94,7 @@ export default function CommandCenter() {
   const fetchAllComplaints = async () => {
     setLoadingComplaints(true);
     try {
-      const token = localStorage.getItem('tsrv_session_token');
+      const token = localStorage.getItem('trsv_session_token');
       const res = await fetch('/api/complaints', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -158,7 +158,7 @@ export default function CommandCenter() {
     
     const fetchTelemetry = async () => {
       try {
-        const token = localStorage.getItem('tsrv_session_token');
+        const token = localStorage.getItem('trsv_session_token');
         const headers = { 'Authorization': `Bearer ${token}` };
         
         const [feedRes, trendRes, catRes] = await Promise.all([
@@ -237,7 +237,7 @@ export default function CommandCenter() {
         setColleges(colData.colleges);
       }
 
-      const token = localStorage.getItem('tsrv_session_token');
+      const token = localStorage.getItem('trsv_session_token');
 
       // Load general stats
       const statsRes = await fetch('/api/dashboards/stats', {
@@ -267,7 +267,7 @@ export default function CommandCenter() {
   const fetchJoinRequests = async () => {
     setFetchingRequests(true);
     try {
-      const token = localStorage.getItem('tsrv_session_token');
+      const token = localStorage.getItem('trsv_session_token');
       const res = await fetch('/api/join-trsv', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -290,7 +290,7 @@ export default function CommandCenter() {
 
   const handleUpdateRequestStatus = async (id, status) => {
     try {
-      const token = localStorage.getItem('tsrv_session_token');
+      const token = localStorage.getItem('trsv_session_token');
       const res = await fetch(`/api/join-trsv/${id}`, {
         method: 'PATCH',
         headers: {
@@ -334,7 +334,7 @@ export default function CommandCenter() {
     if (!newConName || !newConDistrict) return;
     setLoading(true);
     try {
-      const token = localStorage.getItem('tsrv_session_token');
+      const token = localStorage.getItem('trsv_session_token');
       const res = await fetch('/api/constituencies', {
         method: 'POST',
         headers: {
@@ -365,7 +365,7 @@ export default function CommandCenter() {
     if (!newCollegeName || !newCollegeCode || !selectedConId) return;
     setLoading(true);
     try {
-      const token = localStorage.getItem('tsrv_session_token');
+      const token = localStorage.getItem('trsv_session_token');
       const res = await fetch('/api/colleges', {
         method: 'POST',
         headers: {
@@ -400,7 +400,7 @@ export default function CommandCenter() {
     if (!promoUserId || !promoRole) return;
     setLoading(true);
     try {
-      const token = localStorage.getItem('tsrv_session_token');
+      const token = localStorage.getItem('trsv_session_token');
       const res = await fetch('/api/dashboards/promote', {
         method: 'PUT',
         headers: {
@@ -792,7 +792,7 @@ export default function CommandCenter() {
           <div className="p-6 flex flex-col gap-4 text-left rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-premium-light dark:shadow-premium-dark">
             <h3 className="font-extrabold text-sm text-slate-700 dark:text-white uppercase tracking-wider flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
               <Users className="w-4 h-4 text-cyan-500" />
-              Join TSRV Requests
+              Join TRSV Requests
             </h3>
 
             {fetchingRequests ? (

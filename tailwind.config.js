@@ -18,7 +18,36 @@ export default {
           880: '#0b0f19', // premium darker slate
           955: '#060814', // sleek obsidian slate background
         },
-        tsrv: {
+        trsv: {
+          accent: {
+            light: '#22d3ee', // cyan-400
+            DEFAULT: '#0891b2', // cyan-600
+            dark: '#0e7490', // cyan-700
+          },
+          bg: {
+            light: '#f8fafc', // slate-50
+            dark: '#05070e', // premium obsidian black background
+          },
+          surface: {
+            light: '#ffffff',
+            dark: '#0a0d16', // rich charcoal-black surface
+          },
+          card: {
+            light: 'rgba(255, 255, 255, 0.75)',
+            dark: 'rgba(9, 11, 20, 0.7)', // sleek translucent card
+          },
+          border: {
+            light: 'rgba(226, 232, 240, 0.8)', // slate-200
+            dark: 'rgba(255, 255, 255, 0.05)', // fine translucent border
+          },
+          text: {
+            light: '#0f172a',
+            dark: '#f1f5f9', // crisp off-white text
+            mutedLight: '#64748b',
+            mutedDark: '#94a3b8',
+          }
+        },
+        trsv: {
           accent: {
             light: '#22d3ee', // cyan-400
             DEFAULT: '#0891b2', // cyan-600

@@ -23,7 +23,7 @@
   }
   
   body {
-    @apply transition-colors duration-500 ease-in-out bg-tsrv-bg-light text-tsrv-text-light dark:bg-tsrv-bg-dark dark:text-tsrv-text-dark;
+    @apply transition-colors duration-500 ease-in-out bg-trsv-bg-light text-trsv-text-light dark:bg-trsv-bg-dark dark:text-trsv-text-dark;
     overflow-x: hidden;
     background-image: 
       linear-gradient(rgba(15, 23, 42, 0.012) 1px, transparent 1px),

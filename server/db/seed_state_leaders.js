@@ -9,7 +9,7 @@ function hashPassword(password) {
 }
 
 const seedStateLeaders = async () => {
-  console.log('🌱 [Database Seed] Seeding Core TSRV Team into Neon DB...');
+  console.log('🌱 [Database Seed] Seeding Core TRSV Team into Neon DB...');
 
   // Resolve constituency IDs
   let ghId = null;
@@ -43,7 +43,7 @@ const seedStateLeaders = async () => {
     await dbClient.query('BEGIN');
 
     // 🧹 Clean up Ramu Yadav, Gummadi Kranthi, Pranith, and Omkar from database
-    await dbClient.query("DELETE FROM users WHERE email IN ('ramuanna@tsrv.gov.in', 'kranthi@tsrv.gov.in', 'pranith@tsrv.gov.in', 'omkar@tsrv.gov.in', 'karthik@tsrv.gov.in')");
+    await dbClient.query("DELETE FROM users WHERE email IN ('ramuanna@trsv.gov.in', 'kranthi@trsv.gov.in', 'pranith@trsv.gov.in', 'omkar@trsv.gov.in', 'karthik@trsv.gov.in')");
     console.log('🧹 Cleaned up old/unused leaders from database.');
 
     for (const lead of leaders) {
@@ -53,8 +53,8 @@ const seedStateLeaders = async () => {
       await dbClient.query(`
         INSERT INTO users (id, full_name, email, role, phone, profile_image, verified, password_hash, constituency_id, college_id)
         VALUES ($1, $2, $3, $4, $5, $6, TRUE, $7, $8, NULL)
-        ON CONFLICT (email) DO UPDATE SET
-          id = EXCLUDED.id,
+        ON CONFLICT (id) DO UPDATE SET
+          email = EXCLUDED.email,
           full_name = EXCLUDED.full_name,
           role = EXCLUDED.role,
           phone = EXCLUDED.phone,
@@ -79,8 +79,8 @@ const seedStateLeaders = async () => {
     await dbClient.query(`
       INSERT INTO users (id, full_name, email, role, phone, profile_image, verified, password_hash, constituency_id, college_id)
       VALUES ($1, $2, $3, $4, $5, $6, TRUE, $7, NULL, NULL)
-      ON CONFLICT (email) DO UPDATE SET
-        id = EXCLUDED.id,
+      ON CONFLICT (id) DO UPDATE SET
+        email = EXCLUDED.email,
         full_name = EXCLUDED.full_name,
         role = EXCLUDED.role,
         phone = EXCLUDED.phone,
@@ -90,16 +90,16 @@ const seedStateLeaders = async () => {
     `, [
       'state-founder-akka',
       'Akka',
-      'akka@tsrv.gov.in',
+      'akka@trsv.gov.in',
       'supreme_admin',
       null,
       '/akka.jpg',
       hashPassword('akka_secret'.split('_')[0])
     ]);
-    console.log(`✅ [Seeded/Updated] Akka → akka@tsrv.gov.in (supreme_admin)`);
+    console.log(`✅ [Seeded/Updated] Akka → akka@trsv.gov.in (supreme_admin)`);
 
     await dbClient.query('COMMIT');
-    console.log('\n🎉 TSRV Core Team seeded successfully!');
+    console.log('\n🎉 TRSV Core Team seeded successfully!');
   } catch (error) {
     await dbClient.query('ROLLBACK');
     console.error('❌ [Database Seed] Error seeding leaders:', error);

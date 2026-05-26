@@ -9,7 +9,7 @@ export default function HubChat({ user }) {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [currentChannel, setCurrentChannel] = useState(() => {
-    return localStorage.getItem('tsrv_active_chat_channel') || 'GH-Global';
+    return localStorage.getItem('trsv_active_chat_channel') || 'GH-Global';
   });
   const [mobileView, setMobileView] = useState('channels'); // 'channels' or 'chat'
   
@@ -25,7 +25,7 @@ export default function HubChat({ user }) {
   const [socketConnected, setSocketConnected] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem('tsrv_active_chat_channel', currentChannel);
+    localStorage.setItem('trsv_active_chat_channel', currentChannel);
   }, [currentChannel]);
 
   // Editing state
@@ -41,7 +41,7 @@ export default function HubChat({ user }) {
   // 1. Fetch active channels for Dev / Supreme
   const fetchActiveChannels = () => {
     if (isDevOrSupreme) {
-      const token = localStorage.getItem('tsrv_session_token') || localStorage.getItem('token') || sessionStorage.getItem('token');
+      const token = localStorage.getItem('trsv_session_token') || localStorage.getItem('token') || sessionStorage.getItem('token');
       fetch('/api/chat/active-channels', {
         headers: { 'Authorization': `Bearer ${token}` }
       })
@@ -146,7 +146,7 @@ export default function HubChat({ user }) {
 
   // 4. Load historical messages on channel switch
   useEffect(() => {
-    const token = localStorage.getItem('tsrv_session_token') || localStorage.getItem('token') || sessionStorage.getItem('token');
+    const token = localStorage.getItem('trsv_session_token') || localStorage.getItem('token') || sessionStorage.getItem('token');
     if (!token || !user.id) return;
 
     fetch(`/api/chat/history/${currentChannel}`, {

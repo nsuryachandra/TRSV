@@ -109,7 +109,7 @@ router.post('/backup', async (req, res) => {
     const announcements = await query('SELECT * FROM announcements');
     
     const backupData = {
-      version: 'TSRV-V1.0',
+      version: 'TRSV-V1.0',
       timestamp: new Date().toISOString(),
       complaints: complaints.rows,
       announcements: announcements.rows
@@ -124,7 +124,7 @@ router.post('/backup', async (req, res) => {
       VALUES ($1, $2, $3, $4, $5)
       RETURNING id
     `, [
-      `tsrv_snapshot_${Date.now()}.json`,
+      `trsv_snapshot_${Date.now()}.json`,
       'manual',
       fileSize,
       'success',

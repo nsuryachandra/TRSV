@@ -39,7 +39,7 @@ export default function SupportHub() {
       {/* Header Banner */}
       <AnimatedSection direction="up" className="text-center max-w-3xl mx-auto flex flex-col gap-4">
         <span className="text-xs font-bold text-cyan-600 dark:text-cyan-400 tracking-widest uppercase">
-          TSRV UNION ASSISTANCE
+          TRSV UNION ASSISTANCE
         </span>
         <h1 className="fluid-heading-2 font-black text-slate-850 dark:text-white leading-tight text-center">
           Student Issue Support & Union Assistance Hub

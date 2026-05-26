@@ -35,7 +35,7 @@ const runIdentityMigrations = async () => {
       CREATE TABLE IF NOT EXISTS member_identities (
         id SERIAL PRIMARY KEY,
         user_id VARCHAR(255) REFERENCES users(id) ON DELETE CASCADE UNIQUE,
-        tsrv_member_id VARCHAR(100) UNIQUE NOT NULL,
+        trsv_member_id VARCHAR(100) UNIQUE NOT NULL,
         qr_token VARCHAR(255) UNIQUE NOT NULL,
         verification_status VARCHAR(50) REFERENCES verification_status(status_code) DEFAULT 'Active',
         issued_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -106,10 +106,10 @@ const runIdentityMigrations = async () => {
     // Seed Digital ID Card for Supreme Admin
     console.log('🔹 Seeding Supreme Admin Digital ID card credentials...');
     await client.query(`
-      INSERT INTO member_identities (user_id, tsrv_member_id, qr_token, verification_status)
+      INSERT INTO member_identities (user_id, trsv_member_id, qr_token, verification_status)
       VALUES (
         'SUPREME_ADMIN_UID',
-        'TSRV-HQ-0001',
+        'TRSV-HQ-0001',
         'supreme_secure_qr_token_surya_2026',
         'Verified'
       )
@@ -119,7 +119,7 @@ const runIdentityMigrations = async () => {
     // Seed Metrics for Supreme Admin
     console.log('🔹 Seeding Supreme Admin governance performance metrics...');
     const defaultTimeline = JSON.stringify([
-      { date: '2026-01-10', event: 'Commissioned as Supreme Student Governor of TSRV Network' },
+      { date: '2026-01-10', event: 'Commissioned as Supreme Student Governor of TRSV Network' },
       { date: '2026-03-01', event: 'Commanded Hyderabad Parliament Grievances Resolution cluster' },
       { date: '2026-05-17', event: 'Upgraded Statewide PWA Platform with 3D Holographic Identity Nodes' }
     ]);

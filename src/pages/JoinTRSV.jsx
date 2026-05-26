@@ -5,7 +5,7 @@ import GlassCard from '../components/GlassCard';
 import PremiumButton from '../components/PremiumButton';
 import AnimatedSection from '../components/AnimatedSection';
 
-export default function JoinTSRV() {
+export default function JoinTRSV() {
   const { userProfile } = useAuth();
   const [constituencies, setConstituencies] = useState([]);
   const [form, setForm] = useState({
@@ -90,7 +90,7 @@ export default function JoinTSRV() {
           Student Recruitment Portal
         </span>
         <h1 className="text-3xl font-black text-slate-850 dark:text-white leading-tight">
-          Join TSRV Campaign Node
+          Join TRSV Campaign Node
         </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
           Apply to become a registered student representative, campus coordinator, or safety squad leader inside your college campus grid.
@@ -130,7 +130,7 @@ export default function JoinTSRV() {
                   value={form.email}
                   onChange={handleInputChange}
                   placeholder="Enter your email address"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200/80 dark:border-slate-800 text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:border-cyan-500 focus:outline-none transition-colors duration-200 text-xs"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200/80 dark:border-slate-800 text-slate-800 dark:text-slate-205 placeholder-slate-400 dark:placeholder-slate-500 focus:border-cyan-500 focus:outline-none transition-colors duration-200 text-xs"
                 />
               </div>
             </div>
@@ -174,7 +174,7 @@ export default function JoinTSRV() {
 
             <div className="flex flex-col gap-1.5">
               <label className="text-[10px] font-bold text-slate-400 dark:text-slate-550 uppercase tracking-wider">
-                Why do you want to join TSRV? <span className="text-rose-500">*</span>
+                Why do you want to join TRSV? <span className="text-rose-500">*</span>
               </label>
               <textarea
                 name="reason"

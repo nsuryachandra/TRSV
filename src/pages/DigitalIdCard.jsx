@@ -33,7 +33,7 @@ export default function DigitalIdCard() {
     setLoading(true);
     setError('');
     try {
-      const token = localStorage.getItem('tsrv_session_token');
+      const token = localStorage.getItem('trsv_session_token');
       const response = await fetch('/api/identity/my-id', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -282,11 +282,11 @@ export default function DigitalIdCard() {
     // Front Card Footer
     ctx.fillStyle = '#94a3b8';
     ctx.font = '8px Outfit, sans-serif';
-    ctx.fillText('TSRV SYSTEM NODE ID', fX + 24, cY + cH - 38);
+    ctx.fillText('TRSV SYSTEM NODE ID', fX + 24, cY + cH - 38);
     
     ctx.fillStyle = '#22d3ee';
     ctx.font = 'bold 15px Courier New, monospace';
-    ctx.fillText(identity?.tsrv_member_id || 'TSRV-KHA-0001', fX + 24, cY + cH - 20);
+    ctx.fillText(identity?.trsv_member_id || 'TRSV-KHA-0001', fX + 24, cY + cH - 20);
 
     // Verified Seal Badge at bottom-right
     const badgeX = fX + cW - 74;
@@ -307,7 +307,7 @@ export default function DigitalIdCard() {
     // Back card Header
     ctx.fillStyle = '#22d3ee';
     ctx.font = 'bold 11px Outfit, sans-serif';
-    ctx.fillText('TSRV SECURE DATABASE GRID', bX + 24, cY + 36);
+    ctx.fillText('TRSV SECURE DATABASE GRID', bX + 24, cY + 36);
 
     ctx.fillStyle = '#64748b';
     ctx.font = 'bold 7px Outfit, sans-serif';
@@ -367,12 +367,12 @@ export default function DigitalIdCard() {
 
     ctx.fillStyle = '#cbd5e1';
     ctx.font = 'bold 9px Outfit, sans-serif';
-    ctx.fillText('TSRV-V2.5.0', bX + 24, cY + cH - 22);
+    ctx.fillText('TRSV-V2.5.0', bX + 24, cY + cH - 22);
     ctx.fillText(userProfile?.constituency_name || 'Statewide Command', bX + cW - 120, cY + cH - 22);
 
     // Trigger immediate link download
     const link = document.createElement('a');
-    link.download = `${identity?.tsrv_member_id || 'TSRV_Card'}_DigitalID.png`;
+    link.download = `${identity?.trsv_member_id || 'TRSV_Card'}_DigitalID.png`;
     link.href = canvas.toDataURL('image/png');
     link.click();
   };
@@ -478,7 +478,7 @@ export default function DigitalIdCard() {
                 {/* ID Header */}
                 <div className="flex items-center justify-between z-10">
                   <div className="flex flex-col text-left">
-                    <span className="text-[14px] font-black tracking-widest text-cyan-400 uppercase">TSRV</span>
+                    <span className="text-[14px] font-black tracking-widest text-cyan-400 uppercase">TRSV</span>
                     <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Union Member Card</span>
                   </div>
                   <div className={`px-2 py-0.5 rounded-full border text-[8px] font-black uppercase tracking-wider flex items-center gap-1 ${statusObj.color}`}>
@@ -514,9 +514,9 @@ export default function DigitalIdCard() {
                 {/* Card Footer */}
                 <div className="flex items-end justify-between border-t border-slate-200/20 dark:border-slate-800/80 pt-2.5 z-10">
                   <div className="flex flex-col text-left">
-                    <span className="text-[7px] text-slate-400 uppercase tracking-widest">TSRV System Node ID</span>
+                    <span className="text-[7px] text-slate-400 uppercase tracking-widest">TRSV System Node ID</span>
                     <span className="text-sm font-black font-mono text-cyan-400 tracking-wider mt-0.5">
-                      {identity?.tsrv_member_id}
+                      {identity?.trsv_member_id}
                     </span>
                   </div>
 
@@ -537,7 +537,7 @@ export default function DigitalIdCard() {
                 {/* Back card Header */}
                 <div className="flex items-center justify-between border-b border-slate-200/10 dark:border-slate-800/50 pb-2">
                   <div className="flex flex-col text-left">
-                    <span className="text-[9px] font-black tracking-widest text-cyan-400 uppercase">TSRV DATABASE GRID</span>
+                    <span className="text-[9px] font-black tracking-widest text-cyan-400 uppercase">TRSV DATABASE GRID</span>
                     <span className="text-[6px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-widest mt-0.5 font-sans">Verification Portal</span>
                   </div>
                   <div className="w-8 h-6 rounded bg-gradient-to-tr from-amber-500 to-amber-300 relative overflow-hidden border border-amber-600/30 shrink-0">
@@ -570,7 +570,7 @@ export default function DigitalIdCard() {
                   <div className="flex flex-col text-left">
                     <span className="text-[6px] text-slate-450 dark:text-slate-500 uppercase tracking-widest">System Node</span>
                     <span className="text-[8px] font-extrabold text-slate-350 dark:text-slate-200 mt-0.5 font-mono">
-                      TSRV-V2.5.0
+                      TRSV-V2.5.0
                     </span>
                   </div>
                   <div className="flex flex-col text-right">

@@ -10,7 +10,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const router = express.Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'tsrv_quantum_super_secure_secret_hash_key_2026';
+const JWT_SECRET = process.env.JWT_SECRET || 'trsv_quantum_super_secure_secret_hash_key_2026';
 
 // PBKDF2/SHA-512 Secure Salting & Password Hashing Engine
 function hashPassword(password) {
@@ -29,11 +29,11 @@ function verifyPassword(password, storedHash) {
 // Load administrator credentials dynamically from secure JSON config file
 let credentials = {
   supreme_admin: { 
-    email: process.env.SUPREME_EMAIL || 'supreme.admin@tsrv.gov.in', 
+    email: process.env.SUPREME_EMAIL || 'supreme.admin@trsv.gov.in', 
     password: process.env.SUPREME_PASSWORD || 'mock-supreme-key-placeholder' 
   },
   site_admin: { 
-    email: process.env.SITE_ADMIN_EMAIL || 'admin@tsrv.gov.in', 
+    email: process.env.SITE_ADMIN_EMAIL || 'admin@trsv.gov.in', 
     password: process.env.SITE_ADMIN_PASSWORD || 'mock-admin-key-placeholder' 
   }
 };
@@ -108,13 +108,13 @@ router.post('/send-otp', async (req, res) => {
     });
 
     const mailOptions = {
-      from: `"TSRV Security Grid" <${process.env.SMTP_SENDER || smtpUser}>`,
+      from: `"TRSV Security Grid" <${process.env.SMTP_SENDER || smtpUser}>`,
       to: cleanEmail,
-      subject: `[TSRV] Your Student Verification Code: ${otpCode}`,
+      subject: `[TRSV] Your Student Verification Code: ${otpCode}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 12px; background-color: #ffffff;">
           <div style="text-align: center; margin-bottom: 20px;">
-            <h2 style="color: #06b6d4; margin: 0;">TSRV Governance Grid</h2>
+            <h2 style="color: #06b6d4; margin: 0;">TRSV Governance Grid</h2>
             <span style="font-size: 10px; font-weight: bold; color: #64748b; letter-spacing: 1px; text-transform: uppercase;">Telangana Rakshana Sena Vidyarthi</span>
           </div>
           <p style="font-size: 14px; color: #334155; line-height: 1.6;">Hello Student,</p>
@@ -123,8 +123,8 @@ router.post('/send-otp', async (req, res) => {
             <span style="font-size: 32px; font-weight: 900; color: #0f172a; letter-spacing: 6px; background-color: #f1f5f9; padding: 12px 24px; border-radius: 8px; border: 1px solid #cbd5e1; display: inline-block;">${otpCode}</span>
           </div>
           <p style="font-size: 11px; color: #64748b; text-align: center;">This code is highly sensitive and will expire in 10 minutes. If you did not request this, please disregard this email.</p>
-          <div style="border-t: 1px solid #f1f5f9; margin-top: 20px; padding-top: 10px; text-align: center;">
-            <span style="font-size: 10px; color: #94a3b8;">TSRV Statewide Student Protection Ecosystem © 2026</span>
+          <div style="border-top: 1px solid #f1f5f9; margin-top: 20px; padding-top: 10px; text-align: center;">
+            <span style="font-size: 10px; color: #94a3b8;">TRSV Statewide Student Protection Ecosystem © 2026</span>
           </div>
         </div>
       `
@@ -547,7 +547,7 @@ router.post('/forgot-password', async (req, res) => {
   const cleanEmail = email.trim().toLowerCase();
 
   // 1. Check if email corresponds to an administrative role or is the supreme email
-  if (cleanEmail === SUPREME_EMAIL.toLowerCase() || cleanEmail === 'admin@tsrv.gov.in') {
+  if (cleanEmail === SUPREME_EMAIL.toLowerCase() || cleanEmail === 'admin@trsv.gov.in' || cleanEmail === 'admin@trsv.gov.in') {
     return res.status(400).json({
       success: false,
       message: 'For safety purposes, admin credentials cannot be changed. Please contact Developer Suryachandra.'
@@ -609,13 +609,13 @@ router.post('/forgot-password', async (req, res) => {
     });
 
     const mailOptions = {
-      from: `"TSRV Security Grid" <${process.env.SMTP_SENDER || smtpUser}>`,
+      from: `"TRSV Security Grid" <${process.env.SMTP_SENDER || smtpUser}>`,
       to: cleanEmail,
-      subject: `[TSRV] Your Password Reset OTP Code: ${otpCode}`,
+      subject: `[TRSV] Your Password Reset OTP Code: ${otpCode}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 12px; background-color: #ffffff;">
           <div style="text-align: center; margin-bottom: 20px;">
-            <h2 style="color: #e11d48; margin: 0;">TSRV Password Recovery</h2>
+            <h2 style="color: #e11d48; margin: 0;">TRSV Password Recovery</h2>
             <span style="font-size: 10px; font-weight: bold; color: #64748b; letter-spacing: 1px; text-transform: uppercase;">Telangana Rakshana Sena Vidyarthi</span>
           </div>
           <p style="font-size: 14px; color: #334155; line-height: 1.6;">Hello Student,</p>
@@ -625,7 +625,7 @@ router.post('/forgot-password', async (req, res) => {
           </div>
           <p style="font-size: 11px; color: #64748b; text-align: center;">This code is highly sensitive and will expire in 15 minutes. If you did not request this, please disregard this email or contact developer: Suryachandra.</p>
           <div style="border-top: 1px solid #f1f5f9; margin-top: 20px; padding-top: 10px; text-align: center;">
-            <span style="font-size: 10px; color: #94a3b8;">TSRV Statewide Student Protection Ecosystem © 2026</span>
+            <span style="font-size: 10px; color: #94a3b8;">TRSV Statewide Student Protection Ecosystem © 2026</span>
           </div>
         </div>
       `

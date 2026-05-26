@@ -78,7 +78,7 @@ router.get('/public/logs', async (req, res) => {
       const hashToken = `0x${(row.id * 123456789).toString(16).padEnd(8, '0').substring(0, 8)}...${(row.id * 987654321).toString(16).padEnd(8, '0').substring(0, 4)}`;
       
       return {
-        id: `TSRV-${98000 + row.id}`,
+        id: `TRSV-${98000 + row.id}`,
         constituency: row.constituency || 'State Hub',
         category: row.category,
         college: row.college || 'State Node',
@@ -388,7 +388,7 @@ router.get('/:id', requireRole(['student', 'secretary', 'general_secretary', 'vi
     const complaintResult = await query(
       `SELECT c.*, con.constituency_name, col.college_name, u.full_name as student_name, 
               h.full_name as handler_name, h.role as handler_role,
-              mi.tsrv_member_id as student_member_id, mi.qr_token as student_qr_token
+              mi.trsv_member_id as student_member_id, mi.qr_token as student_qr_token
        FROM complaints c
        LEFT JOIN constituencies con ON c.constituency_id = con.id
        LEFT JOIN colleges col ON c.college_id = col.id

@@ -331,13 +331,13 @@ const handleAssignLeaderLogic = async (req, res) => {
 
 
           const emailSubject = isMailChanged
-            ? `[TSRV SECURITY GRID] Admin Credentials Calibrated - New Email Access`
-            : `[TSRV SECURITY GRID] Administrative Access Granted - Role: ${role.toUpperCase()}`;
+            ? `[TRSV SECURITY GRID] Admin Credentials Calibrated - New Email Access`
+            : `[TRSV SECURITY GRID] Administrative Access Granted - Role: ${role.toUpperCase()}`;
 
           const emailHtml = `
             <div style="font-family: Arial, sans-serif; max-width: 550px; margin: 0 auto; padding: 30px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
               <div style="text-align: center; margin-bottom: 25px;">
-                <h2 style="color: #06b6d4; margin: 0; font-size: 22px; font-weight: 800;">TSRV Security Grid</h2>
+                <h2 style="color: #06b6d4; margin: 0; font-size: 22px; font-weight: 800;">TRSV Security Grid</h2>
                 <span style="font-size: 10px; font-weight: bold; color: #64748b; letter-spacing: 1.5px; text-transform: uppercase;">Telangana Rakshana Sena Vidyarthi</span>
               </div>
               <p style="font-size: 15px; color: #1e293b; line-height: 1.6; font-weight: bold;">Hey ${full_name},</p>
@@ -367,13 +367,13 @@ const handleAssignLeaderLogic = async (req, res) => {
                 SECURITY REQUIREMENT: You are now an active guardian of the student safety ecosystem. Always protect student complaints and coordinates with absolute confidentiality and state honors.
               </p>
               <div style="border-top: 1px solid #f1f5f9; margin-top: 30px; padding-top: 15px; text-align: center;">
-                <span style="font-size: 10px; color: #94a3b8;">TSRV Statewide Student Protection Ecosystem © 2026</span>
+                <span style="font-size: 10px; color: #94a3b8;">TRSV Statewide Student Protection Ecosystem © 2026</span>
               </div>
             </div>
           `;
 
           await transporter.sendMail({
-            from: `"TSRV Security Grid" <${process.env.SMTP_SENDER || smtpUser}>`,
+            from: `"TRSV Security Grid" <${process.env.SMTP_SENDER || smtpUser}>`,
             to: finalEmail,
             subject: emailSubject,
             html: emailHtml

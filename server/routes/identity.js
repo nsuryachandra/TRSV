@@ -24,12 +24,12 @@ const generateUniqueMemberId = async (user) => {
 
   // Count existing matching IDs to assign sequence
   const res = await query(
-    "SELECT COUNT(*) FROM member_identities WHERE tsrv_member_id LIKE $1",
-    [`TSRV-${prefix}-%`]
+    "SELECT COUNT(*) FROM member_identities WHERE trsv_member_id LIKE $1",
+    [`TRSV-${prefix}-%`]
   );
   const nextSeq = parseInt(res.rows[0].count) + 1;
   const padded = nextSeq.toString().padStart(4, '0');
-  return `TSRV-${prefix}-${padded}`;
+  return `TRSV-${prefix}-${padded}`;
 };
 
 /**
@@ -56,15 +56,15 @@ const autoProvisionIdentity = async (uid) => {
 
   // 2. Insert into member_identities
   const identityRes = await query(`
-    INSERT INTO member_identities (user_id, tsrv_member_id, qr_token, verification_status)
+    INSERT INTO member_identities (user_id, trsv_member_id, qr_token, verification_status)
     VALUES ($1, $2, $3, $4)
-    ON CONFLICT (user_id) DO UPDATE SET tsrv_member_id = EXCLUDED.tsrv_member_id
+    ON CONFLICT (user_id) DO UPDATE SET trsv_member_id = EXCLUDED.trsv_member_id
     RETURNING *
   `, [uid, memberId, qrToken, status]);
 
   // 3. Insert default metrics
   const defaultTimeline = JSON.stringify([
-    { date: new Date().toISOString().split('T')[0], event: `Profile verified on TSRV node. Digital identity card generated.` }
+    { date: new Date().toISOString().split('T')[0], event: `Profile verified on TRSV node. Digital identity card generated.` }
   ]);
 
   await query(`
@@ -166,13 +166,13 @@ router.get('/verify/:token_or_id', async (req, res) => {
       SELECT mi.*, vs.status_label, vs.status_color
       FROM member_identities mi
       LEFT JOIN verification_status vs ON mi.verification_status = vs.status_code
-      WHERE mi.qr_token = $1 OR mi.tsrv_member_id = $2
+      WHERE mi.qr_token = $1 OR mi.trsv_member_id = $2
     `, [token_or_id, token_or_id]);
 
     if (identityQuery.rows.length === 0) {
       return res.status(404).json({
         success: false,
-        message: 'Decryption failed: Identity record not found in the TSRV database.'
+        message: 'Decryption failed: Identity record not found in the TRSV database.'
       });
     }
 
@@ -315,7 +315,7 @@ router.get('/verify/:token_or_id', async (req, res) => {
 router.get('/logs', requireRole(['supreme_admin', 'state_president', 'dev']), async (req, res) => {
   try {
     const logsRes = await query(`
-      SELECT ql.*, mi.tsrv_member_id, u.full_name, u.role, u.profile_image
+      SELECT ql.*, mi.trsv_member_id, u.full_name, u.role, u.profile_image
       FROM qr_verification_logs ql
       LEFT JOIN member_identities mi ON ql.member_identity_id = mi.id
       LEFT JOIN users u ON mi.user_id = u.id
@@ -385,7 +385,7 @@ router.post('/update-status', requireRole(['supreme_admin', 'state_president', '
     await query('INSERT INTO activity_logs (user_id, action, details) VALUES ($1, $2, $3)', [
       req.user.uid || 'SUPREME_ADMIN_UID',
       'MODIFY_IDENTITY',
-      `Modified identity state of '${record.full_name}' (${record.tsrv_member_id}) to '${newStatus}'`
+      `Modified identity state of '${record.full_name}' (${record.trsv_member_id}) to '${newStatus}'`
     ]);
 
     res.json({

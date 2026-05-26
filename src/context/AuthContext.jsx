@@ -38,16 +38,16 @@ const msUntilExpiry = (token) => {
 
 /** Persist session data atomically to localStorage. */
 const persistSession = (token, user) => {
-  localStorage.setItem('tsrv_session_token', token);
-  localStorage.setItem('tsrv_role', user.role);
-  localStorage.setItem('tsrv_cached_profile', JSON.stringify(user));
+  localStorage.setItem('trsv_session_token', token);
+  localStorage.setItem('trsv_role', user.role);
+  localStorage.setItem('trsv_cached_profile', JSON.stringify(user));
 };
 
 /** Remove all session data from localStorage. */
 const clearPersistedSession = () => {
-  localStorage.removeItem('tsrv_session_token');
-  localStorage.removeItem('tsrv_role');
-  localStorage.removeItem('tsrv_cached_profile');
+  localStorage.removeItem('trsv_session_token');
+  localStorage.removeItem('trsv_role');
+  localStorage.removeItem('trsv_cached_profile');
 };
 
 // ─── Provider ───────────────────────────────────────────────────────────────
@@ -55,7 +55,7 @@ const clearPersistedSession = () => {
 export const AuthProvider = ({ children }) => {
   const [userProfile, setUserProfile] = useState(() => {
     try {
-      const cached = localStorage.getItem('tsrv_cached_profile');
+      const cached = localStorage.getItem('trsv_cached_profile');
       return cached ? JSON.parse(cached) : null;
     } catch {
       return null;
@@ -64,7 +64,7 @@ export const AuthProvider = ({ children }) => {
 
   const [currentUser, setCurrentUser] = useState(() => {
     try {
-      const cached = localStorage.getItem('tsrv_cached_profile');
+      const cached = localStorage.getItem('trsv_cached_profile');
       if (cached) {
         const parsed = JSON.parse(cached);
         return { uid: parsed.id, email: parsed.email };
@@ -73,7 +73,7 @@ export const AuthProvider = ({ children }) => {
     return null;
   });
 
-  const [token, setToken] = useState(() => localStorage.getItem('tsrv_session_token') || null);
+  const [token, setToken] = useState(() => localStorage.getItem('trsv_session_token') || null);
   const [loading, setLoading] = useState(true);
 
   // Ref so interceptor always closes over latest handleSessionClear
@@ -82,9 +82,9 @@ export const AuthProvider = ({ children }) => {
   // ─── Sync token → localStorage ──────────────────────────────────────────
   useEffect(() => {
     if (token) {
-      localStorage.setItem('tsrv_session_token', token);
+      localStorage.setItem('trsv_session_token', token);
     } else {
-      localStorage.removeItem('tsrv_session_token');
+      localStorage.removeItem('trsv_session_token');
     }
   }, [token]);
 
@@ -120,7 +120,7 @@ export const AuthProvider = ({ children }) => {
       const data = await res.json();
       if (data.success && data.token) {
         setToken(data.token);
-        localStorage.setItem('tsrv_session_token', data.token);
+        localStorage.setItem('trsv_session_token', data.token);
         console.log('🔄 [AuthContext] Token silently refreshed — valid for 30 more days.');
         return data.token;
       }
@@ -146,8 +146,8 @@ export const AuthProvider = ({ children }) => {
       if (data.success) {
         setUserProfile(data.user);
         setCurrentUser({ uid: data.user.id, email: data.user.email });
-        localStorage.setItem('tsrv_role', data.user.role);
-        localStorage.setItem('tsrv_cached_profile', JSON.stringify(data.user));
+        localStorage.setItem('trsv_role', data.user.role);
+        localStorage.setItem('trsv_cached_profile', JSON.stringify(data.user));
         return data.user;
       } else {
         // Only clear if the server explicitly rejects the token
@@ -167,7 +167,7 @@ export const AuthProvider = ({ children }) => {
 
     // Fall back to cached profile — keeps user logged in during server sleep
     try {
-      const cached = localStorage.getItem('tsrv_cached_profile');
+      const cached = localStorage.getItem('trsv_cached_profile');
       if (cached) return JSON.parse(cached);
     } catch { /* ignored */ }
     return null;
@@ -176,7 +176,7 @@ export const AuthProvider = ({ children }) => {
   // ─── App-startup session rehydration ────────────────────────────────────
   useEffect(() => {
     const initSession = async () => {
-      const storedToken = localStorage.getItem('tsrv_session_token');
+      const storedToken = localStorage.getItem('trsv_session_token');
 
       if (!storedToken) {
         // No token ever stored → user never logged in
@@ -199,7 +199,7 @@ export const AuthProvider = ({ children }) => {
       const decoded = decodeJwt(storedToken);
 
       // Immediately hydrate UI from cache so there is zero flash / blank screen
-      const cachedRaw = localStorage.getItem('tsrv_cached_profile');
+      const cachedRaw = localStorage.getItem('trsv_cached_profile');
       let profile = null;
       try { profile = cachedRaw ? JSON.parse(cachedRaw) : null; } catch { /* ignored */ }
 

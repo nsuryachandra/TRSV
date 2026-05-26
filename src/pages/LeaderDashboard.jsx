@@ -50,7 +50,7 @@ export default function LeaderDashboard() {
   const fetchJoinRequests = async () => {
     setFetchingRequests(true);
     try {
-      const token = localStorage.getItem('tsrv_session_token');
+      const token = localStorage.getItem('trsv_session_token');
       const res = await fetch('/api/join-trsv', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -67,7 +67,7 @@ export default function LeaderDashboard() {
 
   const handleUpdateRequestStatus = async (id, status) => {
     try {
-      const token = localStorage.getItem('tsrv_session_token');
+      const token = localStorage.getItem('trsv_session_token');
       const res = await fetch(`/api/join-trsv/${id}`, {
         method: 'PATCH',
         headers: {
@@ -96,7 +96,7 @@ export default function LeaderDashboard() {
 
   const fetchDashboardData = async () => {
     try {
-      const token = localStorage.getItem('tsrv_session_token');
+      const token = localStorage.getItem('trsv_session_token');
       
       // 1. Fetch live metrics
       const statsRes = await fetch('/api/dashboards/stats', {
@@ -280,7 +280,7 @@ export default function LeaderDashboard() {
         </div>
 
         <div className="flex gap-3.5 shrink-0 self-start sm:self-center">
-          <a href="tel:+918008887781" className="inline-flex items-center justify-center gap-2 py-2 px-4 rounded-xl text-xs font-bold border border-cyan-500/25 text-cyan-600 dark:text-cyan-400 hover:bg-cyan-500/10 transition-colors shadow-sm">
+          <a href="tel:8142443684" className="inline-flex items-center justify-center gap-2 py-2 px-4 rounded-xl text-xs font-bold border border-cyan-500/25 text-cyan-600 dark:text-cyan-400 hover:bg-cyan-500/10 transition-colors shadow-sm">
             <Phone className="w-3.5 h-3.5" />
             Helpline Dispatch
           </a>
@@ -416,7 +416,7 @@ export default function LeaderDashboard() {
           <div className="p-6 flex flex-col gap-4 text-left rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-premium-light dark:shadow-premium-dark">
             <h3 className="font-extrabold text-sm text-slate-700 dark:text-white uppercase tracking-wider flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
               <Users className="w-4 h-4 text-cyan-500" />
-              Join TSRV Regional Requests
+              Join TRSV Regional Requests
             </h3>
 
             {requestMessage.text && (

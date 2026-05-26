@@ -58,7 +58,7 @@ export default function Transparency() {
           Public Accountability Portal
         </h1>
         <p className="text-base sm:text-lg text-slate-500 dark:text-slate-400 leading-relaxed max-w-2xl mx-auto">
-          TSRV operates with 100% transparency. Every complaint tracked, every emergency dispatched, and every constituency ranked publicly for total systemic accountability.
+          TRSV operates with 100% transparency. Every complaint tracked, every emergency dispatched, and every constituency ranked publicly for total systemic accountability.
         </p>
       </AnimatedSection>
 

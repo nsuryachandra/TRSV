@@ -15,7 +15,7 @@ export default function RootLayout() {
 
   const navLinks = [
     { name: 'Home', path: '/' },
-    { name: 'Join TSRV', path: '/#join-trsv' }
+    { name: 'Join TRSV', path: '/#join-trsv' }
   ];
 
   const handleNavClick = (e, path) => {
@@ -48,12 +48,12 @@ export default function RootLayout() {
           <Link to="/" className="flex items-center gap-2.5 group">
             <img 
               src="/trsv.jpeg" 
-              alt="TSRV Logo" 
+              alt="TRSV Logo" 
               className="w-9 h-9 rounded-xl object-cover border border-cyan-500/30 shadow-[0_0_8px_rgba(6,182,212,0.15)] transition-transform group-hover:scale-105 shrink-0"
             />
             <div className="flex flex-col">
               <span className="font-extrabold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-sky-600 via-cyan-600 to-blue-700 dark:from-sky-400 dark:via-cyan-400 dark:to-blue-500">
-                TSRV
+                TRSV
               </span>
               <span className="hidden sm:inline text-[9px] font-medium text-slate-400 dark:text-slate-500 tracking-widest uppercase">
                 Student Governance
@@ -286,10 +286,10 @@ export default function RootLayout() {
             <div className="flex items-center gap-2">
               <img 
                 src="/trsv.jpeg" 
-                alt="TSRV Logo" 
+                alt="TRSV Logo" 
                 className="w-8 h-8 rounded-lg object-cover border border-cyan-500/30"
               />
-              <span className="font-black text-xl tracking-tight text-slate-800 dark:text-white">TSRV</span>
+              <span className="font-black text-xl tracking-tight text-slate-800 dark:text-white">TRSV</span>
             </div>
             <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
               Telangana Rakshana Sena Vidyarthi Vibhagam is a premier student union organization offering campus representation, peer mentorship, transparency auditing, and complaint assistance.
@@ -306,7 +306,7 @@ export default function RootLayout() {
               Union Directory
             </h4>
             <div className="grid grid-cols-2 gap-2 text-sm">
-              <Link to="/login" className="text-slate-500 dark:text-slate-450 hover:text-cyan-500 dark:hover:text-cyan-400">About TSRV</Link>
+              <Link to="/login" className="text-slate-500 dark:text-slate-450 hover:text-cyan-500 dark:hover:text-cyan-400">About TRSV</Link>
               <Link to="/login" className="text-slate-500 dark:text-slate-450 hover:text-cyan-500 dark:hover:text-cyan-400">Services</Link>
               <Link to="/login" className="text-slate-500 dark:text-slate-450 hover:text-cyan-500 dark:hover:text-cyan-400">Public Audit</Link>
               <Link to="/login" className="text-slate-500 dark:text-slate-450 hover:text-cyan-500 dark:hover:text-cyan-400">Districts</Link>
@@ -370,7 +370,7 @@ export default function RootLayout() {
         {/* Bottom copyright details */}
         <div className="max-w-7xl mx-auto border-t border-slate-200/50 dark:border-slate-900/60 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-xs text-slate-400 dark:text-slate-500 text-center md:text-left">
-            © {new Date().getFullYear()} TSRV (Telangana Rakshana Sena Vidyarthi Vibhagam). Developed for student union empowerment. All rights reserved.
+            © {new Date().getFullYear()} TRSV (Telangana Rakshana Sena Vidyarthi Vibhagam). Developed for student union empowerment. All rights reserved.
           </p>
           <div className="flex items-center gap-4 text-xs text-slate-400 dark:text-slate-500">
             <Link to="/login" className="hover:text-cyan-500">Staff Access</Link>

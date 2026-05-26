@@ -1,4 +1,4 @@
--- TSRV Phase 2 Neon PostgreSQL Relational Database Schema
+-- TRSV Phase 2 Neon PostgreSQL Relational Database Schema
 
 -- 1. Constituencies Table
 CREATE TABLE IF NOT EXISTS constituencies (

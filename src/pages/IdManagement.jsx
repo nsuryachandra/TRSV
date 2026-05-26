@@ -23,7 +23,7 @@ export default function IdManagement() {
   const fetchMembersList = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('tsrv_session_token');
+      const token = localStorage.getItem('trsv_session_token');
       
       // 1. Fetch all dashboard users
       const response = await fetch('/api/dashboards/users', {
@@ -55,7 +55,7 @@ export default function IdManagement() {
   const fetchScanLogs = async () => {
     setLogsLoading(true);
     try {
-      const token = localStorage.getItem('tsrv_session_token');
+      const token = localStorage.getItem('trsv_session_token');
       const response = await fetch('/api/identity/logs', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -79,7 +79,7 @@ export default function IdManagement() {
     setActionLoading(true);
     setNotification('');
     try {
-      const token = localStorage.getItem('tsrv_session_token');
+      const token = localStorage.getItem('trsv_session_token');
       const response = await fetch('/api/identity/generate', {
         method: 'POST',
         headers: {
@@ -104,7 +104,7 @@ export default function IdManagement() {
     setActionLoading(true);
     setNotification('');
     try {
-      const token = localStorage.getItem('tsrv_session_token');
+      const token = localStorage.getItem('trsv_session_token');
       const response = await fetch('/api/identity/update-status', {
         method: 'POST',
         headers: {
@@ -130,7 +130,7 @@ export default function IdManagement() {
   const filteredMembers = members.filter(m => {
     const matchesSearch = m.full_name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           m.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          (m.identity?.tsrv_member_id || '').toLowerCase().includes(searchTerm.toLowerCase());
+                          (m.identity?.trsv_member_id || '').toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = roleFilter === 'all' || m.role === roleFilter;
     
     let matchesStatus = true;
@@ -291,7 +291,7 @@ export default function IdManagement() {
                       {member.role.replace('_', ' ')}
                     </td>
                     <td className="py-3 px-4 font-mono font-bold text-slate-800 dark:text-slate-250">
-                      {member.identity ? member.identity.tsrv_member_id : '---'}
+                      {member.identity ? member.identity.trsv_member_id : '---'}
                     </td>
                     <td className="py-3 px-4">
                       {member.identity ? (
@@ -411,7 +411,7 @@ export default function IdManagement() {
                         )}
                         <div className="flex flex-col min-w-0">
                           <strong className="text-slate-800 dark:text-slate-200 font-bold truncate max-w-[140px]">{log.full_name || 'User'}</strong>
-                          <span className="text-[8px] font-mono text-cyan-400">{log.tsrv_member_id}</span>
+                          <span className="text-[8px] font-mono text-cyan-400">{log.trsv_member_id}</span>
                         </div>
                       </div>
                     </td>

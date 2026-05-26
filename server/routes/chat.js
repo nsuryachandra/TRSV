@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import { query } from '../config/db.js';
 
 const router = express.Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'tsrv_quantum_super_secure_secret_hash_key_2026';
+const JWT_SECRET = process.env.JWT_SECRET || 'trsv_quantum_super_secure_secret_hash_key_2026';
 
 // Mid-tier authorization middleware
 const authenticateAdmin = async (req, res, next) => {

@@ -105,7 +105,7 @@ export default function Home() {
           </div>
 
           <h1 className="fluid-heading-1 font-bold text-slate-800 dark:text-white leading-[1.1] tracking-normal">
-            TSRV — The <span className="text-gradient-cyan">Governance & Protection</span> OS
+            TRSV — The <span className="text-gradient-cyan">Governance & Protection</span> OS
           </h1>
 
           <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400 leading-relaxed max-w-lg">
@@ -215,7 +215,7 @@ export default function Home() {
             Statewide Student Protection & Complaint Shield
           </h2>
           <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400 leading-relaxed">
-            TSRV employs secure technology, localized command nodes, and formal legal networks to safeguard students across campus clusters from extortion, ragging, and administrative malpractice.
+            TRSV employs secure technology, localized command nodes, and formal legal networks to safeguard students across campus clusters from extortion, ragging, and administrative malpractice.
           </p>
         </div>
 
@@ -355,7 +355,7 @@ export default function Home() {
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 w-full max-w-7xl mx-auto mt-6 px-4 lg:px-8">
           
-          {/* Card A: TSRV Founder */}
+          {/* Card A: TRSV Founder */}
           <GlassCard hoverEffect={true} className="group p-6 flex flex-col items-stretch text-left bg-gradient-to-b from-white/40 to-white/10 dark:from-slate-950/50 dark:to-slate-950/20 border border-slate-200/50 dark:border-slate-850 shadow-2xl relative overflow-hidden rounded-3xl">
             
             {/* Cinematic Portrait Container */}
@@ -380,11 +380,11 @@ export default function Home() {
                 Kavitha Kalvakuntla
               </h3>
               <span className="text-xs font-bold text-cyan-600 dark:text-cyan-400 uppercase tracking-widest block mb-4">
-                Founder of TSRV & Former MP
+                Founder of TRSV & Former MP
               </span>
               
               <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed mb-6 font-normal min-h-[60px]">
-                Established TSRV with the core vision of statewide student protection, campus rights protection, and rapid youth empowerment across Telangana.
+                Established TRSV with the core vision of statewide student protection, campus rights protection, and rapid youth empowerment across Telangana.
               </p>
               
               <div className="mt-auto pt-4 border-t border-slate-200/50 dark:border-slate-850/80 flex items-center gap-2 text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
@@ -396,7 +396,7 @@ export default function Home() {
             </div>
           </GlassCard>
 
-          {/* Card B: TSRV State President */}
+          {/* Card B: TRSV State President */}
           <GlassCard hoverEffect={true} className="group p-6 flex flex-col items-stretch text-left bg-gradient-to-b from-white/40 to-white/10 dark:from-slate-950/50 dark:to-slate-950/20 border border-slate-200/50 dark:border-slate-850 shadow-2xl relative overflow-hidden rounded-3xl">
             
             {/* Cinematic Portrait Container */}
@@ -485,12 +485,12 @@ export default function Home() {
               </h3>
               
               <p className="text-sm font-bold text-slate-500 dark:text-slate-400 tracking-wide uppercase leading-none">
-                Chief Technology Architect of TSRV State OS
+                Developer & Greater Hyderabad Digital Operations President
               </p>
 
               <div className="flex flex-col gap-4 mt-2">
                 <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-semibold">
-                  "The ideology behind the TSRV State OS is built upon absolute protection, cryptographic transparency, and immediate response dispatch. In modern academic spaces, student security should never be compromised or delayed by bureaucratic red tape."
+                  "The ideology behind the TRSV State OS is built upon absolute protection, cryptographic transparency, and immediate response dispatch. In modern academic spaces, student security should never be compromised or delayed by bureaucratic red tape."
                 </p>
                 <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
                   "By establishing secure local coordinate nodes, strict PostgreSQL database authorization, and unalterable public resolution registry logbooks, we have constructed a digital fortress. Every campus secretary, every constituency general secretary, and the central state authority are synchronized inside a single, unified safety telemetry terminal."
@@ -508,14 +508,14 @@ export default function Home() {
         </AnimatedSection>
       </section>
 
-      {/* JOIN TSRV SECTION */}
+      {/* JOIN TRSV SECTION */}
       <section id="join-trsv" className="w-full flex flex-col gap-12 text-left">
         <div className="max-w-3xl flex flex-col gap-4">
           <span className="text-xs font-semibold text-cyan-600 dark:text-cyan-400 tracking-widest uppercase">
             Join the Union
           </span>
           <h2 className="text-3xl sm:text-4xl font-bold text-slate-800 dark:text-white tracking-normal">
-            Join TSRV Campaign Node
+            Join TRSV Campaign Node
           </h2>
           <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400 leading-relaxed">
             Become a registered student representative or coordinator in your college campus and help build the safest student community.
@@ -600,7 +600,7 @@ export default function Home() {
 
               <div className="flex flex-col gap-2">
                 <label className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                  Why do you want to join TSRV?
+                  Why do you want to join TRSV?
                 </label>
                 <textarea
                   name="reason"
