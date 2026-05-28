@@ -272,10 +272,10 @@ export default function HubChat({ user }) {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 h-[calc(100vh-230px)] min-h-[520px] max-h-[720px] shadow-premium-light dark:shadow-premium-dark overflow-hidden">
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 sm:p-6 h-[calc(100vh-170px)] sm:h-[calc(100vh-200px)] lg:h-[calc(100vh-220px)] min-h-[460px] lg:min-h-[600px] lg:max-h-[850px] shadow-premium-light dark:shadow-premium-dark overflow-hidden">
       
       {/* SIDEBAR: Channels & Switcher */}
-      <div className={`col-span-1 border-r border-slate-200 dark:border-slate-800/60 lg:pr-5 flex flex-col h-full overflow-hidden ${
+      <div className={`col-span-1 lg:border-r border-slate-200 dark:border-slate-800/60 lg:pr-6 flex flex-col h-full overflow-hidden ${
         mobileView === 'channels' ? 'flex' : 'hidden lg:flex'
       }`}>
         <div className="pb-4 border-b border-slate-200 dark:border-slate-800/40 flex items-center gap-2.5 shrink-0 h-[57px]">
@@ -433,7 +433,7 @@ export default function HubChat({ user }) {
       </div>
 
       {/* CHAT DISPLAY WINDOW */}
-      <div className={`col-span-1 lg:col-span-3 flex flex-col h-full overflow-hidden ${
+      <div className={`col-span-1 lg:col-span-3 lg:pl-6 flex flex-col h-full overflow-hidden ${
         mobileView === 'chat' ? 'flex' : 'hidden lg:flex'
       }`}>
         {/* Header */}
