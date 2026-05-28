@@ -10,6 +10,9 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   
+  // Mobile active tab state
+  const [activeMobileTab, setActiveMobileTab] = useState('details'); // 'details' or 'discussion'
+  
   // Discussion state
   const [newComment, setNewComment] = useState('');
   const [postingComment, setPostingComment] = useState(false);
@@ -565,11 +568,37 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
           </button>
         </div>
 
+        {/* Mobile Tab Switcher */}
+        <div className="flex lg:hidden bg-slate-100/80 dark:bg-slate-850/80 border-b border-slate-200/60 dark:border-slate-850 shrink-0 p-1 bg-trsv-surface-light dark:bg-trsv-surface-dark">
+          <button
+            onClick={() => setActiveMobileTab('details')}
+            className={`flex-1 py-3 text-xs font-black uppercase tracking-wider rounded-xl transition-all duration-300 ${
+              activeMobileTab === 'details'
+                ? 'bg-white dark:bg-slate-900 text-cyan-600 dark:text-cyan-400 shadow-sm border border-slate-200/50 dark:border-slate-800'
+                : 'text-slate-500 hover:text-slate-850 dark:hover:text-slate-200'
+            }`}
+          >
+            📋 Brief & Timeline
+          </button>
+          <button
+            onClick={() => setActiveMobileTab('discussion')}
+            className={`flex-1 py-3 text-xs font-black uppercase tracking-wider rounded-xl transition-all duration-300 ${
+              activeMobileTab === 'discussion'
+                ? 'bg-white dark:bg-slate-900 text-cyan-600 dark:text-cyan-400 shadow-sm border border-slate-200/50 dark:border-slate-800'
+                : 'text-slate-500 hover:text-slate-850 dark:hover:text-slate-200'
+            }`}
+          >
+            💬 Discussion & Actions
+          </button>
+        </div>
+
         {/* Multi-Pane Body */}
-        <div className="flex flex-col lg:flex-row flex-1 overflow-y-auto lg:overflow-hidden">
+        <div className="flex flex-col lg:flex-row flex-1 overflow-hidden">
           
           {/* Left Column: Details & Timeline */}
-          <div className="w-full lg:w-1/2 flex flex-col border-r border-slate-200/50 dark:border-slate-800 bg-white dark:bg-slate-900/50 overflow-y-auto custom-sidebar-scrollbar p-6 gap-8">
+          <div className={`w-full lg:w-1/2 flex flex-col border-r border-slate-200/50 dark:border-slate-800 bg-white dark:bg-slate-900/50 overflow-y-auto custom-sidebar-scrollbar p-5 sm:p-6 gap-6 sm:gap-8 ${
+            activeMobileTab === 'details' ? 'flex' : 'hidden lg:flex'
+          }`}>
             
             {/* Status Progress Stepper */}
             {renderProgressStepper(complaint.status)}
@@ -659,7 +688,9 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
           </div>
 
           {/* Right Column: Discussions & Controls */}
-          <div className="w-full lg:w-1/2 flex flex-col bg-slate-50/50 dark:bg-slate-900 overflow-visible lg:overflow-hidden relative">
+          <div className={`w-full lg:w-1/2 flex flex-col bg-slate-50/50 dark:bg-slate-900 overflow-hidden relative ${
+            activeMobileTab === 'discussion' ? 'flex' : 'hidden lg:flex'
+          }`}>
             {showScannerChamber ? (
               // Holographic Scanner Panel
               <div className="flex flex-col flex-1 p-6 overflow-y-auto custom-sidebar-scrollbar relative text-left bg-slate-950 text-slate-100 font-mono select-none">
@@ -902,12 +933,12 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
             ) : (
               // Threaded Discussion Panel
               <>
-                <div className="flex flex-col flex-1 overflow-visible lg:overflow-hidden p-6 border-b border-slate-200/50 dark:border-slate-800">
+                <div className="flex flex-col flex-1 overflow-hidden p-4 sm:p-6 border-b border-slate-200/50 dark:border-slate-800">
                   <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 dark:text-white mb-4 flex items-center gap-2 shrink-0">
                     <MessageSquare className="w-4 h-4 text-cyan-500" /> Operations Discussion
                   </h3>
                   
-                  <div ref={scrollRef} className="flex-1 min-h-[300px] lg:min-h-0 overflow-y-auto pr-2 custom-sidebar-scrollbar flex flex-col gap-4">
+                  <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto pr-2 custom-sidebar-scrollbar flex flex-col gap-4">
                     {discussions.length > 0 ? discussions.map(msg => {
                       const isMine = msg.user_id === userProfile.id;
                       const isLeaderRole = msg.user_role !== 'student';
@@ -938,11 +969,11 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
                       </div>
                     )}
                   </div>
-
+ 
                   <form onSubmit={handlePostComment} className="mt-4 flex gap-2 shrink-0 relative">
                     <input 
                       type="text"
-                      placeholder="Post coordination message or update..."
+                      placeholder="Type coordination message..."
                       value={newComment}
                       onChange={(e) => setNewComment(e.target.value)}
                       className="flex-1 px-4 py-3 rounded-xl border border-slate-200/60 dark:border-slate-800 bg-white dark:bg-slate-850 text-sm focus:outline-none focus:border-cyan-400 text-slate-800 dark:text-white"
@@ -956,10 +987,10 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
                     </button>
                   </form>
                 </div>
-
+ 
                 {/* Leader Override & Escalation Panel */}
                 {isLeader && (complaint.status !== 'Solved' || isSupremeUser) && (
-                  <div className="p-6 bg-slate-100 dark:bg-slate-850 shrink-0">
+                  <div className="p-4 sm:p-6 bg-slate-100/90 dark:bg-slate-850/90 shrink-0">
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-2">
                         <Play className="w-3 h-3 text-cyan-500" /> Leadership Handler Actions
@@ -997,9 +1028,9 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
                           </PremiumButton>
                         </div>
                       )}
-
-                      <form onSubmit={handleUpdateStatus} className="flex items-end gap-3">
-                        <div className="flex-1">
+ 
+                      <form onSubmit={handleUpdateStatus} className="flex flex-col sm:flex-row items-stretch sm:items-end gap-3">
+                        <div className="flex-1 text-left">
                           <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Shift Status</label>
                           <select 
                             value={updateStatus}
@@ -1013,7 +1044,7 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
                             <option value="Dismissed">Dismissed</option>
                           </select>
                         </div>
-                        <div className="flex-1">
+                        <div className="flex-1 text-left">
                           <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Timeline Note</label>
                           <input 
                             type="text"
@@ -1023,12 +1054,12 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
                             className="w-full p-2.5 rounded-lg border border-slate-200/60 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs focus:outline-none focus:border-cyan-400 text-slate-800 dark:text-white"
                           />
                         </div>
-                        <PremiumButton type="submit" variant="primary" size="sm" disabled={updating}>Commit</PremiumButton>
+                        <PremiumButton type="submit" variant="primary" size="sm" disabled={updating} className="w-full sm:w-auto">Commit</PremiumButton>
                       </form>
-
+ 
                       {/* Manual Escalation Override */}
-                      <form onSubmit={handleEscalate} className="flex items-end gap-3 mt-1 pt-3 border-t border-slate-200/50 dark:border-slate-700">
-                        <div className="flex-1">
+                      <form onSubmit={handleEscalate} className="flex flex-col sm:flex-row items-stretch sm:items-end gap-3 mt-1 pt-3 border-t border-slate-200/50 dark:border-slate-700">
+                        <div className="flex-1 text-left">
                           <label className="text-[9px] font-bold text-rose-400 uppercase tracking-wider block mb-1">Force Escalate Hierarchy</label>
                           <select 
                             value={escalateLevel}
@@ -1041,10 +1072,10 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
                             <option value="2">2: State Governance</option>
                           </select>
                         </div>
-                        <PremiumButton type="submit" variant="secondary" size="sm" disabled={updating || !escalateLevel} className="!border-rose-500/30 !text-rose-500 hover:!bg-rose-500 hover:!text-white">Escalate Up</PremiumButton>
+                        <PremiumButton type="submit" variant="secondary" size="sm" disabled={updating || !escalateLevel} className="w-full sm:w-auto !border-rose-500/30 !text-rose-500 hover:!bg-rose-500 hover:!text-white">Escalate Up</PremiumButton>
                       </form>
                     </div>
-
+ 
                   </div>
                 )}
               </>

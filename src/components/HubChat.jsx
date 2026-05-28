@@ -278,11 +278,11 @@ export default function HubChat({ user }) {
       <div className={`col-span-1 border-r border-slate-200 dark:border-slate-800/60 lg:pr-5 flex flex-col h-full overflow-hidden ${
         mobileView === 'channels' ? 'flex' : 'hidden lg:flex'
       }`}>
-        <div className="flex items-center gap-2.5 mb-5 shrink-0">
-          <div className="p-2 rounded-xl bg-cyan-55/10 dark:bg-cyan-500/10 border border-cyan-200 dark:border-cyan-500/20 shadow-sm">
-            <MessageSquare className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
+        <div className="pb-4 border-b border-slate-200 dark:border-slate-800/40 flex items-center gap-2.5 shrink-0 h-[57px]">
+          <div className="p-1.5 rounded-xl bg-cyan-500/10 dark:bg-cyan-500/10 border border-cyan-200 dark:border-cyan-500/20 shadow-sm">
+            <MessageSquare className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
           </div>
-          <h3 className="font-black text-slate-800 dark:text-slate-100 text-lg tracking-wide uppercase">Messenger</h3>
+          <h3 className="font-black text-slate-800 dark:text-slate-100 text-sm tracking-wide uppercase leading-none">Messenger</h3>
         </div>
 
         {/* Channels List */}
@@ -437,16 +437,16 @@ export default function HubChat({ user }) {
         mobileView === 'chat' ? 'flex' : 'hidden lg:flex'
       }`}>
         {/* Header */}
-        <div className="pb-3.5 border-b border-slate-200 dark:border-slate-800/40 flex items-center justify-between shrink-0">
+        <div className="pb-4 border-b border-slate-200 dark:border-slate-800/40 flex items-center justify-between shrink-0 h-[57px]">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setMobileView('channels')}
-              className="lg:hidden p-2 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-white mr-1 cursor-pointer transition-colors"
+              className="lg:hidden p-2 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800 text-slate-500 hover:text-slate-850 dark:hover:text-white mr-1 cursor-pointer transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
             </button>
             <div className="text-left">
-              <h4 className="font-extrabold text-slate-800 dark:text-slate-100 text-base tracking-wide flex items-center gap-2">
+              <h4 className="font-extrabold text-slate-800 dark:text-slate-100 text-base tracking-wide flex items-center gap-2 uppercase leading-none">
                 {currentChannel === 'GH-Global' 
                   ? '🌐 Statewide Governance Lounge' 
                   : `📍 Group: ${currentChannel.replace('GH-Constituency-', '')}`}
