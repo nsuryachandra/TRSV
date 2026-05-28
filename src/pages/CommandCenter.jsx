@@ -569,10 +569,10 @@ export default function CommandCenter() {
           </div>
 
           <div className="lg:col-span-2 flex flex-col gap-6">
-            <div className="h-[250px]">
+            <div className="h-[320px] min-w-0 overflow-hidden">
               <div className="p-4 h-full flex flex-col gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-premium-light dark:shadow-premium-dark">
-                <span className="font-extrabold text-xs text-slate-700 dark:text-white uppercase tracking-wider pl-2">Statewide Incident Velocity (30 Days)</span>
-                <div className="flex-1 min-h-0">
+                <span className="font-extrabold text-xs text-slate-700 dark:text-white uppercase tracking-wider pl-2 shrink-0">Statewide Incident Velocity (30 Days)</span>
+                <div className="flex-1 min-h-0 min-w-0 overflow-hidden">
                   <TrendChart data={trends} />
                 </div>
               </div>

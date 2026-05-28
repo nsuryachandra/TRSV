@@ -8,7 +8,7 @@ import {
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200/50 dark:border-slate-700/50 p-4 rounded-xl shadow-premium-dark">
+      <div className="bg-white/95 dark:bg-slate-905/95 backdrop-blur-md border border-slate-200/50 dark:border-slate-800/60 p-4 rounded-xl shadow-premium-dark text-left">
         <p className="text-xs font-bold text-slate-500 mb-1">{label}</p>
         {payload.map((entry, index) => (
           <p key={index} className="text-sm font-black flex items-center gap-2" style={{ color: entry.color || entry.fill }}>
@@ -22,27 +22,63 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
-export const TrendChart = ({ data, color = '#06b6d4', dataKey = 'count', name = 'Tickets' }) => {
-  if (!data || data.length === 0) {
-    return <div className="h-full w-full flex items-center justify-center text-xs font-bold text-slate-400 uppercase tracking-wider">No Trend Data Available</div>;
+// Safe Chart wrapper to ensure browser paints container layout before Recharts runs measurement queries
+const ChartContainer = ({ children, fallbackLabel = "No Telemetry Data Available" }) => {
+  const [isMounted, setIsMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    // Set mounted on next tick to allow parent flex/grid to settle dimensions completely
+    const timer = setTimeout(() => {
+      setIsMounted(true);
+    }, 50);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (!isMounted) {
+    return (
+      <div className="h-full w-full min-h-[150px] flex flex-col items-center justify-center gap-2.5">
+        <div className="w-6 h-6 rounded-full border-2 border-t-cyan-500 border-r-transparent border-slate-200 dark:border-slate-800 animate-spin" />
+        <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+          Calibrating Telemetry...
+        </span>
+      </div>
+    );
   }
 
   return (
-    <ResponsiveContainer width="100%" height="100%">
-      <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-        <defs>
-          <linearGradient id={`color${name}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor={color} stopOpacity={0.4}/>
-            <stop offset="95%" stopColor={color} stopOpacity={0}/>
-          </linearGradient>
-        </defs>
-        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="text-slate-200/50 dark:text-slate-800" />
-        <XAxis dataKey="date" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} stroke="currentColor" className="text-slate-400" />
-        <YAxis tick={{ fontSize: 10 }} tickLine={false} axisLine={false} stroke="currentColor" className="text-slate-400" />
-        <RechartsTooltip content={<CustomTooltip />} />
-        <Area type="monotone" dataKey={dataKey} name={name} stroke={color} strokeWidth={3} fillOpacity={1} fill={`url(#color${name})`} />
-      </AreaChart>
-    </ResponsiveContainer>
+    <div className="w-full h-full min-w-0 overflow-hidden relative">
+      {children}
+    </div>
+  );
+};
+
+export const TrendChart = ({ data, color = '#06b6d4', dataKey = 'count', name = 'Tickets' }) => {
+  if (!data || data.length === 0) {
+    return (
+      <div className="h-full w-full flex items-center justify-center text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+        No Trend Data Available
+      </div>
+    );
+  }
+
+  return (
+    <ChartContainer>
+      <ResponsiveContainer width="100%" height="100%" debounce={100}>
+        <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+          <defs>
+            <linearGradient id={`color${name}`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor={color} stopOpacity={0.4}/>
+              <stop offset="95%" stopColor={color} stopOpacity={0}/>
+            </linearGradient>
+          </defs>
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="text-slate-200/50 dark:text-slate-800" />
+          <XAxis dataKey="date" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} stroke="currentColor" className="text-slate-400" />
+          <YAxis tick={{ fontSize: 10 }} tickLine={false} axisLine={false} stroke="currentColor" className="text-slate-400" />
+          <RechartsTooltip content={<CustomTooltip />} />
+          <Area type="monotone" dataKey={dataKey} name={name} stroke={color} strokeWidth={3} fillOpacity={1} fill={`url(#color${name})`} />
+        </AreaChart>
+      </ResponsiveContainer>
+    </ChartContainer>
   );
 };
 
@@ -50,64 +86,82 @@ const PIE_COLORS = ['#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899', '#f43f5e', '#f59
 
 export const CategoryPieChart = ({ data }) => {
   if (!data || data.length === 0) {
-    return <div className="h-full w-full flex items-center justify-center text-xs font-bold text-slate-400 uppercase tracking-wider">No Category Data Available</div>;
+    return (
+      <div className="h-full w-full flex items-center justify-center text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+        No Category Data Available
+      </div>
+    );
   }
 
   return (
-    <ResponsiveContainer width="100%" height="100%">
-      <PieChart>
-        <RechartsTooltip content={<CustomTooltip />} />
-        <Pie
-          data={data}
-          cx="50%"
-          cy="50%"
-          innerRadius={60}
-          outerRadius={80}
-          paddingAngle={5}
-          dataKey="value"
-          stroke="none"
-        >
-          {data.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
-          ))}
-        </Pie>
-      </PieChart>
-    </ResponsiveContainer>
+    <ChartContainer>
+      <ResponsiveContainer width="100%" height="100%" debounce={100}>
+        <PieChart>
+          <RechartsTooltip content={<CustomTooltip />} />
+          <Pie
+            data={data}
+            cx="50%"
+            cy="50%"
+            innerRadius={60}
+            outerRadius={80}
+            paddingAngle={5}
+            dataKey="value"
+            stroke="none"
+          >
+            {data.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+            ))}
+          </Pie>
+        </PieChart>
+      </ResponsiveContainer>
+    </ChartContainer>
   );
 };
 
 export const CategoryRadar = ({ data }) => {
   if (!data || data.length === 0) {
-    return <div className="h-full w-full flex items-center justify-center text-xs font-bold text-slate-400 uppercase tracking-wider">No Radar Data Available</div>;
+    return (
+      <div className="h-full w-full flex items-center justify-center text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+        No Radar Data Available
+      </div>
+    );
   }
 
   return (
-    <ResponsiveContainer width="100%" height="100%">
-      <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data}>
-        <PolarGrid stroke="currentColor" className="text-slate-200/50 dark:text-slate-800" />
-        <PolarAngleAxis dataKey="name" tick={{ fontSize: 9, fill: '#94a3b8' }} />
-        <PolarRadiusAxis angle={30} domain={[0, 'dataMax']} tick={false} axisLine={false} />
-        <RechartsTooltip content={<CustomTooltip />} />
-        <Radar name="Categories" dataKey="value" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.5} />
-      </RadarChart>
-    </ResponsiveContainer>
+    <ChartContainer>
+      <ResponsiveContainer width="100%" height="100%" debounce={100}>
+        <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data}>
+          <PolarGrid stroke="currentColor" className="text-slate-200/50 dark:text-slate-800" />
+          <PolarAngleAxis dataKey="name" tick={{ fontSize: 9, fill: '#94a3b8' }} />
+          <PolarRadiusAxis angle={30} domain={[0, 'dataMax']} tick={false} axisLine={false} />
+          <RechartsTooltip content={<CustomTooltip />} />
+          <Radar name="Categories" dataKey="value" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.5} />
+        </RadarChart>
+      </ResponsiveContainer>
+    </ChartContainer>
   );
 };
 
 export const ActivityBarChart = ({ data, dataKey = 'emergencies', color = '#f43f5e', name = 'Events' }) => {
   if (!data || data.length === 0) {
-    return <div className="h-full w-full flex items-center justify-center text-xs font-bold text-slate-400 uppercase tracking-wider">No Activity Data Available</div>;
+    return (
+      <div className="h-full w-full flex items-center justify-center text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+        No Activity Data Available
+      </div>
+    );
   }
 
   return (
-    <ResponsiveContainer width="100%" height="100%">
-      <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="text-slate-200/50 dark:text-slate-800" />
-        <XAxis dataKey="name" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} stroke="currentColor" className="text-slate-400" />
-        <YAxis tick={{ fontSize: 10 }} tickLine={false} axisLine={false} stroke="currentColor" className="text-slate-400" />
-        <RechartsTooltip content={<CustomTooltip />} />
-        <Bar dataKey={dataKey} name={name} fill={color} radius={[4, 4, 0, 0]} />
-      </BarChart>
-    </ResponsiveContainer>
+    <ChartContainer>
+      <ResponsiveContainer width="100%" height="100%" debounce={100}>
+        <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="text-slate-200/50 dark:text-slate-800" />
+          <XAxis dataKey="name" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} stroke="currentColor" className="text-slate-400" />
+          <YAxis tick={{ fontSize: 10 }} tickLine={false} axisLine={false} stroke="currentColor" className="text-slate-400" />
+          <RechartsTooltip content={<CustomTooltip />} />
+          <Bar dataKey={dataKey} name={name} fill={color} radius={[4, 4, 0, 0]} />
+        </BarChart>
+      </ResponsiveContainer>
+    </ChartContainer>
   );
 };

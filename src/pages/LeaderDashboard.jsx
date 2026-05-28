@@ -395,10 +395,10 @@ export default function LeaderDashboard() {
 
           {/* Localized Analytics & Feed */}
           <div className="lg:col-span-1 flex flex-col gap-6">
-            <div className="h-[200px]">
+            <div className="h-[260px] min-w-0 overflow-hidden">
               <GlassCard hoverEffect={false} className="p-4 h-full flex flex-col gap-2">
-                <span className="font-extrabold text-[10px] text-slate-700 dark:text-white uppercase tracking-wider pl-2 text-center">Category Distribution</span>
-                <div className="flex-1 min-h-0">
+                <span className="font-extrabold text-[10px] text-slate-700 dark:text-white uppercase tracking-wider pl-2 text-center shrink-0">Category Distribution</span>
+                <div className="flex-1 min-h-0 min-w-0 overflow-hidden">
                   <CategoryPieChart data={localCategories} />
                 </div>
               </GlassCard>
