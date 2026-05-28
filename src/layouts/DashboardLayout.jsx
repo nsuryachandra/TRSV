@@ -609,7 +609,9 @@ export default function DashboardLayout() {
         </header>
 
         {/* Dashboard Content Outlet with zero-overflow margins */}
-        <main className="flex-1 flex flex-col p-4 sm:p-6 max-w-7xl mx-auto w-full relative overflow-y-auto min-h-0">
+        <main className={`flex-1 flex flex-col p-4 sm:p-6 max-w-7xl mx-auto w-full relative min-h-0 ${
+          pathname === '/dashboard/messenger' ? 'overflow-hidden' : 'overflow-y-auto'
+        }`}>
           <Outlet />
         </main>
 

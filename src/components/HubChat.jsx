@@ -272,10 +272,10 @@ export default function HubChat({ user }) {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 sm:p-6 flex-1 min-h-0 shadow-premium-light dark:shadow-premium-dark overflow-hidden">
+    <div className="flex flex-col lg:flex-row gap-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 sm:p-6 flex-1 min-h-0 shadow-premium-light dark:shadow-premium-dark overflow-hidden">
       
       {/* SIDEBAR: Channels & Switcher */}
-      <div className={`col-span-1 lg:border-r border-slate-200 dark:border-slate-800/60 lg:pr-6 flex flex-col h-full overflow-hidden ${
+      <div className={`w-full lg:w-[280px] shrink-0 lg:border-r border-slate-200 dark:border-slate-800/60 lg:pr-6 flex flex-col h-full overflow-hidden ${
         mobileView === 'channels' ? 'flex' : 'hidden lg:flex'
       }`}>
         <div className="pb-4 border-b border-slate-200 dark:border-slate-800/40 flex items-center gap-2.5 shrink-0 h-[57px]">
@@ -433,7 +433,7 @@ export default function HubChat({ user }) {
       </div>
 
       {/* CHAT DISPLAY WINDOW */}
-      <div className={`col-span-1 lg:col-span-3 lg:pl-6 flex flex-col h-full overflow-hidden ${
+      <div className={`flex-1 min-w-0 lg:pl-6 flex flex-col h-full overflow-hidden ${
         mobileView === 'chat' ? 'flex' : 'hidden lg:flex'
       }`}>
         {/* Header */}

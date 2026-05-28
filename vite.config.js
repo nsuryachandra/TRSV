@@ -15,14 +15,14 @@ export default defineConfig({
         theme_color: '#0f172a',
         icons: [
           {
-            src: '/icon-192x192.png',
+            src: '/trsv.jpeg',
             sizes: '192x192',
-            type: 'image/png'
+            type: 'image/jpeg'
           },
           {
-            src: '/icon-512x512.png',
+            src: '/trsv.jpeg',
             sizes: '512x512',
-            type: 'image/png'
+            type: 'image/jpeg'
           }
         ]
       },
