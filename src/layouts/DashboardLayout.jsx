@@ -272,7 +272,7 @@ export default function DashboardLayout() {
   };
 
   return (
-    <div className="min-h-screen flex bg-trsv-bg-light dark:bg-trsv-bg-dark transition-colors duration-500 overflow-hidden relative font-sans select-none">
+    <div className="h-screen flex bg-trsv-bg-light dark:bg-trsv-bg-dark transition-colors duration-500 overflow-hidden relative font-sans select-none">
       
       {/* Background canvas particles */}
       <FloatingParticles />

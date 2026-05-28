@@ -125,17 +125,15 @@ router.get('/active-channels', authenticateAdmin, async (req, res) => {
 
   try {
     const result = await query(`
-      SELECT DISTINCT m.channel_id,
-        (
-          SELECT COALESCE(json_agg(json_build_object('name', u.full_name, 'role', u.role)), '[]'::json)
-          FROM (
-            SELECT DISTINCT sender_id 
-            FROM chat_messages 
-            WHERE channel_id = m.channel_id
-          ) msg_senders
-          JOIN users u ON u.id = msg_senders.sender_id
-        ) as participants
-      FROM chat_messages m
+      SELECT 
+        m.channel_id,
+        json_agg(json_build_object('name', u.full_name, 'role', u.role)) as participants
+      FROM (
+        SELECT DISTINCT ON (channel_id, sender_id) channel_id, sender_id
+        FROM chat_messages
+      ) m
+      JOIN users u ON u.id = m.sender_id
+      GROUP BY m.channel_id
     `);
     res.json({ success: true, channels: result.rows });
   } catch (err) {
