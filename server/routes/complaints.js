@@ -485,6 +485,28 @@ router.put('/:id/status', requireRole(['secretary', 'general_secretary', 'vice_p
     const currentStatus = complaint.status;
     const studentId = complaint.student_id;
 
+    // Step transition ordering check
+    const stages = ['Complaint Registered', 'Complaint Verified', 'Solving Started', 'Solved'];
+    const getStatusIdx = (st) => {
+      if (st === 'Complaint Registered' || st === 'Audit Phase' || st === 'Registered' || st === 'Emergency Dispatched') return 0;
+      if (st === 'Complaint Verified' || st === 'Verified') return 1;
+      if (st === 'Solving Started' || st === 'Processing' || st === 'In Progress' || st === 'Under Investigation') return 2;
+      if (st === 'Solved' || st === 'Resolved') return 3;
+      return -1;
+    };
+
+    const currentIdx = getStatusIdx(currentStatus);
+    const targetIdx = getStatusIdx(status);
+
+    if (currentIdx !== -1 && targetIdx !== -1) {
+      if (targetIdx > currentIdx + 1) {
+        return res.status(400).json({ 
+          success: false, 
+          message: `Please complete the intermediate steps in order. You must progress to "${stages[currentIdx + 1]}" first.` 
+        });
+      }
+    }
+
     // Check location scope and role authorization
     const { role: userRole, constituency_id: userConId, college_id: userColId } = req.user;
     const isStatewide = ['supreme_admin', 'dev', 'state_president', 'president'].includes(userRole) || 

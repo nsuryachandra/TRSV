@@ -1,0 +1,299 @@
+================================================================================
+TSRV STATEWIDE GOVERNANCE & RESOLUTION PLATFORM: DEEP FORENSIC SECURITY & INFRASTRUCTURE AUDIT
+================================================================================
+Target Platform: Telangana Rakshana Sena Vidyarthi Vibhagam (TSRV)
+Audited By: Senior Software Architect, Lead DevSecOps & real-time systems auditor
+Audit Date: May 29, 2026
+System Classification: Politically Sensitive Governance / Statewide Student Grievance Ledger
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. COMPLETE TECHNOLOGY STACK DETECTION & ARCHITECTURAL EVALUATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+The TSRV application is structured as a monolithic single-service PWA node, utilizing a Node.js Express backend and a React 19 / Vite client bundle. Below is a comprehensive breakdown of the verified stack, its architectural role, and production suitability:
+
+*   Frontend Core: React v19.2.6 & Vite v8.0.12
+    - Usage: Handles dynamic client-side rendering (CSR), interface transitions via Framer Motion, and state rehydration.
+    - Architecture Quality: Moderate-High. Organized into clean component and page hierarchies.
+    - Production/Scalability Suitability: Excellent. Vite ensures fast asset bundling and code splitting (using React.lazy).
+
+*   Backend Core: Express.js v4.19.2
+    - Usage: Exposes REST APIs and serves static frontend assets from the '../dist' directory.
+    - Architecture Quality: Moderate. Relies on structured routers, but lacks layered services, controllers, or a repository pattern. Query logic is embedded directly inside route handlers.
+    - Production/Scalability Suitability: Moderate. Node.js single-threaded event loop handles concurrent I/O well, but CPU-intensive tasks (like cryptographically verifying password hashes or generating massive exports) will block the main thread.
+
+*   Real-time Realization: Server-Sent Events (SSE) & Socket.io v4.8.3
+    - Usage: Dual real-time engine:
+        1. SSE (/api/realtime/stream) broadcasts system telemetry (e.g. status updates, new complaints raise triggers) to active command center nodes.
+        2. Socket.io drives low-latency interactive constituency chat rooms.
+    - Architecture Quality: Low-Moderate. Lacks clustering, redis adapters, horizontal propagation mechanisms, or message-delivery handshakes.
+    - Production/Scalability Suitability: Low. Cannot scale horizontally without a Redis/RabbitMQ pub-sub adapter. Single-node Socket.io processes will quickly hit OS file descriptor limits.
+
+*   Database Layer: Neon Serverless PostgreSQL & pg Driver v8.12.0
+    - Usage: Serves as the primary ACID relational data ledger, storing users, constituencies, colleges, complaints, timeline histories, and activity logs.
+    - ORM/Query Builders: None. Raw SQL queries are executed directly via `pool.query()` connection wrappers.
+    - Architecture Quality: Moderate. Good relational constraints (foreign keys, ON DELETE CASCADE, unique indexes). However, it lacks a query-builder layer (like Knex) or migrations tool, running database upgrades manually from JS migrations files on startup.
+    - Production/Scalability Suitability: Moderate. Serverless Neon provides auto-scaling computational resources, but the raw `pg` client configuration lacks explicit connection pooling limits, leading to potential exhaustion.
+
+*   Storage Layer: Supabase Storage Buckets
+    - Usage: File hosting provider for complaint proof attachments and student profile pictures.
+    - Client Integration: Direct client-side uploads via `@supabase/supabase-js` v2.39.8 with fallback mock simulation.
+    - Production/Scalability Suitability: Poor. The current client-side upload architecture completely bypasses server validation, opening the door to malicious file uploads and storage flooding.
+
+*   Authentication Layer: JWT (jsonwebtoken v9.0.2) & Mock Fallbacks
+    - Usage: Issues local 30-day JWT tokens for authenticated students and admins.
+    - Fallback Mechanism: Integrates a simulated "Development Review Mode" which completely bypasses authentication if real credentials (Firebase/Google service keys) are missing, allowing arbitrary base64 or mock tokens.
+    - Production Suitability: Dangerously Incomplete. Bypasses make this auth stack highly vulnerable to exploit.
+
+*   DevSecOps & Hardening: Helmet v8.1.0, Cors v2.8.5, express-rate-limit v8.5.2, xss-clean v0.1.4
+    - Usage: Hardens HTTP headers, registers CORS configurations, rate-limits `/api` endpoint traffic to 300 requests per 15 minutes, and strips malicious payload scripts.
+    - Production Suitability: Moderate. HELMET CSP is customized to support Leaflet maps, but rate limiting applies globally across the entire `/api` space rather than targeting vulnerable auth routes with more restrictive rules.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2. HOSTING + DEPLOYMENT FORENSICS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+*   Service Topology: Unified Monolith
+    - Separation: No separation. The frontend code is compiled into a static distribution bundle (`dist/`) during build, and the Express backend serves it statically (`app.use(express.static(...))`).
+    - CI/CD & Deployments: Automated via Render Git Integration. Every push to the `main` branch triggers an automated build running `npm run build` and restarts the Express server.
+
+*   Render Free-Tier Vulnerabilities & Risks:
+    - Cold-Start Stagnation: Render free web services spin down after 15 minutes of inactivity. The first visitor will experience a 50-90 second delay (cold-start) while the instance rehydrates. During this window, database connections and API endpoints will time out.
+    - Memory Limit Hard-Kills: The free tier is constrained to 512MB of RAM. Since the Express backend dynamically aggregates large dashboard metrics, exports raw SQL dumps (via the unauthenticated `/api/telemetry/backup` route), and runs in-memory Socket.io chat rooms, concurrent traffic will cause out-of-memory (OOM) failures. Render will immediately terminate the node.
+
+*   Concurrent Capacity & Statewide Scaling Bottlenecks:
+    - Free Tier Capacity: ~15-25 concurrent active users. Beyond this, connection pools and RAM limits will cause failure.
+    - Paid Standard Tier (e.g. Starter/Pro): ~500-1,200 concurrent active users. Bottlenecks will quickly shift to Neon's concurrent connection limits (~100 concurrent active connections on free/pooled instances) and Socket.io's single-thread CPU consumption.
+    - Scaling Limitations: Inability to auto-scale horizontally. Spawning multiple Render instances will fragment the Socket.io state, meaning users in the same room on different server instances won't receive each other's messages because there is no Redis adapter.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+3. DATABASE + SQL ARCHITECTURE INTELLIGENCE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+*   Database Engine: Neon Serverless PostgreSQL.
+*   Connection Architecture: Uses a raw connection pool (`pg.Pool`) without strict limitations or timeout configurations.
+    - Risk of Pool Exhaustion: If the database is subjected to heavy read traffic (e.g. dashboards querying metrics on every load) or a flood of concurrent socket connections writing messages, the pool will occupy all available connections. Neon will reject new connections, and the backend Health Check `/api/health` will report `degraded` / `disconnected`.
+
+*   Query Design & RELATIONAL VULNERABILITIES:
+    - Raw SQL Pattern: Code contains hand-rolled queries using parameterization (`$1`, `$2`), which mitigates basic SQL Injection.
+    - ABSENCE OF INDEXES: The database schema relies solely on default indexes generated by PRIMARY KEY and UNIQUE constraints. There are NO indexes defined on critical foreign keys:
+      * `complaints(student_id)`
+      * `complaints(constituency_id)`
+      * `complaints(college_id)`
+      * `complaint_updates(complaint_id)`
+      * `activity_logs(user_id)`
+      * `chat_messages(sender_id)`
+      * `qr_verification_logs(member_identity_id)`
+      * `leadership_activity(leader_id)`
+    - SQL Impact: Every time a student views their dashboard, or a leader filters complaints by constituency scope, PostgreSQL must perform sequential table scans (O(N) search complexity). As complaints scale to thousands of records, database execution time will spike, causing API request timeouts.
+
+*   Real-world Relational Weaknesses:
+    - Inconsistent Schema Migrations: The database schemas are declared across multiple manual scripts (`schema.sql`, `migrations.js`, `migrations_identity.js`, etc.) rather than a centralized migration coordinator. This makes maintaining consistent schema states across staging and production highly error-prone.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+4. SUPABASE STORAGE FORENSIC ANALYSIS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+*   Scope: Supabase is used solely as an object storage bucket provider via the `grievance-media` bucket.
+*   File Upload Flow:
+    1. The React client captures a file stream (screenshot, proof, image).
+    2. The client uses `supabase.storage.from('grievance-media').upload()` using the public `VITE_SUPABASE_ANON_KEY`.
+    3. The client calls `getPublicUrl()` and posts the public URL back to the Express API (`/api/complaints`).
+
+*   CRITICAL STORAGE EXPLOITS & MISCONFIGURATIONS:
+    - Public Bucket Exposure: The `grievance-media` bucket is configured as public. Files are accessible to anyone without signature validation or token verification, leaking sensitive documents, campus abuse photos, and student names.
+    - Lack of Server-side Validation: Since the frontend directly uploads files to Supabase, an attacker can bypass the React app entirely, initialize the Supabase client using the exposed `VITE_SUPABASE_ANON_KEY`, and upload files directly.
+    - Executable Upload & Malicious Script Risks: No server-side MIME type check or file size check is performed. Attackers can upload `.exe` files, malicious scripts, PHP files, or HTML documents embedded with cross-site scripting (XSS) payloads.
+    - Storage Flooding Denial of Service: An attacker can write a simple loop script using the anon key to upload infinite gigabytes of random files to the bucket, exhausting storage limits and inflating operational costs.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+5. AUTHENTICATION + RBAC FORENSICS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+*   JWT Architecture:
+    - Secret Validation: Uses local signature verification with `JWT_SECRET`. If `JWT_SECRET` is not set in the environment, the server defaults to `'trsv_quantum_super_secure_secret_hash_key_2026'`. Any attacker can forge a valid token for any role (including supreme_admin) by signing a payload using the hardcoded default secret.
+    - Expiration Length: Tokens are signed with a 30-day lifetime claim (`expiresIn: '30d'`). This is excessively long, increasing the window of opportunity if a token is stolen via XSS or physical device access.
+
+*   CRITICAL AUTHENTICATION BYPASS GATES:
+    - Development Review Bypass Mode (verifyIdToken):
+      In `server/config/firebase-admin.js`, if real Firebase keys are absent, the verification function falls back to Development Review Mode. It checks if the token starts with `mock_` or is equal to `mock_token`, and parses user details directly from base64 JSON payload without verifying signatures:
+      ```javascript
+      if (useMockAuth || token === 'mock_token' || token.startsWith('mock_')) {
+          // Extracts UID directly from split payload
+          const tokenParts = token.split('_');
+          const uid = tokenParts[1] || 'mock_uid_59';
+          const email = tokenParts[2] || 'surya@student.in';
+          return { uid, email, name: 'Surya' };
+      }
+      ```
+      If the environment configuration is ever compromised or fails to initialize Firebase credentials, the server will silently toggle into Dev Mode, allowing anyone to bypass auth by sending a custom Header `Authorization: Bearer mock_uid_admin@trsv.org`.
+
+    - Email verification OTP Master Bypass Codes:
+      In `server/routes/auth.js`, the verification route contains hardcoded master OTP values:
+      ```javascript
+      if (code.trim() === '111111' || code.trim() === '123456' || code.trim() === '999999' || code.trim() === '584920' || code.trim() === '256406') {
+          return res.json({ success: true, message: 'Email verified successfully via Master Code.' });
+      }
+      ```
+      Any student register attempt or password reset attempt can bypass email verification instantly by submitting one of these hardcoded codes.
+
+    - Default Supreme Administrative Credentials:
+      If `SUPREME_PASSWORD` is not set in the environment, it defaults to `'mock-supreme-key-placeholder'`. An attacker can authenticate as the supreme governance administrator by supplying the default supreme email and password.
+
+*   RBAC Forensics & Privilege Escalation Risks:
+    - Insecure Frontend Trust / LocalStorage Manipulation:
+      On app startup, `AuthContext` hydrates user profiles directly from `localStorage`:
+      `const cached = localStorage.getItem('trsv_cached_profile');`
+      A user can open Browser DevTools and modify `trsv_role` to `'supreme_admin'` and `trsv_cached_profile` to claim role `'supreme_admin'`. This allows the student to bypass `ProtectedRoute` route guards on the client, rendering the administration dashboard panels and command console elements. While APIs will fail with 403 blocks, exposing private administration views leaks local UI layout and configuration definitions.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+6. BACKEND SECURITY AUDIT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+*   Vulnerable Express Middlewares & Attack Surface:
+    - global `/api` rate limits (300 requests/15 mins) are broad. It fails to isolate authentication endpoints (`/api/auth/login`, `/api/auth/signup`) which should be limited to 5-10 attempts per minute to mitigate brute-force password cracking.
+    - Lack of CORS Restriction: The CORS middleware uses `origin: '*'` in Socket.io configurations, allowing any external origin to establish websocket channels.
+
+*   CRITICAL PUBLIC DATA EXTRADITION CHANNELS:
+    1. Unauthenticated Backup Endpoint:
+       - Route: `POST /api/telemetry/backup`
+       - Status: Exposed Publicly (No `requireRole` or token verification).
+       - Impact: Anyone can send a POST request to this endpoint and retrieve a complete JSON dump of the database including all complaints, student IDs, categories, and attachment URLs.
+    
+    2. Unauthenticated Global Search Endpoint:
+       - Route: `GET /api/search`
+       - Status: Exposed Publicly (No auth check).
+       - Impact: Bypasses student and constituency isolation filters. Anyone can query `?q=` and scan complaint titles, categories, and urgency across the entire statewide system.
+    
+    3. Unauthenticated Telemetry Insights:
+       - Route: `GET /api/telemetry/insights`
+       - Status: Exposed Publicly.
+       - Impact: Discloses regional complaint concentrations, escalations, and system alert reports to public crawlers.
+    
+    4. Unauthenticated Escalation Job Trigger:
+       - Route: `POST /api/automation/trigger`
+       - Status: Exposed Publicly.
+       - Impact: Allows public users to repeatedly trigger resource-heavy auto-escalation queries, yielding database performance degradation (DoS).
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+7. SOCKET.IO + REALTIME SECURITY AUDIT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+*   Websocket Connection Validation:
+    - Socket.io is initialized in `server.js` with `origin: '*'` without any handshake authorization middleware (`io.use`).
+    - Connections do not verify user identity tokens. Anyone can establish a socket link and interact with the server.
+
+*   SEVERE REALTIME VULNERABILITIES:
+    - No Room Authorization Check:
+      The `join_channel` listener allows any socket to subscribe to any room ID:
+      ```javascript
+      socket.on('join_channel', (channel_id) => {
+          socket.join(channel_id);
+      });
+      ```
+      An attacker can join channels like `GH-Constituency-SupremeCommand` or other administrative rooms, intercepting all live messages and telemetry broadcast to that channel.
+    
+    - Trusting Client Socket Payloads (Spoofing & Impersonation):
+      The `send_message` event listener accepts and processes the sender ID directly from the client payload:
+      ```javascript
+      socket.on('send_message', async (data) => {
+          const { channel_id, sender_id, message_text } = data;
+          // Inserts directly into DB using sender_id payload value
+      });
+      ```
+      The backend does not verify if the socket client actually owns the `sender_id` or has active permissions in that channel. A malicious client can write messages to the database claiming to be the Supreme Leader or any administrator by injecting their ID.
+
+    - Unauthorized Message Modifications:
+      The `edit_message` handler allows anyone to modify database message records without proving ownership of the message:
+      ```javascript
+      socket.on('edit_message', async (data) => {
+          const { id, channel_id, message_text } = data;
+          // Updates chat_messages database record directly
+      });
+      ```
+      An attacker can send an `edit_message` event with a target message ID and alter text written by other users, leading to database-wide conversation manipulation.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+8. FRONTEND ARCHITECTURE + SECURITY ANALYSIS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+*   Vite & React Layout Evaluation:
+    - Framework maturity is high. React 19 provides concurrent rendering features, and Vite ensures optimized production asset builds.
+    - Code splitting: Lazy loading is used for all main views (`lazy(() => import(...))`), decreasing initial page loading time.
+    - PWA configuration: Employs `vite-plugin-pwa` with service workers registering cache storage assets.
+
+*   Frontend Security Failures:
+    - localStorage Token Storage: Storing JWT tokens in `localStorage` exposes them to Cross-Site Scripting (XSS) extraction.
+    - Hardcoded Mock Values: Fallbacks to mock environments (`isSupabaseMock`, local default URL) are shipped in the production bundle.
+    - Layout Disclosure: Allowing local validation overrides by modifying `localStorage` roles exposes hidden views.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+9. FILE UPLOAD + STORAGE SECURITY FORENSICS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+*   Upload Method: Client-side direct stream transmission.
+    - Risk: Completely unverified from the server.
+*   SVG and Script Executable Risks:
+    - Since files are uploaded directly from the client browser to Supabase without server-side check, an attacker can upload an SVG file containing embedded `<script>` blocks.
+    - When an administrator views the complaint attachment, the script executes inside the administrator's session, leading to session hijacking.
+*   Executable Binary Uploads:
+    - Attackers can upload `.sh`, `.exe`, or `.bat` files. While the browser won't execute them directly, they can host malicious malware payloads on official governance domains.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+10. DEVOPS + CI/CD INTELLIGENCE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+*   CI/CD State: Low maturity.
+*   Git Environment Risks:
+    - Live database keys (`DATABASE_URL`), Supabase anon credentials, and SMTP credentials (`SMTP_PASS`) are hardcoded in the local `.env` files.
+    - Committing these variables to GitHub repositories exposes system access credentials, compromising Neon DB server nodes and SMTP accounts.
+*   Rollbacks & Isolation:
+    - Lacks integration tests, lint checks, or staging deployment pipelines.
+    - No development, staging, and production database separation. The local files point directly to the Neon production database, creating risk of developers corrupting production data during manual testing.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+11. PERFORMANCE & SCALABILITY FORENSICS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+*   Concurrent Limits:
+    - Node.js event loop blocks: Calculating dashboard metrics dynamically using database aggregates will saturate CPU threads.
+    - Database Connection Saturation: The lack of connection pool limits means 100+ active users will exhaust Neon connections.
+*   REALISTIC CAPACITY ESTIMATIONS:
+    - Max users on free tier: ~20 stable concurrent users.
+    - First paid upgrade requirements:
+      1. Upgrade Render instance to Starter tier to bypass memory limits.
+      2. Set up pgbouncer / Neon Connection Pooler endpoint.
+      3. Integrate Redis for Socket.io message broadcasting.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+12. PRODUCTION READINESS VERDICT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+*   Verdict: STARTUP-GRADE WITH SEVERE SECURITY VULNERABILITIES.
+    - While the frontend and relational database structure look clean and operational, the backend API security is in a dangerously vulnerable state.
+    - Public exposure of telemetry backups, search bypasses, and unauthenticated Socket/SSE access channels make this platform vulnerable to exploitation if launched publicly.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+13. FINAL REPORT CARD & SCORING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECURITY SCORE: 28 / 100
+  - Frontend Security: 50/100 (Clean route guards, but reads credentials from insecure localStorage)
+  - Backend Security: 15/100 (Exposes raw db dump endpoint `/backup`, unauthenticated `/search`, and lack of validation middleware)
+  - Auth Security: 25/100 (Hardcoded master codes bypass OTP validation, mock auth signature bypass fallback, and default admin keys)
+  - Real-time Security: 10/100 (No Socket.io room protection or sender ID checks, unauthenticated SSE telemetry feed)
+  - Upload Security: 20/100 (Direct client uploads bypass server, exposing SVG script risks and storage flooding)
+
+INFRASTRUCTURE SCORE: 45 / 100
+  - Scalability: 30/100 (Monolith architecture cannot scale horizontally without a Redis adapter; raw connection pooling runs out)
+  - Reliability: 40/100 (Render free tier limits cause sleep issues and memory terminations)
+
+ARCHITECTURE SCORE: 68 / 100
+  - Frontend Quality: 85/100 (Vite PWA, Framer motion, clean lazy loading setup)
+  - Backend Quality: 60/100 (Clean routing structure, but lacks a service abstraction layer)
+  - Database Quality: 60/100 (Excellent foreign key constraints, but suffers from a total absence of query indexes)
+
+MOST DANGEROUS WEAKNESSES:
+  1. `/api/telemetry/backup` public exposure allows downloading the entire complaints database.
+  2. `/api/search` public exposure bypasses privacy scopes and discloses sensitive complaints.
+  3. `verifyIdToken` fallback allows anyone to bypass token verification using the `mock_` prefix.
+  4. Hardcoded email verification bypass codes ('111111', '123456', etc.) bypass OTP verification.
+  5. Socket.io `join_channel` and `send_message` accept unauthenticated payloads, allowing room eavesdropping and user impersonation.
+  6. Lack of database indexes on foreign keys leads to CPU saturation as data scales.
+  7. Hardcoded production database and SMTP credentials committed in local `.env` configuration files.
+
+MOST IMPRESSIVE STRENGTHS:
+  - Clean modular frontend pages with PWA support.
+  - Relational database schema with CASCADE updates/deletes.
+  - Robust Server-Sent Events (SSE) telemetry structure.
+
+FINAL VERDICT:
+Is this platform ready for statewide governance release?
+NO. The application must undergo security patching to address unauthenticated routes, authentication bypass vulnerabilities, and Socket.io channel vulnerabilities. Once these critical flaws are patched, the platform will be ready to scale.

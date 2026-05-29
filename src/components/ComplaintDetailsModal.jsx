@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { X, ShieldAlert, AlertTriangle, FileText, Clock, MessageSquare, Shield, CheckCircle, Send, Play, Camera, Scan, Upload, User } from 'lucide-react';
 import PremiumButton from './PremiumButton';
@@ -337,6 +338,26 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
 
   const handleUpdateStatus = async (e) => {
     e.preventDefault();
+
+    const stages = ['Complaint Registered', 'Complaint Verified', 'Solving Started', 'Solved'];
+    const getStatusIdx = (st) => {
+      if (st === 'Complaint Registered' || st === 'Audit Phase' || st === 'Registered' || st === 'Emergency Dispatched') return 0;
+      if (st === 'Complaint Verified' || st === 'Verified') return 1;
+      if (st === 'Solving Started' || st === 'Processing' || st === 'In Progress' || st === 'Under Investigation') return 2;
+      if (st === 'Solved' || st === 'Resolved') return 3;
+      return -1;
+    };
+
+    const currentIdx = getStatusIdx(data?.complaint?.status);
+    const targetIdx = getStatusIdx(updateStatus);
+
+    if (currentIdx !== -1 && targetIdx !== -1) {
+      if (targetIdx > currentIdx + 1) {
+        alert(`Please complete the intermediate steps in order. You must progress to "${stages[currentIdx + 1]}" first.`);
+        return;
+      }
+    }
+
     if (updateStatus === 'Solving Started') {
       setShowScannerChamber(true);
       return;
@@ -514,21 +535,23 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
   };
 
   if (loading) {
-    return (
+    return createPortal(
       <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm">
         <div className="w-10 h-10 rounded-full border-2 border-t-cyan-500 border-r-transparent border-white/20 animate-spin shadow-glow-cyan" />
-      </div>
+      </div>,
+      document.body
     );
   }
 
   if (error || !data) {
-    return (
+    return createPortal(
       <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
         <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-rose-500/50 shadow-glow-rose">
           <p className="text-rose-500 font-bold mb-4">{error || 'Ticket not found'}</p>
           <PremiumButton variant="secondary" size="sm" onClick={onClose}>Close Panel</PremiumButton>
         </div>
-      </div>
+      </div>,
+      document.body
     );
   }
 
@@ -537,7 +560,7 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
   const isLeader = userProfile?.role && userProfile.role !== 'student';
   const isSupremeUser = userProfile?.role && ['supreme_admin', 'dev', 'president', 'state_president'].includes(userProfile.role);
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/70 backdrop-blur-md p-2 sm:p-6 animate-fadeIn">
       <div className={`w-full max-w-5xl max-h-[95vh] flex flex-col bg-white/95 dark:bg-slate-900/95 rounded-3xl border shadow-premium-dark overflow-hidden relative ${isEmergency ? 'border-rose-500/40 shadow-glow-rose' : 'border-slate-200 dark:border-slate-800'}`}>
         
@@ -1099,6 +1122,7 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
         </div>
 
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
