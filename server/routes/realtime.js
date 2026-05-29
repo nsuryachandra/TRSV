@@ -1,4 +1,5 @@
 import express from 'express';
+import { requireAuth } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -9,7 +10,7 @@ let clients = [];
  * 1. SSE Stream Endpoint
  * Dashboards connect here to listen for live operational telemetry.
  */
-router.get('/stream', (req, res) => {
+router.get('/stream', requireAuth, (req, res) => {
   // Set headers required for Server-Sent Events
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache, no-transform');

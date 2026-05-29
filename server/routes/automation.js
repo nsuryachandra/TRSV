@@ -1,5 +1,6 @@
 import express from 'express';
 import { query } from '../config/db.js';
+import { requireAuth, requireRole } from '../middleware/auth.js';
 import { broadcastEvent } from './realtime.js';
 
 const router = express.Router();
@@ -82,7 +83,7 @@ export const runAutoEscalationJob = async () => {
  * POST /api/automation/trigger
  * Manual endpoint trigger accessible from the CommandCenter.
  */
-router.post('/trigger', async (req, res) => {
+router.post('/trigger', requireAuth, requireRole(['supreme_admin']), async (req, res) => {
   try {
     const affected = await runAutoEscalationJob();
     res.json({

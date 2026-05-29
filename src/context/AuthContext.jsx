@@ -39,7 +39,6 @@ const msUntilExpiry = (token) => {
 /** Persist session data atomically to localStorage. */
 const persistSession = (token, user) => {
   localStorage.setItem('trsv_session_token', token);
-  localStorage.setItem('trsv_role', user.role);
   localStorage.setItem('trsv_cached_profile', JSON.stringify(user));
 };
 
@@ -146,7 +145,6 @@ export const AuthProvider = ({ children }) => {
       if (data.success) {
         setUserProfile(data.user);
         setCurrentUser({ uid: data.user.id, email: data.user.email });
-        localStorage.setItem('trsv_role', data.user.role);
         localStorage.setItem('trsv_cached_profile', JSON.stringify(data.user));
         return data.user;
       } else {
@@ -281,7 +279,7 @@ export const AuthProvider = ({ children }) => {
           if (data && EXPIRY_MESSAGES.includes(data.message)) {
             console.warn('🕵️ [Fetch Interceptor] Token expired — clearing session.');
             if (sessionClearRef.current) sessionClearRef.current();
-            window.location.hash = '#/login';
+            window.location.href = '/login';
           }
         } catch { /* Not JSON — ignore */ }
       }

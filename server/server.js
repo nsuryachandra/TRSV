@@ -8,6 +8,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { createServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
+import compression from 'compression';
+import jwt from 'jsonwebtoken';
 
 // Import config and routes
 import pool from './config/db.js';
@@ -31,19 +33,32 @@ import joinRouter from './routes/join.js';
 
 dotenv.config();
 
+// Startup Environment Validation
+const REQUIRED_ENVS = ['DATABASE_URL', 'JWT_SECRET'];
+REQUIRED_ENVS.forEach(env => {
+  if (!process.env[env]) {
+    console.error(`🚨 FATAL: Missing required environment variable: ${env}`);
+    process.exit(1);
+  }
+});
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 const httpServer = createServer(app);
+const ALLOWED_ORIGIN = process.env.FRONTEND_URL || 'http://localhost:5173';
+
 const io = new SocketIOServer(httpServer, {
   cors: {
-    origin: '*',
+    origin: ALLOWED_ORIGIN,
     methods: ['GET', 'POST']
   }
 });
 
-// Enable JSON parsers
-app.use(cors());
+// Enable JSON parsers and compression
+app.use(compression());
+app.use(cors({ origin: ALLOWED_ORIGIN }));
 app.use(express.json({ limit: '10kb' })); // Mitigate payload attacks
+app.disable('x-powered-by');
 
 // Enterprise Security Hardening with Leaflet CSP Whitelist Exceptions
 app.use(helmet({
@@ -56,17 +71,13 @@ app.use(helmet({
         "'self'", 
         "data:", 
         "blob:",
-        "https:",
-        "http:",
-        "*"
+        "https://*.supabase.co"
       ],
       connectSrc: [
         "'self'", 
         "ws:",
         "wss:",
-        "https:",
-        "http:",
-        "*"
+        "https://*.supabase.co"
       ],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       objectSrc: ["'none'"],
@@ -154,13 +165,30 @@ app.use((err, req, res, next) => {
   res.status(500).json({
     success: false,
     message: 'Internal server error occurred on governance node.',
-    error: err.message
+    error: process.env.NODE_ENV === 'production' ? 'An unexpected error occurred.' : err.message
   });
 });
 
+// Configure Socket.io Authentication Middleware
+io.use((socket, next) => {
+  const token = socket.handshake.auth?.token;
+  if (!token) {
+    return next(new Error('Authentication error: Token missing'));
+  }
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    socket.user = decoded; // { uid, email, role, name }
+    next();
+  } catch (err) {
+    return next(new Error('Authentication error: Invalid or expired token'));
+  }
+});
+
+const messageRateLimits = new Map();
+
 // Configure Socket.io real-time event routing
 io.on('connection', (socket) => {
-  console.log(`🔌 [Socket.io] New telemetry node linked: ${socket.id}`);
+  console.log(`🔌 [Socket.io] Telemetry node linked (Auth: ${socket.user.uid}): ${socket.id}`);
 
   // 1. Join Chat Room
   socket.on('join_channel', (channel_id) => {
@@ -171,6 +199,30 @@ io.on('connection', (socket) => {
   // 2. Broadcast Message
   socket.on('send_message', async (data) => {
     const { channel_id, sender_id, message_text } = data;
+    
+    // Strict sender_id validation (prevents spoofing)
+    if (sender_id !== socket.user.uid) {
+      console.warn(`⚠️ [Socket.io] Spoofing attempt by socket ${socket.id} (Claimed: ${sender_id}, Actual: ${socket.user.uid})`);
+      return;
+    }
+
+    // Rate Limiting: max 10 messages per 10 seconds per socket
+    const now = Date.now();
+    const limitWindow = 10000;
+    const rateData = messageRateLimits.get(socket.id) || { count: 0, firstMsgTime: now };
+    
+    if (now - rateData.firstMsgTime > limitWindow) {
+      rateData.count = 1;
+      rateData.firstMsgTime = now;
+    } else {
+      rateData.count++;
+      if (rateData.count > 10) {
+        socket.emit('rate_limit_error', { message: 'Message rate limit exceeded. Please wait.' });
+        return;
+      }
+    }
+    messageRateLimits.set(socket.id, rateData);
+
     try {
       // Persist to Postgres
       const result = await pool.query(
@@ -236,6 +288,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', () => {
+    messageRateLimits.delete(socket.id);
     console.log(`🔌 [Socket.io] Telemetry node unlinked: ${socket.id}`);
   });
 });
@@ -262,13 +315,20 @@ httpServer.listen(PORT, async () => {
     console.warn('⚠️ [Database] Role constraint update skipped (likely already correct):', roleErr.message);
   }
 
-  // STEP 2: Password recovery columns
+  // STEP 2: Password recovery columns & Performance Indexes
   try {
     await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_otp VARCHAR(6)`);
     await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_otp_expires_at TIMESTAMP`);
-    console.log('🔹 [Database] Users password recovery schema synchronized.');
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_complaints_student_id ON complaints(student_id)`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_complaints_constituency_id ON complaints(constituency_id)`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_complaints_college_id ON complaints(college_id)`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_complaints_status ON complaints(status)`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_complaint_timeline_complaint_id ON complaint_timeline(complaint_id)`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_activity_logs_user_id ON activity_logs(user_id)`);
+    console.log('🔹 [Database] Users password recovery and performance indexes synchronized.');
   } catch (err) {
-    console.error('🚨 [Database] Failed to sync password recovery columns:', err.message);
+    console.error('🚨 [Database] Failed to sync password recovery or indexes:', err.message);
   }
 
   // STEP 3: Chat messages table (separate queries — no multi-statement)
@@ -289,25 +349,7 @@ httpServer.listen(PORT, async () => {
     console.error('🚨 [Database] Failed to sync chat messages schema:', chatDbErr.message);
   }
 
-  // STEP 4: Seed Master Developer account (role constraint must be fixed first — STEP 1)
-  try {
-    const cryptoModule = await import('crypto');
-    const crypto = cryptoModule.default || cryptoModule;
-    const devEmail = 'nimmagaddasurya4@gmail.com';
-    const devPass = 'surya_dev';
-    const salt = crypto.randomBytes(16).toString('hex');
-    const hash = crypto.pbkdf2Sync(devPass, salt, 1000, 64, 'sha512').toString('hex');
-    const devHash = `${salt}:${hash}`;
-    await pool.query(`
-      INSERT INTO users (id, full_name, email, password_hash, role, verified)
-      VALUES ($1, $2, $3, $4, $5, $6)
-      ON CONFLICT (email) DO UPDATE 
-      SET full_name = EXCLUDED.full_name, password_hash = EXCLUDED.password_hash, role = EXCLUDED.role, verified = EXCLUDED.verified
-    `, ['MASTER_DEV_UID', 'Suryachandra', devEmail, devHash, 'dev', true]);
-    console.log('👑 [Database] Master Dev credentials synchronized.');
-  } catch (devErr) {
-    console.error('🚨 [Database] Failed to seed master dev credentials:', devErr.message);
-  }
+  // STEP 4: Seed Master Developer account - Removed for production security
 
   // STEP 5: Ensure "Upcoming Area" constituency exists
   try {
@@ -373,37 +415,13 @@ httpServer.listen(PORT, async () => {
     console.error('🚨 [Database] Failed to sync announcements image_url column:', imgErr.message);
   }
 
-  // STEP 9: Clean up old leaders and sync Ch. Karthik Yadav
+  // STEP 9: Clean up old leaders
   try {
-    const ghRes = await pool.query("SELECT id FROM constituencies WHERE constituency_name = 'Greater Hyderabad'");
-    const ghId = ghRes.rows.length > 0 ? ghRes.rows[0].id : null;
-
     // 1. Delete Pranith and Omkar
     await pool.query("DELETE FROM users WHERE email IN ('pranith@trsv.gov.in', 'omkar@trsv.gov.in')");
-
-    // 2. Upsert Ch. Karthik Yadav as digital_operations_president
-    if (ghId) {
-      const cryptoModule = await import('crypto');
-      const crypto = cryptoModule.default || cryptoModule;
-      const pass = 'karthik_secret';
-      const salt = crypto.randomBytes(16).toString('hex');
-      const hash = crypto.pbkdf2Sync(pass, salt, 1000, 64, 'sha512').toString('hex');
-      const karthikHash = `${salt}:${hash}`;
-
-      await pool.query(`
-        INSERT INTO users (id, full_name, email, role, phone, profile_image, verified, password_hash, constituency_id)
-        VALUES ($1, $2, $3, $4, $5, $6, TRUE, $7, $8)
-        ON CONFLICT (email) DO UPDATE SET
-          full_name = EXCLUDED.full_name,
-          role = EXCLUDED.role,
-          phone = EXCLUDED.phone,
-          profile_image = EXCLUDED.profile_image,
-          constituency_id = EXCLUDED.constituency_id
-      `, ['gh-gs-karthik', 'Ch. Karthik Yadav', 'karthikyadavtjsf@gmail.com', 'general_secretary', '8142443684', '/karthiknew.jpeg', karthikHash, ghId]);
-    }
-    console.log('🔹 [Database] Ch. Karthik Yadav & Old leaders synchronized.');
+    console.log('🔹 [Database] Old leaders synchronized.');
   } catch (syncErr) {
-    console.error('🚨 [Database] Failed to sync Ch. Karthik Yadav & old leaders:', syncErr.message);
+    console.error('🚨 [Database] Failed to sync old leaders:', syncErr.message);
   }
 
   // STEP 10: Rename member_identities column tsrv_member_id to trsv_member_id if exists
@@ -434,3 +452,17 @@ httpServer.listen(PORT, async () => {
     runAutoEscalationJob().catch(err => console.error('Cron job error:', err.message));
   }, 4 * 60 * 60 * 1000);
 });
+
+// Graceful Shutdown Handler
+const gracefulShutdown = () => {
+  console.log('🛑 [Server] Received shutdown signal. Draining pool and closing Socket.io...');
+  io.close(() => {
+    pool.end(() => {
+      console.log('✅ [Server] Connections closed. Shutting down.');
+      process.exit(0);
+    });
+  });
+};
+
+process.on('SIGTERM', gracefulShutdown);
+process.on('SIGINT', gracefulShutdown);

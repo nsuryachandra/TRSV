@@ -13,7 +13,11 @@ if (!connectionString) {
 
 const pool = new Pool({
   connectionString: connectionString || 'postgresql://localhost:5432/trsv',
-  ssl: connectionString && connectionString.includes('neon.tech') ? { rejectUnauthorized: false } : false
+  ssl: connectionString && connectionString.includes('neon.tech') ? { rejectUnauthorized: false } : false,
+  max: 20, // Max 20 connections in pool
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 5000,
+  options: '-c statement_timeout=30000' // Abort queries running longer than 30s
 });
 
 pool.on('connect', () => {

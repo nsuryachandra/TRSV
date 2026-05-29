@@ -44,7 +44,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (window.location.hash.includes('join-trsv')) {
+    if (window.location.pathname.includes('join-trsv') || window.location.hash.includes('join-trsv')) {
       setTimeout(() => {
         const el = document.getElementById('join-trsv');
         if (el) el.scrollIntoView({ behavior: 'smooth' });

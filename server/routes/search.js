@@ -1,6 +1,6 @@
 import express from 'express';
 import { query } from '../config/db.js';
-import { requireRole } from './constituencies.js';
+import { requireAuth } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -8,7 +8,7 @@ const router = express.Router();
  * Global Omnisearch Endpoint
  * Indexes Complaints, Announcements, and Governance Regions based on a single query string.
  */
-router.get('/', async (req, res) => {
+router.get('/', requireAuth, async (req, res) => {
   const { q } = req.query;
   
   if (!q || q.length < 2) {

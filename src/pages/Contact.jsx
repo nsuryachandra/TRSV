@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Mail, Phone, MapPin, Send, ShieldAlert, CheckCircle, Lock, Sparkles, ChevronRight, ChevronLeft, UploadCloud, EyeOff, FileText, X, AlertTriangle, RefreshCw } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import GlassCard from '../components/GlassCard';
@@ -10,6 +10,7 @@ import ComplaintDetailsModal from '../components/ComplaintDetailsModal';
 
 export default function Contact() {
   const { currentUser: user, userProfile } = useAuth();
+  const navigate = useNavigate();
   
   // Complainant Mandatory Details
   const [complainantName, setComplainantName] = useState(userProfile?.full_name || '');
@@ -637,10 +638,10 @@ export default function Contact() {
                 To lodge an official student complaint and track its lifecycle, you must log in to your verified student advocate account first.
               </p>
               <div className="flex gap-3">
-                <PremiumButton variant="primary" size="sm" onClick={() => window.location.hash = '#/login'}>
+                <PremiumButton variant="primary" size="sm" onClick={() => navigate('/login')}>
                   Log In Account
                 </PremiumButton>
-                <PremiumButton variant="secondary" size="sm" onClick={() => window.location.hash = '#/signup'}>
+                <PremiumButton variant="secondary" size="sm" onClick={() => navigate('/signup')}>
                   Register Node
                 </PremiumButton>
               </div>

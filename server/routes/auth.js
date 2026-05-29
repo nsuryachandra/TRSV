@@ -10,31 +10,35 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const router = express.Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'trsv_quantum_super_secure_secret_hash_key_2026';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  console.error('🚨 FATAL: JWT_SECRET is not configured. Auth module cannot operate.');
+  process.exit(1);
+}
 
 // PBKDF2/SHA-512 Secure Salting & Password Hashing Engine
 function hashPassword(password) {
   const salt = crypto.randomBytes(16).toString('hex');
-  const hash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
+  const hash = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
   return `${salt}:${hash}`;
 }
 
 function verifyPassword(password, storedHash) {
   if (!storedHash || !storedHash.includes(':')) return false;
   const [salt, originalHash] = storedHash.split(':');
-  const hash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
+  // Support both old (1000) and new (10000) iteration hashes
+  let hash = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
+  if (hash !== originalHash) {
+    hash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
+  }
   return hash === originalHash;
 }
 
-// Load administrator credentials dynamically from secure JSON config file
+// Load administrator credentials from environment (no hardcoded fallbacks)
 let credentials = {
   supreme_admin: { 
-    email: process.env.SUPREME_EMAIL || 'supreme.admin@trsv.gov.in', 
-    password: process.env.SUPREME_PASSWORD || 'mock-supreme-key-placeholder' 
-  },
-  site_admin: { 
-    email: process.env.SITE_ADMIN_EMAIL || 'admin@trsv.gov.in', 
-    password: process.env.SITE_ADMIN_PASSWORD || 'mock-admin-key-placeholder' 
+    email: process.env.SUPREME_EMAIL || '', 
+    password: process.env.SUPREME_PASSWORD || '' 
   }
 };
 
@@ -153,11 +157,7 @@ router.post('/verify-otp', async (req, res) => {
 
   const cleanEmail = email.trim().toLowerCase();
 
-  // 🛡️ Development Master Code Bypass (111111, 123456, or 999999 always succeed!)
-  if (code.trim() === '111111' || code.trim() === '123456' || code.trim() === '999999' || code.trim() === '584920' || code.trim() === '256406') {
-    console.log(`✅ [Email OTP] Master Code bypass authorized for student node: ${cleanEmail}`);
-    return res.json({ success: true, message: 'Email verified successfully via Master Code.' });
-  }
+  // OTP master code bypasses have been permanently removed for production security
 
   const record = global.emailOtps[cleanEmail];
 
@@ -238,11 +238,11 @@ router.post('/signup', async (req, res) => {
       [userId, fullName, cleanEmail, passwordHash, userRole, constituencyId || null, resolvedCollegeId, phone || null, profileImage || null, true]
     );
 
-    // Generate local JWT token expiring in 30 days
+    // Generate JWT token with 7-day expiry
     const token = jwt.sign(
       { uid: userId, email: cleanEmail, role: userRole, name: fullName },
       JWT_SECRET,
-      { expiresIn: '30d' }
+      { expiresIn: '7d' }
     );
 
     // Write audit log
@@ -284,7 +284,7 @@ router.post('/login', async (req, res) => {
       const token = jwt.sign(
         { uid: 'SUPREME_ADMIN_UID', email: SUPREME_EMAIL, role: 'supreme_admin', name: 'Supreme Leader' },
         JWT_SECRET,
-        { expiresIn: '30d' }
+        { expiresIn: '7d' }
       );
 
       console.log('👑 [Supreme Auth] Supreme Admin connected successfully.');
@@ -328,11 +328,11 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ success: false, message: 'Invalid email or password.' });
     }
 
-    // Generate local JWT token expiring in 30 days
+    // Generate JWT token with 7-day expiry
     const token = jwt.sign(
       { uid: user.id, email: user.email, role: user.role, name: user.full_name },
       JWT_SECRET,
-      { expiresIn: '30d' }
+      { expiresIn: '7d' }
     );
 
     // Fetch complete hydrated profile
@@ -358,47 +358,7 @@ router.post('/login', async (req, res) => {
   }
 });
 
-/**
- * 2.5 Secure, Hidden Supreme Admin Login endpoint (Legacy backward-compatibility)
- */
-router.post('/supreme-login', async (req, res) => {
-  const { email, password } = req.body;
-
-  if (!email || !password) {
-    return res.status(400).json({ success: false, message: 'Email and password required.' });
-  }
-
-  if (email.toLowerCase() === SUPREME_EMAIL.toLowerCase() && password === SUPREME_PASSWORD) {
-    await query(`
-      INSERT INTO users (id, full_name, email, role, verified)
-      VALUES ($1, $2, $3, $4, $5)
-      ON CONFLICT (id) DO UPDATE 
-      SET full_name = EXCLUDED.full_name, email = EXCLUDED.email, role = EXCLUDED.role, verified = EXCLUDED.verified
-    `, ['SUPREME_ADMIN_UID', 'Supreme Leader', SUPREME_EMAIL, 'supreme_admin', true]);
-
-    const token = jwt.sign(
-      { uid: 'SUPREME_ADMIN_UID', email: SUPREME_EMAIL, role: 'supreme_admin', name: 'Supreme Leader' },
-      JWT_SECRET,
-      { expiresIn: '30d' }
-    );
-
-    return res.json({
-      success: true,
-      token,
-      user: {
-        id: 'SUPREME_ADMIN_UID',
-        full_name: 'Supreme Leader',
-        email: SUPREME_EMAIL,
-        role: 'supreme_admin',
-        verified: true,
-        constituency_name: 'Statewide Headquarters',
-        college_name: 'Central Control Command'
-      }
-    });
-  }
-
-  return res.status(401).json({ success: false, message: 'Invalid supreme governance credentials.' });
-});
+// /supreme-login endpoint has been permanently removed for production security
 
 /**
  * 3. Verify Active Client Token and return fully hydrated profile
@@ -451,11 +411,11 @@ router.post('/refresh', async (req, res) => {
   try {
     const decoded = jwt.verify(oldToken, JWT_SECRET);
 
-    // Issue a brand-new 30-day token with same claims
+    // Issue a brand-new 7-day token with same claims
     const newToken = jwt.sign(
       { uid: decoded.uid, email: decoded.email, role: decoded.role, name: decoded.name },
       JWT_SECRET,
-      { expiresIn: '30d' }
+      { expiresIn: '7d' }
     );
 
     console.log(`🔄 [Auth Refresh] Token refreshed for uid: ${decoded.uid}`);

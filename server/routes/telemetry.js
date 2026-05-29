@@ -1,6 +1,6 @@
 import express from 'express';
 import { query } from '../config/db.js';
-import { requireRole } from './constituencies.js';
+import { requireAuth, requireRole } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -8,7 +8,7 @@ const router = express.Router();
  * 1. GET /api/telemetry/health
  * Fetches server health, memory statistics, and logs checks in deployment_health_logs.
  */
-router.get('/health', async (req, res) => {
+router.get('/health', requireAuth, requireRole(['supreme_admin']), async (req, res) => {
   try {
     const memory = process.memoryUsage();
     const uptime = process.uptime();
@@ -44,7 +44,7 @@ router.get('/health', async (req, res) => {
  * Runs smart governance clustering: finds constituencies with the highest concentration
  * of critical complaints or specific repeated categories (e.g. repeated ragging cases).
  */
-router.get('/insights', async (req, res) => {
+router.get('/insights', requireAuth, requireRole(['supreme_admin']), async (req, res) => {
   try {
     // A query that detects constituencies with > 2 critical complaints
     const clusters = await query(`
@@ -103,7 +103,7 @@ router.get('/insights', async (req, res) => {
  * Generates an export payload (encrypted or plain JSON) of all active complaints
  * and logs it in the backup registry.
  */
-router.post('/backup', async (req, res) => {
+router.post('/backup', requireAuth, requireRole(['supreme_admin']), async (req, res) => {
   try {
     const complaints = await query('SELECT * FROM complaints');
     const announcements = await query('SELECT * FROM announcements');
