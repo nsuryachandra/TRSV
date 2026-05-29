@@ -193,7 +193,8 @@ export default function CommandCenter() {
     fetchTelemetry();
     
     // Connect to Enterprise Realtime SSE Stream
-    const eventSource = new EventSource('/api/realtime/stream');
+    const token = localStorage.getItem('trsv_session_token');
+    const eventSource = new EventSource(`/api/realtime/stream?token=${token}`);
     eventSource.onopen = () => {
       setConnectionDropped(false);
     };

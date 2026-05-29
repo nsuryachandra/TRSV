@@ -13,12 +13,17 @@ if (!JWT_SECRET) {
  * Does NOT check roles — use requireRole for that.
  */
 export const requireAuth = async (req, res, next) => {
+  let token;
   const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ success: false, message: 'Authorization header required.' });
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    token = authHeader.split('Bearer ')[1];
+  } else if (req.query && req.query.token) {
+    token = req.query.token;
   }
 
-  const token = authHeader.split('Bearer ')[1];
+  if (!token) {
+    return res.status(401).json({ success: false, message: 'Authorization header or query token required.' });
+  }
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
