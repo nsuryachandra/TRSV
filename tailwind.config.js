@@ -9,9 +9,9 @@ export default {
     extend: {
       colors: {
         brand: {
-          light: '#38bdf8', // sky-400
-          DEFAULT: '#0284c7', // sky-600
-          dark: '#0369a1', // sky-700
+          light: '#34d399', // emerald-400
+          DEFAULT: '#10b981', // emerald-500
+          dark: '#059669', // emerald-600
         },
         slate: {
           55: '#f4f7fa',
@@ -64,9 +64,9 @@ export default {
         },
         trsv: {
           accent: {
-            light: '#22d3ee', // cyan-400
-            DEFAULT: '#0891b2', // cyan-600
-            dark: '#0e7490', // cyan-700
+            light: '#fef08a', // yellow-200
+            DEFAULT: '#eab308', // yellow-500
+            dark: '#ca8a04', // yellow-600
           },
           bg: {
             light: '#f8fafc', // slate-50
@@ -99,9 +99,9 @@ export default {
       boxShadow: {
         'premium-light': '0 10px 30px -10px rgba(15, 23, 42, 0.04), 0 1px 3px 0 rgba(15, 23, 42, 0.02)',
         'premium-dark': '0 10px 30px -10px rgba(0, 0, 0, 0.4), 0 1px 3px 0 rgba(0, 0, 0, 0.3)',
-        'glow-cyan': '0 0 20px rgba(6, 182, 212, 0.12)',
-        'glow-cyan-strong': '0 0 35px rgba(6, 182, 212, 0.25)',
-        'glow-blue': '0 0 20px rgba(14, 165, 233, 0.12)',
+        'glow-cyan': '0 0 20px rgba(16, 185, 129, 0.12)',
+        'glow-cyan-strong': '0 0 35px rgba(16, 185, 129, 0.25)',
+        'glow-blue': '0 0 20px rgba(234, 179, 8, 0.12)',
       },
       backdropBlur: {
         xs: '2px',
