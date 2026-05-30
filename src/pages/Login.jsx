@@ -23,8 +23,6 @@ export default function Login() {
   const [biometricsAvailable, setBiometricsAvailable] = useState(false);
   const [biometricsConfigured, setBiometricsConfigured] = useState(false);
   const [enrolledUser, setEnrolledUser] = useState('');
-  const [showBiometricPrompt, setShowBiometricPrompt] = useState(false);
-  const [tempCredentials, setTempCredentials] = useState(null);
 
   React.useEffect(() => {
     if (currentUser && userProfile) {
@@ -94,29 +92,6 @@ export default function Login() {
     }
   };
 
-  const handleOptInBiometrics = async () => {
-    if (!tempCredentials) return;
-    try {
-      await enableBiometricLogin(tempCredentials.email, tempCredentials.password);
-      setShowBiometricPrompt(false);
-      redirectUser(tempCredentials.user);
-    } catch (err) {
-      console.error('[Biometrics Opt-In] Error:', err.message);
-      setError('Biometric enrollment failed. Logging in normally...');
-      setTimeout(() => {
-        setShowBiometricPrompt(false);
-        redirectUser(tempCredentials.user);
-      }, 1500);
-    }
-  };
-
-  const handleOptOutBiometrics = () => {
-    setShowBiometricPrompt(false);
-    if (tempCredentials) {
-      redirectUser(tempCredentials.user);
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -124,16 +99,8 @@ export default function Login() {
 
     try {
       const user = await login(email, password);
-      
-      // Prompt for biometric enrollment if supported but not configured for this user
-      if (biometricsAvailable && (!biometricsConfigured || enrolledUser !== email)) {
-        setTempCredentials({ email, password, user });
-        setShowBiometricPrompt(true);
-        setLoading(false);
-      } else {
-        setLoading(false);
-        redirectUser(user);
-      }
+      setLoading(false);
+      redirectUser(user);
     } catch (err) {
       setLoading(false);
       console.error(err);
@@ -420,50 +387,6 @@ export default function Login() {
                   </PremiumButton>
                 </div>
               </form>
-            </div>
-          </div>
-        </div>,
-        document.body
-      )}
-
-      {/* Biometric Opt-In Enrollment Modal */}
-      {showBiometricPrompt && createPortal(
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/75 backdrop-blur-md p-4 animate-[fadeIn_0.2s_ease-out]">
-          <div className="w-full max-w-sm animate-[scaleIn_0.2s_ease-out]">
-            <div className="bg-white/98 dark:bg-slate-900/98 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800 p-8 relative rounded-2xl shadow-2xl overflow-hidden text-center">
-              {/* Top light bar */}
-              <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-sky-500 to-cyan-400" />
-              
-              <div className="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-tr from-sky-500/20 to-cyan-400/20 border border-cyan-400/30 flex items-center justify-center text-cyan-400 shadow-glow-cyan mb-4">
-                <Fingerprint className="w-8 h-8 animate-pulse" />
-              </div>
-
-              <h3 className="font-extrabold text-xl text-slate-850 dark:text-white">
-                Enable Biometric Login?
-              </h3>
-              <p className="text-xs text-slate-550 dark:text-slate-400 mt-2 mb-6 leading-relaxed">
-                Access your TRSV governance terminal faster next time by registering your fingerprint or face authentication.
-              </p>
-
-              <div className="flex flex-col gap-3">
-                <PremiumButton
-                  type="button"
-                  variant="primary"
-                  size="md"
-                  className="w-full"
-                  onClick={handleOptInBiometrics}
-                >
-                  Enable Secure Biometrics
-                </PremiumButton>
-                
-                <button
-                  type="button"
-                  onClick={handleOptOutBiometrics}
-                  className="w-full py-2.5 rounded-xl text-slate-400 hover:text-slate-350 text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-850/40 transition-all duration-200"
-                >
-                  Skip for Now
-                </button>
-              </div>
             </div>
           </div>
         </div>,
