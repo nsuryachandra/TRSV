@@ -98,6 +98,36 @@ function getGeom(id, shape, extrude) {
   return geoCache.get(key);
 }
 
+// ─── Sutherland-Hodgman clipping algorithm to build clean Voronoi boundaries ───
+function clipPolygon(poly, mid, normal) {
+  const clipped = [];
+  if (!poly || poly.length === 0) return [];
+  for (let i = 0; i < poly.length; i++) {
+    const p1 = poly[i];
+    const p2 = poly[(i + 1) % poly.length];
+    
+    const d1 = (p1.x - mid.x) * normal.x + (p1.z - mid.z) * normal.z;
+    const d2 = (p2.x - mid.x) * normal.x + (p2.z - mid.z) * normal.z;
+    
+    if (d1 <= 0.00001) {
+      clipped.push(p1);
+    }
+    if ((d1 < -0.00001 && d2 > 0.00001) || (d1 > 0.00001 && d2 < -0.00001)) {
+      const t = d1 / (d1 - d2);
+      clipped.push({
+        x: p1.x + t * (p2.x - p1.x),
+        z: p1.z + t * (p2.z - p1.z)
+      });
+    }
+  }
+  return clipped;
+}
+
+const getDistrictPolygon = (districtName, features) => {
+  const center = getDistrictCenter(districtName, features);
+  return center ? center.pts : null;
+};
+
 // ─── Single District Mesh Component ──────────────────────────────────────────
 function DistrictMesh({ feature, idx, onClickGH, mapLevel, selectedConstituency }) {
   const meshRef = useRef();
@@ -329,9 +359,9 @@ function SceneContents({ mapLevel, onClickGH, selectedConstituency, setSelectedC
     return nodes;
   }, [ghConstituencies, mapLevel, features]);
 
-  // Generate sector boundary division lines and concentric zones inside Greater Hyderabad
-  const ghGrids = useMemo(() => {
-    if (mapLevel !== 'gh') return { partitions: [], rings: [] };
+  // Generate mathematically exact Voronoi boundaries for each constituency, fully clipped to district outlines
+  const ghConstituencyBoundaries = useMemo(() => {
+    if (mapLevel !== 'gh') return [];
 
     const hydList = [], medchalList = [], rrList = [];
     ghConstituencies.forEach(c => {
@@ -341,75 +371,57 @@ function SceneContents({ mapLevel, onClickGH, selectedConstituency, setSelectedC
       else if (d.includes('rangareddy') || d.includes('ranga reddy')) rrList.push(c);
     });
 
-    const partitions = [];
-    const rings = [];
+    const boundaries = [];
 
-    const genRing = (cx, cz, r, color) => {
-      const pts = [];
-      const steps = 64;
-      for (let i = 0; i <= steps; i++) {
-        const angle = (i / steps) * 2 * Math.PI;
-        pts.push(new THREE.Vector3(cx + r * Math.cos(angle), 0.26, cz + r * Math.sin(angle)));
-      }
-      return { pts, color };
+    const processDistrictGrids = (groupList, districtName, r, color) => {
+      if (groupList.length === 0) return;
+      const districtPts = getDistrictPolygon(districtName, features);
+      if (!districtPts || districtPts.length === 0) return;
+
+      const center = getDistrictCenter(districtName, features);
+      if (!center) return;
+      const { cx, cz } = center;
+      const n = groupList.length;
+
+      // 1. Generate node coordinates
+      const nodes = groupList.map((c, idx) => {
+        const angle = (idx / n) * 2 * Math.PI;
+        return {
+          x: cx + r * Math.cos(angle),
+          z: cz + r * Math.sin(angle),
+          name: c.constituency_name
+        };
+      });
+
+      // 2. Generate clipped Voronoi cell polygon for each constituency node
+      nodes.forEach((nodeI, i) => {
+        let poly = districtPts.map(p => ({ x: p.x, z: p.z }));
+        
+        nodes.forEach((nodeJ, j) => {
+          if (i === j) return;
+          const mid = { x: (nodeI.x + nodeJ.x) / 2, z: (nodeI.z + nodeJ.z) / 2 };
+          const normal = { x: nodeJ.x - nodeI.x, z: nodeJ.z - nodeI.z };
+          poly = clipPolygon(poly, mid, normal);
+        });
+
+        if (poly && poly.length > 2) {
+          const points3D = poly.map(p => new THREE.Vector3(p.x, 0.26, p.z));
+          points3D.push(points3D[0].clone()); // Close loop
+          
+          boundaries.push({
+            points: points3D,
+            color,
+            name: nodeI.name
+          });
+        }
+      });
     };
 
-    // 1. Hyderabad Grid (Inner zone: radius 0 to 0.6)
-    const hydCenter = getDistrictCenter('Hyderabad', features);
-    if (hydCenter && hydList.length > 0) {
-      const { cx, cz } = hydCenter;
-      const n = hydList.length;
-      for (let i = 0; i < n; i++) {
-        const midAngle = (i / n) * 2 * Math.PI + (Math.PI / n);
-        const endX = cx + 0.6 * Math.cos(midAngle);
-        const endZ = cz + 0.6 * Math.sin(midAngle);
-        partitions.push({
-          points: [new THREE.Vector3(cx, 0.26, cz), new THREE.Vector3(endX, 0.26, endZ)],
-          color: '#eab308'
-        });
-      }
-      rings.push(genRing(cx, cz, 0.6, '#eab308'));
-    }
+    processDistrictGrids(hydList, 'Hyderabad', 0.45, '#eab308');
+    processDistrictGrids(medchalList, 'Medchal', 0.75, '#10b981');
+    processDistrictGrids(rrList, 'Rangareddy', 1.25, '#10b981');
 
-    // 2. Medchal Grid (Middle zone: radius 0.6 to 0.95)
-    const medchalCenter = getDistrictCenter('Medchal', features);
-    if (medchalCenter && medchalList.length > 0) {
-      const { cx, cz } = medchalCenter;
-      const n = medchalList.length;
-      for (let i = 0; i < n; i++) {
-        const midAngle = (i / n) * 2 * Math.PI + (Math.PI / n);
-        const startX = cx + 0.6 * Math.cos(midAngle);
-        const startZ = cz + 0.6 * Math.sin(midAngle);
-        const endX = cx + 0.95 * Math.cos(midAngle);
-        const endZ = cz + 0.95 * Math.sin(midAngle);
-        partitions.push({
-          points: [new THREE.Vector3(startX, 0.26, startZ), new THREE.Vector3(endX, 0.26, endZ)],
-          color: '#10b981'
-        });
-      }
-      rings.push(genRing(cx, cz, 0.95, '#10b981'));
-    }
-
-    // 3. Rangareddy Grid (Outer zone: radius 0.95 to 1.6)
-    const rrCenter = getDistrictCenter('Rangareddy', features);
-    if (rrCenter && rrList.length > 0) {
-      const { cx, cz } = rrCenter;
-      const n = rrList.length;
-      for (let i = 0; i < n; i++) {
-        const midAngle = (i / n) * 2 * Math.PI + (Math.PI / n);
-        const startX = cx + 0.95 * Math.cos(midAngle);
-        const startZ = cz + 0.95 * Math.sin(midAngle);
-        const endX = cx + 1.6 * Math.cos(midAngle);
-        const endZ = cz + 1.6 * Math.sin(midAngle);
-        partitions.push({
-          points: [new THREE.Vector3(startX, 0.26, startZ), new THREE.Vector3(endX, 0.26, endZ)],
-          color: '#10b981'
-        });
-      }
-      rings.push(genRing(cx, cz, 1.6, '#10b981'));
-    }
-
-    return { partitions, rings };
+    return boundaries;
   }, [ghConstituencies, mapLevel, features]);
 
   return (
@@ -431,27 +443,20 @@ function SceneContents({ mapLevel, onClickGH, selectedConstituency, setSelectedC
           />
         ))}
 
-        {/* Holographic sector boundaries partitioning the districts into constituency zones */}
-        {mapLevel === 'gh' && ghGrids.partitions.map((part, i) => (
-          <Line
-            key={`part-${i}`}
-            points={part.points}
-            color={part.color}
-            lineWidth={1.2}
-            transparent
-            opacity={0.35}
-          />
-        ))}
-        {mapLevel === 'gh' && ghGrids.rings.map((ring, i) => (
-          <Line
-            key={`ring-${i}`}
-            points={ring.pts}
-            color={ring.color}
-            lineWidth={1.2}
-            transparent
-            opacity={0.35}
-          />
-        ))}
+        {/* Render precise constituency boundaries with interactive highlighting */}
+        {mapLevel === 'gh' && ghConstituencyBoundaries.map((boundary, i) => {
+          const isSel = selectedConstituency && boundary.name.toLowerCase() === selectedConstituency.constituency_name?.toLowerCase();
+          return (
+            <Line
+              key={`boundary-${i}`}
+              points={boundary.points}
+              color={isSel ? '#ffffff' : boundary.color}
+              lineWidth={isSel ? 3.0 : 1.2}
+              transparent
+              opacity={isSel ? 1.0 : 0.45}
+            />
+          );
+        })}
 
         {mapLevel === 'gh' && constituencyNodes.map((node, i) => (
           <ConstituencyNode
