@@ -55,4 +55,26 @@ router.post('/mark-all-read', requireRole(['student', 'secretary', 'general_secr
   }
 });
 
+// POST /api/notifications/register-fcm -> register FCM token for background push
+router.post('/register-fcm', requireRole(['student', 'secretary', 'general_secretary', 'vice_president', 'president', 'state_president', 'supreme_admin', 'dev']), async (req, res) => {
+  const userId = req.user.uid;
+  const { token, device_info } = req.body;
+
+  if (!token) {
+    return res.status(400).json({ success: false, message: 'FCM Token is required.' });
+  }
+
+  try {
+    await query(
+      `INSERT INTO user_fcm_tokens (user_id, token, device_info)
+       VALUES ($1, $2, $3)
+       ON CONFLICT (token) DO UPDATE SET user_id = EXCLUDED.user_id, device_info = EXCLUDED.device_info, created_at = NOW()`,
+      [userId, token, device_info || 'Unknown Device']
+    );
+    res.json({ success: true, message: 'FCM Token registered successfully.' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 export default router;

@@ -10,6 +10,24 @@ import { createServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 import compression from 'compression';
 import jwt from 'jsonwebtoken';
+import admin from 'firebase-admin';
+
+// Initialize Firebase Admin SDK for background push notifications
+let firebaseApp = null;
+try {
+  const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+  if (serviceAccountJson) {
+    const serviceAccount = JSON.parse(serviceAccountJson);
+    firebaseApp = admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount)
+    });
+    console.log('🔥 [Firebase] Firebase Admin SDK initialized successfully.');
+  } else {
+    console.log('⚠️ [Firebase] FIREBASE_SERVICE_ACCOUNT_JSON is missing. Background push notifications will be bypassed.');
+  }
+} catch (fbErr) {
+  console.warn('⚠️ [Firebase] Failed to initialize Firebase Admin SDK:', fbErr.message);
+}
 
 // Import config and routes
 import pool from './config/db.js';
@@ -235,6 +253,9 @@ pool.query = async function (text, params, callback) {
               read: false,
               created_at: new Date().toISOString()
             });
+
+            // Send native background push notification via Firebase Admin SDK
+            sendBackgroundPush(userId, title, message);
           }
         }
       }
@@ -244,6 +265,55 @@ pool.query = async function (text, params, callback) {
   }
 
   return result;
+};
+
+const sendBackgroundPush = async (userId, title, message) => {
+  if (!firebaseApp) return;
+  try {
+    // Retrieve registered FCM tokens for this user from database
+    const tokenRes = await originalQuery.call(pool, 'SELECT token FROM user_fcm_tokens WHERE user_id = $1', [userId]);
+    if (tokenRes.rows.length === 0) return;
+
+    const tokens = tokenRes.rows.map(r => r.token);
+    
+    // Construct FCM multicast payload
+    const payload = {
+      notification: {
+        title: title || 'TRSV Alert',
+        body: message || ''
+      },
+      android: {
+        notification: {
+          icon: 'ic_launcher_round',
+          sound: 'default'
+        }
+      },
+      tokens: tokens
+    };
+
+    const response = await admin.messaging().sendEachForMulticast(payload);
+    console.log(`📡 [Firebase] Successfully sent ${response.successCount} background push messages (${response.failureCount} failed).`);
+
+    // Clean up expired tokens if they failed with invalid/not-registered error code
+    if (response.failureCount > 0) {
+      const tokensToDelete = [];
+      response.responses.forEach((resp, idx) => {
+        if (!resp.success) {
+          const error = resp.error;
+          if (error && (error.code === 'messaging/invalid-registration-token' || error.code === 'messaging/registration-token-not-registered')) {
+            tokensToDelete.push(tokens[idx]);
+          }
+        }
+      });
+
+      if (tokensToDelete.length > 0) {
+        await originalQuery.call(pool, 'DELETE FROM user_fcm_tokens WHERE token = ANY($1)', [tokensToDelete]);
+        console.log(`🧹 [Firebase] Cleared ${tokensToDelete.length} stale FCM tokens.`);
+      }
+    }
+  } catch (err) {
+    console.error('🚨 [Firebase] Background push notification broadcast error:', err.message);
+  }
 };
 
 // Configure Socket.io real-time event routing
@@ -506,6 +576,23 @@ httpServer.listen(PORT, async () => {
     console.error('🚨 [Database] Failed to rename identity column:', colErr.message);
   }
 
+
+  // STEP 12: Create user_fcm_tokens table
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS user_fcm_tokens (
+        id SERIAL PRIMARY KEY,
+        user_id VARCHAR(255) REFERENCES users(id) ON DELETE CASCADE,
+        token TEXT NOT NULL UNIQUE,
+        device_info VARCHAR(255),
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      )
+    `);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_user_fcm_tokens_user_id ON user_fcm_tokens(user_id)`);
+    console.log('🔹 [Database] FCM tokens schema synchronized.');
+  } catch (fcmDbErr) {
+    console.error('🚨 [Database] Failed to sync FCM tokens schema:', fcmDbErr.message);
+  }
 
   // Background auto-escalation scheduler
   setTimeout(() => {

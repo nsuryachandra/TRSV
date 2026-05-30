@@ -27,6 +27,7 @@ import ThemeToggle from '../components/ThemeToggle';
 import FloatingParticles from '../components/FloatingParticles';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { App } from '@capacitor/app';
+import { PushNotifications } from '@capacitor/push-notifications';
 import { io } from 'socket.io-client';
 
 export default function DashboardLayout() {
@@ -162,6 +163,22 @@ export default function DashboardLayout() {
       };
       requestNotificationPermissions();
 
+      // Request and register for true background push notifications via FCM
+      const registerPushNotifications = async () => {
+        try {
+          let permStatus = await PushNotifications.checkPermissions();
+          if (permStatus.receive !== 'granted') {
+            permStatus = await PushNotifications.requestPermissions();
+          }
+          if (permStatus.receive === 'granted') {
+            await PushNotifications.register();
+          }
+        } catch (pushErr) {
+          console.warn('[DashboardLayout] Push notifications registration workflow error:', pushErr.message);
+        }
+      };
+      registerPushNotifications();
+
       try {
         const listenerPromise = App.addListener('appStateChange', ({ isActive }) => {
           if (isActive) {
@@ -175,10 +192,54 @@ export default function DashboardLayout() {
           handleMarkAllRead();
         });
 
+        const pushRegListener = PushNotifications.addListener('registration', async (tokenObj) => {
+          const token = tokenObj.value;
+          console.log('📡 [PushNotifications] FCM Registration Token:', token);
+          const sessionToken = localStorage.getItem('trsv_session_token');
+          if (sessionToken && token) {
+            try {
+              await fetch('/api/notifications/register-fcm', {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${sessionToken}`,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  token: token,
+                  device_info: 'Android Capacitor Native Device'
+                })
+              });
+              console.log('✅ [PushNotifications] FCM Token saved successfully to database');
+            } catch (apiErr) {
+              console.error('[PushNotifications] Failed to save FCM token to backend:', apiErr.message);
+            }
+          }
+        });
+
+        const pushErrListener = PushNotifications.addListener('registrationError', (err) => {
+          console.error('[PushNotifications] Registration error:', err.error);
+        });
+
+        const pushReceivedListener = PushNotifications.addListener('pushNotificationReceived', (notification) => {
+          console.log('🔔 [PushNotifications] Foreground push notification received:', notification);
+          fetchNotifications();
+        });
+
+        const pushActionListener = PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
+          console.log('🎯 [PushNotifications] Push action performed:', action);
+          setNotificationsOpen(true);
+          fetchNotifications();
+          handleMarkAllRead();
+        });
+
         return () => {
           clearInterval(interval);
           listenerPromise.then(h => h.remove());
           actionListenerPromise.then(h => h.remove());
+          pushRegListener.then(h => h.remove());
+          pushErrListener.then(h => h.remove());
+          pushReceivedListener.then(h => h.remove());
+          pushActionListener.then(h => h.remove());
         };
       } catch (err) {
         console.warn('[DashboardLayout] Failed to register app listeners:', err);
