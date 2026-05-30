@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { MapPin, Search, Users, ShieldAlert, CheckCircle2, Shield, Building2, ChevronLeft, Lock, Info, Phone, Mail, Award, ArrowRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { MapPin, Search, Users, ShieldAlert, CheckCircle2, Shield, Building2, ChevronLeft, Lock, Info, ArrowRight } from 'lucide-react';
 import GlassCard from '../components/GlassCard';
 import AnimatedSection from '../components/AnimatedSection';
 import { useAuth } from '../context/AuthContext';
 import PremiumButton from '../components/PremiumButton';
 import { useNavigate } from 'react-router-dom';
+import ThreeTelanganaMap from '../components/ThreeTelanganaMap';
 
 const formatRole = (role, tier) => {
   if (role === 'supreme_admin') return 'TRSV Founder';
@@ -100,31 +101,6 @@ const TierSection = ({ pulse, title, children, empty }) => (
   </div>
 );
 
-// High-fidelity Realistic Telangana Map Boundary Paths
-const TELANGANA_DISTRICTS = [
-  { id: 'gh', name: 'Greater Hyderabad', active: true, path: 'M 255 230 C 295 220, 315 220, 345 230 C 365 260, 345 290, 315 305 C 275 290, 245 270, 255 230 Z', centerX: 298, centerY: 260 },
-  { id: 'adilabad', name: 'Adilabad', active: false, path: 'M 190 60 C 230 40, 330 40, 370 70 C 350 90, 300 110, 240 100 C 200 95, 170 80, 190 60 Z', centerX: 280, centerY: 70 },
-  { id: 'nizamabad', name: 'Nizamabad', active: false, path: 'M 140 130 C 180 110, 220 110, 245 125 C 255 155, 235 185, 210 200 C 160 210, 130 180, 140 130 Z', centerX: 185, centerY: 155 },
-  { id: 'karimnagar', name: 'Karimnagar', active: false, path: 'M 290 125 C 330 105, 380 115, 410 135 C 390 175, 360 205, 320 200 C 290 185, 275 155, 290 125 Z', centerX: 350, centerY: 155 },
-  { id: 'medak', name: 'Medak', active: false, path: 'M 125 215 C 165 200, 215 205, 245 220 C 240 250, 210 280, 175 285 C 135 270, 115 240, 125 215 Z', centerX: 180, centerY: 245 },
-  { id: 'warangal', name: 'Warangal', active: false, path: 'M 355 215 C 395 200, 445 205, 475 235 C 445 275, 415 295, 365 275 C 335 260, 335 235, 355 215 Z', centerX: 415, centerY: 245 },
-  { id: 'khammam', name: 'Khammam', active: false, path: 'M 425 295 C 465 275, 515 290, 535 325 C 505 385, 465 415, 415 395 C 395 365, 395 330, 425 295 Z', centerX: 475, centerY: 345 },
-  { id: 'nalgonda', name: 'Nalgonda', active: false, path: 'M 285 315 C 325 305, 375 310, 395 325 C 405 375, 365 415, 325 425 C 285 405, 275 365, 285 315 Z', centerX: 340, centerY: 365 },
-  { id: 'mahabubnagar', name: 'Mahabubnagar', active: false, path: 'M 135 295 C 185 290, 235 305, 245 320 C 255 365, 215 410, 175 415 C 125 395, 115 340, 135 295 Z', centerX: 185, centerY: 350 }
-];
-
-// High-fidelity Realistic Greater Hyderabad Assembly Constituency Paths
-const GH_CONSTITUENCIES = [
-  { id: 'Secunderabad', name: 'Secunderabad', path: 'M 220 70 C 270 50, 320 50, 340 100 C 310 130, 270 140, 210 110 C 190 95, 195 85, 220 70 Z' },
-  { id: 'Nampally', name: 'Nampally', path: 'M 170 150 C 220 140, 260 140, 285 160 C 290 205, 255 240, 220 250 C 185 235, 160 200, 170 150 Z' },
-  { id: 'Charminar', name: 'Charminar', path: 'M 190 260 C 230 250, 280 250, 305 270 C 300 325, 265 350, 230 360 C 195 345, 180 310, 190 260 Z' },
-  { id: 'Jubilee Hills', name: 'Jubilee Hills', path: 'M 70 130 C 120 110, 160 120, 185 140 C 160 185, 130 205, 90 200 C 60 185, 55 160, 70 130 Z' },
-  { id: 'Khairatabad', name: 'Khairatabad', path: 'M 300 170 C 340 150, 385 160, 410 180 C 390 225, 360 250, 320 245 C 290 230, 285 205, 300 170 Z' },
-  { id: 'Amberpet', name: 'Amberpet', path: 'M 320 260 C 360 250, 405 260, 430 280 C 410 325, 380 350, 340 345 C 310 330, 305 305, 320 260 Z' },
-  { id: 'Musheerabad', name: 'Musheerabad', path: 'M 80 235 C 130 225, 150 235, 175 250 C 150 295, 120 315, 80 310 C 50 295, 55 270, 80 235 Z' },
-  { id: 'Karwan', name: 'Karwan', path: 'M 290 85 C 340 75, 390 85, 415 105 C 395 150, 365 170, 325 165 C 295 150, 280 120, 290 85 Z' }
-];
-
 export default function Districts() {
   const navigate = useNavigate();
   const { userProfile } = useAuth();
@@ -134,12 +110,9 @@ export default function Districts() {
   const [leadersData, setLeadersData] = useState({ statewideLeaders: [], mainHubLeaders: [], localLeaders: [] });
   const [selectedConstituency, setSelectedConstituency] = useState(null);
 
-  // Map Navigation and 3D Perspective States
+  // Map States
   const [mapLevel, setMapLevel] = useState('state'); // 'state' | 'gh'
   const [hoveredRegion, setHoveredRegion] = useState(null);
-  const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
-  const [tiltStyle, setTiltStyle] = useState({});
-  const mapContainerRef = useRef(null);
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -191,19 +164,6 @@ export default function Districts() {
     ? leadersData.localLeaders.filter(l => l.constituency_id === selectedConstituency.id)
     : [];
 
-  const handleMapRegionClick = (name) => {
-    const matched = constituencyList.find(c =>
-      c.constituency_name.toLowerCase().includes(name.toLowerCase())
-    );
-    if (matched) {
-      setSelectedConstituency(matched);
-      const element = document.getElementById(`constituency-card-${matched.id}`);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-    }
-  };
-
   const getRegionStats = (name) => {
     const matched = constituencyList.find(c =>
       c.constituency_name.toLowerCase().includes(name.toLowerCase())
@@ -223,40 +183,6 @@ export default function Districts() {
     return { active: 0, resolved: 0, safety: 100, colleges: 0, coordinator: 'Vacant' };
   };
 
-  // 3D Perspective Mouse Tilt Calculations
-  const handleMapMouseMove = (e) => {
-    if (!mapContainerRef.current) return;
-    const rect = mapContainerRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    
-    // Normalize coordinates (-0.5 to 0.5)
-    const normX = (x / rect.width) - 0.5;
-    const normY = (y / rect.height) - 0.5;
-    
-    // Rotate max 12 degrees for premium holographic effect
-    const rotX = -normY * 15;
-    const rotY = normX * 15;
-    
-    setTiltStyle({
-      transform: `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale3d(1.02, 1.02, 1.02)`,
-      transition: 'transform 0.1s ease-out'
-    });
-
-    setTooltipPos({
-      x: e.clientX - rect.left + 15,
-      y: e.clientY - rect.top + 15
-    });
-  };
-
-  const handleMapMouseLeave = () => {
-    setHoveredRegion(null);
-    setTiltStyle({
-      transform: 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)',
-      transition: 'transform 0.5s ease-out'
-    });
-  };
-
   const selectedStats = selectedConstituency ? getRegionStats(selectedConstituency.constituency_name) : null;
 
   return (
@@ -271,7 +197,7 @@ export default function Districts() {
           Regional Command Hubs
         </h1>
         <p className="text-base sm:text-lg text-slate-500 dark:text-slate-400 leading-relaxed">
-          Hover over the map to view safety stats, or click to analyze active district councils and leadership grids.
+          Hover and interact with the WebGL 3D map to view regional metrics, or drill down into Greater Hyderabad assembly constituencies.
         </p>
       </AnimatedSection>
 
@@ -279,123 +205,42 @@ export default function Districts() {
       <AnimatedSection direction="up" delay={0.05}>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
           
-          {/* Map Viewer Panel with 3D perspective styling */}
-          <GlassCard 
-            className="lg:col-span-2 p-5 border border-slate-200/50 dark:border-slate-900/60 relative overflow-hidden flex flex-col min-h-[500px]"
-            style={{ perspective: '1000px' }}
-          >
-            {/* Visual Header / Grid Status */}
-            <div className="flex items-center justify-between border-b border-slate-200/40 dark:border-slate-800/60 pb-3 mb-4 shrink-0">
+          {/* WebGL 3D Map Viewport Panel */}
+          <GlassCard className="lg:col-span-2 p-5 border border-slate-200/50 dark:border-slate-900/60 relative overflow-hidden flex flex-col min-h-[500px]">
+            {/* Map UI Header */}
+            <div className="flex items-center justify-between border-b border-slate-200/40 dark:border-slate-800/60 pb-3 mb-4 shrink-0 z-10">
               <div className="flex items-center gap-2">
                 <div className="w-2.5 h-2.5 rounded-full bg-cyan-500 animate-pulse shadow-glow-cyan" />
                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                  {mapLevel === 'state' ? 'Telangana State System Area' : 'Greater Hyderabad Hub Area'}
+                  {mapLevel === 'state' ? '3D WebGL Telangana Command Center' : '3D WebGL Greater Hyderabad Hub'}
                 </span>
               </div>
               {mapLevel === 'gh' && (
                 <button
                   onClick={() => setMapLevel('state')}
-                  className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-[10px] font-extrabold uppercase border border-cyan-500/20 bg-cyan-500/10 text-cyan-500 hover:bg-cyan-500 hover:text-white transition-all cursor-pointer"
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-[10px] font-extrabold uppercase border border-cyan-500/20 bg-cyan-500/10 text-cyan-500 hover:bg-cyan-500 hover:text-white transition-all cursor-pointer z-20"
                 >
                   <ChevronLeft className="w-3.5 h-3.5" /> Back to State Map
                 </button>
               )}
             </div>
 
-            {/* Map Container Viewport */}
-            <div 
-              ref={mapContainerRef}
-              onMouseMove={handleMapMouseMove}
-              onMouseLeave={handleMapMouseLeave}
-              style={tiltStyle}
-              className="flex-1 w-full relative flex items-center justify-center min-h-[380px] bg-slate-950/20 dark:bg-slate-950/40 rounded-2xl border border-slate-200/20 dark:border-slate-900/50 shadow-inner overflow-hidden cursor-crosshair"
-            >
-              {/* Background HUD tech lines */}
-              <div className="absolute inset-0 pointer-events-none opacity-20 dark:opacity-30">
-                <div className="absolute top-1/4 left-0 w-full h-[1px] bg-cyan-500/40 border-dashed" />
-                <div className="absolute top-2/4 left-0 w-full h-[1px] bg-cyan-500/40 border-dashed" />
-                <div className="absolute top-3/4 left-0 w-full h-[1px] bg-cyan-500/40 border-dashed" />
-                <div className="absolute left-1/4 top-0 h-full w-[1px] bg-cyan-500/40 border-dashed" />
-                <div className="absolute left-2/4 top-0 h-full w-[1px] bg-cyan-500/40 border-dashed" />
-                <div className="absolute left-3/4 top-0 h-full w-[1px] bg-cyan-500/40 border-dashed" />
-              </div>
+            {/* Three.js Container Canvas */}
+            <div className="flex-1 w-full relative bg-slate-950/20 dark:bg-slate-950/40 rounded-2xl border border-slate-200/20 dark:border-slate-900/50 shadow-inner overflow-hidden">
+              <ThreeTelanganaMap
+                mapLevel={mapLevel}
+                setMapLevel={setMapLevel}
+                selectedConstituency={selectedConstituency}
+                setSelectedConstituency={setSelectedConstituency}
+                constituencyList={constituencyList}
+                onHoverRegion={setHoveredRegion}
+              />
 
-              {mapLevel === 'state' ? (
-                // 1. Realistic Telangana State Map
-                <svg viewBox="0 0 600 500" className="w-full max-w-[500px] h-auto select-none transition-all duration-500 transform scale-100 drop-shadow-[0_15px_30px_rgba(6,182,212,0.15)]">
-                  <g fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    {TELANGANA_DISTRICTS.map((dist) => {
-                      if (dist.id === 'gh') {
-                        // Active clickable area
-                        return (
-                          <g key={dist.id}>
-                            <path
-                              d={dist.path}
-                              onClick={() => {
-                                setMapLevel('gh');
-                                setHoveredRegion(null);
-                              }}
-                              onMouseEnter={() => setHoveredRegion({ id: 'gh', name: 'Greater Hyderabad', active: true })}
-                              onMouseLeave={() => setHoveredRegion(null)}
-                              className="fill-cyan-500/10 stroke-cyan-500 hover:fill-cyan-500/25 hover:stroke-cyan-400 transition-all duration-350 cursor-pointer shadow-[0_0_15px_rgba(6,182,212,0.3)]"
-                              style={{ filter: 'drop-shadow(0 0 5px rgba(6,182,212,0.4))' }}
-                            />
-                            {/* Pulse beacons */}
-                            <circle cx={dist.centerX} cy={dist.centerY} r="6" className="fill-cyan-400 shadow-glow-cyan animate-pulse" />
-                            <circle cx={dist.centerX} cy={dist.centerY} r="14" className="stroke-cyan-500/50 fill-none animate-ping" style={{ animationDuration: '2.5s' }} />
-                            <text x={dist.centerX} y={dist.centerY - 18} textAnchor="middle" className="fill-cyan-400 font-black text-[9px] tracking-wider uppercase font-sans select-none">
-                              GH HUB (ACTIVE)
-                            </text>
-                          </g>
-                        );
-                      } else {
-                        // Locked "Coming Soon" districts with realistic curves
-                        return (
-                          <path
-                            key={dist.id}
-                            d={dist.path}
-                            onMouseEnter={() => setHoveredRegion({ id: dist.id, name: dist.name, active: false })}
-                            onMouseLeave={() => setHoveredRegion(null)}
-                            className="fill-slate-800/5 stroke-slate-700/40 hover:fill-slate-800/15 hover:stroke-slate-600/60 transition-all duration-300 cursor-not-allowed"
-                            strokeDasharray="4 4"
-                          />
-                        );
-                      }
-                    })}
-                  </g>
-                </svg>
-              ) : (
-                // 2. Realistic Greater Hyderabad Constituency Sub-Map
-                <svg viewBox="0 0 500 500" className="w-full max-w-[420px] h-auto select-none transition-all duration-500 animate-scaleUp drop-shadow-[0_15px_30px_rgba(6,182,212,0.25)]">
-                  <g fill="none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    {GH_CONSTITUENCIES.map((con) => {
-                      const isSelected = selectedConstituency?.constituency_name.toLowerCase().includes(con.name.toLowerCase());
-                      const stats = getRegionStats(con.name);
-                      
-                      return (
-                        <path
-                          key={con.id}
-                          d={con.path}
-                          onClick={() => handleMapRegionClick(con.name)}
-                          onMouseEnter={() => setHoveredRegion({ id: con.id, name: con.name, active: true, safety: stats.safety, tickets: stats.active })}
-                          onMouseLeave={() => setHoveredRegion(null)}
-                          className={`cursor-pointer transition-all duration-300
-                            ${isSelected 
-                              ? 'fill-cyan-500/25 stroke-cyan-400 shadow-glow-cyan' 
-                              : 'fill-cyan-500/5 stroke-cyan-500/45 hover:fill-cyan-500/15 hover:stroke-cyan-300'}`}
-                          style={isSelected ? { filter: 'drop-shadow(0 0 6px rgba(6,182,212,0.45))' } : undefined}
-                        />
-                      );
-                    })}
-                  </g>
-                </svg>
-              )}
-
-              {/* Floating Map Tooltip */}
+              {/* Holographic Mouse Tooltip Overlay */}
               {hoveredRegion && (
                 <div 
-                  className="absolute p-3 rounded-xl border border-slate-700/40 bg-slate-900/95 text-left pointer-events-none z-40 shadow-premium-dark font-sans animate-fadeIn max-w-[200px]"
-                  style={{ left: `${tooltipPos.x}px`, top: `${tooltipPos.y}px` }}
+                  className="absolute p-3 rounded-xl border border-slate-700/40 bg-slate-900/95 text-left pointer-events-none z-45 shadow-premium-dark font-sans animate-fadeIn max-w-[210px]"
+                  style={{ left: `${hoveredRegion.x + 15}px`, top: `${hoveredRegion.y + 15}px` }}
                 >
                   <div className="flex items-center gap-1.5">
                     {hoveredRegion.active ? (
@@ -406,19 +251,19 @@ export default function Districts() {
                     <span className="text-xs font-black text-white uppercase tracking-wider">{hoveredRegion.name}</span>
                   </div>
                   {hoveredRegion.active ? (
-                    <div className="flex flex-col gap-1 mt-2 text-[10px] text-slate-300 font-medium">
+                    <div className="flex flex-col gap-1 mt-2 text-[10px] text-slate-350 font-medium">
                       {hoveredRegion.id === 'gh' ? (
-                        <span className="text-cyan-400 font-extrabold uppercase">Click to zoom into hub</span>
+                        <span className="text-cyan-400 font-extrabold uppercase animate-pulse">Click district to zoom</span>
                       ) : (
                         <>
-                          <span className="text-green-400 font-bold">Safety Index: {hoveredRegion.safety || getRegionStats(hoveredRegion.name).safety}%</span>
-                          <span className="text-rose-400 font-bold">Active cases: {hoveredRegion.tickets ?? getRegionStats(hoveredRegion.name).active}</span>
+                          <span className="text-green-400 font-bold">Safety Index: {getRegionStats(hoveredRegion.name).safety}%</span>
+                          <span className="text-rose-400 font-bold">Active cases: {getRegionStats(hoveredRegion.name).active}</span>
                           <span className="text-[9px] text-slate-400 italic mt-0.5">Click boundary to filter</span>
                         </>
                       )}
                     </div>
                   ) : (
-                    <span className="text-[10px] text-slate-500 block mt-1.5 font-bold uppercase tracking-wider">Coming Soon</span>
+                    <span className="text-[10px] text-slate-500 block mt-1.5 font-bold uppercase tracking-wider">🔒 Locked (Phase 2)</span>
                   )}
                 </div>
               )}
@@ -667,7 +512,7 @@ export default function Districts() {
                     </div>
                     <p className="text-xs text-slate-500 leading-relaxed mt-2">
                       Chief Lead: <strong className="text-slate-700 dark:text-slate-350">{leadName}</strong>
-                      <span className="block text-[10px] text-cyan-555 font-bold mt-0.5">{leadRoleLabel}</span>
+                      <span className="block text-[10px] text-cyan-500 font-bold mt-0.5">{leadRoleLabel}</span>
                     </p>
                   </div>
                   <div className="flex items-center justify-end border-t border-slate-200/50 dark:border-slate-800/80 pt-4 text-xs">
