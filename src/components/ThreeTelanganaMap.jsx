@@ -193,7 +193,7 @@ function DistrictMesh({ feature, idx, onClickGH, mapLevel, selectedConstituency 
         />
       )}
       {active && hovered && mapLevel === 'state' && (
-        <Html position={[cx, 0.4, cz]} center distanceFactor={12} className="pointer-events-none select-none">
+        <Html position={[cx, 0.4, cz]} center className="pointer-events-none select-none">
           <div style={{
             background: 'rgba(8,16,12,0.95)',
             backdropFilter: 'blur(8px)',
@@ -352,7 +352,7 @@ function ConstituencyMesh({ constituency, poly, onClick, isSelected }) {
         opacity={isSelected ? 1.0 : 0.45}
       />
       {hovered && (
-        <Html position={[cx, 0.35, cz]} center distanceFactor={10} className="pointer-events-none select-none z-55">
+        <Html position={[cx, 0.35, cz]} center className="pointer-events-none select-none z-55">
           <div style={{
             background: 'rgba(8,16,12,0.96)',
             backdropFilter: 'blur(8px)',
