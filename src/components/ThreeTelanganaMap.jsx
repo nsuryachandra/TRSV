@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useMemo, useCallback } from 'react';
+import React, { useEffect, useRef, useMemo, useCallback, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Line, Html } from '@react-three/drei';
 import * as THREE from 'three';
@@ -32,6 +32,7 @@ const MAT_LOCKED_HOVER = new THREE.MeshLambertMaterial({ color: 0x2d5a8e, transp
 const MAT_GH = new THREE.MeshPhysicalMaterial({ color: 0x0ea5e9, emissive: 0x0369a1, emissiveIntensity: 0.18, roughness: 0.1, metalness: 0.2, clearcoat: 1, ior: 1.4, transmission: 0.35, transparent: true, opacity: 0.92 });
 const MAT_GH_HOVER = new THREE.MeshPhysicalMaterial({ color: 0x38bdf8, emissive: 0x0ea5e9, emissiveIntensity: 0.4, roughness: 0.05, metalness: 0.3, clearcoat: 1, ior: 1.4, transmission: 0.25, transparent: true, opacity: 0.97 });
 const MAT_GH_SEL = new THREE.MeshPhysicalMaterial({ color: 0x22d3ee, emissive: 0x0891b2, emissiveIntensity: 0.55, roughness: 0.05, metalness: 0.3, clearcoat: 1, ior: 1.4, transmission: 0.2, transparent: true, opacity: 1 });
+const MAT_DIMMED = new THREE.MeshLambertMaterial({ color: 0x0f172a, transparent: true, opacity: 0.12 });
 
 // ─── Parse one GeoJSON feature into shape + border ──────────────────────────
 function parseFeature(feature) {
@@ -93,10 +94,15 @@ function DistrictMesh({ feature, idx, onClickGH, mapLevel, selId }) {
   }, []); // eslint-disable-line
 
   const getMat = useCallback(() => {
+    if (mapLevel === 'gh') {
+      if (!active) return MAT_DIMMED;
+      if (isSelected) return MAT_GH_SEL;
+      return hovered.current ? MAT_GH_HOVER : MAT_GH;
+    }
     if (!active) return hovered.current ? MAT_LOCKED_HOVER : MAT_LOCKED;
     if (isSelected) return MAT_GH_SEL;
     return hovered.current ? MAT_GH_HOVER : MAT_GH;
-  }, [active, isSelected]);
+  }, [active, isSelected, mapLevel]);
 
   // Border line points on XZ plane
   const borderPts = useMemo(() => pts, [pts]);
@@ -178,8 +184,105 @@ function ScanBeam({ x }) {
   );
 }
 
+// Helper to retrieve district shape center coordinates
+const getDistrictCenter = (districtName, features) => {
+  const nameLower = districtName.toLowerCase();
+  let targetName = '';
+  if (nameLower.includes('hyderabad')) targetName = 'hyderabad';
+  else if (nameLower.includes('medchal')) targetName = 'medchal';
+  else if (nameLower.includes('rangareddy') || nameLower.includes('ranga reddy')) targetName = 'rangareddy';
+  
+  if (!targetName) return null;
+  
+  const feat = features.find(f => {
+    const fn = (f.properties?.name || '').toLowerCase();
+    return fn.includes(targetName);
+  });
+  if (!feat) return null;
+  
+  const geo = feat.geometry;
+  let ring = [];
+  if (geo.type === 'Polygon') ring = geo.coordinates[0];
+  else if (geo.type === 'MultiPolygon') {
+    geo.coordinates.forEach(p => { if (p[0].length > ring.length) ring = p[0]; });
+  }
+  const step = Math.max(1, Math.floor(ring.length / 80));
+  const simplified = ring.filter((_, i) => i % step === 0);
+  const pts = simplified.map(c => project(c[0], c[1]));
+  const cx = pts.reduce((s, p) => s + p.x, 0) / pts.length;
+  const cz = pts.reduce((s, p) => s + p.z, 0) / pts.length;
+  
+  return { cx, cz };
+};
+
+// 3D Constituency Node Component
+function ConstituencyNode({ node, onClick, isSelected }) {
+  const [hovered, setHovered] = useState(false);
+  
+  return (
+    <group>
+      {/* Connecting Line to District Center */}
+      <Line
+        points={[new THREE.Vector3(node.cx, 0.13, node.cz), new THREE.Vector3(node.x, 0.13, node.z)]}
+        color={isSelected ? '#22d3ee' : '#38bdf8'}
+        lineWidth={isSelected ? 1.8 : 0.8}
+        transparent
+        opacity={isSelected ? 0.85 : 0.25}
+      />
+
+      {/* Base Ring */}
+      <mesh position={[node.x, 0.13, node.z]} rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[0.04, 0.06, 16]} />
+        <meshBasicMaterial color={isSelected ? '#22d3ee' : (hovered ? '#38bdf8' : '#0ea5e9')} transparent opacity={hovered ? 0.9 : 0.5} />
+      </mesh>
+      
+      {/* Core Pin */}
+      <mesh
+        position={[node.x, 0.22, node.z]}
+        onPointerOver={(e) => { e.stopPropagation(); setHovered(true); document.body.style.cursor = 'pointer'; }}
+        onPointerOut={(e) => { setHovered(false); document.body.style.cursor = 'default'; }}
+        onClick={(e) => { e.stopPropagation(); onClick(node.raw); }}
+      >
+        <cylinderGeometry args={[0.025, 0.025, 0.18, 8]} />
+        <meshBasicMaterial color={isSelected ? '#22d3ee' : (hovered ? '#ffffff' : '#0ea5e9')} />
+      </mesh>
+
+      {/* Pulse Halo */}
+      {hovered && (
+        <mesh position={[node.x, 0.22, node.z]}>
+          <sphereGeometry args={[0.08, 16, 16]} />
+          <meshBasicMaterial color="#38bdf8" transparent opacity={0.25} />
+        </mesh>
+      )}
+
+      {/* Floating cyberpunk label on hover */}
+      {hovered && (
+        <Html position={[node.x, 0.45, node.z]} center distanceFactor={10} className="pointer-events-none select-none z-50">
+          <div style={{
+            background: 'rgba(8,8,16,0.95)',
+            backdropFilter: 'blur(6px)',
+            border: '1px solid #38bdf8',
+            boxShadow: '0 0 10px rgba(14,165,233,0.5)',
+            color: '#fff',
+            padding: '3px 8px',
+            borderRadius: 6,
+            fontSize: 8,
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+            fontFamily: 'monospace',
+            fontWeight: 900,
+            whiteSpace: 'nowrap'
+          }}>
+            {node.constituency_name}
+          </div>
+        </Html>
+      )}
+    </group>
+  );
+}
+
 // ─── Scene Contents — stable, never remounts ────────────────────────────────
-function SceneContents({ mapLevelRef, onClickGHRef, selIdRef, featuresRef }) {
+function SceneContents({ mapLevelRef, onClickGHRef, selIdRef, featuresRef, constituencyListRef, setSelectedConstituencyRef }) {
   const scanX = useRef(-10);
   const showScan = useRef(false);
   const scanned = useRef(false);
@@ -199,6 +302,66 @@ function SceneContents({ mapLevelRef, onClickGHRef, selIdRef, featuresRef }) {
   useFrame(() => {});
 
   const mapLevel = mapLevelRef.current;
+  const list = constituencyListRef.current || [];
+
+  const ghConstituencies = useMemo(() => {
+    return list.filter(c => {
+      const d = (c.district || '').toLowerCase();
+      return d.includes('hyderabad') || d.includes('medchal') || d.includes('rangareddy') || d.includes('ranga reddy');
+    });
+  }, [list]);
+
+  const constituencyNodes = useMemo(() => {
+    if (mapLevel !== 'gh') return [];
+    
+    const hydList = [];
+    const medchalList = [];
+    const rrList = [];
+    
+    ghConstituencies.forEach(c => {
+      const d = (c.district || '').toLowerCase();
+      if (d.includes('hyderabad')) hydList.push(c);
+      else if (d.includes('medchal')) medchalList.push(c);
+      else if (d.includes('rangareddy') || d.includes('ranga reddy')) rrList.push(c);
+    });
+    
+    const nodes = [];
+    
+    const processGroup = (groupList, r) => {
+      if (groupList.length === 0) return;
+      const center = getDistrictCenter(groupList[0].district, featuresRef.current);
+      if (!center) return;
+      const { cx, cz } = center;
+      const n = groupList.length;
+      groupList.forEach((c, idx) => {
+        const angle = (idx / n) * 2 * Math.PI;
+        const x = cx + r * Math.cos(angle);
+        const z = cz + r * Math.sin(angle);
+        nodes.push({
+          id: c.id,
+          constituency_name: c.constituency_name,
+          district: c.district,
+          raw: c,
+          x,
+          z,
+          cx,
+          cz
+        });
+      });
+    };
+    
+    processGroup(hydList, 0.45);
+    processGroup(medchalList, 0.75);
+    processGroup(rrList, 1.25);
+    
+    return nodes;
+  }, [ghConstituencies, mapLevel]);
+
+  const onNodeClick = useCallback((rawConstituency) => {
+    if (setSelectedConstituencyRef.current) {
+      setSelectedConstituencyRef.current(rawConstituency);
+    }
+  }, []);
 
   return (
     <>
@@ -219,6 +382,16 @@ function SceneContents({ mapLevelRef, onClickGHRef, selIdRef, featuresRef }) {
           />
         ))}
         {showScan.current && <ScanBeam x={scanX.current} />}
+
+        {/* Render Constituency Nodes when zoomed into GH */}
+        {mapLevel === 'gh' && constituencyNodes.map((node, i) => (
+          <ConstituencyNode
+            key={`node-${node.id || i}`}
+            node={node}
+            onClick={onNodeClick}
+            isSelected={selIdRef.current && node.constituency_name.toLowerCase() === selIdRef.current.toLowerCase()}
+          />
+        ))}
       </group>
 
       <CameraCtrl mapLevel={mapLevel} />
@@ -234,10 +407,14 @@ export default function ThreeTelanganaMap({
   const mapLevelRef = useRef(mapLevel);
   const selIdRef = useRef(selectedConstituency?.constituency_name || '');
   const featuresRef = useRef(mapData.features);
+  const constituencyListRef = useRef(constituencyList || []);
+  const setSelectedConstituencyRef = useRef(setSelectedConstituency);
 
   // Keep refs in sync without triggering Canvas remount
   useEffect(() => { mapLevelRef.current = mapLevel; }, [mapLevel]);
   useEffect(() => { selIdRef.current = selectedConstituency?.constituency_name || ''; }, [selectedConstituency]);
+  useEffect(() => { constituencyListRef.current = constituencyList || []; }, [constituencyList]);
+  useEffect(() => { setSelectedConstituencyRef.current = setSelectedConstituency; }, [setSelectedConstituency]);
 
   const onClickGHRef = useRef((name) => {
     setMapLevel('gh');
@@ -274,6 +451,8 @@ export default function ThreeTelanganaMap({
           onClickGHRef={onClickGHRef}
           selIdRef={selIdRef}
           featuresRef={featuresRef}
+          constituencyListRef={constituencyListRef}
+          setSelectedConstituencyRef={setSelectedConstituencyRef}
         />
       </Canvas>
 
