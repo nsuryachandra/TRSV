@@ -529,6 +529,17 @@ httpServer.listen(PORT, async () => {
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_activity_logs_user_id ON activity_logs(user_id)`);
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_realtime_activity_logs_created_at ON realtime_activity_logs(created_at DESC)`);
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_realtime_activity_logs_activity_type ON realtime_activity_logs(activity_type)`);
+    
+    // Auto-prune realtime logs: Keep last 3000 entries max to conserve database storage
+    await pool.query(`
+      DELETE FROM realtime_activity_logs 
+      WHERE id NOT IN (
+        SELECT id FROM realtime_activity_logs 
+        ORDER BY created_at DESC 
+        LIMIT 3000
+      )
+    `);
+    console.log('🧹 [Database] Auto-pruned realtime activity logs to keep storage optimized.');
     console.log('🔹 [Database] Users password recovery and performance indexes synchronized.');
   } catch (err) {
     console.error('🚨 [Database] Failed to sync password recovery or indexes:', err.message);

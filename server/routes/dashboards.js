@@ -181,6 +181,16 @@ router.get('/logs', requireRole(['supreme_admin', 'state_president', 'dev']), as
   const parsedLimit = Math.min(parseInt(limit) || 200, 500);
 
   try {
+    // Storage Optimization: Async prune old logs beyond 3,000 count in the background to keep database storage footprint minimal
+    query(`
+      DELETE FROM realtime_activity_logs 
+      WHERE id NOT IN (
+        SELECT id FROM realtime_activity_logs 
+        ORDER BY created_at DESC 
+        LIMIT 3000
+      )
+    `).catch(err => console.error('🧹 [Logs Auto-Prune Background Error]:', err.message));
+
     let queryStr = `
       SELECT al.*, u.full_name, u.role, u.email 
       FROM realtime_activity_logs al
@@ -215,6 +225,45 @@ router.get('/logs', requireRole(['supreme_admin', 'state_president', 'dev']), as
       success: true,
       logs: result.rows,
       activityTypes: typesResult.rows.map(r => r.activity_type)
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * 2b. Prune/Clear old Activity Audit Logs (Supreme Admin Only)
+ */
+router.post('/logs/prune', requireRole(['supreme_admin', 'dev']), async (req, res) => {
+  const { retentionDays } = req.body;
+  const days = parseInt(retentionDays);
+
+  if (isNaN(days) || days < 0) {
+    return res.status(400).json({ success: false, message: 'Invalid retention period specified.' });
+  }
+
+  try {
+    let result;
+    if (days === 0) {
+      // Clear all logs completely
+      result = await query('DELETE FROM realtime_activity_logs');
+    } else {
+      // Delete logs older than X days
+      result = await query('DELETE FROM realtime_activity_logs WHERE created_at < NOW() - ($1 * INTERVAL \'1 day\')', [days]);
+    }
+
+    // Insert a new log entry to indicate the prune happened
+    await query(
+      'INSERT INTO realtime_activity_logs (user_id, activity_type, details) VALUES ($1, $2, $3)',
+      [req.user.uid || 'SUPREME_ADMIN_UID', 'PRUNE_LOGS', `Manually pruned logs with a retention window of ${days} days. Cleared rows: ${result.rowCount || 0}`]
+    );
+
+    res.json({
+      success: true,
+      message: days === 0
+        ? 'All system audit logs cleared successfully.'
+        : `System audit logs older than ${days} days pruned successfully.`,
+      prunedCount: result.rowCount || 0
     });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
