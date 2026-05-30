@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Mail, Phone, MapPin, Send, ShieldAlert, CheckCircle, Lock, Sparkles, ChevronRight, ChevronLeft, UploadCloud, EyeOff, FileText, X, AlertTriangle, RefreshCw } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, ShieldAlert, CheckCircle, Lock, Sparkles, ChevronRight, ChevronLeft, UploadCloud, EyeOff, FileText, X, AlertTriangle, RefreshCw, Mic, Square, Trash2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import GlassCard from '../components/GlassCard';
 import PremiumButton from '../components/PremiumButton';
@@ -32,6 +32,97 @@ export default function Contact() {
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [assignedTicketId, setAssignedTicketId] = useState('');
+  
+  // Audio Recorder State
+  const [recording, setRecording] = useState(false);
+  const [mediaRecorder, setMediaRecorder] = useState(null);
+  const [audioChunks, setAudioChunks] = useState([]);
+  const [recordTime, setRecordTime] = useState(0);
+  const [recordTimerInterval, setRecordTimerInterval] = useState(null);
+  const [audioPreviewUrl, setAudioPreviewUrl] = useState(null);
+  const [audioBlob, setAudioBlob] = useState(null);
+
+  const startRecording = async () => {
+    setErrorMsg('');
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      
+      const chunks = [];
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunks.push(e.data);
+      };
+
+      recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: 'audio/mp3' });
+        setAudioBlob(blob);
+        const url = URL.createObjectURL(blob);
+        setAudioPreviewUrl(url);
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      setAudioChunks([]);
+      setAudioPreviewUrl(null);
+      setAudioBlob(null);
+      setRecordTime(0);
+      
+      recorder.start();
+      setMediaRecorder(recorder);
+      setRecording(true);
+
+      const interval = setInterval(() => {
+        setRecordTime(prev => {
+          if (prev >= 120) { // Auto-stop after 2 minutes
+            recorder.stop();
+            clearInterval(interval);
+            setRecording(false);
+            return 120;
+          }
+          return prev + 1;
+        });
+      }, 1000);
+      setRecordTimerInterval(interval);
+    } catch (err) {
+      console.error('Microphone access denied:', err);
+      setErrorMsg('Microphone access denied. Please allow microphone permissions in browser settings.');
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorder && recording) {
+      mediaRecorder.stop();
+      if (recordTimerInterval) {
+        clearInterval(recordTimerInterval);
+      }
+      setRecording(false);
+    }
+  };
+
+  const deleteRecording = () => {
+    setAudioPreviewUrl(null);
+    setAudioBlob(null);
+    setAudioChunks([]);
+  };
+
+  const attachAudioMemo = () => {
+    if (audioBlob) {
+      const audioFile = new File([audioBlob], `voice_memo_${Date.now()}.mp3`, { type: 'audio/mp3' });
+      setProofFiles(prev => [...prev, audioFile]);
+      deleteRecording();
+    }
+  };
+
+  const formatTimer = (secs) => {
+    const mins = Math.floor(secs / 60);
+    const remainingSecs = secs % 60;
+    return `${String(mins).padStart(2, '0')}:${String(remainingSecs).padStart(2, '0')}`;
+  };
+
+  React.useEffect(() => {
+    return () => {
+      if (recordTimerInterval) clearInterval(recordTimerInterval);
+    };
+  }, [recordTimerInterval]);
 
   // 6-hour submission cooldown state
   const [cooldownRemaining, setCooldownRemaining] = useState(0);
@@ -547,25 +638,105 @@ export default function Contact() {
                 </div>
 
                 {/* Proofs Drag and Drop field */}
-                <div className="flex flex-col gap-2">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                    Complaint Proof Attachments <span className="text-rose-500">*</span>
+                <div className="flex flex-col gap-3">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+                    <span>Complaint Proof Attachments <span className="text-rose-500">*</span></span>
+                    <span className="text-[9px] text-cyan-555 font-extrabold uppercase">At least one proof file required</span>
                   </label>
                   
-                  <div className="relative group cursor-pointer border-2 border-dashed border-slate-200/60 dark:border-slate-800 hover:border-cyan-500/60 dark:hover:border-cyan-400/60 rounded-2xl bg-white/10 dark:bg-slate-900/10 p-6 text-center transition-all">
-                    <input
-                      type="file"
-                      multiple
-                      accept="application/pdf,video/mp4,image/*"
-                      onChange={handleFileChange}
-                      className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
-                    />
-                    <div className="flex flex-col items-center gap-2 pointer-events-none select-none">
-                      <UploadCloud className="w-8 h-8 text-cyan-500 group-hover:scale-110 transition-transform duration-200" />
-                      <div className="flex flex-col gap-0.5">
-                        <span className="text-xs font-bold text-slate-700 dark:text-white block">Drag & Drop files here or click to browse</span>
-                        <span className="text-[9px] text-slate-400 uppercase tracking-wider">PDF, MP4, or Images up to 20MB only (Mandatory)</span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* File Dropzone */}
+                    <div className="relative group cursor-pointer border-2 border-dashed border-slate-200/60 dark:border-slate-800 hover:border-cyan-500/60 dark:hover:border-cyan-400/60 rounded-2xl bg-white/10 dark:bg-slate-900/10 p-6 text-center transition-all flex flex-col items-center justify-center min-h-[140px]">
+                      <input
+                        type="file"
+                        multiple
+                        accept="application/pdf,video/mp4,image/*"
+                        onChange={handleFileChange}
+                        className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
+                      />
+                      <div className="flex flex-col items-center gap-2 pointer-events-none select-none">
+                        <UploadCloud className="w-7 h-7 text-cyan-500 group-hover:scale-110 transition-transform duration-200" />
+                        <div className="flex flex-col gap-0.5">
+                          <span className="text-[11px] font-bold text-slate-700 dark:text-white block">Drag & Drop files here</span>
+                          <span className="text-[9px] text-slate-400 uppercase tracking-wider">PDF, MP4, Images up to 20MB</span>
+                        </div>
                       </div>
+                    </div>
+
+                    {/* Audio Recorder Panel */}
+                    <div className="rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-white/10 dark:bg-slate-900/10 p-5 flex flex-col justify-between min-h-[140px] text-left gap-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-extrabold text-slate-700 dark:text-white flex items-center gap-1.5">
+                          <Mic className="w-3.5 h-3.5 text-cyan-500" />
+                          Voice Memo Evidence
+                        </span>
+                        {recording && (
+                          <span className="flex items-center gap-1 text-[9px] font-black text-rose-500 uppercase tracking-wider animate-pulse">
+                            <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                            Recording {formatTimer(recordTime)}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Display States */}
+                      {!recording && !audioPreviewUrl ? (
+                        <div className="flex-1 flex flex-col justify-center items-center text-center">
+                          <p className="text-[10px] text-slate-400 mb-2 leading-relaxed max-w-[200px]">
+                            Record a brief audio statement explaining the issue directly from your microphone.
+                          </p>
+                          <PremiumButton
+                            type="button"
+                            variant="secondary"
+                            size="sm"
+                            onClick={startRecording}
+                            className="!border-cyan-500/30 !text-cyan-500 hover:!bg-cyan-500 hover:!text-white font-extrabold text-[10px] py-1.5"
+                          >
+                            🎙️ Record Memo
+                          </PremiumButton>
+                        </div>
+                      ) : recording ? (
+                        <div className="flex-1 flex flex-col justify-center items-center gap-2.5">
+                          {/* Animated Waveform indicator */}
+                          <div className="flex items-center gap-1 h-6">
+                            <div className="w-1 bg-cyan-500 rounded animate-voice-bar-1 h-2" />
+                            <div className="w-1 bg-cyan-500 rounded animate-voice-bar-2 h-4" />
+                            <div className="w-1 bg-cyan-400 rounded animate-voice-bar-3 h-5" />
+                            <div className="w-1 bg-cyan-500 rounded animate-voice-bar-4 h-3" />
+                            <div className="w-1 bg-cyan-400 rounded animate-voice-bar-5 h-4" />
+                            <div className="w-1 bg-cyan-500 rounded animate-voice-bar-6 h-2" />
+                          </div>
+                          <PremiumButton
+                            type="button"
+                            variant="primary"
+                            size="sm"
+                            onClick={stopRecording}
+                            className="bg-rose-500 hover:bg-rose-600 font-extrabold text-[10px] py-1.5 flex items-center gap-1.5"
+                          >
+                            <Square className="w-3 h-3 fill-current" /> Stop & Preview
+                          </PremiumButton>
+                        </div>
+                      ) : (
+                        <div className="flex-1 flex flex-col justify-center gap-2">
+                          <audio src={audioPreviewUrl} controls className="w-full h-8 accent-cyan-500 mt-1" />
+                          <div className="flex gap-2 w-full mt-1.5">
+                            <button
+                              type="button"
+                              onClick={deleteRecording}
+                              className="p-2 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-500 hover:bg-rose-500 hover:text-white transition-all duration-200 cursor-pointer"
+                              title="Delete Recording"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={attachAudioMemo}
+                              className="flex-1 py-2 px-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 hover:text-white font-extrabold text-[10px] transition-all duration-300 cursor-pointer"
+                            >
+                              ✓ Attach Voice Memo
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

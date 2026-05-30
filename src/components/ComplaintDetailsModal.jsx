@@ -677,26 +677,54 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
 
             {/* Proofs Vault */}
             {files.length > 0 && (
-              <section>
+               <section>
                 <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 dark:text-white mb-3 flex items-center gap-2">
                   <ShieldAlert className="w-4 h-4 text-cyan-500" /> Evidence Vault
                 </h3>
-                <div className="flex flex-col gap-2">
-                  {files.map((file, idx) => (
-                    <a 
-                      key={idx}
-                      href={file.file_url} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-between p-3 rounded-xl border border-slate-200/60 dark:border-slate-800 bg-white/50 dark:bg-slate-850/50 hover:border-cyan-500/50 transition-colors group"
-                    >
-                      <div className="flex items-center gap-2 min-w-0">
-                        <FileText className="w-4 h-4 text-slate-400 group-hover:text-cyan-500" />
-                        <span className="text-xs font-bold text-slate-700 dark:text-slate-300 truncate">{file.file_name}</span>
-                      </div>
-                      <span className="text-[9px] font-extrabold uppercase tracking-wider text-cyan-500 bg-cyan-500/10 px-2 py-1 rounded shrink-0">View File</span>
-                    </a>
-                  ))}
+                <div className="flex flex-col gap-3">
+                  {files.map((file, idx) => {
+                    const isAudio = file.file_name?.toLowerCase().endsWith('.mp3') || 
+                                    file.file_name?.toLowerCase().endsWith('.wav') || 
+                                    file.file_name?.toLowerCase().endsWith('.m4a') || 
+                                    file.file_name?.toLowerCase().includes('voice_memo') ||
+                                    file.file_url?.toLowerCase().endsWith('.mp3') ||
+                                    file.file_url?.toLowerCase().endsWith('.wav') ||
+                                    file.file_url?.toLowerCase().endsWith('.m4a');
+                    if (isAudio) {
+                      return (
+                        <div 
+                          key={idx}
+                          className="flex flex-col gap-2 p-4 rounded-xl border border-cyan-500/20 bg-cyan-500/5 dark:bg-cyan-950/10"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <span className="animate-pulse">🎙️</span>
+                              <span className="text-xs font-black text-slate-800 dark:text-cyan-200 truncate">{file.file_name}</span>
+                            </div>
+                            <span className="text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-cyan-500/15 text-cyan-500 dark:text-cyan-400 border border-cyan-500/20">
+                              Voice Memo
+                            </span>
+                          </div>
+                          <audio src={file.file_url} controls className="w-full h-8 mt-1 accent-cyan-500 text-cyan-500 focus:outline-none" />
+                        </div>
+                      );
+                    }
+                    return (
+                      <a 
+                        key={idx}
+                        href={file.file_url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between p-3 rounded-xl border border-slate-200/60 dark:border-slate-800 bg-white/50 dark:bg-slate-850/50 hover:border-cyan-500/50 transition-colors group"
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          <FileText className="w-4 h-4 text-slate-400 group-hover:text-cyan-500" />
+                          <span className="text-xs font-bold text-slate-700 dark:text-slate-300 truncate">{file.file_name}</span>
+                        </div>
+                        <span className="text-[9px] font-extrabold uppercase tracking-wider text-cyan-500 bg-cyan-500/10 px-2 py-1 rounded shrink-0">View File</span>
+                      </a>
+                    );
+                  })}
                 </div>
               </section>
             )}
