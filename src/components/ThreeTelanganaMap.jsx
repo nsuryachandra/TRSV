@@ -231,8 +231,11 @@ function CameraCtrl({ mapLevel, selectedConstituency, constituencyCells }) {
       targetCam.set(0, mobile ? 13 : 9, mobile ? 14 : 10);
       targetLook.set(0, 0, 0);
     } else if (mapLevel === 'gh' && !selectedConstituency) {
-      targetCam.set(-0.5, mobile ? 5 : 3.5, mobile ? 5.5 : 4);
-      targetLook.set(-0.3, 0, -0.3);
+      // Centering perfectly on the center coordinates of Greater Hyderabad districts
+      const ghCx = -0.52;
+      const ghCz = 0.23;
+      targetCam.set(ghCx, mobile ? 6.5 : 3.6, ghCz + (mobile ? 6.8 : 4.0));
+      targetLook.set(ghCx, 0, ghCz);
     } else if (mapLevel === 'gh' && selectedConstituency) {
       const name = selectedConstituency.constituency_name.toLowerCase();
       const cell = constituencyCells.find(c => c.constituency.constituency_name.toLowerCase() === name);
@@ -241,12 +244,14 @@ function CameraCtrl({ mapLevel, selectedConstituency, constituencyCells }) {
         const cx = poly.reduce((s, p) => s + p.x, 0) / poly.length;
         const cz = poly.reduce((s, p) => s + p.z, 0) / poly.length;
         
-        // Dynamic deep camera framing around the clicked constituency block
-        targetCam.set(cx, mobile ? 1.6 : 1.25, cz + (mobile ? 1.2 : 0.95));
+        // Dynamic deep camera framing around the clicked constituency block (slightly pulled back on mobile for narrow screens)
+        targetCam.set(cx, mobile ? 2.3 : 1.25, cz + (mobile ? 1.9 : 0.95));
         targetLook.set(cx, 0, cz);
       } else {
-        targetCam.set(-0.5, mobile ? 5 : 3.5, mobile ? 5.5 : 4);
-        targetLook.set(-0.3, 0, -0.3);
+        const ghCx = -0.52;
+        const ghCz = 0.23;
+        targetCam.set(ghCx, mobile ? 6.5 : 3.6, ghCz + (mobile ? 6.8 : 4.0));
+        targetLook.set(ghCx, 0, ghCz);
       }
     }
 

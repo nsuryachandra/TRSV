@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Search, Users, ShieldAlert, CheckCircle2, Shield, Building2, ChevronLeft, Lock, Info, ArrowRight } from 'lucide-react';
+import { MapPin, Search, Users, ShieldAlert, CheckCircle2, Shield, Building2, ChevronLeft, Lock, Info, ArrowRight, Phone } from 'lucide-react';
 import GlassCard from '../components/GlassCard';
 import AnimatedSection from '../components/AnimatedSection';
 import { useAuth } from '../context/AuthContext';
@@ -74,8 +74,9 @@ const LeaderCard = ({ lead, tier, color = 'cyan', constName = '' }) => {
           {formatRole(lead.role, tier)}{constName && tier !== 'hub' && tier !== 'state' ? ` — ${constName}` : ''}
         </span>
         {lead.phone && (
-          <span className="text-[9px] text-slate-400 font-mono mt-0.5 truncate flex items-center gap-1">
-            📞 {lead.phone}
+          <span className="text-[10px] text-slate-500 dark:text-slate-400 font-extrabold tracking-wider font-mono mt-1 flex items-center gap-1.5">
+            <Phone className={`w-3 h-3 ${s.role}`} />
+            {lead.phone === '99999999' || lead.phone.toLowerCase() === 'revealing soon' ? 'REVEALING SOON' : lead.phone}
           </span>
         )}
       </div>
