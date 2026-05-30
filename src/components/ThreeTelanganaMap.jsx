@@ -135,9 +135,6 @@ function DistrictMesh({ feature, idx, onClickGH, mapLevel, selectedConstituency 
   const name = feature.properties?.name || '';
   const active = isGH(name);
 
-  // Hide all non-GH districts when zoomed in to GH for a clean focused look
-  if (mapLevel === 'gh' && !active) return null;
-
   const { shape, pts, cx, cz } = useMemo(() => parseFeature(feature), [feature]);
   const geom = useMemo(() => getGeom(`${idx}_${active}`, shape, active ? EXTRUDE_ACTIVE : EXTRUDE_LOCKED), [idx, shape, active]);
   
@@ -167,6 +164,10 @@ function DistrictMesh({ feature, idx, onClickGH, mapLevel, selectedConstituency 
 
   const isHyd = name.toLowerCase().includes('hyderabad');
   const borderColor = isHyd ? '#eab308' : '#10b981';
+
+  // Hide all non-GH districts when zoomed in to GH for a clean focused look
+  // Returned here at the bottom to comply with the rules of React hooks
+  if (mapLevel === 'gh' && !active) return null;
 
   return (
     <group>
