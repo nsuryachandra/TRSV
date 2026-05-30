@@ -107,7 +107,8 @@ app.use(helmet({
         "'self'", 
         "data:", 
         "blob:",
-        "https://*.supabase.co"
+        "https://*.supabase.co",
+        "https://images.unsplash.com"
       ],
       connectSrc: [
         "'self'", 

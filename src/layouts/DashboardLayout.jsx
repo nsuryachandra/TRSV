@@ -234,7 +234,8 @@ export default function DashboardLayout() {
     const interval = setInterval(fetchNotifications, 5000);
 
     // Request permissions for native local notifications and register resume listener if running under Capacitor
-    if (window.Capacitor) {
+    const isNative = window.Capacitor && window.Capacitor.getPlatform && window.Capacitor.getPlatform() !== 'web';
+    if (isNative) {
       const requestNotificationPermissions = async () => {
         try {
           const status = await LocalNotifications.checkPermissions();
@@ -347,7 +348,8 @@ export default function DashboardLayout() {
           }, 4500);
 
           // Schedule a native local push notification on mobile devices
-          if (window.Capacitor) {
+          const isNative = window.Capacitor && window.Capacitor.getPlatform && window.Capacitor.getPlatform() !== 'web';
+          if (isNative) {
             LocalNotifications.schedule({
               notifications: [
                 {
@@ -919,7 +921,7 @@ export default function DashboardLayout() {
                               </button>
                             </div>
                           ) : (
-                            window.Capacitor && (
+                            (window.Capacitor && window.Capacitor.getPlatform && window.Capacitor.getPlatform() !== 'web') && (
                               <div className="px-1 py-1 text-[9px] text-slate-450 dark:text-slate-550 italic text-left">
                                 Hardware biometrics sensor not enrolled.
                               </div>
