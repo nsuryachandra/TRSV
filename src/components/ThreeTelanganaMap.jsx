@@ -135,6 +135,10 @@ function DistrictMesh({ feature, idx, onClickGH, mapLevel, selectedConstituency 
   const name = feature.properties?.name || '';
   const active = isGH(name);
 
+  // Hide all non-GH districts when zoomed in to GH for a clean focused look
+  const isHyd = name.toLowerCase().includes('hyderabad');
+  const borderColor = isHyd ? '#eab308' : '#10b981';
+
   const { shape, pts, cx, cz } = useMemo(() => parseFeature(feature), [feature]);
   const geom = useMemo(() => getGeom(`${idx}_${active}`, shape, active ? EXTRUDE_ACTIVE : EXTRUDE_LOCKED), [idx, shape, active]);
   
@@ -162,12 +166,10 @@ function DistrictMesh({ feature, idx, onClickGH, mapLevel, selectedConstituency 
     return hovered ? MAT_GH_HOVER : MAT_GH;
   }, [active, isSelected, mapLevel, hovered]);
 
-  const isHyd = name.toLowerCase().includes('hyderabad');
-  const borderColor = isHyd ? '#eab308' : '#10b981';
-
-  // Hide all non-GH districts when zoomed in to GH for a clean focused look
-  // Returned here at the bottom to comply with the rules of React hooks
-  if (mapLevel === 'gh' && !active) return null;
+  // When zoomed in, hide the main district mesh of GH districts so we can render their constituency meshes instead
+  if (mapLevel === 'gh') {
+    return null;
+  }
 
   return (
     <group>
@@ -254,40 +256,64 @@ const getDistrictCenter = (districtName, features) => {
   return parseFeature(feat);
 };
 
-// ─── Constituency Node Component ─────────────────────────────────────────────
-function ConstituencyNode({ node, onClick, isSelected }) {
+// ─── 3D Extruded Constituency Mesh Component ──────────────────────────────
+function ConstituencyMesh({ constituency, poly, onClick, isSelected }) {
   const [hovered, setHovered] = useState(false);
-  
+
+  const shape = useMemo(() => {
+    const shp = new THREE.Shape();
+    if (poly.length > 2) {
+      shp.moveTo(poly[0].x, -poly[0].z);
+      poly.slice(1).forEach(p => shp.lineTo(p.x, -p.z));
+      shp.closePath();
+    }
+    return shp;
+  }, [poly]);
+
+  const geom = useMemo(() => {
+    return new THREE.ExtrudeGeometry(shape, {
+      depth: 0.22,
+      bevelEnabled: true,
+      bevelSegments: 1,
+      bevelSize: 0.003,
+      bevelThickness: 0.005
+    });
+  }, [shape]);
+
+  const currentMat = useMemo(() => {
+    if (isSelected) return MAT_GH_SEL;
+    return hovered ? MAT_GH_HOVER : MAT_GH;
+  }, [isSelected, hovered]);
+
+  const borderPts = useMemo(() => {
+    return poly.map(p => new THREE.Vector3(p.x, 0.225, p.z)).concat([new THREE.Vector3(poly[0].x, 0.225, poly[0].z)]);
+  }, [poly]);
+
+  const { cx, cz } = useMemo(() => {
+    const cx = poly.reduce((s, p) => s + p.x, 0) / poly.length;
+    const cz = poly.reduce((s, p) => s + p.z, 0) / poly.length;
+    return { cx, cz };
+  }, [poly]);
+
   return (
     <group>
-      <Line
-        points={[new THREE.Vector3(node.cx, 0.13, node.cz), new THREE.Vector3(node.x, 0.13, node.z)]}
-        color={isSelected ? '#eab308' : '#10b981'}
-        lineWidth={isSelected ? 1.8 : 0.8}
-        transparent
-        opacity={isSelected ? 0.9 : 0.3}
-      />
-      <mesh position={[node.x, 0.13, node.z]} rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[0.04, 0.06, 16]} />
-        <meshBasicMaterial color={isSelected ? '#eab308' : (hovered ? '#10b981' : '#059669')} transparent opacity={hovered ? 0.95 : 0.6} />
-      </mesh>
       <mesh
-        position={[node.x, 0.22, node.z]}
+        rotation={[-Math.PI / 2, 0, 0]}
+        geometry={geom}
+        material={currentMat}
         onPointerOver={e => { e.stopPropagation(); setHovered(true); document.body.style.cursor = 'pointer'; }}
         onPointerOut={() => { setHovered(false); document.body.style.cursor = 'default'; }}
-        onClick={e => { e.stopPropagation(); onClick(node.raw); }}
-      >
-        <cylinderGeometry args={[0.025, 0.025, 0.18, 8]} />
-        <meshBasicMaterial color={isSelected ? '#eab308' : (hovered ? '#ffffff' : '#10b981')} />
-      </mesh>
+        onClick={e => { e.stopPropagation(); onClick(constituency.raw); }}
+      />
+      <Line
+        points={borderPts}
+        color={isSelected ? '#ffffff' : '#1e3527'}
+        lineWidth={isSelected ? 2.5 : 1.0}
+        transparent
+        opacity={isSelected ? 1.0 : 0.45}
+      />
       {hovered && (
-        <mesh position={[node.x, 0.22, node.z]}>
-          <sphereGeometry args={[0.08, 16, 16]} />
-          <meshBasicMaterial color="#eab308" transparent opacity={0.25} />
-        </mesh>
-      )}
-      {hovered && (
-        <Html position={[node.x, 0.45, node.z]} center distanceFactor={10} className="pointer-events-none select-none z-55">
+        <Html position={[cx, 0.35, cz]} center distanceFactor={10} className="pointer-events-none select-none z-55">
           <div style={{
             background: 'rgba(8,16,12,0.96)',
             backdropFilter: 'blur(8px)',
@@ -303,7 +329,7 @@ function ConstituencyNode({ node, onClick, isSelected }) {
             fontWeight: 900,
             whiteSpace: 'nowrap'
           }}>
-            {node.constituency_name}
+            {constituency.constituency_name}
           </div>
         </Html>
       )}
@@ -320,48 +346,8 @@ function SceneContents({ mapLevel, onClickGH, selectedConstituency, setSelectedC
     });
   }, [constituencyList]);
 
-  const constituencyNodes = useMemo(() => {
-    if (mapLevel !== 'gh') return [];
-    const hydList = [], medchalList = [], rrList = [];
-    ghConstituencies.forEach(c => {
-      const d = (c.district || '').toLowerCase();
-      if (d.includes('hyderabad')) hydList.push(c);
-      else if (d.includes('medchal')) medchalList.push(c);
-      else if (d.includes('rangareddy') || d.includes('ranga reddy')) rrList.push(c);
-    });
-
-    const nodes = [];
-    const processGroup = (groupList, r) => {
-      if (groupList.length === 0) return;
-      const center = getDistrictCenter(groupList[0].district, features);
-      if (!center) return;
-      const { cx, cz } = center;
-      const n = groupList.length;
-      groupList.forEach((c, idx) => {
-        const angle = (idx / n) * 2 * Math.PI;
-        const x = cx + r * Math.cos(angle);
-        const z = cz + r * Math.sin(angle);
-        nodes.push({
-          id: c.id,
-          constituency_name: c.constituency_name,
-          district: c.district,
-          raw: c,
-          x,
-          z,
-          cx,
-          cz
-        });
-      });
-    };
-
-    processGroup(hydList, 0.45);
-    processGroup(medchalList, 0.75);
-    processGroup(rrList, 1.25);
-    return nodes;
-  }, [ghConstituencies, mapLevel, features]);
-
-  // Generate mathematically exact Voronoi boundaries for each constituency, fully clipped to district outlines
-  const ghConstituencyBoundaries = useMemo(() => {
+  // Generate clipped Voronoi cell polygons for all Greater Hyderabad constituencies
+  const constituencyCells = useMemo(() => {
     if (mapLevel !== 'gh') return [];
 
     const hydList = [], medchalList = [], rrList = [];
@@ -372,9 +358,9 @@ function SceneContents({ mapLevel, onClickGH, selectedConstituency, setSelectedC
       else if (d.includes('rangareddy') || d.includes('ranga reddy')) rrList.push(c);
     });
 
-    const boundaries = [];
+    const cells = [];
 
-    const processDistrictGrids = (groupList, districtName, r, color) => {
+    const processDistrictCells = (groupList, districtName, r) => {
       if (groupList.length === 0) return;
       const districtPts = getDistrictPolygon(districtName, features);
       if (!districtPts || districtPts.length === 0) return;
@@ -384,17 +370,18 @@ function SceneContents({ mapLevel, onClickGH, selectedConstituency, setSelectedC
       const { cx, cz } = center;
       const n = groupList.length;
 
-      // 1. Generate node coordinates
+      // 1. Generate node coordinates (seed points)
       const nodes = groupList.map((c, idx) => {
         const angle = (idx / n) * 2 * Math.PI;
         return {
           x: cx + r * Math.cos(angle),
           z: cz + r * Math.sin(angle),
-          name: c.constituency_name
+          raw: c,
+          constituency_name: c.constituency_name
         };
       });
 
-      // 2. Generate clipped Voronoi cell polygon for each constituency node
+      // 2. Generate clipped Voronoi cell polygon for each node
       nodes.forEach((nodeI, i) => {
         let poly = districtPts.map(p => ({ x: p.x, z: p.z }));
         
@@ -406,23 +393,19 @@ function SceneContents({ mapLevel, onClickGH, selectedConstituency, setSelectedC
         });
 
         if (poly && poly.length > 2) {
-          const points3D = poly.map(p => new THREE.Vector3(p.x, 0.26, p.z));
-          points3D.push(points3D[0].clone()); // Close loop
-          
-          boundaries.push({
-            points: points3D,
-            color,
-            name: nodeI.name
+          cells.push({
+            constituency: nodeI,
+            poly
           });
         }
       });
     };
 
-    processDistrictGrids(hydList, 'Hyderabad', 0.45, '#eab308');
-    processDistrictGrids(medchalList, 'Medchal', 0.75, '#10b981');
-    processDistrictGrids(rrList, 'Rangareddy', 1.25, '#10b981');
+    processDistrictCells(hydList, 'Hyderabad', 0.45);
+    processDistrictCells(medchalList, 'Medchal', 0.75);
+    processDistrictCells(rrList, 'Rangareddy', 1.25);
 
-    return boundaries;
+    return cells;
   }, [ghConstituencies, mapLevel, features]);
 
   return (
@@ -444,27 +427,14 @@ function SceneContents({ mapLevel, onClickGH, selectedConstituency, setSelectedC
           />
         ))}
 
-        {/* Render precise constituency boundaries with interactive highlighting */}
-        {mapLevel === 'gh' && ghConstituencyBoundaries.map((boundary, i) => {
-          const isSel = selectedConstituency && boundary.name.toLowerCase() === selectedConstituency.constituency_name?.toLowerCase();
-          return (
-            <Line
-              key={`boundary-${i}`}
-              points={boundary.points}
-              color={isSel ? '#ffffff' : boundary.color}
-              lineWidth={isSel ? 3.0 : 1.2}
-              transparent
-              opacity={isSel ? 1.0 : 0.45}
-            />
-          );
-        })}
-
-        {mapLevel === 'gh' && constituencyNodes.map((node, i) => (
-          <ConstituencyNode
-            key={`node-${node.id || i}`}
-            node={node}
+        {/* Render precise 3D constituency meshes */}
+        {mapLevel === 'gh' && constituencyCells.map((cell, i) => (
+          <ConstituencyMesh
+            key={`cell-${cell.constituency.raw.id || i}`}
+            constituency={cell.constituency}
+            poly={cell.poly}
             onClick={setSelectedConstituency}
-            isSelected={selectedConstituency && node.constituency_name.toLowerCase() === selectedConstituency.constituency_name?.toLowerCase()}
+            isSelected={selectedConstituency && cell.constituency.constituency_name.toLowerCase() === selectedConstituency.constituency_name?.toLowerCase()}
           />
         ))}
       </group>
