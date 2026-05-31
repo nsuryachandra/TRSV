@@ -8,11 +8,26 @@ import FloatingParticles from '../components/FloatingParticles';
 import { useAuth } from '../context/AuthContext';
 
 export default function RootLayout() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { currentUser, userProfile, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const { currentUser, userProfile, logout } = useAuth();
 
+  const [showWelcome, setShowWelcome] = useState(true);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = (e) => {
+    const { clientX, clientY } = e;
+    const { innerWidth, innerHeight } = window;
+    const x = (clientX - innerWidth / 2) / (innerWidth / 2);
+    const y = (clientY - innerHeight / 2) / (innerHeight / 2);
+    setMousePos({ x, y });
+  };
+
+  const handleCloseWelcome = () => {
+    setShowWelcome(false);
+  };
+
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navLinks = [
     { name: 'Home', path: '/' },
     { name: 'Join TRSV', path: '/#join-trsv' }
@@ -42,6 +57,123 @@ export default function RootLayout() {
 
   return (
     <div className="min-h-screen flex flex-col relative select-none">
+      {/* Cinematic Welcome Splash Screen overlaying entire viewport */}
+      <AnimatePresence>
+        {location.pathname === '/' && showWelcome && (
+          <motion.div
+            initial={{ opacity: 1, y: 0 }}
+            exit={{ y: '-100vh', opacity: 0 }}
+            transition={{ duration: 0.95, ease: [0.76, 0, 0.24, 1] }}
+            onMouseMove={handleMouseMove}
+            className="fixed inset-0 z-[9999] flex flex-col items-center justify-center p-4 bg-slate-950 text-white select-none overflow-hidden"
+          >
+            {/* Tech grid / glow animations in background */}
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_50%,#0f172a_0%,#020617_100%)]" />
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:5rem_5rem] opacity-25" />
+            
+            {/* Tech scanner lines */}
+            <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-40 shadow-[0_0_12px_rgba(6,182,212,0.6)] animate-[scan-line_4s_linear_infinite]" />
+
+            {/* Mouse reactive ambient glow */}
+            <div 
+              className="absolute w-[600px] h-[600px] rounded-full bg-[radial-gradient(circle_at_center,rgba(6,182,212,0.12)_0%,transparent_70%)] pointer-events-none transition-transform duration-300"
+              style={{
+                transform: `translate(calc(-50% + ${mousePos.x * 120}px), calc(-50% + ${mousePos.y * 120}px))`,
+                left: '50%',
+                top: '50%'
+              }}
+            />
+
+            {/* Content card centered with 3D perspective tilt */}
+            <div 
+              className="w-full max-w-xl flex flex-col items-center text-center relative z-10 px-6 preserve-3d"
+              style={{
+                transform: `perspective(1000px) rotateX(${-mousePos.y * 12}deg) rotateY(${mousePos.x * 12}deg)`,
+                transition: 'transform 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                transformStyle: 'preserve-3d'
+              }}
+            >
+              {/* SVG HUD Radar circles behind the image */}
+              <div className="absolute -top-6 w-[220px] h-[220px] sm:w-[260px] sm:h-[260px] flex items-center justify-center pointer-events-none">
+                <svg className="absolute w-full h-full animate-[spin_25s_linear_infinite]" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="44" stroke="rgba(6,182,212,0.25)" strokeWidth="0.8" fill="none" strokeDasharray="8 4 16 6" />
+                  <circle cx="50" cy="50" r="47" stroke="rgba(245,158,11,0.2)" strokeWidth="0.5" fill="none" strokeDasharray="4 8" />
+                </svg>
+                <svg className="absolute w-full h-full animate-[spin_40s_linear_infinite_reverse]" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="41" stroke="rgba(14,165,233,0.15)" strokeWidth="0.6" fill="none" strokeDasharray="3 3" />
+                </svg>
+              </div>
+
+              {/* Founder Image Frame with neon golden scan bar */}
+              <div 
+                className="relative w-36 h-36 sm:w-44 sm:h-44 rounded-full overflow-hidden border-4 border-cyan-500/40 shadow-[0_0_40px_rgba(6,182,212,0.35)] mb-8 shrink-0 bg-slate-900"
+                style={{ transform: 'translateZ(50px)' }}
+              >
+                <img 
+                  src="/entryakka.jpeg" 
+                  alt="Kavitha Kalvakuntla - Founder" 
+                  className="w-full h-full object-cover object-top"
+                />
+                {/* Neon green/cyan scanning bar inside the photo */}
+                <div className="absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_10px_rgba(6,182,212,1)] animate-scan-line pointer-events-none" />
+                {/* Frosted lens reflection overlay */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/10 via-transparent to-white/10 pointer-events-none" />
+              </div>
+
+              {/* HUD telemetries */}
+              <div 
+                className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-[9px] font-mono font-black text-cyan-400 uppercase tracking-widest mb-6"
+                style={{ transform: 'translateZ(30px)' }}
+              >
+                <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping shadow-[0_0_8px_rgba(34,211,238,0.8)]" />
+                SECURE_GATEWAY_NODE // ONLINE
+              </div>
+
+              <h1 
+                className="text-2xl sm:text-4xl font-black text-white uppercase tracking-tight leading-tight mb-5 select-none"
+                style={{ transform: 'translateZ(40px)' }}
+              >
+                Welcome To <br />
+                <span className="text-gradient-cyan">Telangana Rakshana Sena</span> <br />
+                <span className="text-gradient-gold">Vidyarthi Vibhagam</span> Portal
+              </h1>
+
+              <div className="h-[2px] w-24 bg-gradient-to-r from-transparent via-cyan-500 to-transparent mb-6" />
+
+              <p 
+                className="text-xs sm:text-sm text-slate-400 leading-relaxed font-semibold mb-8 max-w-md"
+                style={{ transform: 'translateZ(20px)' }}
+              >
+                "Under the leadership of our beloved founder, Kavitha Kalvakuntla, TRSV is committed to safeguarding student welfare, defending academic rights, and pioneering statewide self-governance. Welcome to the official command portal."
+              </p>
+
+              <div style={{ transform: 'translateZ(60px)' }}>
+                <PremiumButton 
+                  variant="primary" 
+                  size="lg" 
+                  className="px-12 shadow-glow-cyan text-base font-black tracking-wide border-cyan-400 hover:scale-105 transition-transform"
+                  onClick={handleCloseWelcome}
+                >
+                  ENTER SYSTEM PORTAL
+                </PremiumButton>
+              </div>
+              
+              {/* Telemetry data labels on sides */}
+              <div className="absolute left-[-80px] top-[40%] hidden xl:flex flex-col text-left gap-1.5 font-mono text-[9px] text-slate-500 pointer-events-none">
+                <div>SYS_REF: TRSV_OS_V1.0</div>
+                <div>SECURE_CONN: AES_256</div>
+                <div>STATE_NODES: 119_ACTIVE</div>
+              </div>
+              <div className="absolute right-[-80px] top-[40%] hidden xl:flex flex-col text-right gap-1.5 font-mono text-[9px] text-slate-500 pointer-events-none">
+                <div>GRID_LOC: 17.3850_N_78.4867_E</div>
+                <div>TELEMETRY: SYNCHRONIZED</div>
+                <div>STATUS: SECURE</div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Background Canvas Particles */}
       <FloatingParticles />
 

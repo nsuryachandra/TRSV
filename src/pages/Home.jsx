@@ -12,14 +12,12 @@ import GlassCard from '../components/GlassCard';
 import PremiumButton from '../components/PremiumButton';
 import AnimatedSection from '../components/AnimatedSection';
 import { useAuth } from '../context/AuthContext';
-import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Home() {
   const navigate = useNavigate();
   const { currentUser, userProfile, logout } = useAuth();
 
   const [constituencies, setConstituencies] = useState([]);
-  const [showWelcome, setShowWelcome] = useState(true);
   const [form, setForm] = useState({
     fullName: '',
     email: '',
@@ -89,68 +87,8 @@ export default function Home() {
     }
   };
 
-  const handleCloseWelcome = () => {
-    setShowWelcome(false);
-  };
-
   return (
     <div className="w-full flex flex-col gap-28 py-4 relative overflow-hidden select-none">
-      
-      {/* 0. CINEMATIC WELCOME MODAL */}
-      <AnimatePresence>
-        {showWelcome && (
-          <motion.div
-            initial={{ opacity: 1, y: 0 }}
-            exit={{ y: '-100vh', opacity: 0 }}
-            transition={{ duration: 0.85, ease: [0.76, 0, 0.24, 1] }}
-            className="fixed inset-0 z-50 flex flex-col items-center justify-center p-4 bg-slate-950 text-white select-none overflow-hidden"
-          >
-            {/* Tech grid / glow animations in background */}
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-20 pointer-events-none" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none animate-pulse" />
-            <div className="absolute top-1/3 left-1/4 w-[300px] h-[300px] bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
-
-            {/* Content Container */}
-            <div className="w-full max-w-xl flex flex-col items-center text-center relative z-10 px-6">
-              
-              {/* Founder Image Frame with premium golden glow and animation */}
-              <div className="relative w-36 h-36 sm:w-40 sm:h-40 rounded-full overflow-hidden border-4 border-cyan-500/40 shadow-[0_0_30px_rgba(6,182,212,0.4)] mb-8 shrink-0 group">
-                <img 
-                  src="/entryakka.jpeg" 
-                  alt="Kavitha Kalvakuntla - Founder" 
-                  className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-              </div>
-
-              {/* Glowing header badges */}
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-[10px] font-black text-cyan-400 uppercase tracking-widest mb-4">
-                <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping shadow-[0_0_8px_rgba(34,211,238,0.8)]" />
-                FOUNDER'S WELCOME PROTOCOL
-              </div>
-              
-              <h1 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight leading-tight mb-4">
-                Welcome To <span className="text-gradient-cyan">Telangana Rakshana Sena Vidyarthi Vibhagam</span> Portal
-              </h1>
-
-              <div className="h-[2px] w-20 bg-cyan-500/40 mb-6" />
-
-              <p className="text-sm sm:text-base text-slate-350 leading-relaxed font-semibold mb-8 max-w-md">
-                "Under the leadership of our beloved founder, Kavitha Kalvakuntla, TRSV is committed to safeguarding student welfare, defending academic rights, and pioneering statewide self-governance. Welcome to the official command portal."
-              </p>
-
-              <PremiumButton 
-                variant="primary" 
-                size="lg" 
-                className="w-full sm:w-auto px-10 shadow-glow-cyan text-base"
-                onClick={handleCloseWelcome}
-              >
-                Enter System Portal
-              </PremiumButton>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* 1. HERO SECTION */}
       <section className="relative min-h-[85vh] flex flex-col lg:flex-row items-center justify-between gap-16 pt-6 pb-12 w-full">
