@@ -319,19 +319,33 @@ html.dark .glass-card-border-dark:hover {
 .animate-voice-bar-6 { animation: voiceWave 0.8s ease-in-out infinite 0.75s; }
 
 /* Responsive adjustments for welcome portal splash */
+@media (max-height: 800px) {
+  .welcome-photo {
+    width: 10.5rem !important;
+    height: 10.5rem !important;
+    border-width: 4px !important;
+  }
+  .welcome-title {
+    font-size: 1.45rem !important;
+    line-height: 1.25 !important;
+  }
+  .welcome-desc {
+    font-size: 0.75rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+}
 @media (max-width: 640px) {
   .welcome-title {
     font-size: 1.65rem !important;
     line-height: 1.25 !important;
   }
   .welcome-photo {
-    width: 12rem !important;
-    height: 12rem !important;
+    width: 13.5rem !important;
+    height: 13.5rem !important;
     border-width: 4px !important;
   }
   .welcome-desc {
     font-size: 0.8rem !important;
-    margin-bottom: 1.5rem !important;
   }
 }
 @media (max-width: 400px) {
@@ -340,13 +354,12 @@ html.dark .glass-card-border-dark:hover {
     line-height: 1.3 !important;
   }
   .welcome-photo {
-    width: 9.5rem !important;
-    height: 9.5rem !important;
+    width: 11.5rem !important;
+    height: 11.5rem !important;
     border-width: 3px !important;
   }
   .welcome-desc {
     font-size: 0.75rem !important;
-    margin-bottom: 1.25rem !important;
   }
 }
 

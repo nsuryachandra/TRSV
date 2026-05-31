@@ -55,7 +55,7 @@ export default function RootLayout() {
             initial={{ opacity: 1, y: 0 }}
             exit={{ y: '-100vh', opacity: 0 }}
             transition={{ duration: 0.95, ease: [0.76, 0, 0.24, 1] }}
-            className="fixed inset-0 z-[9999] flex flex-col items-center justify-center p-4 bg-slate-950 text-white select-none overflow-hidden"
+            className="fixed inset-0 z-[9999] flex flex-col items-center justify-center p-4 bg-slate-950 text-white select-none overflow-hidden h-screen w-screen"
           >
             {/* Ambient official background */}
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_50%,#0f172a_0%,#020617_100%)]" />
@@ -67,14 +67,14 @@ export default function RootLayout() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, duration: 0.8, ease: 'easeOut' }}
-              className="w-full max-w-2xl flex flex-col items-center text-center relative z-10 px-4"
+              className="w-full max-w-2xl h-full max-h-[92vh] flex flex-col items-center justify-center text-center relative z-10 px-4 gap-y-3 sm:gap-y-4"
             >
               {/* Founder Image Frame - Larger and official gold themed */}
-              <div className="relative w-44 h-44 xs:w-52 xs:h-52 sm:w-60 sm:h-60 rounded-full overflow-hidden border-[6px] border-amber-500/50 dark:border-amber-400/60 shadow-[0_0_40px_rgba(245,158,11,0.25)] mb-8 shrink-0 bg-slate-900 transition-all duration-300 hover:scale-103 hover:border-amber-400 welcome-photo">
+              <div className="relative w-48 h-48 xs:w-56 xs:h-56 sm:w-68 sm:h-68 rounded-full overflow-hidden border-[6px] border-amber-500/50 dark:border-amber-400/60 shadow-[0_0_40px_rgba(245,158,11,0.25)] mb-8 shrink-0 bg-slate-900 transition-all duration-300 hover:scale-103 hover:border-amber-400 welcome-photo">
                 <img 
                   src="/entryakka.jpeg" 
                   alt="Kavitha Kalvakuntla - Founder" 
-                  className="w-full h-full object-cover object-top"
+                  className="w-full h-full object-cover object-top scale-105"
                 />
                 {/* Horizontal light scanning bar */}
                 <div className="absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-amber-400 to-transparent shadow-[0_0_10px_rgba(245,158,11,0.8)] animate-scan-line pointer-events-none" />
@@ -83,12 +83,12 @@ export default function RootLayout() {
               </div>
 
               {/* Official header badges */}
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/25 text-[10px] font-mono font-black text-amber-400 uppercase tracking-widest mb-6">
-                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse shadow-[0_0_8px_rgba(245,158,11,0.8)]" />
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/25 text-[9px] sm:text-[10px] font-mono font-black text-amber-400 uppercase tracking-widest shrink-0">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse shadow-[0_0_8px_rgba(245,158,11,0.8)]" />
                 STATEWIDE STUDENT COMMAND PORTAL
               </div>
 
-              <h1 className="text-2xl xs:text-3.5xl sm:text-4.5xl font-black text-white uppercase tracking-tight leading-tight mb-5 select-none welcome-title">
+              <h1 className="text-xl xs:text-2.5xl sm:text-3.5xl md:text-4xl font-black text-white uppercase tracking-tight leading-tight select-none welcome-title shrink-0">
                 Welcome To <br />
                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-500">
                   Telangana Rakshana Sena
@@ -99,17 +99,17 @@ export default function RootLayout() {
                 <span className="text-white">Portal</span>
               </h1>
 
-              <div className="h-[2px] w-24 bg-gradient-to-r from-transparent via-amber-500 to-transparent mb-6" />
+              <div className="h-[2px] w-20 bg-gradient-to-r from-transparent via-amber-500 to-transparent shrink-0" />
 
-              <p className="text-xs sm:text-sm md:text-base text-slate-400 leading-relaxed font-semibold mb-8 max-w-md welcome-desc">
+              <p className="text-[11px] sm:text-xs md:text-sm text-slate-400 leading-relaxed font-semibold max-w-md welcome-desc">
                 "Under the leadership of our beloved founder, Kavitha Kalvakuntla, TRSV is committed to safeguarding student welfare, defending academic rights, and pioneering statewide self-governance. Welcome to the official command portal."
               </p>
 
-              <div>
+              <div className="shrink-0">
                 <PremiumButton 
                   variant="primary" 
                   size="lg" 
-                  className="px-12 shadow-glow-cyan text-base font-black tracking-wide hover:scale-105 transition-transform"
+                  className="px-10 py-2 sm:px-12 sm:py-3 shadow-glow-cyan text-sm sm:text-base font-black tracking-wide hover:scale-105 transition-transform"
                   onClick={handleCloseWelcome}
                 >
                   ENTER SYSTEM PORTAL
