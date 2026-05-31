@@ -15,13 +15,6 @@ export default function RootLayout() {
   const [showWelcome, setShowWelcome] = useState(true);
 
   useEffect(() => {
-    // If the user is logged in, skip the welcome screen completely
-    if (currentUser) {
-      setShowWelcome(false);
-    }
-  }, [currentUser]);
-
-  useEffect(() => {
     if (location.pathname === '/' && showWelcome) {
       document.documentElement.style.overflow = 'hidden';
       document.body.style.overflow = 'hidden';
