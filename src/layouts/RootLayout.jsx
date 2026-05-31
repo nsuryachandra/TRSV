@@ -70,7 +70,7 @@ export default function RootLayout() {
               className="w-full max-w-2xl h-full max-h-[92vh] flex flex-col items-center justify-center text-center relative z-10 px-4 gap-y-3 sm:gap-y-4"
             >
               {/* Founder Image Frame - Larger and official gold themed */}
-              <div className="relative w-48 h-48 xs:w-56 xs:h-56 sm:w-68 sm:h-68 rounded-full overflow-hidden border-[6px] border-amber-500/50 dark:border-amber-400/60 shadow-[0_0_40px_rgba(245,158,11,0.25)] mb-8 shrink-0 bg-slate-900 transition-all duration-300 hover:scale-103 hover:border-amber-400 welcome-photo">
+              <div className="relative w-64 h-64 xs:w-72 xs:h-72 sm:w-80 sm:h-80 md:w-[360px] md:h-[360px] rounded-full overflow-hidden border-[8px] border-amber-500/50 dark:border-amber-400/60 shadow-[0_0_50px_rgba(245,158,11,0.3)] mb-4 shrink-0 bg-slate-900 transition-all duration-300 hover:scale-103 hover:border-amber-400 welcome-photo">
                 <img 
                   src="/entryakka.jpeg" 
                   alt="Kavitha Kalvakuntla - Founder" 
