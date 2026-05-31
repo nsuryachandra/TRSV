@@ -12,7 +12,19 @@ export default function RootLayout() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [showWelcome, setShowWelcome] = useState(true);
+  const [showWelcome, setShowWelcome] = useState(() => {
+    // Check if the welcome screen was already closed in this session/browser
+    const hasSeen = localStorage.getItem('trsv_welcome_seen');
+    return !hasSeen;
+  });
+
+  useEffect(() => {
+    // If the user is logged in, skip the welcome screen completely
+    if (currentUser) {
+      setShowWelcome(false);
+      localStorage.setItem('trsv_welcome_seen', 'true');
+    }
+  }, [currentUser]);
 
   useEffect(() => {
     if (location.pathname === '/' && showWelcome) {
@@ -30,6 +42,7 @@ export default function RootLayout() {
 
   const handleCloseWelcome = () => {
     setShowWelcome(false);
+    localStorage.setItem('trsv_welcome_seen', 'true');
   };
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -86,7 +99,7 @@ export default function RootLayout() {
               {/* Founder Image Frame - Larger and official gold themed */}
               <div className="relative w-64 h-64 xs:w-72 xs:h-72 sm:w-80 sm:h-80 md:w-[360px] md:h-[360px] rounded-full overflow-hidden border-[8px] border-amber-500/50 dark:border-amber-400/60 shadow-[0_0_50px_rgba(245,158,11,0.3)] mb-4 shrink-0 bg-slate-900 transition-all duration-300 hover:scale-103 hover:border-amber-400 welcome-photo">
                 <img 
-                  src="/entryakka.jpeg" 
+                  src="/akka.jpg" 
                   alt="Kavitha Kalvakuntla - Founder" 
                   className="w-full h-full object-cover object-top scale-105"
                 />
@@ -97,7 +110,7 @@ export default function RootLayout() {
               </div>
 
               {/* Official header badges */}
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/25 text-[9px] sm:text-[10px] font-mono font-black text-amber-400 uppercase tracking-widest shrink-0">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-500/15 border border-amber-500/25 text-[10px] font-sans font-black text-amber-400 uppercase tracking-wider shrink-0">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse shadow-[0_0_8px_rgba(245,158,11,0.8)]" />
                 STATEWIDE STUDENT COMMAND PORTAL
               </div>
