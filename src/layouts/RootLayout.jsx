@@ -25,20 +25,14 @@ export default function RootLayout() {
     if (location.pathname === '/' && showWelcome) {
       document.documentElement.style.overflow = 'hidden';
       document.body.style.overflow = 'hidden';
-      
-      // Auto-swipe the welcome page after 5 seconds
-      const timer = setTimeout(() => {
-        handleCloseWelcome();
-      }, 5000);
-      return () => {
-        clearTimeout(timer);
-        document.documentElement.style.overflow = '';
-        document.body.style.overflow = '';
-      };
     } else {
       document.documentElement.style.overflow = '';
       document.body.style.overflow = '';
     }
+    return () => {
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
+    };
   }, [showWelcome, location.pathname]);
 
   const handleCloseWelcome = () => {
