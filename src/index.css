@@ -363,4 +363,25 @@ html.dark .glass-card-border-dark:hover {
   }
 }
 
+/* Force hardware acceleration and high-quality scaling to prevent browser blur */
+.welcome-photo {
+  transform: translate3d(0, 0, 0) !important;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  perspective: 1000px;
+  -webkit-perspective: 1000px;
+  will-change: transform;
+}
+.welcome-photo img {
+  image-rendering: -webkit-optimize-contrast !important;
+  image-rendering: crisp-edges !important;
+  image-rendering: high-quality !important;
+  transform: scale(1.05) translate3d(0, 0, 0) !important;
+  -webkit-transform-style: preserve-3d;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  will-change: transform;
+}
+
 
