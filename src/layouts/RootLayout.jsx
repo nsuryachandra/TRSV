@@ -13,8 +13,10 @@ export default function RootLayout() {
   const navigate = useNavigate();
 
   const [showWelcome, setShowWelcome] = useState(() => {
-    // Check if the welcome screen was already closed in this session/browser
-    const hasSeen = localStorage.getItem('trsv_welcome_seen');
+    // Clean up any old localStorage key if it exists
+    localStorage.removeItem('trsv_welcome_seen');
+    // Check if the welcome screen was already closed in this session
+    const hasSeen = sessionStorage.getItem('trsv_welcome_seen');
     return !hasSeen;
   });
 
@@ -22,7 +24,7 @@ export default function RootLayout() {
     // If the user is logged in, skip the welcome screen completely
     if (currentUser) {
       setShowWelcome(false);
-      localStorage.setItem('trsv_welcome_seen', 'true');
+      sessionStorage.setItem('trsv_welcome_seen', 'true');
     }
   }, [currentUser]);
 
@@ -42,7 +44,7 @@ export default function RootLayout() {
 
   const handleCloseWelcome = () => {
     setShowWelcome(false);
-    localStorage.setItem('trsv_welcome_seen', 'true');
+    sessionStorage.setItem('trsv_welcome_seen', 'true');
   };
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -99,7 +101,7 @@ export default function RootLayout() {
               {/* Founder Image Frame - Larger and official gold themed */}
               <div className="relative w-64 h-64 xs:w-72 xs:h-72 sm:w-80 sm:h-80 md:w-[360px] md:h-[360px] rounded-full overflow-hidden border-[8px] border-amber-500/50 dark:border-amber-400/60 shadow-[0_0_50px_rgba(245,158,11,0.3)] mb-4 shrink-0 bg-slate-900 transition-all duration-300 hover:scale-103 hover:border-amber-400 welcome-photo">
                 <img 
-                  src="/akka.jpg" 
+                  src="/entryakka.jpeg" 
                   alt="Kavitha Kalvakuntla - Founder" 
                   className="w-full h-full object-cover object-top scale-105"
                 />
