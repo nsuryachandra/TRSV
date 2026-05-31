@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { Menu, X, ShieldAlert, Key, MessageCircle, HelpCircle, Phone, Globe, ExternalLink, Scale } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -13,6 +13,20 @@ export default function RootLayout() {
   const navigate = useNavigate();
 
   const [showWelcome, setShowWelcome] = useState(true);
+
+  useEffect(() => {
+    if (location.pathname === '/' && showWelcome) {
+      document.documentElement.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
+    };
+  }, [showWelcome, location.pathname]);
 
   const handleCloseWelcome = () => {
     setShowWelcome(false);
