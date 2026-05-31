@@ -12,19 +12,12 @@ export default function RootLayout() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [showWelcome, setShowWelcome] = useState(() => {
-    // Clean up any old localStorage key if it exists
-    localStorage.removeItem('trsv_welcome_seen');
-    // Check if the welcome screen was already closed in this session
-    const hasSeen = sessionStorage.getItem('trsv_welcome_seen');
-    return !hasSeen;
-  });
+  const [showWelcome, setShowWelcome] = useState(true);
 
   useEffect(() => {
     // If the user is logged in, skip the welcome screen completely
     if (currentUser) {
       setShowWelcome(false);
-      sessionStorage.setItem('trsv_welcome_seen', 'true');
     }
   }, [currentUser]);
 
@@ -50,7 +43,6 @@ export default function RootLayout() {
 
   const handleCloseWelcome = () => {
     setShowWelcome(false);
-    sessionStorage.setItem('trsv_welcome_seen', 'true');
   };
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
