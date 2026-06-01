@@ -134,7 +134,7 @@ app.use(xss());
 // Advanced DDOS & Brute-Force Protection Rate Limiter
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 300, // Limit each IP to 300 reqs per 15 min
+  max: 1000, // Limit each IP to 1000 reqs per 15 min
   message: { success: false, message: 'Strict DDOS protection active. Too many requests. Please wait 15 minutes.' }
 });
 app.use('/api', apiLimiter);

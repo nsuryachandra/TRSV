@@ -232,7 +232,7 @@ export default function DashboardLayout() {
 
   useEffect(() => {
     fetchNotifications();
-    const interval = setInterval(fetchNotifications, 5000);
+    const interval = setInterval(fetchNotifications, 30000);
 
     // Request permissions for native local notifications and register resume listener if running under Capacitor
     const isNative = window.Capacitor && window.Capacitor.getPlatform && window.Capacitor.getPlatform() !== 'web';

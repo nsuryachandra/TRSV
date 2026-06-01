@@ -274,10 +274,10 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
   useEffect(() => {
     fetchDetails();
 
-    // Live update messages/coordination logs periodically every 3 seconds
+    // Live update messages/coordination logs periodically every 15 seconds
     const interval = setInterval(() => {
       fetchDetailsSilently();
-    }, 3000);
+    }, 15000);
 
     return () => {
       clearInterval(interval);
