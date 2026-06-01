@@ -123,6 +123,7 @@ app.use(helmet({
         "https://unpkg.com"
       ],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      frameSrc: ["'self'", "https://maps.google.com", "https://www.google.com"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'", "data:"],
       upgradeInsecureRequests: []
