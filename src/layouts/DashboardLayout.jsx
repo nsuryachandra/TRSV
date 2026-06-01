@@ -468,12 +468,6 @@ export default function DashboardLayout() {
       category: 'Services',
       links: [
         {
-          name: 'Support & Help',
-          path: '/dashboard/support',
-          icon: <ShieldAlert className="w-5 h-5" />,
-          desc: 'Get assistance and help'
-        },
-        {
           name: 'Campus & Districts',
           path: '/dashboard/districts',
           icon: <MapPin className="w-5 h-5" />,

@@ -28,7 +28,6 @@ const Features = lazy(() => import('../pages/Features'));
 const Transparency = lazy(() => import('../pages/Transparency'));
 const Districts = lazy(() => import('../pages/Districts'));
 const Team = lazy(() => import('../pages/Team'));
-const SupportHub = lazy(() => import('../pages/SupportHub'));
 const Announcements = lazy(() => import('../pages/Announcements'));
 const Contact = lazy(() => import('../pages/Contact'));
 const Login = lazy(() => import('../pages/Login'));
@@ -129,7 +128,6 @@ export default function AppRoutes() {
               <QrScanExperience />
             </ProtectedRoute>
           } />
-          <Route path="support" element={<SupportHub />} />
           <Route path="districts" element={<Districts />} />
           <Route path="transparency" element={<Transparency />} />
           <Route path="about" element={<About />} />
