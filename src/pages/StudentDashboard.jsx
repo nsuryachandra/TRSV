@@ -35,6 +35,7 @@ export default function StudentDashboard() {
 
   // OpenStreetMap Autocomplete & Live Map States
   const [constituencies, setConstituencies] = useState([]);
+  const [dbColleges, setDbColleges] = useState([]);
   const [collegeSearch, setCollegeSearch] = useState(userProfile?.college_name || '');
   const [suggestions, setSuggestions] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -114,7 +115,20 @@ export default function StudentDashboard() {
       }
     };
 
+    const fetchDbColleges = async () => {
+      try {
+        const response = await fetch('/api/colleges');
+        const data = await response.json();
+        if (data.success) {
+          setDbColleges(data.colleges);
+        }
+      } catch (error) {
+        console.error('Failed to load database colleges:', error);
+      }
+    };
+
     fetchConstituencies();
+    fetchDbColleges();
   }, []);
 
   // 2. Initialize Leaflet Map when dashboard components are fully loaded
@@ -213,13 +227,31 @@ export default function StudentDashboard() {
     }
   };
 
-  // 3. Debounced Search Autocomplete to Nominatim
+  // 3. Debounced Search Autocomplete to Nominatim & Local Database
   useEffect(() => {
     if (!collegeSearch || collegeSearch.length < 3 || collegeSearch === userProfile?.college_name) {
       setSuggestions([]);
       setShowDropdown(false);
       return;
     }
+
+    // Filter database colleges locally and show them immediately
+    const filterTerm = collegeSearch.toLowerCase();
+    const dbMatches = dbColleges
+      .filter(col => col.college_name.toLowerCase().includes(filterTerm))
+      .slice(0, 5)
+      .map(col => ({
+        isDbRecord: true,
+        place_id: `db_${col.id}`,
+        id: col.id,
+        name: col.college_name,
+        display_name: `🏛️ Registered Campus - ${col.constituency_name || 'Regional Constituency'}`,
+        constituency_id: col.constituency_id,
+        college_name: col.college_name
+      }));
+
+    setSuggestions(dbMatches);
+    setShowDropdown(dbMatches.length > 0);
 
     const delayDebounce = setTimeout(async () => {
       setSearchLoading(true);
@@ -229,10 +261,22 @@ export default function StudentDashboard() {
           `https://nominatim.openstreetmap.org/search?q=${queryStr}&format=json&addressdetails=1&limit=5&countrycodes=in`
         );
         const data = await response.json();
+        
+        let osmMatches = [];
         if (data && Array.isArray(data)) {
-          setSuggestions(data);
-          setShowDropdown(true);
+          osmMatches = data;
         }
+
+        // Merge keeping DB records first and avoiding exact duplicates
+        setSuggestions(prev => {
+          const onlyDb = prev.filter(item => item.isDbRecord);
+          const filteredOsm = osmMatches.filter(osm => 
+            !onlyDb.some(db => db.name.toLowerCase() === (osm.name || osm.display_name).split(',')[0].toLowerCase())
+          );
+          const merged = [...onlyDb, ...filteredOsm];
+          return merged;
+        });
+        setShowDropdown(true);
       } catch (err) {
         console.error('OSM Search Error:', err);
       } finally {
@@ -241,16 +285,47 @@ export default function StudentDashboard() {
     }, 400);
 
     return () => clearTimeout(delayDebounce);
-  }, [collegeSearch]);
+  }, [collegeSearch, dbColleges]);
 
-  const handleSelectCollege = (place, panMap = true) => {
+  const handleSelectCollege = async (place, panMap = true) => {
+    setSuggestions([]);
+    setShowDropdown(false);
+    setMappedMsg('');
+
+    if (place.isDbRecord) {
+      setCollegeSearch(place.name);
+      if (place.constituency_id) {
+        setSelectedConstituencyId(place.constituency_id.toString());
+        const conMatch = constituencies.find(c => c.id === place.constituency_id);
+        if (conMatch) {
+          setMappedMsg(`✓ Automatically mapped to regional node: ${conMatch.constituency_name}`);
+        }
+      }
+
+      if (panMap && mapInstance && markerInstance) {
+        try {
+          const queryStr = encodeURIComponent(place.name + ', Telangana, India');
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/search?q=${queryStr}&format=json&limit=1`
+          );
+          const data = await response.json();
+          if (data && data.length > 0) {
+            const lat = parseFloat(data[0].lat);
+            const lng = parseFloat(data[0].lon);
+            markerInstance.setLatLng([lat, lng]);
+            mapInstance.setView([lat, lng], 15);
+          }
+        } catch (err) {
+          console.warn('[handleSelectCollege] Failed background geocoding for database campus:', err);
+        }
+      }
+      return;
+    }
+
     const selectedName = place.display_name;
     const address = place.address || {};
 
     setCollegeSearch(selectedName);
-    setSuggestions([]);
-    setShowDropdown(false);
-    setMappedMsg('');
 
     // Attempt to automatically match place details to active constituencies
     const addressKeys = ['suburb', 'neighbourhood', 'city_district', 'county', 'state_district', 'city', 'town', 'village'];

@@ -1,29 +1,39 @@
 {
   "project_info": {
-    "project_number": "123456789012",
-    "project_id": "trsv-placeholder-id",
-    "storage_bucket": "trsv-placeholder-id.appspot.com"
+    "project_number": "832131594775",
+    "project_id": "trsv-15434",
+    "storage_bucket": "trsv-15434.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:123456789012:android:abcdef1234567890",
+        "mobilesdk_app_id": "1:832131594775:android:724a3e9c074525b3913a52",
         "android_client_info": {
-          "package_name": "com.trsv.governance"
+          "package_name": "com.trsv.app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "832131594775-4tgjsqh3hqa0h8n7q4u07h1ff15hgjo8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyPlaceholderKey-12345abcdef"
+          "current_key": "AIzaSyCxsrWADXT9FROMIVl4ghcnPpvhypW2Zaw"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "832131594775-4tgjsqh3hqa0h8n7q4u07h1ff15hgjo8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
   ],
-  "configuration_version": "3"
+  "configuration_version": "1"
 }
