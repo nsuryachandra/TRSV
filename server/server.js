@@ -239,21 +239,43 @@ pool.query = async function (text, params, callback) {
     actualParams = [];
   }
 
-  const result = await originalQuery.call(pool, text, actualParams);
+  let modifiedText = text;
+  if (typeof text === 'string') {
+    const queryLower = text.toLowerCase();
+    if (queryLower.includes('insert into notifications') && !queryLower.includes('returning')) {
+      modifiedText = text + ' RETURNING id';
+    }
+  } else if (text && typeof text === 'object' && text.text) {
+    const queryLower = text.text.toLowerCase();
+    if (queryLower.includes('insert into notifications') && !queryLower.includes('returning')) {
+      modifiedText = { ...text, text: text.text + ' RETURNING id' };
+    }
+  }
+
+  const result = await originalQuery.call(pool, modifiedText, actualParams);
 
   try {
     const queryStr = typeof text === 'string' ? text.trim().toLowerCase() : '';
     if (queryStr.includes('insert into notifications')) {
       if (actualParams && actualParams.length >= 3) {
+        // Collect returned ids if available
+        const insertedIds = (result && result.rows && result.rows.length > 0)
+          ? result.rows.map(r => r.id)
+          : [];
+
+        let notifIndex = 0;
         for (let i = 0; i < actualParams.length; i += 3) {
           if (i + 2 < actualParams.length) {
             const userId = actualParams[i];
             const title = actualParams[i + 1];
             const message = actualParams[i + 2];
             
+            const notificationId = insertedIds[notifIndex] || (Math.floor(Math.random() * 100000000) + 1);
+            notifIndex++;
+
             // Broadcast live socket event to user's personal channel room
             io.to(`user_${userId}`).emit('new_notification', {
-              id: Math.floor(Math.random() * 100000000) + 1,
+              id: notificationId,
               user_id: userId,
               title: title,
               message: message,
