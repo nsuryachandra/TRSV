@@ -1,4 +1,4 @@
-package com.trsv.governance;
+package com.trsv.app;
 
 import com.getcapacitor.BridgeActivity;
 

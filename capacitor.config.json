@@ -1,5 +1,5 @@
 {
-  "appId": "com.trsv.governance",
+  "appId": "com.trsv.app",
   "appName": "TRSV",
   "webDir": "dist",
   "bundledWebRuntime": false,

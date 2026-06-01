@@ -2,6 +2,6 @@
 <resources>
     <string name="app_name">TRSV</string>
     <string name="title_activity_main">TRSV</string>
-    <string name="package_name">com.trsv.governance</string>
-    <string name="custom_url_scheme">com.trsv.governance</string>
+    <string name="package_name">com.trsv.app</string>
+    <string name="custom_url_scheme">com.trsv.app</string>
 </resources>
