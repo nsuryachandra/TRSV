@@ -347,27 +347,6 @@ export default function DashboardLayout() {
           setTimeout(() => {
             setToasts(prev => prev.filter(t => t.id !== toastId));
           }, 4500);
-
-          // Schedule a native local push notification on mobile devices
-          const isNative = window.Capacitor && window.Capacitor.getPlatform && window.Capacitor.getPlatform() !== 'web';
-          if (isNative) {
-            LocalNotifications.schedule({
-              notifications: [
-                {
-                  id: Math.floor(Math.random() * 100000) + 1,
-                  title: n.title || 'TRSV Alert',
-                  body: n.message,
-                  schedule: { at: new Date(Date.now() + 200) },
-                  sound: null,
-                  attachments: null,
-                  actionTypeId: "",
-                  extra: null
-                }
-              ]
-            }).catch(err => {
-              console.warn('[DashboardLayout] Failed to schedule native notification:', err);
-            });
-          }
         });
       }
     }
