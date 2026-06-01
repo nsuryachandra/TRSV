@@ -102,8 +102,8 @@ router.get('/public/logs', async (req, res) => {
 router.post('/', requireRole(['student']), async (req, res) => {
   const { title, description, category, urgency, attachmentUrl, anonymous, emergency_flag, proofs, complainant_name, complainant_mobile, college_school_address, constituencyId } = req.body;
 
-  if (!complainant_name || !complainant_mobile || !college_school_address || !description || !category) {
-    return res.status(400).json({ success: false, message: 'Complainant name, mobile number, college/school address, category, and issue description are required.' });
+  if (!complainant_name || !college_school_address || !description || !category) {
+    return res.status(400).json({ success: false, message: 'Complainant name, college/school address, category, and issue description are required.' });
   }
 
   try {
@@ -153,7 +153,7 @@ router.post('/', requireRole(['student']), async (req, res) => {
         anonymous || false,
         isEmergency,
         complainant_name,
-        complainant_mobile,
+        complainant_mobile || null,
         college_school_address
       ]
     );

@@ -12,7 +12,9 @@ export default function RootLayout() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [showWelcome, setShowWelcome] = useState(true);
+  const [showWelcome, setShowWelcome] = useState(() => {
+    return !sessionStorage.getItem('trsv_welcome_shown');
+  });
 
   useEffect(() => {
     if (location.pathname === '/' && showWelcome) {
@@ -29,6 +31,7 @@ export default function RootLayout() {
   }, [showWelcome, location.pathname]);
 
   const handleCloseWelcome = () => {
+    sessionStorage.setItem('trsv_welcome_shown', 'true');
     setShowWelcome(false);
   };
 

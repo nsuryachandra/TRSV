@@ -480,12 +480,6 @@ export default function DashboardLayout() {
           desc: 'Verifiable complaint list'
         },
         {
-          name: 'About TRSV',
-          path: '/dashboard/about',
-          icon: <Info className="w-5 h-5" />,
-          desc: 'About TRSV union'
-        },
-        {
           name: 'TRSV Team',
           path: '/dashboard/team',
           icon: <Users className="w-5 h-5" />,
@@ -503,6 +497,17 @@ export default function DashboardLayout() {
           icon: <Activity className="w-5 h-5" />,
           desc: 'Real-time security audit logs'
         }] : [])
+      ]
+    },
+    {
+      category: 'Info',
+      links: [
+        {
+          name: 'About TRSV',
+          path: '/dashboard/about',
+          icon: <Info className="w-5 h-5" />,
+          desc: 'About TRSV union'
+        }
       ]
     }
   ];

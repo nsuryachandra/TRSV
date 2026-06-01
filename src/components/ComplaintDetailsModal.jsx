@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
-import { X, ShieldAlert, AlertTriangle, FileText, Clock, MessageSquare, Shield, CheckCircle, Send, Play, Camera, Scan, Upload, User } from 'lucide-react';
+import { X, ShieldAlert, AlertTriangle, FileText, Clock, MessageSquare, Shield, CheckCircle, Send, Play, Camera, Scan, Upload, User, MapPin, Navigation } from 'lucide-react';
 import PremiumButton from './PremiumButton';
 import jsQR from 'jsqr';
 
@@ -673,6 +673,57 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
                   </span>
                 </div>
               </div>
+            </section>
+
+            {/* Map Visualization & Directions */}
+            <section className="flex flex-col gap-3">
+              <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 dark:text-white flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-cyan-500" /> Dispatch Location Coordinates
+              </h3>
+              
+              {complaint.college_school_address || complaint.college_name ? (
+                <div className="flex flex-col gap-3.5">
+                  <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 font-medium">
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Declared Address</span>
+                    <span className="text-slate-800 dark:text-white font-bold">{complaint.college_school_address || complaint.college_name}</span>
+                  </div>
+
+                  <div className="relative w-full h-[220px] rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100 dark:bg-slate-950/40">
+                    <iframe
+                      title="Dispatch Location Map"
+                      width="100%"
+                      height="100%"
+                      frameBorder="0"
+                      scrolling="no"
+                      marginHeight="0"
+                      marginWidth="0"
+                      src={`https://maps.google.com/maps?q=${encodeURIComponent(complaint.college_school_address || complaint.college_name)}&t=&z=14&ie=UTF8&iwloc=&output=embed`}
+                      className="absolute inset-0 w-full h-full filter dark:invert-[90%] dark:hue-rotate-[180deg] transition-all duration-300"
+                    />
+                  </div>
+
+                  <PremiumButton
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    className="w-full flex items-center justify-center gap-2 !border-cyan-500/30 !text-cyan-500 hover:!bg-cyan-500 hover:!text-white font-bold"
+                    onClick={() => {
+                      window.open(
+                        `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(complaint.college_school_address || complaint.college_name)}`,
+                        '_blank',
+                        'noopener,noreferrer'
+                      );
+                    }}
+                    icon={<Navigation className="w-4 h-4" />}
+                  >
+                    Start Dispatch Directions
+                  </PremiumButton>
+                </div>
+              ) : (
+                <div className="p-4 rounded-xl border border-dashed border-slate-200 dark:border-slate-850 text-center text-xs text-slate-400 dark:text-slate-500 font-bold">
+                  No precise address declared. Defaulting to general constituency area.
+                </div>
+              )}
             </section>
 
             {/* Proofs Vault */}

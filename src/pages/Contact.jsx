@@ -257,10 +257,6 @@ export default function Contact() {
       setErrorMsg('Please enter your valid Full Name (cannot be empty or spaces).');
       return;
     }
-    if (!complainantMobile.trim()) {
-      setErrorMsg('Please enter your Active Mobile Number (cannot be empty or spaces).');
-      return;
-    }
     if (!selectedConstituencyId) {
       setErrorMsg('Please select a Constituency Area.');
       return;
@@ -271,10 +267,6 @@ export default function Contact() {
     }
     if (!description.trim()) {
       setErrorMsg('Please enter a detailed description of the issue (cannot be empty or spaces).');
-      return;
-    }
-    if (proofFiles.length === 0) {
-      setErrorMsg('At least one proof file (PDF or MP4 or Image) is required. You cannot skip this field.');
       return;
     }
 
@@ -526,21 +518,6 @@ export default function Contact() {
                     />
                   </div>
 
-                  {/* Complainant Active Mobile Number */}
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                      Active Mobile Number <span className="text-rose-500">*</span>
-                    </label>
-                    <input
-                      type="tel"
-                      required
-                      placeholder="e.g. 9876543210"
-                      value={complainantMobile}
-                      onChange={(e) => setComplainantMobile(e.target.value)}
-                      className="w-full px-4 py-3.5 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-805 dark:text-slate-100 font-bold"
-                    />
-                  </div>
-
                   {/* Constituency Selection Dropdown */}
                   <div className="flex flex-col gap-1.5">
                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
@@ -640,8 +617,8 @@ export default function Contact() {
                 {/* Proofs Drag and Drop field */}
                 <div className="flex flex-col gap-3">
                   <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
-                    <span>Complaint Proof Attachments <span className="text-rose-500">*</span></span>
-                    <span className="text-[9px] text-cyan-555 font-extrabold uppercase">At least one proof file required</span>
+                    <span>Complaint Proof Attachments <span className="text-slate-500">(Optional)</span></span>
+                    <span className="text-[9px] text-cyan-555 font-extrabold uppercase">Evidence files are optional</span>
                   </label>
                   
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
