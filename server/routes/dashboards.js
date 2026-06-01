@@ -391,79 +391,113 @@ const handleAssignLeaderLogic = async (req, res) => {
     const shouldSendEmail = (isNewAdmin && !isPreviousAdmin) || (isNewAdmin && isRoleChanged) || (isNewAdmin && isMailChanged);
 
     if (shouldSendEmail && finalEmail) {
-      const smtpUser = process.env.SMTP_USER;
-      const smtpPass = process.env.SMTP_PASS;
+      const emailSubject = isMailChanged
+        ? `[TRSV SECURITY GRID] Admin Credentials Calibrated - New Email Access`
+        : `[TRSV SECURITY GRID] Administrative Access Granted - Role: ${role.toUpperCase()}`;
 
-      if (smtpUser && smtpPass) {
-        try {
-          const nodemailerModule = await import('nodemailer');
-          const nodemailer = nodemailerModule.default || nodemailerModule;
-          const transporter = nodemailer.createTransport({
-            host: process.env.SMTP_HOST || 'smtp.gmail.com',
-            port: parseInt(process.env.SMTP_PORT || '587'),
-            secure: process.env.SMTP_PORT === '465',
-            auth: { user: smtpUser, pass: smtpPass },
-            connectionTimeout: 10000,
-            greetingTimeout: 10000,
-            socketTimeout: 15000,
-            tls: { rejectUnauthorized: false }
-          });
-
-
-          const emailSubject = isMailChanged
-            ? `[TRSV SECURITY GRID] Admin Credentials Calibrated - New Email Access`
-            : `[TRSV SECURITY GRID] Administrative Access Granted - Role: ${role.toUpperCase()}`;
-
-          const emailHtml = `
-            <div style="font-family: Arial, sans-serif; max-width: 550px; margin: 0 auto; padding: 30px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
-              <div style="text-align: center; margin-bottom: 25px;">
-                <h2 style="color: #06b6d4; margin: 0; font-size: 22px; font-weight: 800;">TRSV Security Grid</h2>
-                <span style="font-size: 10px; font-weight: bold; color: #64748b; letter-spacing: 1.5px; text-transform: uppercase;">Telangana Rakshana Sena Vidyarthi</span>
-              </div>
-              <p style="font-size: 15px; color: #1e293b; line-height: 1.6; font-weight: bold;">Hey ${full_name},</p>
-              <p style="font-size: 14px; color: #334155; line-height: 1.6;">
-                ${isMailChanged 
-                  ? 'Your registered email has been updated, and your administrative role access keys have been calibrated.' 
-                  : 'You have been granted administrative access to the Telangana R.S.V. state student protection portal.'
-                }
-              </p>
-              
-              <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin: 25px 0; text-align: left;">
-                <div style="margin-bottom: 12px;">
-                  <span style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; display: block; margin-bottom: 2px;">Assigned Role</span>
-                  <strong style="font-size: 15px; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px;">${role.replace('_', ' ')}</strong>
-                </div>
-                <div style="margin-bottom: 12px;">
-                  <span style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; display: block; margin-bottom: 2px;">Authorized Email Portal</span>
-                  <strong style="font-size: 14px; color: #0f172a;">${finalEmail}</strong>
-                </div>
-                <div>
-                  <span style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; display: block; margin-bottom: 2px;">Target Access Coordinates</span>
-                  <strong style="font-size: 14px; color: #0f172a;">${constituencyName}</strong>
-                </div>
-              </div>
-              
-              <p style="font-size: 13px; color: #ef4444; line-height: 1.6; font-weight: 650; margin-top: 20px; border-left: 3px solid #ef4444; padding-left: 10px;">
-                SECURITY REQUIREMENT: You are now an active guardian of the student safety ecosystem. Always protect student complaints and coordinates with absolute confidentiality and state honors.
-              </p>
-              <div style="border-top: 1px solid #f1f5f9; margin-top: 30px; padding-top: 15px; text-align: center;">
-                <span style="font-size: 10px; color: #94a3b8;">TRSV Statewide Student Protection Ecosystem © 2026</span>
-              </div>
+      const emailHtml = `
+        <div style="font-family: Arial, sans-serif; max-width: 550px; margin: 0 auto; padding: 30px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+          <div style="text-align: center; margin-bottom: 25px;">
+            <h2 style="color: #06b6d4; margin: 0; font-size: 22px; font-weight: 800;">TRSV Security Grid</h2>
+            <span style="font-size: 10px; font-weight: bold; color: #64748b; letter-spacing: 1.5px; text-transform: uppercase;">Telangana Rakshana Sena Vidyarthi</span>
+          </div>
+          <p style="font-size: 15px; color: #1e293b; line-height: 1.6; font-weight: bold;">Hey ${full_name},</p>
+          <p style="font-size: 14px; color: #334155; line-height: 1.6;">
+            ${isMailChanged 
+              ? 'Your registered email has been updated, and your administrative role access keys have been calibrated.' 
+              : 'You have been granted administrative access to the Telangana R.S.V. state student protection portal.'
+            }
+          </p>
+          
+          <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin: 25px 0; text-align: left;">
+            <div style="margin-bottom: 12px;">
+              <span style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; display: block; margin-bottom: 2px;">Assigned Role</span>
+              <strong style="font-size: 15px; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px;">${role.replace('_', ' ')}</strong>
             </div>
-          `;
+            <div style="margin-bottom: 12px;">
+              <span style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; display: block; margin-bottom: 2px;">Authorized Email Portal</span>
+              <strong style="font-size: 14px; color: #0f172a;">${finalEmail}</strong>
+            </div>
+            <div>
+              <span style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; display: block; margin-bottom: 2px;">Target Access Coordinates</span>
+              <strong style="font-size: 14px; color: #0f172a;">${constituencyName}</strong>
+            </div>
+          </div>
+          
+          <p style="font-size: 13px; color: #ef4444; line-height: 1.6; font-weight: 650; margin-top: 20px; border-left: 3px solid #ef4444; padding-left: 10px;">
+            SECURITY REQUIREMENT: You are now an active guardian of the student safety ecosystem. Always protect student complaints and coordinates with absolute confidentiality and state honors.
+          </p>
+          <div style="border-top: 1px solid #f1f5f9; margin-top: 30px; padding-top: 15px; text-align: center;">
+            <span style="font-size: 10px; color: #94a3b8;">TRSV Statewide Student Protection Ecosystem © 2026</span>
+          </div>
+        </div>
+      `;
 
-          await transporter.sendMail({
-            from: `"TRSV Security Grid" <${process.env.SMTP_SENDER || smtpUser}>`,
-            to: finalEmail,
-            subject: emailSubject,
-            html: emailHtml
+      const brevoApiKey = process.env.BREVO_API_KEY || (process.env.SMTP_HOST === 'smtp-relay.brevo.com' ? process.env.SMTP_PASS : null);
+      let sentViaBrevo = false;
+
+      if (brevoApiKey) {
+        try {
+          const senderEmail = process.env.SMTP_SENDER || 'no-reply@trsv.gov.in';
+          const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+            method: 'POST',
+            headers: {
+              'accept': 'application/json',
+              'api-key': brevoApiKey,
+              'content-type': 'application/json'
+            },
+            body: JSON.stringify({
+              sender: { name: 'TRSV Security Grid', email: senderEmail },
+              to: [{ email: finalEmail, name: full_name }],
+              subject: emailSubject,
+              htmlContent: emailHtml
+            })
           });
-          console.log(`✉️ [Admin Invite] Access invitation email successfully dispatched to: ${finalEmail}`);
-        } catch (mailErr) {
-          console.error('🚨 [Admin Invite] Failed to dispatch email:', mailErr.message);
+
+          const result = await response.json();
+          if (response.ok) {
+            console.log(`✉️ [Brevo Mail API] Admin invite successfully sent to ${finalEmail}. MsgId: ${result.messageId}`);
+            sentViaBrevo = true;
+          } else {
+            console.warn(`⚠️ [Brevo Mail API] Brevo HTTP endpoint rejected the request:`, result);
+          }
+        } catch (apiErr) {
+          console.warn(`⚠️ [Brevo Mail API] Error trying Brevo REST API: ${apiErr.message}`);
         }
-      } else {
-        console.warn('⚠️ [Admin Invite] SMTP user/pass is unconfigured. Skipping email dispatch.');
+      }
+
+      if (!sentViaBrevo) {
+        const smtpUser = process.env.SMTP_USER;
+        const smtpPass = process.env.SMTP_PASS;
+
+        if (smtpUser && smtpPass) {
+          try {
+            const nodemailerModule = await import('nodemailer');
+            const nodemailer = nodemailerModule.default || nodemailerModule;
+            const transporter = nodemailer.createTransport({
+              host: process.env.SMTP_HOST || 'smtp.gmail.com',
+              port: parseInt(process.env.SMTP_PORT || '587'),
+              secure: process.env.SMTP_PORT === '465',
+              auth: { user: smtpUser, pass: smtpPass },
+              connectionTimeout: 10000,
+              greetingTimeout: 10000,
+              socketTimeout: 15000,
+              tls: { rejectUnauthorized: false }
+            });
+
+            await transporter.sendMail({
+              from: `"TRSV Security Grid" <${process.env.SMTP_SENDER || smtpUser}>`,
+              to: finalEmail,
+              subject: emailSubject,
+              html: emailHtml
+            });
+            console.log(`✉️ [Admin Invite SMTP] Access invitation email successfully dispatched to: ${finalEmail}`);
+          } catch (mailErr) {
+            console.error('🚨 [Admin Invite SMTP] Failed to dispatch email:', mailErr.message);
+          }
+        } else {
+          console.warn('⚠️ [Admin Invite SMTP] SMTP user/pass is unconfigured. Skipping email dispatch.');
+        }
       }
     }
 
