@@ -108,13 +108,19 @@ app.use(helmet({
         "data:", 
         "blob:",
         "https://*.supabase.co",
-        "https://images.unsplash.com"
+        "https://images.unsplash.com",
+        "https://*.openstreetmap.org",
+        "https://*.basemaps.cartocdn.com",
+        "https://server.arcgisonline.com",
+        "https://unpkg.com"
       ],
       connectSrc: [
         "'self'", 
         "ws:",
         "wss:",
-        "https://*.supabase.co"
+        "https://*.supabase.co",
+        "https://nominatim.openstreetmap.org",
+        "https://unpkg.com"
       ],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       objectSrc: ["'none'"],
