@@ -432,13 +432,6 @@ export default function DashboardLayout() {
           icon: <FileText className="w-5 h-5" />,
           desc: 'Register a new complaint'
         }] : []),
-        // Only student roles can apply to join the union
-        ...(userProfile?.role === 'student' ? [{
-          name: 'Join TRSV',
-          path: '/dashboard/join',
-          icon: <UserPlus className="w-5 h-5" />,
-          desc: 'Apply to join TRSV'
-        }] : []),
         ...(userProfile?.role !== 'student' ? [{
           name: 'Messenger',
           path: '/dashboard/messenger',
@@ -454,7 +447,7 @@ export default function DashboardLayout() {
           name: 'Digital ID',
           path: '/dashboard/digital-id',
           icon: <CreditCard className="w-5 h-5" />,
-          desc: 'My digital identity card'
+          desc: 'Main digital identity card'
         },
         ...(userProfile?.role !== 'student' ? [{
           name: 'QR Scanner',
@@ -507,7 +500,14 @@ export default function DashboardLayout() {
           path: '/dashboard/about',
           icon: <Info className="w-5 h-5" />,
           desc: 'About TRSV union'
-        }
+        },
+        // Only student roles can apply to join the union (currently offline)
+        ...(userProfile?.role === 'student' ? [{
+          name: 'Join TRSV',
+          path: '/dashboard/join',
+          icon: <UserPlus className="w-5 h-5" />,
+          desc: 'Apply to join TRSV'
+        }] : [])
       ]
     }
   ];
