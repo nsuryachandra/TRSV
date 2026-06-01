@@ -501,8 +501,8 @@ export default function DigitalIdCard() {
                 </div>
 
                 {/* 3. TSRV Logo Watermark */}
-                <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] select-none pointer-events-none">
-                  <span className="text-[72px] font-black tracking-[0.2em] text-[#fbbf24]">TSRV</span>
+                <div className="absolute inset-0 flex items-center justify-center opacity-[0.025] select-none pointer-events-none">
+                  <img src="/trsv.jpeg" alt="TSRV Logo" className="w-[50%] h-[50%] object-contain rounded-full" />
                 </div>
 
                 {/* Holographic reflection glint sheet */}
@@ -580,18 +580,18 @@ export default function DigitalIdCard() {
                     <div className="grid grid-cols-2 gap-2 mt-1">
                       <div>
                         <span className="text-[6.5px] font-black text-slate-400 uppercase tracking-widest block">CONSTITUENCY</span>
-                        <span className="text-[9.5px] font-bold text-slate-200 block truncate leading-tight mt-0.5">{userProfile?.constituency_name || 'STATE SCOPE'}</span>
+                        <span className="text-[9.5px] font-bold text-slate-200 block truncate leading-tight mt-0.5">{userProfile?.constituency_name || 'NOT ADDED'}</span>
                       </div>
                       <div>
                         <span className="text-[6.5px] font-black text-slate-400 uppercase tracking-widest block">DISTRICT</span>
-                        <span className="text-[9.5px] font-bold text-slate-200 block truncate leading-tight mt-0.5">{userProfile?.district || 'STATEWIDE'}</span>
+                        <span className="text-[9.5px] font-bold text-slate-200 block truncate leading-tight mt-0.5">{userProfile?.district || 'NOT ADDED'}</span>
                       </div>
                     </div>
 
                     <div className="mt-1">
                       <span className="text-[6.5px] font-black text-slate-400 uppercase tracking-widest block font-sans">INSTITUTION</span>
-                      <span className="text-[9.5px] font-bold text-slate-200 block truncate leading-tight mt-0.5" title={userProfile?.college_name || 'ACADEMIC GRID'}>
-                        {userProfile?.college_name || 'ACADEMIC GRID'}
+                      <span className="text-[9.5px] font-bold text-slate-200 block truncate leading-tight mt-0.5" title={userProfile?.college_name || 'NOT ADDED'}>
+                        {userProfile?.college_name || 'NOT ADDED'}
                       </span>
                     </div>
                   </div>
@@ -668,7 +668,7 @@ export default function DigitalIdCard() {
                   <div className="flex flex-col text-right">
                     <span className="text-[6px] text-slate-450 dark:text-slate-500 uppercase tracking-widest">Node Region</span>
                     <span className="text-[8px] font-extrabold text-slate-350 dark:text-slate-200 mt-0.5">
-                      {userProfile?.constituency_name || 'Statewide Command'}
+                      {userProfile?.constituency_name || 'NOT ADDED'}
                     </span>
                   </div>
                 </div>

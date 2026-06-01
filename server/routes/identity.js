@@ -22,11 +22,8 @@ const generateUniqueMemberId = async (user) => {
     }
   }
 
-  // Count existing matching IDs to assign sequence
-  const res = await query(
-    "SELECT COUNT(*) FROM member_identities WHERE trsv_member_id LIKE $1",
-    [`TRSV-${prefix}-%`]
-  );
+  // Count existing IDs globally to assign sequence
+  const res = await query("SELECT COUNT(*) FROM member_identities");
   const nextSeq = parseInt(res.rows[0].count) + 1;
   const padded = nextSeq.toString().padStart(4, '0');
   return `TRSV-${prefix}-${padded}`;
