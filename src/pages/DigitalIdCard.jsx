@@ -462,13 +462,52 @@ export default function DigitalIdCard() {
             >
               {/* --- FRONT SIDE --- */}
               <div 
-                className={`absolute inset-0 p-6 flex flex-col justify-between backface-hidden bg-inherit rounded-2xl transition-all duration-300 ${
-                  isFlipped ? 'z-10 opacity-0 pointer-events-none' : 'z-25 opacity-100'
+                className={`absolute inset-0 p-5 flex flex-col justify-between backface-hidden rounded-2xl transition-all duration-300 z-25 opacity-100 bg-gradient-to-br from-[#06142c] via-[#0b2447] to-[#040e1c] text-white border border-[#fbbf24]/40 ${
+                  isFlipped ? 'opacity-0 pointer-events-none' : 'opacity-100'
                 }`}
+                style={{
+                  boxShadow: 'inset 0 0 20px rgba(251, 191, 36, 0.05), 0 10px 30px rgba(0, 0, 0, 0.5)'
+                }}
               >
+                {/* 1. Security Micro Geometric Pattern & Guilloche Layer */}
+                <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl opacity-[0.08]">
+                  <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                      <pattern id="security-grid-front" width="14" height="14" patternUnits="userSpaceOnUse">
+                        <path d="M 14 0 L 0 0 0 14" fill="none" stroke="rgba(251, 191, 36, 0.2)" strokeWidth="0.5"/>
+                      </pattern>
+                    </defs>
+                    <rect width="100%" height="100%" fill="url(#security-grid-front)" />
+                    <path d="M-50,80 Q100,30 250,130 T550,80" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="0.5" />
+                    <path d="M-50,90 Q100,40 250,140 T550,90" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="0.5" />
+                    <path d="M-50,100 Q100,50 250,150 T550,100" fill="none" stroke="rgba(251, 191, 36, 0.06)" strokeWidth="0.5" />
+                    <path d="M-50,110 Q100,60 250,160 T550,110" fill="none" stroke="rgba(251, 191, 36, 0.06)" strokeWidth="0.5" />
+                  </svg>
+                </div>
+
+                {/* 2. Massive Telangana State Outline Watermark & Civic-Tech Grid */}
+                <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl flex items-center justify-center opacity-[0.06]">
+                  <svg viewBox="0 0 120 100" className="w-[75%] h-[75%] text-[#fbbf24] fill-none stroke-current stroke-[0.85]">
+                    <path d="M 58 6 C 72 10, 86 8, 96 16 C 106 24, 110 42, 107 55 C 104 68, 87 82, 72 87 C 57 92, 42 89, 30 82 C 18 75, 10 59, 8 45 C 6 31, 14 17, 27 9 C 40 1, 47 3, 58 6 Z" />
+                    <path d="M 58 14 C 69 17, 80 15, 88 22 C 96 29, 99 44, 96 55 C 93 66, 79 78, 67 82 C 55 86, 42 84, 32 78 C 22 72, 15 58, 14 45 C 13 32, 20 20, 31 13 C 42 6, 48 8, 58 14 Z" strokeDasharray="1 3" strokeWidth="0.5" />
+                    <circle cx="58" cy="45" r="1.5" className="fill-[#fbbf24] stroke-none" />
+                    <circle cx="70" cy="50" r="1" className="fill-[#fbbf24]/50 stroke-none" />
+                    <circle cx="50" cy="35" r="1" className="fill-[#fbbf24]/50 stroke-none" />
+                    <circle cx="82" cy="38" r="1.2" className="fill-[#fbbf24]/50 stroke-none" />
+                    <line x1="58" y1="45" x2="70" y2="50" stroke="rgba(251, 191, 36, 0.3)" strokeWidth="0.5" />
+                    <line x1="58" y1="45" x2="50" y2="35" stroke="rgba(251, 191, 36, 0.3)" strokeWidth="0.5" />
+                    <line x1="70" y1="50" x2="82" y2="38" stroke="rgba(251, 191, 36, 0.3)" strokeWidth="0.5" />
+                  </svg>
+                </div>
+
+                {/* 3. TSRV Logo Watermark */}
+                <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] select-none pointer-events-none">
+                  <span className="text-[72px] font-black tracking-[0.2em] text-[#fbbf24]">TSRV</span>
+                </div>
+
                 {/* Holographic reflection glint sheet */}
                 <div 
-                  className="absolute inset-0 pointer-events-none transition-opacity duration-300 bg-[radial-gradient(circle_at_var(--x,50%)_var(--y,50%),rgba(255,255,255,0.18)_0%,rgba(255,255,255,0)_60%)] mix-blend-overlay"
+                  className="absolute inset-0 pointer-events-none transition-opacity duration-300 bg-[radial-gradient(circle_at_var(--x,50%)_var(--y,50%),rgba(255,255,255,0.18)_0%,rgba(255,255,255,0)_60%)] mix-blend-overlay rounded-2xl"
                   style={{
                     '--x': tiltStyle.reflectionX,
                     '--y': tiltStyle.reflectionY,
@@ -477,54 +516,106 @@ export default function DigitalIdCard() {
                 />
 
                 {/* ID Header */}
-                <div className="flex items-center justify-between z-10">
-                  <div className="flex flex-col text-left">
-                    <span className="text-[14px] font-black tracking-widest text-cyan-400 uppercase">TRSV</span>
-                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Union Member Card</span>
+                <div className="flex items-start justify-between z-10 w-full border-b border-white/10 pb-2">
+                  <div className="flex items-center gap-2">
+                    {/* Stylized Gold Shield Logo Crest */}
+                    <svg className="w-8 h-8 text-[#fbbf24] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="rgba(251, 191, 36, 0.1)" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M12 8v8M9 11h6" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <div className="flex flex-col text-left">
+                      <span className="text-[10px] font-black tracking-[0.12em] text-white uppercase font-sans">TELANGANA RAKSHANA SENA</span>
+                      <span className="text-[7px] font-extrabold text-[#fbbf24] uppercase tracking-[0.16em]">VIDYARTHI VIBHAGAM (TSRV)</span>
+                    </div>
                   </div>
-                  <div className={`px-2 py-0.5 rounded-full border text-[8px] font-black uppercase tracking-wider flex items-center gap-1 ${statusObj.color}`}>
-                    <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
-                    {statusObj.text}
+                  <div className="flex flex-col items-end">
+                    <span className="text-[6.5px] font-black text-slate-400 uppercase tracking-widest leading-none">STATE COUNCIL</span>
+                    <div className="mt-1 px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/35 text-[7px] font-black tracking-wider uppercase flex items-center gap-1 leading-none">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      {statusObj.text.replace(' Official', '')}
+                    </div>
                   </div>
                 </div>
 
                 {/* Card middle: Avatar & Profile */}
-                <div className="flex items-center gap-4 my-2 z-10">
-                  {userProfile?.profile_image ? (
-                    <img 
-                      src={userProfile.profile_image} 
-                      alt={userProfile.full_name} 
-                      className="w-14 h-14 rounded-xl object-cover border border-cyan-450/30 shadow-glow-cyan shrink-0"
-                    />
-                  ) : (
-                    <div className="w-14 h-14 rounded-xl bg-gradient-to-tr from-sky-500 to-cyan-400 text-white font-black text-xl flex items-center justify-center shadow-glow-cyan uppercase shrink-0">
-                      {userProfile?.full_name ? userProfile.full_name.split(' ').map(n => n[0]).join('').substring(0, 2) : 'ST'}
+                <div className="flex items-stretch gap-4 my-auto z-10 w-full">
+                  {/* Photo Section (Hero Frame) */}
+                  <div className="relative shrink-0 flex flex-col items-center justify-center">
+                    <div className="w-[72px] h-[90px] rounded-lg overflow-hidden border border-[#fbbf24]/50 bg-[#06142c] relative p-[3px] shadow-[0_4px_12px_rgba(0,0,0,0.3)]">
+                      {/* ID Border Crop Marks / Security Ticks */}
+                      <div className="absolute top-1 left-1 w-1.5 h-1.5 border-t border-l border-[#fbbf24]/60" />
+                      <div className="absolute top-1 right-1 w-1.5 h-1.5 border-t border-r border-[#fbbf24]/60" />
+                      <div className="absolute bottom-1 left-1 w-1.5 h-1.5 border-b border-l border-[#fbbf24]/60" />
+                      <div className="absolute bottom-1 right-1 w-1.5 h-1.5 border-b border-r border-[#fbbf24]/60" />
+                      
+                      {userProfile?.profile_image ? (
+                        <img 
+                          src={userProfile.profile_image} 
+                          alt={userProfile.full_name} 
+                          className="w-full h-full object-cover rounded"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-b from-[#0a1b32] to-[#122e50] text-[#fbbf24] font-black text-xl flex flex-col items-center justify-center uppercase select-none rounded">
+                          <span className="text-2xl">{userProfile?.full_name ? userProfile.full_name.split(' ').map(n => n[0]).join('').substring(0, 2) : 'ST'}</span>
+                          <span className="text-[6px] tracking-wider text-slate-400 mt-1 font-sans">MEMBER</span>
+                        </div>
+                      )}
                     </div>
-                  )}
-                  <div className="flex flex-col min-w-0 text-left">
-                    <h3 className="font-extrabold text-base truncate tracking-tight">{userProfile?.full_name}</h3>
-                    <p className="text-[9px] font-bold text-cyan-400 uppercase tracking-widest mt-0.5">
-                      {userProfile?.role === 'student' ? 'Student' : 'Union Member'}
-                    </p>
-                    <p className="text-[8px] text-slate-400 truncate mt-0.5">
-                      Campus: {userProfile?.college_name || 'Academic Campus Node'}
-                    </p>
+                    {/* Corner shield verification tick mark on photo */}
+                    <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-[#fbbf24] text-[#071830] flex items-center justify-center border border-[#071830] shadow">
+                      <ShieldCheck className="w-2.5 h-2.5 fill-current" />
+                    </div>
+                  </div>
+
+                  {/* Vertical Divider */}
+                  <div className="w-[1px] bg-white/10 self-stretch my-1" />
+
+                  {/* Credential Data Fields */}
+                  <div className="flex flex-col justify-between flex-1 min-w-0 text-left py-0.5">
+                    <div>
+                      <span className="text-[6.5px] font-black text-slate-400 uppercase tracking-widest block">MEMBER NAME</span>
+                      <h3 className="font-extrabold text-sm truncate tracking-tight text-white leading-tight mt-0.5">{userProfile?.full_name}</h3>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 mt-1">
+                      <div>
+                        <span className="text-[6.5px] font-black text-slate-400 uppercase tracking-widest block">CONSTITUENCY</span>
+                        <span className="text-[9.5px] font-bold text-slate-200 block truncate leading-tight mt-0.5">{userProfile?.constituency_name || 'STATE SCOPE'}</span>
+                      </div>
+                      <div>
+                        <span className="text-[6.5px] font-black text-slate-400 uppercase tracking-widest block">DISTRICT</span>
+                        <span className="text-[9.5px] font-bold text-slate-200 block truncate leading-tight mt-0.5">{userProfile?.district || 'STATEWIDE'}</span>
+                      </div>
+                    </div>
+
+                    <div className="mt-1">
+                      <span className="text-[6.5px] font-black text-slate-400 uppercase tracking-widest block font-sans">INSTITUTION</span>
+                      <span className="text-[9.5px] font-bold text-slate-200 block truncate leading-tight mt-0.5" title={userProfile?.college_name || 'ACADEMIC GRID'}>
+                        {userProfile?.college_name || 'ACADEMIC GRID'}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
                 {/* Card Footer */}
-                <div className="flex items-end justify-between border-t border-slate-200/20 dark:border-slate-800/80 pt-2.5 z-10">
+                <div className="flex items-end justify-between border-t border-white/10 pt-2 z-10 w-full">
                   <div className="flex flex-col text-left">
-                    <span className="text-[7px] text-slate-400 uppercase tracking-widest">TRSV System Node ID</span>
-                    <span className="text-sm font-black font-mono text-cyan-400 tracking-wider mt-0.5">
+                    <span className="text-[6.5px] text-slate-400 uppercase tracking-widest">CREDENTIAL NUMBER</span>
+                    <span className="text-[12px] font-bold font-mono text-[#fbbf24] tracking-wider mt-0.5">
                       {identity?.trsv_member_id}
                     </span>
                   </div>
 
-                  {/* Holographic Security seal instead of small QR */}
-                  <div className="flex flex-col items-center justify-center border border-cyan-500/30 bg-cyan-500/10 px-2 py-1 rounded-lg shadow-glow-cyan/5 shrink-0 select-none">
-                    <ShieldCheck className="w-5 h-5 text-cyan-400 animate-pulse" />
-                    <span className="text-[6px] font-black uppercase tracking-widest text-cyan-400 mt-0.5">SECURE</span>
+                  {/* Official VERIFIED MEMBER Seal Badge */}
+                  <div className="flex items-center gap-1.5 border border-[#fbbf24]/30 bg-[#fbbf24]/5 px-2 py-1 rounded-md shadow-sm select-none">
+                    <svg className="w-3.5 h-3.5 text-[#fbbf24]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="rgba(251, 191, 36, 0.1)"/>
+                      <path d="m9 12 2 2 4-4" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <div className="flex flex-col leading-none text-left">
+                      <span className="text-[7.5px] font-black text-[#fbbf24] uppercase tracking-wider">VERIFIED</span>
+                      <span className="text-[5.5px] font-bold text-white uppercase tracking-widest mt-0.5">MEMBER</span>
+                    </div>
                   </div>
                 </div>
               </div>
