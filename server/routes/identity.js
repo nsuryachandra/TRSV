@@ -101,7 +101,7 @@ router.get('/my-id', requireRole(['student', 'secretary', 'general_secretary', '
     // Fetch full profile and metrics
     const profileQuery = await query(`
       SELECT u.id, u.full_name, u.email, u.role, u.phone, u.profile_image, u.verified,
-             con.constituency_name, col.college_name
+             con.constituency_name, con.district, col.college_name
       FROM users u
       LEFT JOIN constituencies con ON u.constituency_id = con.id
       LEFT JOIN colleges col ON u.college_id = col.id

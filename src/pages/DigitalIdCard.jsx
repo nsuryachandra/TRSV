@@ -462,7 +462,7 @@ export default function DigitalIdCard() {
             >
               {/* --- FRONT SIDE --- */}
               <div 
-                className={`absolute inset-0 p-5 flex flex-col justify-between backface-hidden rounded-2xl transition-all duration-300 z-25 opacity-100 bg-gradient-to-br from-[#06142c] via-[#0b2447] to-[#040e1c] text-white border border-[#fbbf24]/40 ${
+                className={`absolute inset-0 p-3.5 xs:p-4 sm:p-5 flex flex-col justify-between backface-hidden rounded-2xl transition-all duration-300 z-25 opacity-100 bg-gradient-to-br from-[#06142c] via-[#0b2447] to-[#040e1c] text-white border border-[#fbbf24]/40 ${
                   isFlipped ? 'opacity-0 pointer-events-none' : 'opacity-100'
                 }`}
                 style={{
@@ -501,8 +501,8 @@ export default function DigitalIdCard() {
                 </div>
 
                 {/* 3. TSRV Logo Watermark */}
-                <div className="absolute inset-0 flex items-center justify-center opacity-[0.025] select-none pointer-events-none">
-                  <img src="/trsv.jpeg" alt="TSRV Logo" className="w-[50%] h-[50%] object-contain rounded-full" />
+                <div className="absolute inset-0 flex items-center justify-center opacity-[0.035] select-none pointer-events-none">
+                  <img src="/trsvlogo.jpeg" alt="TSRV Logo" className="w-[50%] h-[50%] object-contain rounded-full" />
                 </div>
 
                 {/* Holographic reflection glint sheet */}
@@ -516,32 +516,32 @@ export default function DigitalIdCard() {
                 />
 
                 {/* ID Header */}
-                <div className="flex items-start justify-between z-10 w-full border-b border-white/10 pb-2">
-                  <div className="flex items-center gap-2">
+                <div className="flex items-start justify-between z-10 w-full border-b border-white/10 pb-1.5 sm:pb-2">
+                  <div className="flex items-center gap-1.5 sm:gap-2">
                     {/* Stylized Gold Shield Logo Crest */}
-                    <svg className="w-8 h-8 text-[#fbbf24] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <svg className="w-6 h-6 sm:w-8 sm:h-8 text-[#fbbf24] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="rgba(251, 191, 36, 0.1)" strokeLinecap="round" strokeLinejoin="round"/>
                       <path d="M12 8v8M9 11h6" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                     <div className="flex flex-col text-left">
-                      <span className="text-[10px] font-black tracking-[0.12em] text-white uppercase font-sans">TELANGANA RAKSHANA SENA</span>
-                      <span className="text-[7px] font-extrabold text-[#fbbf24] uppercase tracking-[0.16em]">VIDYARTHI VIBHAGAM (TSRV)</span>
+                      <span className="text-[7.5px] xs:text-[8.5px] sm:text-[10px] font-black tracking-[0.12em] text-white uppercase font-sans">TELANGANA RAKSHANA SENA</span>
+                      <span className="text-[5.5px] xs:text-[6px] sm:text-[7px] font-extrabold text-[#fbbf24] uppercase tracking-[0.16em]">VIDYARTHI VIBHAGAM (TSRV)</span>
                     </div>
                   </div>
-                  <div className="flex flex-col items-end">
-                    <span className="text-[6.5px] font-black text-slate-400 uppercase tracking-widest leading-none">STATE COUNCIL</span>
-                    <div className="mt-1 px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/35 text-[7px] font-black tracking-wider uppercase flex items-center gap-1 leading-none">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <div className="flex flex-col items-end shrink-0">
+                    <span className="text-[5px] xs:text-[5.5px] sm:text-[6.5px] font-black text-slate-400 uppercase tracking-widest leading-none">STATE COUNCIL</span>
+                    <div className="mt-0.5 sm:mt-1 px-1 py-0.5 sm:px-1.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/35 text-[5.5px] xs:text-[6px] sm:text-[7px] font-black tracking-wider uppercase flex items-center gap-0.5 sm:gap-1 leading-none">
+                      <span className="w-1 sm:w-1.5 h-1 sm:h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                       {statusObj.text.replace(' Official', '')}
                     </div>
                   </div>
                 </div>
 
                 {/* Card middle: Avatar & Profile */}
-                <div className="flex items-stretch gap-4 my-auto z-10 w-full">
+                <div className="flex items-center gap-2 sm:gap-4 my-auto z-10 w-full">
                   {/* Photo Section (Hero Frame) */}
                   <div className="relative shrink-0 flex flex-col items-center justify-center">
-                    <div className="w-[72px] h-[90px] rounded-lg overflow-hidden border border-[#fbbf24]/50 bg-[#06142c] relative p-[3px] shadow-[0_4px_12px_rgba(0,0,0,0.3)]">
+                    <div className="w-12 h-16 sm:w-[72px] sm:h-[90px] rounded-lg overflow-hidden border border-[#fbbf24]/50 bg-[#06142c] relative p-[2px] sm:p-[3px] shadow-[0_4px_12px_rgba(0,0,0,0.3)] shrink-0">
                       {/* ID Border Crop Marks / Security Ticks */}
                       <div className="absolute top-1 left-1 w-1.5 h-1.5 border-t border-l border-[#fbbf24]/60" />
                       <div className="absolute top-1 right-1 w-1.5 h-1.5 border-t border-r border-[#fbbf24]/60" />
@@ -556,65 +556,65 @@ export default function DigitalIdCard() {
                         />
                       ) : (
                         <div className="w-full h-full bg-gradient-to-b from-[#0a1b32] to-[#122e50] text-[#fbbf24] font-black text-xl flex flex-col items-center justify-center uppercase select-none rounded">
-                          <span className="text-2xl">{userProfile?.full_name ? userProfile.full_name.split(' ').map(n => n[0]).join('').substring(0, 2) : 'ST'}</span>
-                          <span className="text-[6px] tracking-wider text-slate-400 mt-1 font-sans">MEMBER</span>
+                          <span className="text-xl sm:text-2xl">{userProfile?.full_name ? userProfile.full_name.split(' ').map(n => n[0]).join('').substring(0, 2) : 'ST'}</span>
+                          <span className="text-[5px] sm:text-[6px] tracking-wider text-slate-400 mt-1 font-sans">MEMBER</span>
                         </div>
                       )}
                     </div>
                     {/* Corner shield verification tick mark on photo */}
-                    <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-[#fbbf24] text-[#071830] flex items-center justify-center border border-[#071830] shadow">
-                      <ShieldCheck className="w-2.5 h-2.5 fill-current" />
+                    <div className="absolute -bottom-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-[#fbbf24] text-[#071830] flex items-center justify-center border border-[#071830] shadow">
+                      <ShieldCheck className="w-2 sm:w-2.5 h-2 sm:h-2.5 fill-current" />
                     </div>
                   </div>
 
                   {/* Vertical Divider */}
-                  <div className="w-[1px] bg-white/10 self-stretch my-1" />
+                  <div className="w-[1px] bg-white/10 self-stretch my-0.5 sm:my-1" />
 
                   {/* Credential Data Fields */}
-                  <div className="flex flex-col justify-between flex-1 min-w-0 text-left py-0.5">
+                  <div className="flex flex-col justify-between flex-1 min-w-0 text-left py-0.5 gap-0.5 sm:gap-1">
                     <div>
-                      <span className="text-[6.5px] font-black text-slate-400 uppercase tracking-widest block">MEMBER NAME</span>
-                      <h3 className="font-extrabold text-sm truncate tracking-tight text-white leading-tight mt-0.5">{userProfile?.full_name}</h3>
+                      <span className="text-[5px] xs:text-[5.5px] sm:text-[6.5px] font-black text-slate-400 uppercase tracking-widest block">MEMBER NAME</span>
+                      <h3 className="font-extrabold text-[11px] xs:text-[12px] sm:text-sm truncate tracking-tight text-white leading-tight mt-0.5">{userProfile?.full_name}</h3>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2 mt-1">
+                    <div className="grid grid-cols-2 gap-1.5 sm:gap-2 mt-0.5 sm:mt-1">
                       <div>
-                        <span className="text-[6.5px] font-black text-slate-400 uppercase tracking-widest block">CONSTITUENCY</span>
-                        <span className="text-[9.5px] font-bold text-slate-200 block truncate leading-tight mt-0.5">{userProfile?.constituency_name || 'NOT ADDED'}</span>
+                        <span className="text-[5px] xs:text-[5.5px] sm:text-[6.5px] font-black text-slate-400 uppercase tracking-widest block font-sans">CONSTITUENCY</span>
+                        <span className="text-[7.5px] xs:text-[8.5px] sm:text-[9.5px] font-bold text-slate-200 block truncate leading-tight mt-0.5">{userProfile?.constituency_name || 'Not Added'}</span>
                       </div>
                       <div>
-                        <span className="text-[6.5px] font-black text-slate-400 uppercase tracking-widest block">DISTRICT</span>
-                        <span className="text-[9.5px] font-bold text-slate-200 block truncate leading-tight mt-0.5">{userProfile?.district || 'NOT ADDED'}</span>
+                        <span className="text-[5px] xs:text-[5.5px] sm:text-[6.5px] font-black text-slate-400 uppercase tracking-widest block font-sans">DISTRICT</span>
+                        <span className="text-[7.5px] xs:text-[8.5px] sm:text-[9.5px] font-bold text-slate-200 block truncate leading-tight mt-0.5">{userProfile?.district || 'Not Added'}</span>
                       </div>
                     </div>
 
-                    <div className="mt-1">
-                      <span className="text-[6.5px] font-black text-slate-400 uppercase tracking-widest block font-sans">INSTITUTION</span>
-                      <span className="text-[9.5px] font-bold text-slate-200 block truncate leading-tight mt-0.5" title={userProfile?.college_name || 'NOT ADDED'}>
-                        {userProfile?.college_name || 'NOT ADDED'}
+                    <div className="mt-0.5 sm:mt-1">
+                      <span className="text-[5px] xs:text-[5.5px] sm:text-[6.5px] font-black text-slate-400 uppercase tracking-widest block font-sans">INSTITUTION</span>
+                      <span className="text-[7.5px] xs:text-[8.5px] sm:text-[9.5px] font-bold text-slate-200 block truncate leading-tight mt-0.5" title={userProfile?.college_name || 'Not Added'}>
+                        {userProfile?.college_name || 'Not Added'}
                       </span>
                     </div>
                   </div>
                 </div>
 
                 {/* Card Footer */}
-                <div className="flex items-end justify-between border-t border-white/10 pt-2 z-10 w-full">
+                <div className="flex items-end justify-between border-t border-white/10 pt-1.5 sm:pt-2 z-10 w-full">
                   <div className="flex flex-col text-left">
-                    <span className="text-[6.5px] text-slate-400 uppercase tracking-widest">CREDENTIAL NUMBER</span>
-                    <span className="text-[12px] font-bold font-mono text-[#fbbf24] tracking-wider mt-0.5">
+                    <span className="text-[5px] xs:text-[5.5px] sm:text-[6.5px] text-slate-400 uppercase tracking-widest">CREDENTIAL NUMBER</span>
+                    <span className="text-[9.5px] xs:text-[10.5px] sm:text-[12px] font-bold font-mono text-[#fbbf24] tracking-wider mt-0.5">
                       {identity?.trsv_member_id}
                     </span>
                   </div>
 
                   {/* Official VERIFIED MEMBER Seal Badge */}
-                  <div className="flex items-center gap-1.5 border border-[#fbbf24]/30 bg-[#fbbf24]/5 px-2 py-1 rounded-md shadow-sm select-none">
-                    <svg className="w-3.5 h-3.5 text-[#fbbf24]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <div className="flex items-center gap-1 sm:gap-1.5 border border-[#fbbf24]/30 bg-[#fbbf24]/5 px-1 py-0.5 sm:px-2 sm:py-1 rounded-md shadow-sm select-none shrink-0">
+                    <svg className="w-2.5 sm:w-3.5 h-2.5 sm:h-3.5 text-[#fbbf24]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="rgba(251, 191, 36, 0.1)"/>
                       <path d="m9 12 2 2 4-4" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                     <div className="flex flex-col leading-none text-left">
-                      <span className="text-[7.5px] font-black text-[#fbbf24] uppercase tracking-wider">VERIFIED</span>
-                      <span className="text-[5.5px] font-bold text-white uppercase tracking-widest mt-0.5">MEMBER</span>
+                      <span className="text-[6px] sm:text-[7.5px] font-black text-[#fbbf24] uppercase tracking-wider">VERIFIED</span>
+                      <span className="text-[4.5px] sm:text-[5.5px] font-bold text-white uppercase tracking-widest mt-0.5">MEMBER</span>
                     </div>
                   </div>
                 </div>
@@ -622,53 +622,53 @@ export default function DigitalIdCard() {
 
               {/* --- BACK SIDE --- */}
               <div 
-                className={`absolute inset-0 p-6 flex flex-col justify-between backface-hidden rotate-y-180 bg-inherit rounded-2xl transition-all duration-300 ${
+                className={`absolute inset-0 p-3.5 xs:p-4 sm:p-5 flex flex-col justify-between backface-hidden rotate-y-180 bg-[#06142c] rounded-2xl transition-all duration-300 border border-[#fbbf24]/40 ${
                   isFlipped ? 'z-25 opacity-100' : 'z-10 opacity-0 pointer-events-none'
                 }`}
               >
                 {/* Back card Header */}
-                <div className="flex items-center justify-between border-b border-slate-200/10 dark:border-slate-800/50 pb-2">
+                <div className="flex items-center justify-between border-b border-slate-200/10 dark:border-slate-800/50 pb-1.5 sm:pb-2">
                   <div className="flex flex-col text-left">
-                    <span className="text-[9px] font-black tracking-widest text-cyan-400 uppercase">TRSV DATABASE GRID</span>
-                    <span className="text-[6px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-widest mt-0.5 font-sans">Verification Portal</span>
+                    <span className="text-[7.5px] xs:text-[8px] sm:text-[9px] font-black tracking-widest text-cyan-400 uppercase">TRSV DATABASE GRID</span>
+                    <span className="text-[5px] sm:text-[6px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-widest mt-0.5 font-sans">Verification Portal</span>
                   </div>
-                  <div className="w-8 h-6 rounded bg-gradient-to-tr from-amber-500 to-amber-300 relative overflow-hidden border border-amber-600/30 shrink-0">
+                  <div className="w-6 h-4 sm:w-8 sm:h-6 rounded bg-gradient-to-tr from-amber-500 to-amber-300 relative overflow-hidden border border-amber-600/30 shrink-0">
                     <div className="absolute top-1/2 left-0 right-0 h-[1px] bg-amber-700/40" />
                     <div className="absolute left-1/2 top-0 bottom-0 w-[1px] bg-amber-700/40" />
                   </div>
                 </div>
 
                 {/* Back card Middle: LARGE CENTRAL QR CODE */}
-                <div className="flex flex-col items-center justify-center my-auto gap-1.5 py-1.5">
-                  <div className="p-1.5 rounded-xl bg-white border border-cyan-500/20 shadow-glow-cyan/15 flex items-center justify-center shrink-0">
+                <div className="flex flex-col items-center justify-center my-auto gap-1 sm:gap-1.5 py-1 sm:py-1.5">
+                  <div className="p-1 rounded-lg sm:rounded-xl bg-white border border-cyan-500/20 shadow-glow-cyan/15 flex items-center justify-center shrink-0">
                     {qrDataUrl ? (
                       <img 
                         src={qrDataUrl} 
                         alt="Scannable Security QR" 
-                        className="w-24 h-24"
+                        className="w-16 h-16 sm:w-24 sm:h-24"
                       />
                     ) : (
-                      <div className="w-24 h-24 flex items-center justify-center text-[8px] text-slate-400 animate-pulse">Generating...</div>
+                      <div className="w-16 h-16 sm:w-24 sm:h-24 flex items-center justify-center text-[8px] text-slate-400 animate-pulse">Generating...</div>
                     )}
                   </div>
                   <div className="flex flex-col items-center gap-0.5 mt-0.5">
-                    <span className="text-[7px] font-black text-cyan-400 tracking-widest uppercase">SCAN TO AUDIT PROFILE</span>
-                    <span className="text-[5px] text-slate-500 dark:text-slate-400 uppercase tracking-widest font-mono">NEON POSTGRESQL HOSTED LEDGER</span>
+                    <span className="text-[6px] sm:text-[7px] font-black text-cyan-400 tracking-widest uppercase">SCAN TO AUDIT PROFILE</span>
+                    <span className="text-[4px] sm:text-[5px] text-slate-500 dark:text-slate-400 uppercase tracking-widest font-mono">NEON POSTGRESQL HOSTED LEDGER</span>
                   </div>
                 </div>
 
                 {/* Back Card Footer: Support info */}
-                <div className="flex items-end justify-between border-t border-slate-200/10 dark:border-slate-800/50 pt-2">
+                <div className="flex items-end justify-between border-t border-slate-200/10 dark:border-slate-800/50 pt-1.5 sm:pt-2">
                   <div className="flex flex-col text-left">
-                    <span className="text-[6px] text-slate-450 dark:text-slate-500 uppercase tracking-widest">System Node</span>
-                    <span className="text-[8px] font-extrabold text-slate-350 dark:text-slate-200 mt-0.5 font-mono">
+                    <span className="text-[5px] sm:text-[6px] text-slate-450 dark:text-slate-500 uppercase tracking-widest">System Node</span>
+                    <span className="text-[7px] sm:text-[8px] font-extrabold text-slate-350 dark:text-slate-200 mt-0.5 font-mono">
                       TRSV-V2.5.0
                     </span>
                   </div>
                   <div className="flex flex-col text-right">
-                    <span className="text-[6px] text-slate-450 dark:text-slate-500 uppercase tracking-widest">Node Region</span>
-                    <span className="text-[8px] font-extrabold text-slate-350 dark:text-slate-200 mt-0.5">
-                      {userProfile?.constituency_name || 'NOT ADDED'}
+                    <span className="text-[5px] sm:text-[6px] text-slate-450 dark:text-slate-500 uppercase tracking-widest">Node Region</span>
+                    <span className="text-[7px] sm:text-[8px] font-extrabold text-slate-350 dark:text-slate-200 mt-0.5 truncate max-w-[120px]">
+                      {userProfile?.constituency_name || 'Not Added'}
                     </span>
                   </div>
                 </div>

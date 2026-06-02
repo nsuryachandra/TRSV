@@ -1,55 +1,93 @@
 import React from 'react';
-import { ShieldAlert, AlertTriangle, ArrowLeft } from 'lucide-react';
+import { ShieldCheck, Flag, Users, Scale, CheckCircle } from 'lucide-react';
 import GlassCard from '../components/GlassCard';
 import AnimatedSection from '../components/AnimatedSection';
-import { useNavigate } from 'react-router-dom';
-import PremiumButton from '../components/PremiumButton';
 
 export default function About() {
-  const navigate = useNavigate();
+  const pillars = [
+    {
+      icon: <ShieldCheck className="w-8 h-8 text-rose-500" />,
+      title: 'Student Protection First',
+      desc: 'Our primary mandate is creating a secure and intimidation-free learning environment across all educational zones. Our anti-ragging squad operates round the clock with legal counsel backing.'
+    },
+    {
+      icon: <Scale className="w-8 h-8 text-cyan-500" />,
+      title: 'Decentralized Transparency',
+      desc: 'We publish resolution logs and responsive metrics publicly. Every ticket filed receives an immutable digital token that prevents college administrations from burying complaints.'
+    },
+    {
+      icon: <Users className="w-8 h-8 text-sky-500" />,
+      title: 'Regional Empowered Governance',
+      desc: 'We support 33 active Constituency Hubs and a massive constituency-level campus cluster network. Constituency leads are empowered to audit local college clusters, campus security squads, and fee billing registries.'
+    },
+    {
+      icon: <Flag className="w-8 h-8 text-amber-500" />,
+      title: 'Statewide Representative Action',
+      desc: 'TRSV operates a scalable State → Constituency → College network. We empower students to stand as coordinators, resolve local college issues, and direct rapid mediation dispatches.'
+    }
+  ];
 
   return (
-    <div className="w-full min-h-[70vh] flex flex-col items-center justify-center py-8 px-4">
-      <AnimatedSection direction="up" className="w-full max-w-2xl text-center">
-        <GlassCard hoverEffect={true} className="p-8 sm:p-12 relative overflow-hidden border border-amber-500/20 dark:border-amber-500/10">
-          {/* Cybernetic accent element */}
-          <div className="absolute -top-10 -right-10 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
-          
-          <div className="flex flex-col items-center gap-4 mb-8">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-600 to-amber-400 flex items-center justify-center shadow-glow-amber text-white relative">
-              <ShieldAlert className="w-8 h-8 animate-pulse" />
-              <AlertTriangle className="absolute -bottom-1 -right-1 w-5 h-5 text-amber-900 bg-amber-400 rounded-full p-0.5 border border-white dark:border-slate-900" />
+    <div className="w-full flex flex-col gap-16 py-4">
+      
+      {/* Header Banner */}
+      <AnimatedSection direction="up" className="text-center max-w-3xl mx-auto flex flex-col gap-4">
+        <span className="text-xs font-bold text-cyan-600 dark:text-cyan-400 tracking-widest uppercase">
+          WHO WE ARE
+        </span>
+        <h1 className="fluid-heading-2 font-black text-slate-850 dark:text-white leading-tight">
+          Telangana Rakshana Sena Vidyarthi Vibhagam
+        </h1>
+        <p className="text-base sm:text-lg text-slate-500 dark:text-slate-400 leading-relaxed">
+          Founded as a statewide digital-first student governance organization, TRSV shields millions of students across campuses from exploitation, ragging, and institutional harassment.
+        </p>
+      </AnimatedSection>
+
+      {/* Grid Pillars */}
+      <section className="w-full grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
+        {pillars.map((item, idx) => (
+          <GlassCard key={idx} hoverEffect={true} className="p-8 flex flex-col gap-4 text-left">
+            <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800 flex items-center justify-center shadow-md">
+              {item.icon}
             </div>
-            <h1 className="text-3xl font-black tracking-tight text-slate-850 dark:text-white leading-tight">
-              Service Temporarily Offline
-            </h1>
-            <div className="h-1 w-20 bg-gradient-to-r from-amber-500 to-amber-300 rounded-full" />
-          </div>
+            <h3 className="font-extrabold text-xl text-slate-850 dark:text-white tracking-tight">
+              {item.title}
+            </h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+              {item.desc}
+            </p>
+          </GlassCard>
+        ))}
+      </section>
 
-          <div className="space-y-4 text-sm text-slate-500 dark:text-slate-400 leading-relaxed max-w-lg mx-auto">
-            <p className="font-bold text-slate-700 dark:text-slate-350">
-              The "About TRSV" information terminal is currently undergoing scheduled systems maintenance and server synchronization.
-            </p>
-            <p>
-              In alignment with our new privacy-first protocols and identity protection hardening, the public-facing informational directories have been detached from active networks.
-            </p>
-            <p className="text-[11px] text-amber-600 dark:text-amber-400/90 font-semibold bg-amber-500/5 py-2 px-4 rounded-lg border border-amber-500/10 inline-block">
-              ⚠️ Status Code: INF_TERMINAL_DECOMMISSIONED
-            </p>
-          </div>
-
-          <div className="mt-8 pt-6 border-t border-slate-200/50 dark:border-slate-800/40 flex justify-center">
-            <PremiumButton
-              onClick={() => navigate(-1)}
-              variant="outline"
-              size="sm"
-              icon={<ArrowLeft className="w-4 h-4" />}
-            >
-              Return to Previous Terminal
-            </PremiumButton>
+      {/* State Student Charter Section */}
+      <AnimatedSection direction="up" className="w-full max-w-4xl mx-auto">
+        <GlassCard className="p-8 sm:p-12 text-left relative">
+          <h2 className="font-extrabold text-2xl text-slate-850 dark:text-white mb-6 border-b border-slate-200/50 dark:border-slate-850 pb-4 flex items-center gap-2.5">
+            <ShieldCheck className="w-6.5 h-6.5 text-cyan-500" />
+            TRSV State Student Charter Principles
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+            <div className="flex items-start gap-3">
+              <CheckCircle className="w-5 h-5 text-cyan-500 shrink-0 mt-0.5" />
+              <span>Right to ragging-free secure housing and classrooms on every campus.</span>
+            </div>
+            <div className="flex items-start gap-3">
+              <CheckCircle className="w-5 h-5 text-cyan-500 shrink-0 mt-0.5" />
+              <span>Right to public fee clarity and full protection against administrative blackmail.</span>
+            </div>
+            <div className="flex items-start gap-3">
+              <CheckCircle className="w-5 h-5 text-cyan-500 shrink-0 mt-0.5" />
+              <span>Immediate access to legal counsel when facing wrongful academic suspensions.</span>
+            </div>
+            <div className="flex items-start gap-3">
+              <CheckCircle className="w-5 h-5 text-cyan-500 shrink-0 mt-0.5" />
+              <span>Right to participate in state-level leadership training networks.</span>
+            </div>
           </div>
         </GlassCard>
       </AnimatedSection>
+
     </div>
   );
 }
