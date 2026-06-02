@@ -22,9 +22,21 @@ const generateUniqueMemberId = async (user) => {
     }
   }
 
-  // Count existing IDs globally to assign sequence
-  const res = await query("SELECT COUNT(*) FROM member_identities");
-  const nextSeq = parseInt(res.rows[0].count) + 1;
+  // Find the highest sequence suffix globally to assign next sequence monotonically
+  const res = await query("SELECT trsv_member_id FROM member_identities");
+  let maxSeq = 0;
+  for (const row of res.rows) {
+    if (row.trsv_member_id) {
+      const match = row.trsv_member_id.match(/-([0-9]+)$/);
+      if (match) {
+        const seq = parseInt(match[1], 10);
+        if (seq > maxSeq) {
+          maxSeq = seq;
+        }
+      }
+    }
+  }
+  const nextSeq = maxSeq + 1;
   const padded = nextSeq.toString().padStart(4, '0');
   return `TRSV-${prefix}-${padded}`;
 };
