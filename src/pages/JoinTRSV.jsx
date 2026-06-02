@@ -73,7 +73,7 @@ export default function JoinTRSV() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/join', {
+      const response = await fetch('/api/join-trsv', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

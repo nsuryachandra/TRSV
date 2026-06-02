@@ -134,11 +134,7 @@ export default function AppRoutes() {
           <Route path="team" element={<Team />} />
           <Route path="announcements" element={<Announcements />} />
           <Route path="contact" element={<Contact />} />
-          <Route path="join" element={
-            <ProtectedRoute allowedRoles={['student']}>
-              <JoinTRSV />
-            </ProtectedRoute>
-          } />
+          <Route path="join" element={<ProtectedRoute><JoinTRSV /></ProtectedRoute>} />
           <Route path="messenger" element={
             <ProtectedRoute allowedRoles={['secretary', 'general_secretary', 'vice_president', 'president', 'state_president', 'supreme_admin']}>
               <MessengerPage />
