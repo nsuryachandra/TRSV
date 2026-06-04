@@ -93,8 +93,6 @@ export default function RootLayout() {
                   alt="Kavitha Kalvakuntla - Founder" 
                   className="w-full h-full object-cover object-top scale-105"
                 />
-                {/* Horizontal light scanning bar */}
-                <div className="absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-amber-400 to-transparent shadow-[0_0_10px_rgba(245,158,11,0.8)] animate-scan-line pointer-events-none" />
                 {/* Frosted lens reflection overlay */}
                 <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/10 via-transparent to-white/10 pointer-events-none" />
               </div>

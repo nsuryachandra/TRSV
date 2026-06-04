@@ -12,6 +12,8 @@ import compression from 'compression';
 import jwt from 'jsonwebtoken';
 import admin from 'firebase-admin';
 
+dotenv.config();
+
 // Initialize Firebase Admin SDK for background push notifications
 let firebaseApp = null;
 try {
@@ -49,7 +51,6 @@ import chatRouter from './routes/chat.js';
 import notificationsRouter from './routes/notifications.js';
 import joinRouter from './routes/join.js';
 
-dotenv.config();
 
 // Startup Environment Validation
 const REQUIRED_ENVS = ['DATABASE_URL', 'JWT_SECRET'];
