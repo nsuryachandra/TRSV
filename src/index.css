@@ -334,6 +334,47 @@ html.dark .glass-card-border-dark:hover {
     margin-bottom: 0.35rem !important;
   }
 }
+@media (max-height: 720px) {
+  .welcome-photo {
+    width: 10.5rem !important;
+    height: 10.5rem !important;
+    border-width: 4px !important;
+  }
+  .welcome-title {
+    font-size: 1.3rem !important;
+  }
+  .welcome-desc {
+    font-size: 0.72rem !important;
+    margin-bottom: 0.25rem !important;
+    line-height: 1.35 !important;
+  }
+}
+@media (max-height: 600px) {
+  .welcome-photo {
+    width: 7.5rem !important;
+    height: 7.5rem !important;
+    border-width: 3px !important;
+    margin-bottom: 0.1rem !important;
+  }
+  .welcome-title {
+    font-size: 1.15rem !important;
+    line-height: 1.2 !important;
+  }
+  .welcome-desc {
+    display: none !important;
+  }
+}
+@media (max-height: 480px) {
+  .welcome-photo {
+    display: none !important;
+  }
+  .welcome-title {
+    font-size: 1.1rem !important;
+  }
+  .welcome-desc {
+    display: none !important;
+  }
+}
 @media (max-width: 640px) {
   .welcome-title {
     font-size: 1.65rem !important;

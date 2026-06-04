@@ -358,10 +358,6 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
       }
     }
 
-    if (updateStatus === 'Solving Started') {
-      setShowScannerChamber(true);
-      return;
-    }
     setUpdating(true);
     try {
       const token = localStorage.getItem('trsv_session_token');
@@ -370,8 +366,8 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           status: updateStatus, 
-          note: updateNote,
-          resolution_notes: resolutionNotes,
+          note: updateNote || `Status updated to ${updateStatus}.`,
+          resolution_notes: updateNote || null,
           current_handler: userProfile.id
         })
       });
@@ -486,7 +482,7 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
         {stages.map((stage, idx) => {
           const isCompleted = currentIdx >= idx;
           const isActive = currentIdx === idx;
-          const isClickableSolve = isLeader && idx === 2 && (status === 'Complaint Verified' || status === 'Verified');
+          const isClickableSolve = false;
           
           return (
             <React.Fragment key={idx}>
@@ -645,6 +641,15 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
               <p className="text-sm text-slate-600 dark:text-slate-400 whitespace-pre-wrap leading-relaxed">
                 {complaint.description}
               </p>
+              
+              {complaint.resolution_notes && (
+                <div className="mt-4 p-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 dark:bg-emerald-950/10 text-left">
+                  <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block mb-1">Resolution / Actual Cause</span>
+                  <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap font-medium">
+                    {complaint.resolution_notes}
+                  </p>
+                </div>
+              )}
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
                 <div className="break-words">
@@ -1125,54 +1130,38 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
                     </div>
                     
                     <div className="flex flex-col gap-3">
-                      {(complaint.status === 'Complaint Verified' || complaint.status === 'Verified') && (
-                        <div className="p-4 rounded-xl border border-cyan-500/20 bg-cyan-500/5 flex flex-col sm:flex-row items-center justify-between gap-4 text-left animate-fadeIn">
-                          <div className="flex-1 min-w-0">
-                            <strong className="text-xs font-bold text-slate-800 dark:text-white block">👈 Click Step 3 or Scan ID to Start Solving</strong>
-                            <p className="text-[10px] text-slate-500 mt-0.5 leading-relaxed">
-                              To advance this ticket to the <strong>Solving Started</strong> stage, you must perform a secure student ID verification check. Click scan to open camera.
-                            </p>
+                      <form onSubmit={handleUpdateStatus} className="flex flex-col gap-3.5 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/60 dark:border-slate-800 shadow-sm">
+                        <div className="flex flex-col sm:flex-row gap-3 items-end">
+                          <div className="flex-1 text-left w-full">
+                            <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Shift Status</label>
+                            <select 
+                              value={updateStatus}
+                              onChange={(e) => setUpdateStatus(e.target.value)}
+                              className="w-full p-2.5 rounded-lg border border-slate-200/60 dark:border-slate-700 bg-white dark:bg-slate-855 text-xs focus:outline-none focus:border-cyan-400 text-slate-800 dark:text-white"
+                            >
+                              <option value="Complaint Registered">Complaint Registered</option>
+                              <option value="Complaint Verified">Complaint Verified</option>
+                              <option value="Solving Started">Solving Started</option>
+                              <option value="Solved">Solved</option>
+                              <option value="Dismissed">Dismissed</option>
+                            </select>
                           </div>
-                          <PremiumButton 
-                            type="button" 
-                            variant="glow" 
-                            size="sm" 
-                            className="shrink-0 font-extrabold uppercase tracking-wider text-[10px] shadow-glow-cyan"
-                            onClick={() => {
-                              setShowScannerChamber(true);
-                            }}
-                          >
-                            📷 Scan Card
+                          
+                          <PremiumButton type="submit" variant="primary" size="sm" disabled={updating} className="w-full sm:w-auto shrink-0 py-2.5 px-5 text-xs">
+                            Commit Status Update
                           </PremiumButton>
                         </div>
-                      )}
- 
-                      <form onSubmit={handleUpdateStatus} className="flex flex-col sm:flex-row items-stretch sm:items-end gap-3">
-                        <div className="flex-1 text-left">
-                          <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Shift Status</label>
-                          <select 
-                            value={updateStatus}
-                            onChange={(e) => setUpdateStatus(e.target.value)}
-                            className="w-full p-2.5 rounded-lg border border-slate-200/60 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs focus:outline-none focus:border-cyan-400 text-slate-800 dark:text-white"
-                          >
-                            <option value="Complaint Registered">Complaint Registered</option>
-                            <option value="Complaint Verified">Complaint Verified</option>
-                            <option value="Solving Started">Solving Started</option>
-                            <option value="Solved">Solved</option>
-                            <option value="Dismissed">Dismissed</option>
-                          </select>
-                        </div>
-                        <div className="flex-1 text-left">
-                          <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Timeline Note</label>
-                          <input 
-                            type="text"
-                            placeholder="Action details..."
+
+                        <div className="text-left w-full">
+                          <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Explanation / Actual Cause (Optional)</label>
+                          <textarea 
+                            rows={3}
+                            placeholder="Provide details about this status update, actual cause of the issue, or resolution steps..."
                             value={updateNote}
                             onChange={(e) => setUpdateNote(e.target.value)}
-                            className="w-full p-2.5 rounded-lg border border-slate-200/60 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs focus:outline-none focus:border-cyan-400 text-slate-800 dark:text-white"
+                            className="w-full p-2.5 rounded-lg border border-slate-200/60 dark:border-slate-700 bg-white dark:bg-slate-855 text-xs focus:outline-none focus:border-cyan-400 text-slate-800 dark:text-white resize-none"
                           />
                         </div>
-                        <PremiumButton type="submit" variant="primary" size="sm" disabled={updating} className="w-full sm:w-auto">Commit</PremiumButton>
                       </form>
  
                       {/* Manual Escalation Override */}
