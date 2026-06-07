@@ -565,7 +565,6 @@ select {
 
 .animate-icon-bounce-centered,
 .animate-icon-bounce-static {
-  position: relative;
   will-change: transform, filter;
 }
 
