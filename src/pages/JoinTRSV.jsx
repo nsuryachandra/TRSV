@@ -161,33 +161,33 @@ export default function JoinTRSV() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               {/* Full Name */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-black text-slate-450 dark:text-slate-400 uppercase tracking-wider">Full Name</label>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Full Name</label>
                 <div className="relative">
-                  <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input
                     type="text"
                     required
                     placeholder="e.g. Anand Rao"
                     value={formData.fullName}
                     onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                    className="w-full pl-11 pr-4 py-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-850 dark:text-slate-100 font-semibold"
+                    className="peer w-full pl-11 pr-4 py-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-855 dark:text-slate-100 font-bold"
                   />
+                  <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400 pointer-events-none z-10 animate-icon-bounce-centered" strokeWidth={2.2} />
                 </div>
               </div>
 
               {/* Email */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-black text-slate-450 dark:text-slate-400 uppercase tracking-wider">Email Address</label>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Email Address</label>
                 <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input
                     type="email"
                     required
                     placeholder="e.g. anand@email.com"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full pl-11 pr-4 py-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-850 dark:text-slate-100 font-semibold"
+                    className="peer w-full pl-11 pr-4 py-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-855 dark:text-slate-100 font-bold"
                   />
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400 pointer-events-none z-10 animate-icon-bounce-centered" strokeWidth={2.2} />
                 </div>
               </div>
             </div>
@@ -195,29 +195,28 @@ export default function JoinTRSV() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               {/* Phone */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-black text-slate-450 dark:text-slate-400 uppercase tracking-wider">Phone Number</label>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Phone Number</label>
                 <div className="relative">
-                  <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input
                     type="text"
                     required
                     placeholder="e.g. +91 9876543210"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full pl-11 pr-4 py-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-850 dark:text-slate-100 font-semibold"
+                    className="peer w-full pl-11 pr-4 py-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-855 dark:text-slate-100 font-bold"
                   />
+                  <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400 pointer-events-none z-10 animate-icon-bounce-centered" strokeWidth={2.2} />
                 </div>
               </div>
 
               {/* Constituency */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-black text-slate-450 dark:text-slate-400 uppercase tracking-wider">Constituency Node</label>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Constituency Node</label>
                 <div className="relative">
-                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <select
                     value={formData.constituencyId}
                     onChange={(e) => setFormData({ ...formData, constituencyId: e.target.value })}
-                    className="w-full pl-11 pr-4 py-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-850 dark:text-slate-100 font-semibold cursor-pointer"
+                    className="peer w-full pl-11 pr-4 py-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-855 dark:text-slate-100 font-bold cursor-pointer"
                   >
                     {loadingConstituencies ? (
                       <option value="">Syncing Constituency nodes...</option>
@@ -227,23 +226,24 @@ export default function JoinTRSV() {
                       ))
                     )}
                   </select>
+                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400 pointer-events-none z-10 animate-icon-bounce-centered" strokeWidth={2.2} />
                 </div>
               </div>
             </div>
 
             {/* Motivation / Reason */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-black text-slate-450 dark:text-slate-400 uppercase tracking-wider">Statement of Purpose / Why do you want to join?</label>
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Statement of Purpose / Why do you want to join?</label>
               <div className="relative">
-                <AlignLeft className="absolute left-4 top-4.5 w-4 h-4 text-slate-400" />
                 <textarea
                   required
                   rows={4}
                   placeholder="Tell us about your campus, advocacy ideas, or how you want to support student welfare..."
                   value={formData.reason}
                   onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
-                  className="w-full pl-11 pr-4 py-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-850 dark:text-slate-100 font-medium leading-relaxed resize-none"
+                  className="peer w-full pl-11 pr-4 py-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-855 dark:text-slate-100 font-bold leading-relaxed resize-none"
                 />
+                <AlignLeft className="absolute left-4 top-4.5 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400 pointer-events-none z-10 animate-icon-bounce-static" strokeWidth={2.2} />
               </div>
             </div>
 
@@ -252,9 +252,9 @@ export default function JoinTRSV() {
               <button
                 type="button"
                 onClick={() => navigate(-1)}
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-450 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
+                className="inline-flex items-center gap-1.5 text-xs font-black text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
               >
-                <ArrowLeft className="w-4 h-4" /> Cancel Application
+                <ArrowLeft className="w-4 h-4 text-slate-550 dark:text-slate-400" strokeWidth={2.2} /> Cancel Application
               </button>
               
               <PremiumButton
@@ -262,7 +262,7 @@ export default function JoinTRSV() {
                 variant="primary"
                 size="md"
                 disabled={loading}
-                icon={loading ? null : <Send className="w-4 h-4" />}
+                icon={loading ? null : <Send className="w-4 h-4 text-white" strokeWidth={2.5} />}
                 className="w-full sm:w-auto"
               >
                 {loading ? 'Transmitting Registry...' : 'Transmit Application'}

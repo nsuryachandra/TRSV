@@ -23,7 +23,7 @@ export default function ProtectedRoute({ children, allowedRoles }) {
 
   // 1. If not authenticated, redirect to standard login view
   if (!userProfile) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
 
   // 2. If role-specific guards are defined, check active permissions (dev bypasses all blocks)

@@ -229,44 +229,44 @@ export default function SystemLogs() {
       <div className="glass-panel-light dark:glass-panel-dark p-4 rounded-2xl border border-slate-200/50 dark:border-slate-850 mb-6 flex flex-col md:flex-row items-center gap-4">
         {/* Search */}
         <div className="relative flex-1 w-full">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500" />
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search details, actor names, emails, or action types..."
-            className="w-full bg-slate-100/50 dark:bg-slate-900/40 border border-slate-250 dark:border-slate-800 rounded-xl py-2.5 pl-10 pr-4 text-sm font-medium text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/20 transition-all"
+            className="peer w-full bg-slate-100/50 dark:bg-slate-900/40 border border-slate-250 dark:border-slate-800 rounded-xl py-2.5 pl-10 pr-4 text-sm font-medium text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/20 transition-all"
           />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500 pointer-events-none z-10 animate-icon-bounce-centered" />
         </div>
         
         {/* Category selector */}
         <div className="relative w-full md:w-60">
-          <Filter className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500" />
           <select
             value={selectedType}
             onChange={(e) => setSelectedType(e.target.value)}
-            className="w-full bg-slate-100/50 dark:bg-slate-900/40 border border-slate-250 dark:border-slate-800 rounded-xl py-2.5 pl-10 pr-8 text-sm font-medium text-slate-800 dark:text-white outline-none cursor-pointer focus:border-cyan-500/50 transition-all appearance-none"
+            className="peer w-full bg-slate-100/50 dark:bg-slate-900/40 border border-slate-250 dark:border-slate-800 rounded-xl py-2.5 pl-10 pr-8 text-sm font-medium text-slate-800 dark:text-white outline-none cursor-pointer focus:border-cyan-500/50 transition-all appearance-none"
           >
             <option value="">All Action Types</option>
             {activityTypes.map((type) => (
               <option key={type} value={type}>{type}</option>
             ))}
           </select>
+          <Filter className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500 pointer-events-none z-10 animate-icon-bounce-centered" />
         </div>
 
         {/* Limit Selector */}
         <div className="relative w-full md:w-36">
-          <SlidersHorizontal className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500" />
           <select
             value={limit}
             onChange={(e) => setLimit(Number(e.target.value))}
-            className="w-full bg-slate-100/50 dark:bg-slate-900/40 border border-slate-250 dark:border-slate-800 rounded-xl py-2.5 pl-10 pr-8 text-sm font-medium text-slate-800 dark:text-white outline-none cursor-pointer focus:border-cyan-500/50 transition-all appearance-none"
+            className="peer w-full bg-slate-100/50 dark:bg-slate-900/40 border border-slate-250 dark:border-slate-800 rounded-xl py-2.5 pl-10 pr-8 text-sm font-medium text-slate-800 dark:text-white outline-none cursor-pointer focus:border-cyan-500/50 transition-all appearance-none"
           >
             <option value={50}>Limit: 50</option>
             <option value={100}>Limit: 100</option>
             <option value={200}>Limit: 200</option>
-            <option value={500}>Limit: 500</option>
+            <option value={505 || 500}>Limit: 500</option>
           </select>
+          <SlidersHorizontal className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500 pointer-events-none z-10 animate-icon-bounce-centered" />
         </div>
       </div>
 

@@ -3,28 +3,20 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
-  // Default to light theme as requested by the user
-  const [theme, setTheme] = useState(() => {
-    const savedTheme = localStorage.getItem('trsv-theme');
-    return savedTheme ? savedTheme : 'light';
-  });
+  // Force light theme only — no dark mode toggle
+  const [theme] = useState('light');
 
   useEffect(() => {
     const root = window.document.documentElement;
-    if (theme === 'dark') {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-    }
-    localStorage.setItem('trsv-theme', theme);
-  }, [theme]);
+    root.classList.remove('dark');
+    localStorage.setItem('trsv-theme', 'light');
+  }, []);
 
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
-  };
+  // toggleTheme is a no-op to prevent breaking any existing references
+  const toggleTheme = () => {};
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, isDark: theme === 'dark' }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, isDark: false }}>
       {children}
     </ThemeContext.Provider>
   );

@@ -69,20 +69,20 @@ export default {
             dark: '#0e7490', // cyan-700
           },
           bg: {
-            light: '#f8fafc', // slate-50
-            dark: '#05070e', // premium obsidian black background
+            light: '#f9fafb', // ultra-clean warm white background
+            dark: '#020408', // premium deep obsidian black background
           },
           surface: {
             light: '#ffffff',
-            dark: '#0a0d16', // rich charcoal-black surface
+            dark: '#070a13', // sophisticated deep slate-charcoal surface
           },
           card: {
-            light: 'rgba(255, 255, 255, 0.75)',
-            dark: 'rgba(9, 11, 20, 0.7)', // sleek translucent card
+            light: 'rgba(255, 255, 255, 0.8)',
+            dark: 'rgba(7, 10, 19, 0.75)', // sleek glassmorphism card
           },
           border: {
-            light: 'rgba(226, 232, 240, 0.8)', // slate-200
-            dark: 'rgba(255, 255, 255, 0.05)', // fine translucent border
+            light: 'rgba(229, 231, 235, 0.5)', // light grey border
+            dark: 'rgba(255, 255, 255, 0.035)', // razor-thin translucent border
           },
           text: {
             light: '#0f172a',

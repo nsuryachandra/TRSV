@@ -282,11 +282,11 @@ export default function PublicVerification() {
               </div>
               <div className="flex justify-between items-center py-1">
                 <span className="text-slate-450">Active Constituency:</span>
-                <strong className="text-slate-700 dark:text-slate-200">{profile.constituency_name || 'Not Registered'}</strong>
+                <strong className="text-slate-700 dark:text-slate-200">{profile.constituency_name || 'Not Set'}</strong>
               </div>
               <div className="flex justify-between items-center py-1">
                 <span className="text-slate-450">Affiliated Campus:</span>
-                <strong className="text-slate-700 dark:text-slate-200 truncate max-w-[200px]">{profile.college_name || 'Not Registered'}</strong>
+                <strong className="text-slate-700 dark:text-slate-200 truncate max-w-[200px]">{profile.college_name || 'Not Set'}</strong>
               </div>
               <div className="flex justify-between items-center py-1">
                 <span className="text-slate-450">Credential Status:</span>

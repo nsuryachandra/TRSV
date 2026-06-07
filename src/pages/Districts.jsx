@@ -350,7 +350,7 @@ export default function Districts() {
                 size="sm"
                 className="w-full flex items-center justify-center gap-1 text-[10px] font-extrabold uppercase py-2.5"
               >
-                Lodge Grievance in this Hub <ArrowRight className="w-3 h-3" />
+                Raise a Complaint <ArrowRight className="w-3 h-3" />
               </PremiumButton>
             </div>
           </GlassCard>

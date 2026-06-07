@@ -706,4 +706,105 @@ router.post('/reset-password', async (req, res) => {
   }
 });
 
+/**
+ * 5. Simplified Onboarding Access Gateway for Students & Guests
+ */
+router.post('/simplified-entry', async (req, res) => {
+  const { type, username } = req.body;
+  if (!type || (type !== 'username' && type !== 'guest')) {
+    return res.status(400).json({ success: false, message: 'Invalid authentication type. Scope must be username or guest.' });
+  }
+
+  try {
+    let targetUsername = '';
+    let isGuest = false;
+
+    if (type === 'username') {
+      if (!username) {
+        return res.status(400).json({ success: false, message: 'Username parameter is required.' });
+      }
+      
+      const cleanInput = username.trim();
+      const usernameRegex = /^[a-zA-Z0-9_*.]+$/;
+      if (cleanInput.length < 3 || cleanInput.length > 20 || !usernameRegex.test(cleanInput)) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Username must be 3 to 20 characters and contain only letters, numbers, _, *, or .' 
+        });
+      }
+      targetUsername = cleanInput;
+    } else {
+      // Generate unique random guest ID
+      const randomSuffix = crypto.randomBytes(4).toString('hex');
+      targetUsername = `guest_${randomSuffix}`;
+      isGuest = true;
+    }
+
+    const email = `${targetUsername}@trsv.${isGuest ? 'guest' : 'student'}`;
+    const fullName = isGuest ? 'Guest User' : targetUsername;
+
+    // Check if user already exists
+    let userQuery = await query('SELECT * FROM users WHERE LOWER(email) = LOWER($1)', [email]);
+    let user;
+
+    if (userQuery.rows.length > 0) {
+      user = userQuery.rows[0];
+    } else {
+      // Register on the fly
+      const userId = crypto.randomUUID();
+      
+      // Do not auto-assign random constituency or college! Default to null (Not Set) on student onboarding.
+      const constituencyId = null;
+      const collegeId = null;
+
+      const insertResult = await query(
+        `INSERT INTO users (id, full_name, email, role, verified, constituency_id, college_id) 
+         VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+        [userId, fullName, email, 'student', true, constituencyId, collegeId]
+      );
+      user = insertResult.rows[0];
+
+      // Insert log
+      await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details) VALUES ($1, $2, $3)', [
+        userId,
+        isGuest ? 'GUEST_SIGNUP' : 'STUDENT_SIGNUP',
+        `${isGuest ? 'Guest' : 'Student'} profile initialized dynamically via onboarding entry`
+      ]);
+    }
+
+    // Generate token
+    const token = jwt.sign(
+      { uid: user.id, email: user.email, role: user.role, name: user.full_name },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    // Fetch full profile info
+    const profile = await query(
+      `SELECT u.*, con.constituency_name, con.district, con.parent_id as constituency_parent_id, col.college_name 
+       FROM users u
+       LEFT JOIN constituencies con ON u.constituency_id = con.id
+       LEFT JOIN colleges col ON u.college_id = col.id
+       WHERE u.id = $1`,
+      [user.id]
+    );
+
+    await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details) VALUES ($1, $2, $3)', [
+      user.id,
+      isGuest ? 'GUEST_LOGIN' : 'STUDENT_LOGIN',
+      `${isGuest ? 'Guest' : 'Student'} node active session established`
+    ]);
+
+    return res.json({ 
+      success: true, 
+      token, 
+      user: profile.rows[0],
+      username: targetUsername 
+    });
+  } catch (error) {
+    console.error('🚨 [Simplified Entry Error]:', error.message);
+    res.status(500).json({ success: false, message: 'Simplified authentication gateway error.', error: error.message });
+  }
+});
+
 export default router;

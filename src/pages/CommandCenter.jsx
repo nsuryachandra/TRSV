@@ -21,6 +21,7 @@ import { useAuth } from '../context/AuthContext';
 import { useSearchParams } from 'react-router-dom';
 import PremiumButton from '../components/PremiumButton';
 import GlassCard from '../components/GlassCard';
+import AnimatedNumber from '../components/AnimatedNumber';
 import RealtimeActivityFeed from '../components/RealtimeActivityFeed';
 import { TrendChart, CategoryPieChart } from '../components/RechartsWidgets';
 import EmergencyFallback from '../components/EmergencyFallback';
@@ -442,15 +443,15 @@ export default function CommandCenter() {
             <Radio className="w-7 h-7" />
           </div>
           <div>
-            <div className="inline-flex items-center gap-1.5 self-start px-2.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-500 text-[10px] font-extrabold uppercase tracking-wider border border-cyan-500/20 animate-pulse mb-1.5">
+            <div style={{fontFamily:'Inter,sans-serif',fontSize:'0.5625rem',fontWeight:600,letterSpacing:'0.1em'}} className="inline-flex items-center gap-1.5 self-start px-2.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-500 uppercase border border-cyan-500/20 animate-pulse mb-2">
               SUPREME ADMISSION TELEMETRY ACTIVE
             </div>
             
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-slate-850 dark:text-white flex flex-wrap items-center gap-x-2 gap-y-1">
+            <h2 style={{fontFamily:'Satoshi,Inter,sans-serif',fontWeight:700,letterSpacing:'-0.03em',lineHeight:1.15}} className="text-2xl sm:text-3xl text-slate-900 dark:text-white flex flex-wrap items-center gap-x-2 gap-y-1">
               Welcome, {userProfile?.full_name || 'Supreme Leader'} <span className="text-slate-300 dark:text-slate-700 hidden sm:inline">|</span> <span className="text-gradient-cyan block sm:inline">Supreme Commander</span>
             </h2>
             
-            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 max-w-xl leading-relaxed">
+            <p style={{fontFamily:'Inter,sans-serif',fontSize:'0.8125rem',fontWeight:420,lineHeight:1.6,letterSpacing:'-0.003em'}} className="text-slate-400 dark:text-slate-500 mt-1 max-w-xl">
               Synchronizing state protection parameters, regional telemetry keys, and rapid incident response squad logs in real-time.
             </p>
           </div>
@@ -465,10 +466,11 @@ export default function CommandCenter() {
                   setActiveTab(tab);
                   setMessage({ text: '', type: '' });
                 }}
-                className={`px-4 py-2 text-xs font-bold rounded-xl transition-all capitalize border ${
+                style={{fontFamily:'Inter,sans-serif',fontSize:'0.75rem',fontWeight:activeTab===tab?600:500,letterSpacing:'-0.01em'}}
+                className={`px-4 py-2 rounded-[10px] transition-all capitalize border ${
                   activeTab === tab
-                    ? 'bg-rose-500 border-rose-500 text-white shadow-glow-cyan'
-                    : 'bg-slate-100/50 dark:bg-slate-900/60 border-slate-200/50 dark:border-slate-800 text-slate-500 hover:text-slate-850 dark:hover:text-white'
+                    ? 'bg-rose-500 border-rose-500 text-white shadow-[0_2px_12px_-2px_rgba(239,68,68,0.5)]'
+                    : 'bg-slate-100/60 dark:bg-slate-900/60 border-slate-200/60 dark:border-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-slate-800'
                 }`}
               >
                 {tab === 'nodes' ? 'Academic Grid' : tab === 'applications' ? 'Join Requests' : tab === 'complaints' ? 'Complaints' : tab}
@@ -495,104 +497,121 @@ export default function CommandCenter() {
 
       {/* Tab views dispatching area */}
       {activeTab === 'telemetry' && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full items-stretch animate-scaleUp">
-          <div className="flex flex-col gap-6 lg:col-span-1">
-            <div className="p-6 flex flex-col gap-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-premium-light dark:shadow-premium-dark">
-              <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
-                <span className="font-extrabold text-sm text-slate-700 dark:text-white uppercase tracking-wider">Server Infrastructure</span>
-                <Server className="w-4 h-4 text-cyan-500" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full items-stretch animate-scaleUp">
+          
+          {/* Cell 1: Server Infrastructure (col-span-2) */}
+          <GlassCard hoverEffect={true} className="lg:col-span-2 p-6 flex flex-col justify-between gap-4">
+            <div>
+              <div className="flex items-center justify-between border-b border-slate-200/60 dark:border-slate-800 pb-3">
+                <span style={{fontFamily:'Inter,sans-serif',fontWeight:600,fontSize:'0.6875rem',letterSpacing:'0.08em'}} className="uppercase text-slate-500 dark:text-slate-400">Server Infrastructure</span>
+                <Server className="w-4 h-4 text-cyan-500 group-hover:scale-125 group-hover:rotate-6 transition-all duration-300" />
               </div>
-              <div className="flex flex-col gap-3.5 text-xs">
+              <div className="flex flex-col gap-3 text-[13px] mt-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-500">Neon DB Cluster</span>
-                  <span className="text-green-500 font-bold flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                  <span style={{fontFamily:'Inter,sans-serif',fontWeight:420}} className="text-slate-500">Neon DB Cluster</span>
+                  <span className="text-green-500 font-semibold flex items-center gap-1.5" style={{fontFamily:'JetBrains Mono,monospace',fontSize:'0.75rem'}}>
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
                     Active (8ms)
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-500">Firebase Token Validator</span>
-                  <span className="text-green-500 font-bold flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                  <span style={{fontFamily:'Inter,sans-serif',fontWeight:420}} className="text-slate-500">Firebase Token Validator</span>
+                  <span className="text-green-500 font-semibold flex items-center gap-1.5" style={{fontFamily:'JetBrains Mono,monospace',fontSize:'0.75rem'}}>
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
                     Secure (JWT-256)
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-500">Active Coordinator Grids</span>
-                  <span className="text-green-500 font-bold flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                  <span style={{fontFamily:'Inter,sans-serif',fontWeight:420}} className="text-slate-500">Active Coordinator Grids</span>
+                  <span className="text-green-500 font-semibold flex items-center gap-1.5" style={{fontFamily:'JetBrains Mono,monospace',fontSize:'0.75rem'}}>
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
                     Responsive
                   </span>
                 </div>
-                <div className="h-[1px] bg-slate-200/40 dark:bg-slate-850/80 my-1" />
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-500">Registered Users</span>
-                  <strong className="text-slate-750 dark:text-slate-200">{stats.totalUsers}</strong>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-500">Active Leaders</span>
-                  <strong className="text-slate-750 dark:text-slate-200">{stats.totalLeaders}</strong>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-500">Active Complaints</span>
-                  <strong className="text-slate-750 dark:text-slate-200">{stats.totalComplaints - stats.resolvedComplaints}</strong>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-6 flex flex-col gap-4 border-l-2 border-rose-500 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-premium-light dark:shadow-premium-dark">
-              <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
-                <span className="font-extrabold text-sm text-slate-700 dark:text-white uppercase tracking-wider">Emergency Dispatches</span>
-                <ShieldAlert className="w-4 h-4 text-rose-500 animate-pulse" />
-              </div>
-              <div className="flex items-baseline gap-2 py-2">
-                <span className="text-3xl font-black text-rose-500">{stats.criticalComplaints}</span>
-                <span className="text-xs font-semibold text-slate-400">Active Campus Alarms</span>
-              </div>
-              <p className="text-[11px] text-slate-550 dark:text-slate-500 leading-relaxed">
-                {stats.criticalComplaints > 0 
-                  ? `${stats.criticalComplaints} critical anti-ragging alarms currently escalated in the state grid. Immediate mobilization required.`
-                  : "No anti-ragging panic signals detected from any of the connected campus coordinate portals."}
-              </p>
-            </div>
-            
-            <EmergencyFallback 
-              isOffline={connectionDropped} 
-              onRetry={async () => {
-                try {
-                  await fetch('/api/health');
-                  setConnectionDropped(false);
-                  loadData();
-                } catch (e) {
-                  console.warn('Re-connect attempt failed');
-                }
-              }} 
-            />
-          </div>
-
-          <div className="lg:col-span-2 flex flex-col gap-6">
-            <div className="h-[320px] min-w-0 overflow-hidden">
-              <div className="p-4 h-full flex flex-col gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-premium-light dark:shadow-premium-dark">
-                <span className="font-extrabold text-xs text-slate-700 dark:text-white uppercase tracking-wider pl-2 shrink-0">Statewide Incident Velocity (30 Days)</span>
-                <div className="flex-1 min-h-0 min-w-0 overflow-hidden">
-                  <TrendChart data={trends} />
-                </div>
               </div>
             </div>
             
+            <div className="border-t border-slate-200/40 dark:border-slate-800 pt-3">
+              <div className="grid grid-cols-3 gap-2 text-center">
+                <div className="flex flex-col gap-0.5">
+                  <span style={{fontFamily:'Inter,sans-serif',fontSize:'0.625rem',fontWeight:600,letterSpacing:'0.08em'}} className="text-slate-400 uppercase">Users</span>
+                  <AnimatedNumber value={stats.totalUsers} className="stat-number text-[1.375rem] font-bold text-slate-900 dark:text-white" />
+                </div>
+                <div className="flex flex-col gap-0.5">
+                  <span style={{fontFamily:'Inter,sans-serif',fontSize:'0.625rem',fontWeight:600,letterSpacing:'0.08em'}} className="text-slate-400 uppercase">Leaders</span>
+                  <AnimatedNumber value={stats.totalLeaders} className="stat-number text-[1.375rem] font-bold text-slate-900 dark:text-white" />
+                </div>
+                <div className="flex flex-col gap-0.5">
+                  <span style={{fontFamily:'Inter,sans-serif',fontSize:'0.625rem',fontWeight:600,letterSpacing:'0.08em'}} className="text-slate-400 uppercase">Active Cases</span>
+                  <AnimatedNumber value={stats.totalComplaints - stats.resolvedComplaints} className="stat-number text-[1.375rem] font-bold text-slate-900 dark:text-white" />
+                </div>
+              </div>
+            </div>
+          </GlassCard>
+
+          {/* Cell 2: Emergency Dispatches (col-span-1) */}
+          <GlassCard hoverEffect={true} className="lg:col-span-1 p-6 flex flex-col justify-between gap-4 border-l-2 border-rose-500">
             <div>
-              <RealtimeActivityFeed activities={liveFeeds} />
+              <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+                <span className="font-extrabold text-sm text-slate-700 dark:text-white uppercase tracking-wider">Emergency Response</span>
+                <ShieldAlert className="w-4 h-4 text-rose-500 group-hover:scale-120 group-hover:animate-bounce transition-all duration-300" />
+              </div>
+              <div className="flex items-baseline gap-2 py-2 mt-2">
+                <span className="text-3xl font-black text-rose-500">{stats.criticalComplaints}</span>
+                <span className="text-xs font-semibold text-slate-450 uppercase tracking-wider">Alarms</span>
+              </div>
             </div>
-          </div>
+            <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
+              {stats.criticalComplaints > 0 
+                ? `${stats.criticalComplaints} critical anti-ragging alarms currently escalated in the state grid.`
+                : "No anti-ragging panic signals detected from coordinate portals."}
+            </p>
+          </GlassCard>
+
+          {/* Cell 3: Emergency Fallback Connection Control (col-span-1) */}
+          <GlassCard hoverEffect={true} className="lg:col-span-1 flex flex-col justify-stretch p-6">
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3 mb-3 shrink-0">
+              <span className="font-extrabold text-sm text-slate-700 dark:text-white uppercase tracking-wider">Terminal Node Health</span>
+              <Activity className="w-4 h-4 text-emerald-500 group-hover:scale-120 group-hover:animate-pulse transition-all duration-300" />
+            </div>
+            <div className="flex-1 flex flex-col justify-center min-h-0">
+              <EmergencyFallback 
+                isOffline={connectionDropped} 
+                onRetry={async () => {
+                  try {
+                    await fetch('/api/health');
+                    setConnectionDropped(false);
+                    loadData();
+                  } catch (e) {
+                    console.warn('Re-connect attempt failed');
+                  }
+                }} 
+              />
+            </div>
+          </GlassCard>
+
+          {/* Cell 4: Statewide Incident Velocity (col-span-3, min-h-[350px]) */}
+          <GlassCard hoverEffect={true} className="lg:col-span-3 min-h-[350px] flex flex-col gap-3 p-6">
+            <span className="font-extrabold text-xs text-slate-700 dark:text-white uppercase tracking-wider pl-2 shrink-0">Statewide Incident Velocity (30 Days)</span>
+            <div className="flex-1 min-h-0 min-w-0 overflow-hidden">
+              <TrendChart data={trends} />
+            </div>
+          </GlassCard>
+
+          {/* Cell 5: RealtimeActivityFeed (col-span-1) */}
+          <GlassCard hoverEffect={true} className="lg:col-span-1 flex flex-col justify-stretch p-2">
+            <RealtimeActivityFeed activities={liveFeeds} />
+          </GlassCard>
+
         </div>
       )}
 
       {activeTab === 'nodes' && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full items-start animate-scaleUp">
           {/* Mapped regional constituencies list & inject form */}
-          <div className="p-6 flex flex-col gap-4 text-left rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-premium-light dark:shadow-premium-dark">
+          <GlassCard hoverEffect={true} className="p-6 flex flex-col gap-4 text-left">
             <h3 className="font-extrabold text-sm text-slate-700 dark:text-white uppercase tracking-wider flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
-              <MapPin className="w-4 h-4 text-cyan-500" />
+              <MapPin className="w-4 h-4 text-cyan-500 group-hover:animate-bounce transition-transform duration-300" />
               Telangana Constituency Registry
             </h3>
 
@@ -606,9 +625,8 @@ export default function CommandCenter() {
                 </div>
               ))}
             </div>
-
             <form onSubmit={handleAddConstituency} className="flex flex-col gap-3.5 border-t border-slate-200 dark:border-slate-800 pt-4 mt-1">
-              <span className="text-[10px] font-black text-slate-450 uppercase tracking-widest block">Inject Constituency Node</span>
+              <span className="text-[10px] font-black text-slate-455 uppercase tracking-widest block">Inject Constituency Node</span>
               <div className="grid grid-cols-2 gap-3">
                 <input
                   type="text"
@@ -616,7 +634,7 @@ export default function CommandCenter() {
                   placeholder="Kukatpally Constituency"
                   value={newConName}
                   onChange={(e) => setNewConName(e.target.value)}
-                  className="p-3 rounded-xl border bg-slate-50 dark:bg-slate-950 text-xs focus:outline-none focus:border-cyan-400 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100"
+                  className="p-3 text-xs font-semibold"
                 />
                 <input
                   type="text"
@@ -624,19 +642,19 @@ export default function CommandCenter() {
                   placeholder="Medchal-Malkajgiri"
                   value={newConDistrict}
                   onChange={(e) => setNewConDistrict(e.target.value)}
-                  className="p-3 rounded-xl border bg-slate-50 dark:bg-slate-950 text-xs focus:outline-none focus:border-cyan-400 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100"
+                  className="p-3 text-xs font-semibold"
                 />
               </div>
               <PremiumButton type="submit" variant="primary" size="sm" className="w-full" disabled={loading}>
                 Inject Constituency Node
               </PremiumButton>
             </form>
-          </div>
+          </GlassCard>
 
           {/* Mapped academic campuses list & inject form */}
-          <div className="p-6 flex flex-col gap-4 text-left rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-premium-light dark:shadow-premium-dark">
+          <GlassCard hoverEffect={true} className="p-6 flex flex-col gap-4 text-left">
             <h3 className="font-extrabold text-sm text-slate-700 dark:text-white uppercase tracking-wider flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
-              <Building className="w-4 h-4 text-cyan-500" />
+              <Building className="w-4 h-4 text-cyan-500 group-hover:scale-120 group-hover:rotate-6 transition-all duration-300" />
               Academic Campus Nodes (Colleges)
             </h3>
 
@@ -646,7 +664,7 @@ export default function CommandCenter() {
                 <select
                   value={selectedConId}
                   onChange={(e) => setSelectedConId(e.target.value)}
-                  className="p-2.5 rounded-xl border bg-slate-50 dark:bg-slate-955 text-xs focus:outline-none focus:border-cyan-400 border-slate-200 dark:border-slate-800 text-slate-850 dark:text-slate-100"
+                  className="p-2.5 text-xs font-semibold"
                 >
                   {constituencies.map(con => (
                     <option key={con.id} value={con.id}>{con.constituency_name}</option>
@@ -673,7 +691,7 @@ export default function CommandCenter() {
             </div>
 
             <form onSubmit={handleAddCollege} className="flex flex-col gap-3.5 border-t border-slate-200 dark:border-slate-800 pt-4 mt-1">
-              <span className="text-[10px] font-black text-slate-450 uppercase tracking-widest block">Inject Campus Academic Node</span>
+              <span className="text-[10px] font-black text-slate-455 uppercase tracking-widest block">Inject Campus Academic Node</span>
               <div className="grid grid-cols-2 gap-3">
                 <input
                   type="text"
@@ -681,7 +699,7 @@ export default function CommandCenter() {
                   placeholder="JNTU Hyderabad"
                   value={newCollegeName}
                   onChange={(e) => setNewCollegeName(e.target.value)}
-                  className="p-3 rounded-xl border bg-slate-50 dark:bg-slate-955 text-xs focus:outline-none focus:border-cyan-400 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100"
+                  className="p-3 text-xs font-semibold"
                 />
                 <input
                   type="text"
@@ -689,14 +707,14 @@ export default function CommandCenter() {
                   placeholder="JNTUH-99"
                   value={newCollegeCode}
                   onChange={(e) => setNewCollegeCode(e.target.value)}
-                  className="p-3 rounded-xl border bg-slate-50 dark:bg-slate-955 text-xs focus:outline-none focus:border-cyan-400 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100"
+                  className="p-3 text-xs font-semibold"
                 />
               </div>
               <PremiumButton type="submit" variant="primary" size="sm" className="w-full" disabled={loading}>
                 Inject Campus Academic Node
               </PremiumButton>
             </form>
-          </div>
+          </GlassCard>
         </div>
       )}
 
@@ -713,13 +731,13 @@ export default function CommandCenter() {
             </p>
 
             <form onSubmit={handlePromote} className="flex flex-col gap-5">
-                         {/* Select student to promote */}
+              {/* Select student to promote */}
               <div className="flex flex-col gap-1.5">
                 <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Select Registered Coordinator Profile</label>
                 <select
                   value={promoUserId}
                   onChange={(e) => setPromoUserId(e.target.value)}
-                  className="w-full p-3 rounded-xl border bg-slate-50 dark:bg-slate-950 text-xs focus:outline-none focus:border-cyan-400 border-slate-200 dark:border-slate-800 text-slate-850 dark:text-slate-100"
+                  className="w-full p-3 text-xs font-semibold"
                 >
                   {allUsers.map(user => (
                     <option key={user.id} value={user.id}>
@@ -736,7 +754,7 @@ export default function CommandCenter() {
                   <select
                     value={promoRole}
                     onChange={(e) => setPromoRole(e.target.value)}
-                    className="w-full p-3 rounded-xl border bg-slate-50 dark:bg-slate-950 text-xs focus:outline-none focus:border-cyan-400 border-slate-200 dark:border-slate-800 text-slate-855 dark:text-slate-100"
+                    className="w-full p-3 text-xs font-semibold"
                   >
                     <option value="secretary">Campus Secretary</option>
                     <option value="general_secretary">General Secretary</option>
@@ -750,7 +768,7 @@ export default function CommandCenter() {
                   <select
                     value={promoConId}
                     onChange={(e) => setPromoConId(e.target.value)}
-                    className="w-full p-3 rounded-xl border bg-slate-50 dark:bg-slate-950 text-xs focus:outline-none focus:border-cyan-400 border-slate-200 dark:border-slate-800 text-slate-850 dark:text-slate-100"
+                    className="w-full p-3 text-xs font-semibold"
                   >
                     {constituencies.map(con => (
                       <option key={con.id} value={con.id}>{con.constituency_name}</option>
@@ -767,7 +785,7 @@ export default function CommandCenter() {
                     value={promoColId}
                     onChange={(e) => setPromoColId(e.target.value)}
                     disabled={promoFilteredColleges.length === 0}
-                    className="w-full p-3 rounded-xl border bg-slate-50 dark:bg-slate-955 text-xs focus:outline-none focus:border-cyan-400 border-slate-200 dark:border-slate-800 text-slate-850 dark:text-slate-100 disabled:opacity-50"
+                    className="w-full p-3 text-xs font-semibold disabled:opacity-50"
                   >
                     {promoFilteredColleges.length > 0 ? (
                       promoFilteredColleges.map(col => (
@@ -819,7 +837,7 @@ export default function CommandCenter() {
                         </span>
                       </div>
                       <p className="mt-0.5">Email: <span className="text-slate-700 dark:text-slate-350">{req.email}</span> | Phone: <span className="text-slate-700 dark:text-slate-350">{req.phone}</span></p>
-                       <p>Constituency Area: <span className="text-slate-750 dark:text-slate-300 font-semibold">{req.constituency_name || 'Not Registered'} ({req.district || ''})</span></p>
+                       <p>Constituency Area: <span className="text-slate-750 dark:text-slate-300 font-semibold">{req.constituency_name || 'Not Set'} ({req.district || ''})</span></p>
                       <div className="mt-1 bg-slate-100/50 dark:bg-slate-950/40 p-2.5 rounded-lg border border-slate-200/30 dark:border-slate-850 text-slate-600 dark:text-slate-400">
                         <span className="font-extrabold text-[10px] text-slate-450 dark:text-slate-500 uppercase block mb-1">Statement of Motivation</span>
                         {req.reason}

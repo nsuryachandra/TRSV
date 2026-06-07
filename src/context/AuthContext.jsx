@@ -174,6 +174,17 @@ export const AuthProvider = ({ children }) => {
 
   // ─── App-startup session rehydration ────────────────────────────────────
   useEffect(() => {
+    // Check saved username expiration (30 days persistence)
+    try {
+      const savedExpiry = localStorage.getItem('trsv_saved_username_expiry');
+      if (savedExpiry && Date.now() > parseInt(savedExpiry)) {
+        localStorage.removeItem('trsv_saved_username');
+        localStorage.removeItem('trsv_saved_username_expiry');
+      }
+    } catch (e) {
+      console.warn('Failed to parse username expiry', e);
+    }
+
     const initSession = async () => {
       const storedToken = localStorage.getItem('trsv_session_token');
 
@@ -251,7 +262,8 @@ export const AuthProvider = ({ children }) => {
     window.fetch = async (input, init) => {
       let finalInput = input;
       const isCapacitor = !!window.Capacitor;
-      const apiBase = isCapacitor ? 'https://trsv-union.onrender.com' : '';
+      const isLocalDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      const apiBase = (isCapacitor && !isLocalDev) ? 'https://trsv-union.onrender.com' : '';
 
       if (apiBase) {
         if (typeof input === 'string') {
@@ -364,6 +376,31 @@ export const AuthProvider = ({ children }) => {
     setUserProfile(data.user);
     setCurrentUser({ uid: data.user.id, email: data.user.email });
     persistSession(data.token, data.user);
+
+    return data.user;
+  };
+
+  const loginSimplified = async (type, username) => {
+    const response = await fetch('/api/auth/simplified-entry', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type, username }),
+    });
+
+    const data = await response.json();
+    if (!data.success) {
+      throw new Error(data.message || 'Simplified authentication failed.');
+    }
+
+    setToken(data.token);
+    setUserProfile(data.user);
+    setCurrentUser({ uid: data.user.id, email: data.user.email });
+    persistSession(data.token, data.user);
+
+    if (type === 'username' && data.username) {
+      localStorage.setItem('trsv_saved_username', data.username);
+      localStorage.setItem('trsv_saved_username_expiry', (Date.now() + 30 * 24 * 60 * 60 * 1000).toString());
+    }
 
     return data.user;
   };
@@ -487,6 +524,7 @@ export const AuthProvider = ({ children }) => {
     token,
     loading,
     login,
+    loginSimplified,
     loginWithGoogle,
     signup,
     logout,

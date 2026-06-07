@@ -36,12 +36,12 @@ export default function StudentDashboard() {
   // OpenStreetMap Autocomplete & Live Map States
   const [constituencies, setConstituencies] = useState([]);
   const [dbColleges, setDbColleges] = useState([]);
-  const [collegeSearch, setCollegeSearch] = useState(userProfile?.college_name || '');
+  const [collegeSearch, setCollegeSearch] = useState(userProfile?.college_name && userProfile.college_name !== 'Not Set' ? userProfile.college_name : '');
   const [suggestions, setSuggestions] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [mappedMsg, setMappedMsg] = useState('');
-  const [selectedConstituencyId, setSelectedConstituencyId] = useState(userProfile?.constituency_id || '');
+  const [selectedConstituencyId, setSelectedConstituencyId] = useState(userProfile?.constituency_id && userProfile.constituency_id !== 'Not Set' ? userProfile.constituency_id : '');
   const [mapType, setMapType] = useState('vector'); // 'vector' | 'satellite'
   const tileLayerRef = useRef(null);
   
@@ -155,7 +155,12 @@ export default function StudentDashboard() {
         scrollWheelZoom: true
       }).setView([defaultLat, defaultLng], 12);
 
-      const tileLayer = window.L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png', {
+      const isDark = document.documentElement.classList.contains('dark');
+      const tileUrl = isDark 
+        ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+        : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png';
+
+      const tileLayer = window.L.tileLayer(tileUrl, {
         maxZoom: 20,
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
         subdomains: 'abcd'
@@ -199,7 +204,12 @@ export default function StudentDashboard() {
       tileLayerRef.current = satelliteLayer;
       setMapType('satellite');
     } else {
-      const vectorLayer = window.L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png', {
+      const isDark = document.documentElement.classList.contains('dark');
+      const tileUrl = isDark 
+        ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+        : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png';
+
+      const vectorLayer = window.L.tileLayer(tileUrl, {
         maxZoom: 20,
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
         subdomains: 'abcd'
@@ -609,7 +619,7 @@ export default function StudentDashboard() {
                   {userProfile?.full_name}
                 </span>
                 <span className="text-[11px] font-semibold text-cyan-500 mt-0.5 truncate">
-                  {userProfile?.college_name || 'Academic Campus'}
+                  {userProfile?.college_name || 'Not Set'}
                 </span>
                 <span className="text-[9px] text-slate-450 mt-0.5 font-mono">
                   ID: #{userProfile?.id ? userProfile.id.substring(0, 8).toUpperCase() : 'MOCK_ID'}
@@ -628,13 +638,13 @@ export default function StudentDashboard() {
             <div className="flex justify-between">
               <span>Constituency Node:</span>
               <strong className="text-slate-800 dark:text-slate-250">
-                {userProfile?.constituency_name || 'Telangana District'}
+                {userProfile?.constituency_name || 'Not Set'}
               </strong>
             </div>
             <div className="flex justify-between">
               <span>District:</span>
               <strong className="text-slate-800 dark:text-slate-255">
-                {userProfile?.district || 'State Capital'}
+                {userProfile?.district || 'Not Set'}
               </strong>
             </div>
           </div>
@@ -746,7 +756,7 @@ export default function StudentDashboard() {
                 className="w-full mt-2"
                 onClick={() => navigate('/dashboard/contact')}
               >
-                Log New Incident Ticket
+                Raise a Complaint
               </PremiumButton>
             )}
           </GlassCard>
@@ -774,9 +784,13 @@ export default function StudentDashboard() {
             </div>
           </div>
           
-          {userProfile?.college_name && (
+          {userProfile?.college_name && userProfile.college_name !== 'Not Set' ? (
             <span className="self-start md:self-center text-[9px] font-black bg-emerald-500/10 text-emerald-500 dark:text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-full uppercase tracking-wider">
               ✓ Active Campus Pinned: {userProfile.college_name.split(',')[0]}
+            </span>
+          ) : (
+            <span className="self-start md:self-center text-[9px] font-black bg-amber-500/10 text-amber-500 dark:text-amber-400 border border-amber-500/20 px-2.5 py-1 rounded-full uppercase tracking-wider">
+              ⚠️ No Campus Set
             </span>
           )}
         </div>
@@ -790,7 +804,7 @@ export default function StudentDashboard() {
               </label>
               
               <div className="relative">
-                <Building className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Building className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400" strokeWidth={2.2} />
                 <input
                   type="text"
                   placeholder="e.g. Aurora Technological Uppal"
@@ -866,7 +880,7 @@ export default function StudentDashboard() {
                 Electoral Node Constituency Map
               </label>
               <div className="relative">
-                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400" strokeWidth={2.2} />
                 <select
                   value={selectedConstituencyId}
                   onChange={(e) => setSelectedConstituencyId(e.target.value)}

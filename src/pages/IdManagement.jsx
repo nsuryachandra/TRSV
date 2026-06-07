@@ -204,14 +204,14 @@ export default function IdManagement() {
           {/* Roster Filters Toolbar */}
           <div className="flex flex-wrap gap-2 w-full md:w-auto">
             <div className="relative flex-1 md:w-60">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input
                 type="text"
                 placeholder="Search name or member ID..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-slate-200/60 dark:border-slate-800 bg-white/40 dark:bg-slate-900/40 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-cyan-400"
+                className="peer w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-slate-200/60 dark:border-slate-800 bg-white/40 dark:bg-slate-900/40 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-cyan-400"
               />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none z-10 animate-icon-bounce-centered" />
             </div>
 
             <select

@@ -272,8 +272,8 @@ export default function DigitalIdCard() {
     ctx.fillStyle = '#cbd5e1';
     ctx.font = '9px Outfit, sans-serif';
     
-    const constituencyVal = `Constituency: ${userProfile?.constituency_name || 'Not Registered'}`;
-    const campusVal = `Campus: ${userProfile?.college_name || 'Not Registered'}`;
+    const constituencyVal = `Constituency: ${userProfile?.constituency_name && userProfile.constituency_name !== 'Not Set' ? userProfile.constituency_name : 'Not Set'}`;
+    const campusVal = `Campus: ${userProfile?.college_name && userProfile.college_name !== 'Not Set' ? userProfile.college_name : 'Not Set'}`;
     const issuedVal = `Issued: ${new Date(identity?.issued_at).toLocaleDateString()}`;
 
     ctx.fillText(constituencyVal, avatarX + avatarSize + 16, avatarY + 54);
@@ -369,7 +369,7 @@ export default function DigitalIdCard() {
     ctx.fillStyle = '#cbd5e1';
     ctx.font = 'bold 9px Outfit, sans-serif';
     ctx.fillText('TRSV-V2.5.0', bX + 24, cY + cH - 22);
-    ctx.fillText(userProfile?.constituency_name || 'Statewide Command', bX + cW - 120, cY + cH - 22);
+    ctx.fillText(userProfile?.constituency_name && userProfile.constituency_name !== 'Not Set' ? userProfile.constituency_name : 'Not Set', bX + cW - 120, cY + cH - 22);
 
     // Trigger immediate link download
     const link = document.createElement('a');
@@ -580,18 +580,18 @@ export default function DigitalIdCard() {
                     <div className="grid grid-cols-2 gap-1.5 sm:gap-2 mt-0.5 sm:mt-1">
                       <div>
                         <span className="text-[5px] xs:text-[5.5px] sm:text-[6.5px] font-black text-slate-400 uppercase tracking-widest block font-sans">CONSTITUENCY</span>
-                        <span className="text-[7.5px] xs:text-[8.5px] sm:text-[9.5px] font-bold text-slate-200 block truncate leading-tight mt-0.5">{userProfile?.constituency_name || 'Not Added'}</span>
+                        <span className="text-[7.5px] xs:text-[8.5px] sm:text-[9.5px] font-bold text-slate-200 block truncate leading-tight mt-0.5">{userProfile?.constituency_name && userProfile.constituency_name !== 'Not Set' ? userProfile.constituency_name : 'Not Set'}</span>
                       </div>
                       <div>
                         <span className="text-[5px] xs:text-[5.5px] sm:text-[6.5px] font-black text-slate-400 uppercase tracking-widest block font-sans">DISTRICT</span>
-                        <span className="text-[7.5px] xs:text-[8.5px] sm:text-[9.5px] font-bold text-slate-200 block truncate leading-tight mt-0.5">{userProfile?.district || 'Not Added'}</span>
+                        <span className="text-[7.5px] xs:text-[8.5px] sm:text-[9.5px] font-bold text-slate-200 block truncate leading-tight mt-0.5">{userProfile?.district && userProfile.district !== 'Not Set' ? userProfile.district : 'Not Set'}</span>
                       </div>
                     </div>
 
                     <div className="mt-0.5 sm:mt-1">
                       <span className="text-[5px] xs:text-[5.5px] sm:text-[6.5px] font-black text-slate-400 uppercase tracking-widest block font-sans">INSTITUTION</span>
-                      <span className="text-[7.5px] xs:text-[8.5px] sm:text-[9.5px] font-bold text-slate-200 block truncate leading-tight mt-0.5" title={userProfile?.college_name || 'Not Added'}>
-                        {userProfile?.college_name || 'Not Added'}
+                      <span className="text-[7.5px] xs:text-[8.5px] sm:text-[9.5px] font-bold text-slate-200 block truncate leading-tight mt-0.5" title={userProfile?.college_name || 'Not Set'}>
+                        {userProfile?.college_name && userProfile.college_name !== 'Not Set' ? userProfile.college_name : 'Not Set'}
                       </span>
                     </div>
                   </div>
@@ -666,9 +666,9 @@ export default function DigitalIdCard() {
                     </span>
                   </div>
                   <div className="flex flex-col text-right">
-                    <span className="text-[5px] sm:text-[6px] text-slate-450 dark:text-slate-500 uppercase tracking-widest">Node Region</span>
+                    <span className="text-[5px] sm:text-[6px] text-slate-455 dark:text-slate-500 uppercase tracking-widest">Node Region</span>
                     <span className="text-[7px] sm:text-[8px] font-extrabold text-slate-350 dark:text-slate-200 mt-0.5 truncate max-w-[120px]">
-                      {userProfile?.constituency_name || 'Not Added'}
+                      {userProfile?.constituency_name && userProfile.constituency_name !== 'Not Set' ? userProfile.constituency_name : 'Not Set'}
                     </span>
                   </div>
                 </div>

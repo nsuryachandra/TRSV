@@ -7,7 +7,7 @@ import { useAuth } from '../context/AuthContext';
 // Dynamic Dashboard Index redirection to bypass page loops
 function DashboardIndex() {
   const { userProfile } = useAuth();
-  if (!userProfile) return <Navigate to="/login" replace />;
+  if (!userProfile) return <Navigate to="/" replace />;
   if (userProfile.role === 'supreme_admin' || userProfile.role === 'dev') {
     return <Navigate to="/dashboard/command" replace />;
   } else if (userProfile.role === 'student') {
@@ -22,7 +22,7 @@ import RootLayout from '../layouts/RootLayout';
 import DashboardLayout from '../layouts/DashboardLayout';
 
 // Lazy load all pages for high page-load performance
-const Home = lazy(() => import('../pages/Home'));
+const Welcome = lazy(() => import('../pages/Welcome'));
 const About = lazy(() => import('../pages/About'));
 const Features = lazy(() => import('../pages/Features'));
 const Transparency = lazy(() => import('../pages/Transparency'));
@@ -30,8 +30,6 @@ const Districts = lazy(() => import('../pages/Districts'));
 const Team = lazy(() => import('../pages/Team'));
 const Announcements = lazy(() => import('../pages/Announcements'));
 const Contact = lazy(() => import('../pages/Contact'));
-const Login = lazy(() => import('../pages/Login'));
-const Signup = lazy(() => import('../pages/Signup'));
 const MessengerPage = lazy(() => import('../pages/MessengerPage'));
 
 // Digital Identity Ecosystem Pages
@@ -82,9 +80,9 @@ export default function AppRoutes() {
         <Routes location={location} key={location.pathname}>
         {/* Public Landing Pages Group */}
         <Route element={<RootLayout />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
+          <Route path="/" element={<Welcome />} />
+          <Route path="/login" element={<Navigate to="/" replace />} />
+          <Route path="/signup" element={<Navigate to="/" replace />} />
           <Route path="/verify/:token_or_id" element={<PublicVerification />} />
         </Route>
 

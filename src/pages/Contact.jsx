@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Mail, Phone, MapPin, Send, ShieldAlert, CheckCircle, Lock, Sparkles, ChevronRight, ChevronLeft, UploadCloud, EyeOff, FileText, X, AlertTriangle, RefreshCw, Mic, Square, Trash2 } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, ShieldAlert, CheckCircle, Lock, Sparkles, ChevronRight, ChevronLeft, UploadCloud, EyeOff, FileText, X, AlertTriangle, RefreshCw, Mic, Square, Trash2, User, Building, AlignLeft } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import GlassCard from '../components/GlassCard';
 import PremiumButton from '../components/PremiumButton';
@@ -15,7 +15,7 @@ export default function Contact() {
   // Complainant Mandatory Details
   const [complainantName, setComplainantName] = useState(userProfile?.full_name || '');
   const [complainantMobile, setComplainantMobile] = useState(userProfile?.phone || '');
-  const [collegeSchoolAddress, setCollegeSchoolAddress] = useState(userProfile?.college_name || '');
+  const [collegeSchoolAddress, setCollegeSchoolAddress] = useState(userProfile?.college_name && userProfile.college_name !== 'Not Set' ? userProfile.college_name : '');
 
   // Constituency selector list
   const [constituencyList, setConstituencyList] = useState([]);
@@ -217,7 +217,7 @@ export default function Contact() {
     if (userProfile) {
       if (!complainantName) setComplainantName(userProfile.full_name || '');
       if (!complainantMobile) setComplainantMobile(userProfile.phone || '');
-      if (!collegeSchoolAddress) setCollegeSchoolAddress(userProfile.college_name || '');
+      if (!collegeSchoolAddress && userProfile.college_name && userProfile.college_name !== 'Not Set') setCollegeSchoolAddress(userProfile.college_name);
       if (!selectedConstituencyId) setSelectedConstituencyId(userProfile.constituency_id || '');
     }
   }, [userProfile]);
@@ -251,12 +251,9 @@ export default function Contact() {
     setProofFiles(prev => prev.filter((_, idx) => idx !== indexToRemove));
   };
 
-  const handleLodgeComplaint = async (e) => {
+  const handleRaiseComplaint = async (e) => {
     e.preventDefault();
-    if (!complainantName.trim()) {
-      setErrorMsg('Please enter your valid Full Name (cannot be empty or spaces).');
-      return;
-    }
+    // complainantName is now completely optional, so we do not enforce .trim() validation.
     if (!selectedConstituencyId) {
       setErrorMsg('Please select a Constituency Area.');
       return;
@@ -318,7 +315,7 @@ export default function Contact() {
         setAnonymous(false);
         fetchTickets(); // Refresh list immediately!
       } else {
-        setErrorMsg(data.message || 'Failed to lodge official complaint.');
+        setErrorMsg(data.message || 'Failed to raise official complaint.');
       }
     } catch (err) {
       setErrorMsg(err.message || 'Failed to connect to regional database nodes.');
@@ -420,7 +417,7 @@ export default function Contact() {
           State Complaint Submission Gate
         </h1>
         <p className="text-base sm:text-lg text-slate-500 dark:text-slate-400 leading-relaxed text-center">
-          Lodge your academic, campus-safety, or administrative complaint directly into the TRSV Command Node. Every submission is digitally routed to local and statewide leaders.
+          Raise your academic, campus-safety, or administrative complaint directly into the TRSV Command Node. Every submission is digitally routed to local and statewide leaders.
         </p>
       </AnimatedSection>
 
@@ -473,12 +470,12 @@ export default function Contact() {
                 </div>
               </div>
             ) : (
-              // 2. Complaint Lodge Form
-              <form onSubmit={handleLodgeComplaint} className="flex flex-col gap-6 w-full animate-scaleUp text-left">
+              // 2. Complaint Raise Form
+              <form onSubmit={handleRaiseComplaint} className="flex flex-col gap-6 w-full animate-scaleUp text-left">
                 <div className="flex flex-col gap-1 pb-3 border-b border-slate-200/50 dark:border-slate-850">
                   <h3 className="font-black text-lg text-slate-850 dark:text-white flex items-center gap-2">
                     <ShieldAlert className="w-5 h-5 text-cyan-500" />
-                    Lodge Official Complaint
+                    Raise Official Complaint
                   </h3>
                   <p className="text-xs text-slate-400">
                     All fields are mandatory. Filing false complaints will result in permanent credential suspension.
@@ -506,16 +503,18 @@ export default function Contact() {
                   {/* Complainant Name */}
                   <div className="flex flex-col gap-1.5">
                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                      Complainant Full Name <span className="text-rose-500">*</span>
+                      Complainant Full Name <span className="text-slate-500">(Optional)</span>
                     </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Enter Complainant Name"
-                      value={complainantName}
-                      onChange={(e) => setComplainantName(e.target.value)}
-                      className="w-full px-4 py-3.5 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-805 dark:text-slate-100 font-bold"
-                    />
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="Enter Complainant Name"
+                        value={complainantName}
+                        onChange={(e) => setComplainantName(e.target.value)}
+                        className="peer w-full pl-11 pr-4 py-3.5 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-805 dark:text-slate-100 font-bold"
+                      />
+                      <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400 pointer-events-none z-10 animate-icon-bounce-centered" strokeWidth={2.2} />
+                    </div>
                   </div>
 
                   {/* Constituency Selection Dropdown */}
@@ -523,43 +522,50 @@ export default function Contact() {
                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                       Constituency / Area Node <span className="text-rose-500">*</span>
                     </label>
-                    <select
-                      value={selectedConstituencyId}
-                      onChange={(e) => setSelectedConstituencyId(e.target.value)}
-                      className="w-full p-3.5 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-805 dark:text-slate-100 font-bold"
-                      required
-                    >
-                      <option value="">Select constituency area</option>
-                      {constituencyList.map(c => (
-                        <option key={c.id} value={c.id}>
-                          {c.constituency_name === 'Upcoming Area' ? '⚠️ Upcoming Area (My area is not listed)' : `${c.constituency_name} (${c.district})`}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="relative">
+                      <select
+                        value={selectedConstituencyId}
+                        onChange={(e) => setSelectedConstituencyId(e.target.value)}
+                        className="peer w-full pl-11 pr-4 py-3.5 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-805 dark:text-slate-100 font-bold cursor-pointer"
+                        required
+                      >
+                        <option value="">Select constituency area</option>
+                        {constituencyList.map(c => (
+                          <option key={c.id} value={c.id}>
+                            {c.constituency_name === 'Upcoming Area' ? '⚠️ Upcoming Area (My area is not listed)' : `${c.constituency_name} (${c.district})`}
+                          </option>
+                        ))}
+                      </select>
+                      <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400 pointer-events-none z-10 animate-icon-bounce-centered" strokeWidth={2.2} />
+                    </div>
                   </div>
-                                  {/* Category Selection Dropdown */}
+
+                  {/* Category Selection Dropdown */}
                   <div className="flex flex-col gap-1.5">
                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                       Complaint Category <span className="text-rose-500">*</span>
                     </label>
-                    <select
-                      value={category}
-                      onChange={(e) => setCategory(e.target.value)}
-                      className="w-full p-3.5 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-855 dark:text-slate-100 font-bold"
-                      required
-                    >
-                      <option value="Anti-Ragging">Anti-Ragging (Ragging protection)</option>
-                      <option value="Harassment">Harassment protection</option>
-                      <option value="Faculty Issues">Faculty/Classroom misconduct</option>
-                      <option value="Infrastructure Problems">Infrastructure problems</option>
-                      <option value="Fee Issues">Scholarship/Fee issues</option>
-                      <option value="Hostel Issues">Hostel & Mess quality</option>
-                      <option value="Transport Problems">Transport & Passes</option>
-                      <option value="Safety Issues">Campus Security & Safety risks</option>
-                      <option value="Administration Problems">Administrative delays</option>
-                      <option value="Abuse">Physical or verbal abuse</option>
-                      <option value="Other">Other complaints</option>
-                    </select>
+                    <div className="relative">
+                      <select
+                        value={category}
+                        onChange={(e) => setCategory(e.target.value)}
+                        className="peer w-full pl-11 pr-4 py-3.5 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-855 dark:text-slate-100 font-bold cursor-pointer"
+                        required
+                      >
+                        <option value="Anti-Ragging">Anti-Ragging (Ragging protection)</option>
+                        <option value="Harassment">Harassment protection</option>
+                        <option value="Faculty Issues">Faculty/Classroom misconduct</option>
+                        <option value="Infrastructure Problems">Infrastructure problems</option>
+                        <option value="Fee Issues">Scholarship/Fee issues</option>
+                        <option value="Hostel Issues">Hostel & Mess quality</option>
+                        <option value="Transport Problems">Transport & Passes</option>
+                        <option value="Safety Issues">Campus Security & Safety risks</option>
+                        <option value="Administration Problems">Administrative delays</option>
+                        <option value="Abuse">Physical or verbal abuse</option>
+                        <option value="Other">Other complaints</option>
+                      </select>
+                      <FileText className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400 pointer-events-none z-10 animate-icon-bounce-centered" strokeWidth={2.2} />
+                    </div>
                   </div>
 
                   {/* Urgency selection dropdown */}
@@ -567,17 +573,20 @@ export default function Contact() {
                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                       Urgency Level <span className="text-rose-500">*</span>
                     </label>
-                    <select
-                      value={urgency}
-                      onChange={(e) => setUrgency(e.target.value)}
-                      className="w-full p-3.5 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-805 dark:text-slate-100 font-bold"
-                      required
-                    >
-                      <option value="Low">Low - System resolution timeline</option>
-                      <option value="Medium">Medium - Standard leader dispatch</option>
-                      <option value="High">High - Priority response board</option>
-                      <option value="Critical">Critical - Immediate security check</option>
-                    </select>
+                    <div className="relative">
+                      <select
+                        value={urgency}
+                        onChange={(e) => setUrgency(e.target.value)}
+                        className="peer w-full pl-11 pr-4 py-3.5 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-805 dark:text-slate-100 font-bold cursor-pointer"
+                        required
+                      >
+                        <option value="Low">Low - System resolution timeline</option>
+                        <option value="Medium">Medium - Standard leader dispatch</option>
+                        <option value="High">High - Priority response board</option>
+                        <option value="Critical">Critical - Immediate security check</option>
+                      </select>
+                      <AlertTriangle className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400 pointer-events-none z-10 animate-icon-bounce-centered" strokeWidth={2.2} />
+                    </div>
                   </div>
 
                   {/* Empty space filler for layout matching */}
@@ -589,14 +598,17 @@ export default function Contact() {
                   <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                     Full College / School Proper Address <span className="text-rose-500">*</span>
                   </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Enter College Name, Campus Block, City/District details"
-                    value={collegeSchoolAddress}
-                    onChange={(e) => setCollegeSchoolAddress(e.target.value)}
-                    className="w-full px-4 py-3.5 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-805 dark:text-slate-100 font-bold"
-                  />
+                  <div className="relative">
+                    <input
+                      type="text"
+                      required
+                      placeholder="Enter College Name, Campus Block, City/District details"
+                      value={collegeSchoolAddress}
+                      onChange={(e) => setCollegeSchoolAddress(e.target.value)}
+                      className="peer w-full pl-11 pr-4 py-3.5 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-805 dark:text-slate-100 font-bold"
+                    />
+                    <Building className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400 pointer-events-none z-10 animate-icon-bounce-centered" strokeWidth={2.2} />
+                  </div>
                 </div>
 
                 {/* Detailed description */}
@@ -604,14 +616,17 @@ export default function Contact() {
                   <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                     Detailed Issue Description <span className="text-rose-500">*</span>
                   </label>
-                  <textarea
-                    rows={5}
-                    required
-                    placeholder="Provide a detailed description of the incident, names involved (if applicable), timings, and specific help required..."
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    className="w-full px-4 py-3.5 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-805 dark:text-slate-100 font-bold"
-                  />
+                  <div className="relative">
+                    <textarea
+                      rows={5}
+                      required
+                      placeholder="Provide a detailed description of the incident, names involved (if applicable), timings, and specific help required..."
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      className="peer w-full pl-11 pr-4 py-3.5 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-805 dark:text-slate-100 font-bold"
+                    />
+                    <AlignLeft className="absolute left-4 top-4.5 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400 pointer-events-none z-10 animate-icon-bounce-static" strokeWidth={2.2} />
+                  </div>
                 </div>
 
                 {/* Proofs Drag and Drop field */}
@@ -632,7 +647,7 @@ export default function Contact() {
                         className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
                       />
                       <div className="flex flex-col items-center gap-2 pointer-events-none select-none">
-                        <UploadCloud className="w-7 h-7 text-cyan-500 group-hover:scale-110 transition-transform duration-200" />
+                        <UploadCloud className="w-7 h-7 text-cyan-500 group-hover:scale-120 group-hover:animate-bounce transition-transform duration-300" />
                         <div className="flex flex-col gap-0.5">
                           <span className="text-[11px] font-bold text-slate-700 dark:text-white block">Drag & Drop files here</span>
                           <span className="text-[9px] text-slate-400 uppercase tracking-wider">PDF, MP4, Images up to 20MB</span>
@@ -641,10 +656,10 @@ export default function Contact() {
                     </div>
 
                     {/* Audio Recorder Panel */}
-                    <div className="rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-white/10 dark:bg-slate-900/10 p-5 flex flex-col justify-between min-h-[140px] text-left gap-3">
+                    <div className="rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-white/10 dark:bg-slate-900/10 p-5 flex flex-col justify-between min-h-[140px] text-left gap-3 group">
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] font-extrabold text-slate-700 dark:text-white flex items-center gap-1.5">
-                          <Mic className="w-3.5 h-3.5 text-cyan-500" />
+                          <Mic className="w-3.5 h-3.5 text-cyan-500 group-hover:scale-120 group-hover:animate-pulse transition-all duration-300" />
                           Voice Memo Evidence
                         </span>
                         {recording && (
@@ -767,8 +782,9 @@ export default function Contact() {
                     size="md"
                     className={`w-full mt-2 ${isEmergency ? 'bg-rose-500 hover:bg-rose-600 shadow-glow-rose before:from-rose-400 before:to-rose-600' : ''}`}
                     disabled={submitting}
+                    icon={submitting ? null : <Send className="w-4 h-4 text-white" strokeWidth={2.5} />}
                   >
-                    {submitting ? 'Transmitting Evidences & Lodge...' : (isEmergency ? 'Trigger Emergency Dispatch' : 'Lodge Union Complaint')}
+                    {submitting ? 'Transmitting Evidences & Raising...' : (isEmergency ? 'Trigger Emergency Dispatch' : 'Raise Official Complaint')}
                   </PremiumButton>
                 )}
               </form>
@@ -783,7 +799,7 @@ export default function Contact() {
                 Secure Submission Required
               </h3>
               <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed text-center">
-                To lodge an official student complaint and track its lifecycle, you must log in to your verified student advocate account first.
+                To raise an official student complaint and track its lifecycle, you must log in to your verified student advocate account first.
               </p>
               <div className="flex gap-3">
                 <PremiumButton variant="primary" size="sm" onClick={() => navigate('/login')}>
@@ -885,7 +901,7 @@ export default function Contact() {
                 ) : (
                   <div className="flex flex-col items-center justify-center py-12 text-slate-400 text-xs border-2 border-dashed border-slate-200/20 dark:border-slate-800 rounded-2xl bg-slate-50/50 dark:bg-slate-905/30">
                     <AlertTriangle className="w-8 h-8 text-slate-400 mb-2 opacity-50 animate-pulse" />
-                    No tickets in this section. Lodge a complaint to activate real-time tracking.
+                    No tickets in this section. Raise a complaint to activate real-time tracking.
                   </div>
                 )}
               </div>

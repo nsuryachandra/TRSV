@@ -102,8 +102,8 @@ router.get('/public/logs', async (req, res) => {
 router.post('/', requireRole(['student']), async (req, res) => {
   const { title, description, category, urgency, attachmentUrl, anonymous, emergency_flag, proofs, complainant_name, complainant_mobile, college_school_address, constituencyId } = req.body;
 
-  if (!complainant_name || !college_school_address || !description || !category) {
-    return res.status(400).json({ success: false, message: 'Complainant name, college/school address, category, and issue description are required.' });
+  if (!college_school_address || !description || !category) {
+    return res.status(400).json({ success: false, message: 'College/school address, category, and issue description are required.' });
   }
 
   try {
@@ -141,7 +141,7 @@ router.post('/', requireRole(['student']), async (req, res) => {
       `INSERT INTO complaints (title, description, category, urgency, status, student_id, constituency_id, college_id, attachment_url, anonymous, emergency_flag, complainant_name, complainant_mobile, college_school_address) 
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) RETURNING *`,
       [
-        title || `Complaint from ${complainant_name}`,
+        title || `Complaint from ${complainant_name || 'Anonymous'}`,
         description,
         category,
         normalizedUrgency,
@@ -152,7 +152,7 @@ router.post('/', requireRole(['student']), async (req, res) => {
         attachmentUrl || null,
         anonymous || false,
         isEmergency,
-        complainant_name,
+        complainant_name || 'Anonymous',
         complainant_mobile || null,
         college_school_address
       ]
@@ -236,7 +236,7 @@ router.post('/', requireRole(['student']), async (req, res) => {
       }
 
       // 4. Bulk insert notifications (skip the reporter themselves)
-      const complaintTitle = title || `Complaint from ${complainant_name}`;
+      const complaintTitle = title || `Complaint from ${complainant_name || 'Anonymous'}`;
       for (const leaderId of leaderIds) {
         if (leaderId !== req.user.uid) {
           await query(
