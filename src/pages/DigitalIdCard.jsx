@@ -7,7 +7,48 @@ import QRCode from 'qrcode';
 
 export default function DigitalIdCard() {
   const { userProfile } = useAuth();
-  
+  const isLeader = userProfile?.role !== 'student';
+  const roleDisplay = userProfile?.role === 'student'
+    ? 'STUDENT MEMBER'
+    : (userProfile?.role
+        ? userProfile.role.replace(/_/g, ' ').toUpperCase()
+        : 'UNION MEMBER');
+
+  // Theme configuration objects for HTML rendering
+  const cardThemeStyles = isLeader 
+    ? {
+        bgGradient: 'from-[#060c18] via-[#0c162c] to-[#040812]',
+        borderClass: 'border-[#fbbf24]/40',
+        textGold: 'text-[#fbbf24]',
+        textGoldMuted: 'text-[#fbbf24]/80',
+        glowColor: 'rgba(251, 191, 36, 0.15)',
+        statusClass: 'border-amber-500/35 bg-amber-500/10 text-amber-400',
+        badgeClass: 'border-[#fbbf24]/30 bg-[#fbbf24]/5 text-[#fbbf24]',
+        logoColor: '#fbbf24',
+        svgWatermarkColor: 'rgba(251, 191, 36, 0.2)',
+        svgStateColor: 'text-[#fbbf24]',
+        svgLinesColor: 'rgba(251, 191, 36, 0.3)',
+        boxShadowInset: 'inset 0 0 20px rgba(251, 191, 36, 0.05), 0 10px 30px rgba(0, 0, 0, 0.5)',
+        photoBorder: 'border-[#fbbf24]/50',
+        badgeTextColor: 'text-white'
+      }
+    : {
+        bgGradient: 'from-[#07162c] via-[#0e2747] to-[#04101e]',
+        borderClass: 'border-[#0ea5e9]/40',
+        textGold: 'text-[#0ea5e9]',
+        textGoldMuted: 'text-[#0ea5e9]/80',
+        glowColor: 'rgba(14, 165, 233, 0.12)',
+        statusClass: 'border-sky-500/35 bg-sky-500/10 text-sky-450',
+        badgeClass: 'border-[#0ea5e9]/30 bg-[#0ea5e9]/5 text-[#0ea5e9]',
+        logoColor: '#0ea5e9',
+        svgWatermarkColor: 'rgba(14, 165, 233, 0.2)',
+        svgStateColor: 'text-[#0ea5e9]',
+        svgLinesColor: 'rgba(14, 165, 233, 0.3)',
+        boxShadowInset: 'inset 0 0 20px rgba(14, 165, 233, 0.05), 0 10px 30px rgba(0, 0, 0, 0.5)',
+        photoBorder: 'border-[#0ea5e9]/50',
+        badgeTextColor: 'text-slate-200'
+      };
+
   // State for card telemetry
   const [identity, setIdentity] = useState(null);
   const [metrics, setMetrics] = useState(null);
@@ -153,7 +194,7 @@ export default function DigitalIdCard() {
     ctx.fillRect(0, 0, 960, 320);
 
     // Draw background neon particle glow highlights
-    ctx.fillStyle = 'rgba(34, 211, 238, 0.03)';
+    ctx.fillStyle = isLeader ? 'rgba(251, 191, 36, 0.02)' : 'rgba(34, 211, 238, 0.03)';
     ctx.beginPath();
     ctx.arc(200, 100, 180, 0, 2 * Math.PI);
     ctx.fill();
@@ -195,29 +236,40 @@ export default function DigitalIdCard() {
     // Card background linear gradient
     const cardBgGradient = (x) => {
       const g = ctx.createLinearGradient(x, cY, x + cW, cY + cH);
-      g.addColorStop(0, '#090d16');
-      g.addColorStop(1, '#111827');
+      if (isLeader) {
+        g.addColorStop(0, '#060c18');
+        g.addColorStop(1, '#0c162c');
+      } else {
+        g.addColorStop(0, '#07162c');
+        g.addColorStop(1, '#0e2747');
+      }
       return g;
     };
+
+    const accentTextColor = isLeader ? '#fbbf24' : '#0ea5e9';
+    const accentStrokeColor = isLeader ? 'rgba(251, 191, 36, 0.25)' : 'rgba(14, 165, 233, 0.25)';
 
     // ----------------------------------------------------
     // DRAW FRONT CARD FACE
     // ----------------------------------------------------
-    drawRoundedRect(ctx, fX, cY, cW, cH, 16, cardBgGradient(fX), 'rgba(34, 211, 238, 0.25)', 2);
+    drawRoundedRect(ctx, fX, cY, cW, cH, 16, cardBgGradient(fX), accentStrokeColor, 2);
 
     // Front Card Header
-    ctx.fillStyle = '#22d3ee';
+    ctx.fillStyle = accentTextColor;
     ctx.font = 'bold 13px Outfit, sans-serif';
     ctx.fillText('TELANGANA RAKSHANA SENA VIDYARTHI VIBHAGAM', fX + 24, cY + 36);
 
+    ctx.fillStyle = isLeader ? '#fbbf24' : '#0ea5e9';
     ctx.fillStyle = '#94a3b8';
     ctx.font = 'bold 7px Outfit, sans-serif';
     ctx.fillText('STATE STUDENT GOVERNANCE COUNCIL', fX + 24, cY + 48);
 
     // Dynamic verification status tag in header
     const statusText = identity?.verification_status?.toUpperCase() || 'ACTIVE';
-    drawRoundedRect(ctx, fX + cW - 100, cY + 24, 76, 16, 8, 'rgba(16, 185, 129, 0.15)', '#10b981', 1);
-    ctx.fillStyle = '#10b981';
+    const statusFill = isLeader ? 'rgba(251, 191, 36, 0.1)' : 'rgba(16, 185, 129, 0.1)';
+    const statusStroke = isLeader ? '#fbbf24' : '#10b981';
+    drawRoundedRect(ctx, fX + cW - 100, cY + 24, 76, 16, 8, statusFill, statusStroke, 1);
+    ctx.fillStyle = statusStroke;
     ctx.font = 'bold 8px Outfit, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText(statusText, fX + cW - 62, cY + 35);
@@ -238,7 +290,7 @@ export default function DigitalIdCard() {
       ctx.drawImage(avatarImg, avatarX, avatarY, avatarSize, avatarSize);
       ctx.restore();
       // Border outline
-      ctx.strokeStyle = 'rgba(34, 211, 238, 0.4)';
+      ctx.strokeStyle = isLeader ? 'rgba(251, 191, 36, 0.4)' : 'rgba(14, 165, 233, 0.4)';
       ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.arc(avatarX + avatarSize/2, avatarY + avatarSize/2, avatarSize/2, 0, 2 * Math.PI);
@@ -246,8 +298,13 @@ export default function DigitalIdCard() {
     } else {
       // Fallback: Custom Letter initial badge
       const initGrad = ctx.createLinearGradient(avatarX, avatarY, avatarX + avatarSize, avatarY + avatarSize);
-      initGrad.addColorStop(0, '#0ea5e9');
-      initGrad.addColorStop(1, '#22d3ee');
+      if (isLeader) {
+        initGrad.addColorStop(0, '#fbbf24');
+        initGrad.addColorStop(1, '#f59e0b');
+      } else {
+        initGrad.addColorStop(0, '#0ea5e9');
+        initGrad.addColorStop(1, '#22d3ee');
+      }
       drawRoundedRect(ctx, avatarX, avatarY, avatarSize, avatarSize, 12, initGrad, null);
       
       ctx.fillStyle = '#ffffff';
@@ -263,10 +320,9 @@ export default function DigitalIdCard() {
     ctx.font = 'bold 18px Outfit, sans-serif';
     ctx.fillText(userProfile?.full_name || 'Surya', avatarX + avatarSize + 16, avatarY + 22);
 
-    ctx.fillStyle = '#22d3ee';
+    ctx.fillStyle = accentTextColor;
     ctx.font = 'bold 10px Outfit, sans-serif';
-    const roleStr = userProfile?.role === 'student' ? 'STUDENT' : 'UNION MEMBER';
-    ctx.fillText(roleStr, avatarX + avatarSize + 16, avatarY + 38);
+    ctx.fillText(roleDisplay, avatarX + avatarSize + 16, avatarY + 38);
 
     // Constituency & Campus Details (Clean wrapping to avoid overlap)
     ctx.fillStyle = '#cbd5e1';
@@ -281,32 +337,36 @@ export default function DigitalIdCard() {
     ctx.fillText(issuedVal, avatarX + avatarSize + 16, avatarY + 82);
 
     // Front Card Footer
-    ctx.fillStyle = '#94a3b8';
+    ctx.fillStyle = '#64748b';
     ctx.font = '8px Outfit, sans-serif';
     ctx.fillText('TRSV SYSTEM NODE ID', fX + 24, cY + cH - 38);
     
-    ctx.fillStyle = '#22d3ee';
+    ctx.fillStyle = accentTextColor;
     ctx.font = 'bold 15px Courier New, monospace';
     ctx.fillText(identity?.trsv_member_id || 'TRSV-KHA-0001', fX + 24, cY + cH - 20);
 
     // Verified Seal Badge at bottom-right
-    const badgeX = fX + cW - 74;
+    const badgeX = fX + cW - 84;
     const badgeY = cY + cH - 44;
-    drawRoundedRect(ctx, badgeX, badgeY, 50, 26, 6, 'rgba(34, 211, 238, 0.08)', 'rgba(34, 211, 238, 0.25)', 1);
-    ctx.fillStyle = '#22d3ee';
+    const badgeFill = isLeader ? 'rgba(251, 191, 36, 0.08)' : 'rgba(14, 165, 233, 0.08)';
+    const badgeStroke = isLeader ? 'rgba(251, 191, 36, 0.25)' : 'rgba(14, 165, 233, 0.25)';
+    drawRoundedRect(ctx, badgeX, badgeY, 60, 26, 6, badgeFill, badgeStroke, 1);
+    
+    ctx.fillStyle = isLeader ? '#fbbf24' : '#0ea5e9';
     ctx.font = 'bold 7px Outfit, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('VERIFIED', badgeX + 25, badgeY + 11);
-    ctx.fillText('SECURE', badgeX + 25, badgeY + 20);
+    ctx.fillText('VERIFIED', badgeX + 30, badgeY + 11);
+    ctx.fillStyle = isLeader ? '#ffffff' : '#cbd5e1';
+    ctx.fillText(isLeader ? 'EXECUTIVE' : 'MEMBER', badgeX + 30, badgeY + 20);
     ctx.textAlign = 'left';
 
     // ----------------------------------------------------
     // DRAW BACK CARD FACE
     // ----------------------------------------------------
-    drawRoundedRect(ctx, bX, cY, cW, cH, 16, cardBgGradient(bX), 'rgba(34, 211, 238, 0.25)', 2);
+    drawRoundedRect(ctx, bX, cY, cW, cH, 16, cardBgGradient(bX), accentStrokeColor, 2);
 
     // Back card Header
-    ctx.fillStyle = '#22d3ee';
+    ctx.fillStyle = accentTextColor;
     ctx.font = 'bold 11px Outfit, sans-serif';
     ctx.fillText('TRSV SECURE DATABASE GRID', bX + 24, cY + 36);
 
@@ -314,14 +374,21 @@ export default function DigitalIdCard() {
     ctx.font = 'bold 7px Outfit, sans-serif';
     ctx.fillText('SECURE REAL-TIME VERIFICATION PORTAL', bX + 24, cY + 48);
 
-    // Gold security chip
+    // Security chip
     const chipX = bX + cW - 64;
     const chipY = cY + 24;
     const chipGrad = ctx.createLinearGradient(chipX, chipY, chipX + 40, chipY + 26);
-    chipGrad.addColorStop(0, '#f59e0b');
-    chipGrad.addColorStop(0.5, '#fbbf24');
-    chipGrad.addColorStop(1, '#d97706');
-    drawRoundedRect(ctx, chipX, chipY, 40, 26, 6, chipGrad, 'rgba(180, 83, 9, 0.3)', 1);
+    if (isLeader) {
+      chipGrad.addColorStop(0, '#f59e0b');
+      chipGrad.addColorStop(0.5, '#fbbf24');
+      chipGrad.addColorStop(1, '#d97706');
+      drawRoundedRect(ctx, chipX, chipY, 40, 26, 6, chipGrad, 'rgba(180, 83, 9, 0.3)', 1);
+    } else {
+      chipGrad.addColorStop(0, '#94a3b8');
+      chipGrad.addColorStop(0.5, '#cbd5e1');
+      chipGrad.addColorStop(1, '#64748b');
+      drawRoundedRect(ctx, chipX, chipY, 40, 26, 6, chipGrad, 'rgba(100, 116, 139, 0.3)', 1);
+    }
     ctx.strokeStyle = 'rgba(0,0,0,0.15)';
     ctx.lineWidth = 1;
     ctx.beginPath();
@@ -335,7 +402,7 @@ export default function DigitalIdCard() {
     const qrPosY = cY + 62;
 
     // Draw white contrast base frame
-    drawRoundedRect(ctx, qrPosX - 6, qrPosY - 6, qrSize + 12, qrSize + 12, 10, '#ffffff', 'rgba(34, 211, 238, 0.2)', 1.5);
+    drawRoundedRect(ctx, qrPosX - 6, qrPosY - 6, qrSize + 12, qrSize + 12, 10, '#ffffff', isLeader ? 'rgba(251, 191, 36, 0.2)' : 'rgba(14, 165, 233, 0.2)', 1.5);
     
     if (qrImg) {
       ctx.drawImage(qrImg, qrPosX, qrPosY, qrSize, qrSize);
@@ -350,7 +417,7 @@ export default function DigitalIdCard() {
     }
 
     // Label below QR
-    ctx.fillStyle = '#22d3ee';
+    ctx.fillStyle = accentTextColor;
     ctx.font = 'bold 7px Outfit, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('SCAN TO AUDIT PROFILE', bX + cW/2, qrPosY + qrSize + 22);
@@ -462,11 +529,11 @@ export default function DigitalIdCard() {
             >
               {/* --- FRONT SIDE --- */}
               <div 
-                className={`absolute inset-0 p-3.5 xs:p-4 sm:p-5 flex flex-col justify-between backface-hidden rounded-2xl transition-all duration-300 z-25 opacity-100 bg-gradient-to-br from-[#06142c] via-[#0b2447] to-[#040e1c] text-white border border-[#fbbf24]/40 ${
+                className={`absolute inset-0 p-3.5 xs:p-4 sm:p-5 flex flex-col justify-between backface-hidden rounded-2xl transition-all duration-300 z-25 opacity-100 bg-gradient-to-br ${cardThemeStyles.bgGradient} ${cardThemeStyles.borderClass} ${
                   isFlipped ? 'opacity-0 pointer-events-none' : 'opacity-100'
                 }`}
                 style={{
-                  boxShadow: 'inset 0 0 20px rgba(251, 191, 36, 0.05), 0 10px 30px rgba(0, 0, 0, 0.5)'
+                  boxShadow: cardThemeStyles.boxShadowInset
                 }}
               >
                 {/* 1. Security Micro Geometric Pattern & Guilloche Layer */}
@@ -474,29 +541,29 @@ export default function DigitalIdCard() {
                   <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
                     <defs>
                       <pattern id="security-grid-front" width="14" height="14" patternUnits="userSpaceOnUse">
-                        <path d="M 14 0 L 0 0 0 14" fill="none" stroke="rgba(251, 191, 36, 0.2)" strokeWidth="0.5"/>
+                        <path d="M 14 0 L 0 0 0 14" fill="none" stroke={cardThemeStyles.svgWatermarkColor} strokeWidth="0.5"/>
                       </pattern>
                     </defs>
                     <rect width="100%" height="100%" fill="url(#security-grid-front)" />
                     <path d="M-50,80 Q100,30 250,130 T550,80" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="0.5" />
                     <path d="M-50,90 Q100,40 250,140 T550,90" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="0.5" />
-                    <path d="M-50,100 Q100,50 250,150 T550,100" fill="none" stroke="rgba(251, 191, 36, 0.06)" strokeWidth="0.5" />
-                    <path d="M-50,110 Q100,60 250,160 T550,110" fill="none" stroke="rgba(251, 191, 36, 0.06)" strokeWidth="0.5" />
+                    <path d="M-50,100 Q100,50 250,150 T550,100" fill="none" stroke={isLeader ? 'rgba(251, 191, 36, 0.06)' : 'rgba(14, 165, 233, 0.06)'} strokeWidth="0.5" />
+                    <path d="M-50,110 Q100,60 250,160 T550,110" fill="none" stroke={isLeader ? 'rgba(251, 191, 36, 0.06)' : 'rgba(14, 165, 233, 0.06)'} strokeWidth="0.5" />
                   </svg>
                 </div>
 
                 {/* 2. Massive Telangana State Outline Watermark & Civic-Tech Grid */}
                 <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl flex items-center justify-center opacity-[0.06]">
-                  <svg viewBox="0 0 120 100" className="w-[75%] h-[75%] text-[#fbbf24] fill-none stroke-current stroke-[0.85]">
+                  <svg viewBox="0 0 120 100" className={`w-[75%] h-[75%] ${cardThemeStyles.svgStateColor} fill-none stroke-current stroke-[0.85]`}>
                     <path d="M 58 6 C 72 10, 86 8, 96 16 C 106 24, 110 42, 107 55 C 104 68, 87 82, 72 87 C 57 92, 42 89, 30 82 C 18 75, 10 59, 8 45 C 6 31, 14 17, 27 9 C 40 1, 47 3, 58 6 Z" />
                     <path d="M 58 14 C 69 17, 80 15, 88 22 C 96 29, 99 44, 96 55 C 93 66, 79 78, 67 82 C 55 86, 42 84, 32 78 C 22 72, 15 58, 14 45 C 13 32, 20 20, 31 13 C 42 6, 48 8, 58 14 Z" strokeDasharray="1 3" strokeWidth="0.5" />
-                    <circle cx="58" cy="45" r="1.5" className="fill-[#fbbf24] stroke-none" />
-                    <circle cx="70" cy="50" r="1" className="fill-[#fbbf24]/50 stroke-none" />
-                    <circle cx="50" cy="35" r="1" className="fill-[#fbbf24]/50 stroke-none" />
-                    <circle cx="82" cy="38" r="1.2" className="fill-[#fbbf24]/50 stroke-none" />
-                    <line x1="58" y1="45" x2="70" y2="50" stroke="rgba(251, 191, 36, 0.3)" strokeWidth="0.5" />
-                    <line x1="58" y1="45" x2="50" y2="35" stroke="rgba(251, 191, 36, 0.3)" strokeWidth="0.5" />
-                    <line x1="70" y1="50" x2="82" y2="38" stroke="rgba(251, 191, 36, 0.3)" strokeWidth="0.5" />
+                    <circle cx="58" cy="45" r="1.5" className="fill-current stroke-none" />
+                    <circle cx="70" cy="50" r="1" className="fill-current/50 stroke-none" />
+                    <circle cx="50" cy="35" r="1" className="fill-current/50 stroke-none" />
+                    <circle cx="82" cy="38" r="1.2" className="fill-current/50 stroke-none" />
+                    <line x1="58" y1="45" x2="70" y2="50" stroke={cardThemeStyles.svgLinesColor} strokeWidth="0.5" />
+                    <line x1="58" y1="45" x2="50" y2="35" stroke={cardThemeStyles.svgLinesColor} strokeWidth="0.5" />
+                    <line x1="70" y1="50" x2="82" y2="38" stroke={cardThemeStyles.svgLinesColor} strokeWidth="0.5" />
                   </svg>
                 </div>
 
@@ -519,20 +586,20 @@ export default function DigitalIdCard() {
                 <div className="flex items-start justify-between z-10 w-full border-b border-white/10 pb-1.5 sm:pb-2">
                   <div className="flex items-center gap-1.5 sm:gap-2">
                     {/* Stylized Gold Shield Logo Crest */}
-                    <svg className="w-6 h-6 sm:w-8 sm:h-8 text-[#fbbf24] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="rgba(251, 191, 36, 0.1)" strokeLinecap="round" strokeLinejoin="round"/>
+                    <svg className={`w-6 h-6 sm:w-8 sm:h-8 ${cardThemeStyles.textGold} shrink-0`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill={isLeader ? "rgba(251, 191, 36, 0.1)" : "rgba(14, 165, 233, 0.1)"} strokeLinecap="round" strokeLinejoin="round"/>
                       <path d="M12 8v8M9 11h6" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                     <div className="flex flex-col text-left">
                       <span className="text-[7.5px] xs:text-[8.5px] sm:text-[10px] font-black tracking-[0.12em] text-white uppercase font-sans">TELANGANA RAKSHANA SENA</span>
-                      <span className="text-[5.5px] xs:text-[6px] sm:text-[7px] font-extrabold text-[#fbbf24] uppercase tracking-[0.16em]">VIDYARTHI VIBHAGAM (TSRV)</span>
+                      <span className={`text-[5.5px] xs:text-[6px] sm:text-[7px] font-extrabold ${cardThemeStyles.textGold} uppercase tracking-[0.16em]`}>VIDYARTHI VIBHAGAM (TSRV)</span>
                     </div>
                   </div>
                   <div className="flex flex-col items-end shrink-0">
                     <span className="text-[5px] xs:text-[5.5px] sm:text-[6.5px] font-black text-slate-400 uppercase tracking-widest leading-none">STATE COUNCIL</span>
-                    <div className="mt-0.5 sm:mt-1 px-1 py-0.5 sm:px-1.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/35 text-[5.5px] xs:text-[6px] sm:text-[7px] font-black tracking-wider uppercase flex items-center gap-0.5 sm:gap-1 leading-none">
-                      <span className="w-1 sm:w-1.5 h-1 sm:h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                      {statusObj.text.replace(' Official', '')}
+                    <div className={`mt-0.5 sm:mt-1 px-1 py-0.5 sm:px-1.5 rounded border text-[5.5px] xs:text-[6px] sm:text-[7px] font-black tracking-wider uppercase flex items-center gap-0.5 sm:gap-1 leading-none ${cardThemeStyles.statusClass}`}>
+                      <span className={`w-1 sm:w-1.5 h-1 sm:h-1.5 rounded-full ${isLeader ? 'bg-amber-400' : 'bg-cyan-400'} animate-pulse`} />
+                      {statusObj.text.replace(' Official', '').replace(' Member', '')}
                     </div>
                   </div>
                 </div>
@@ -541,12 +608,12 @@ export default function DigitalIdCard() {
                 <div className="flex items-center gap-2 sm:gap-4 my-auto z-10 w-full">
                   {/* Photo Section (Hero Frame) */}
                   <div className="relative shrink-0 flex flex-col items-center justify-center">
-                    <div className="w-12 h-16 sm:w-[72px] sm:h-[90px] rounded-lg overflow-hidden border border-[#fbbf24]/50 bg-[#06142c] relative p-[2px] sm:p-[3px] shadow-[0_4px_12px_rgba(0,0,0,0.3)] shrink-0">
+                    <div className={`w-12 h-16 sm:w-[72px] sm:h-[90px] rounded-lg overflow-hidden border ${cardThemeStyles.photoBorder} bg-[#06142c] relative p-[2px] sm:p-[3px] shadow-[0_4px_12px_rgba(0,0,0,0.3)] shrink-0`}>
                       {/* ID Border Crop Marks / Security Ticks */}
-                      <div className="absolute top-1 left-1 w-1.5 h-1.5 border-t border-l border-[#fbbf24]/60" />
-                      <div className="absolute top-1 right-1 w-1.5 h-1.5 border-t border-r border-[#fbbf24]/60" />
-                      <div className="absolute bottom-1 left-1 w-1.5 h-1.5 border-b border-l border-[#fbbf24]/60" />
-                      <div className="absolute bottom-1 right-1 w-1.5 h-1.5 border-b border-r border-[#fbbf24]/60" />
+                      <div className={`absolute top-1 left-1 w-1.5 h-1.5 border-t border-l ${cardThemeStyles.borderClass}`} />
+                      <div className={`absolute top-1 right-1 w-1.5 h-1.5 border-t border-r ${cardThemeStyles.borderClass}`} />
+                      <div className={`absolute bottom-1 left-1 w-1.5 h-1.5 border-b border-l ${cardThemeStyles.borderClass}`} />
+                      <div className={`absolute bottom-1 right-1 w-1.5 h-1.5 border-b border-r ${cardThemeStyles.borderClass}`} />
                       
                       {userProfile?.profile_image ? (
                         <img 
@@ -555,14 +622,14 @@ export default function DigitalIdCard() {
                           className="w-full h-full object-cover rounded"
                         />
                       ) : (
-                        <div className="w-full h-full bg-gradient-to-b from-[#0a1b32] to-[#122e50] text-[#fbbf24] font-black text-xl flex flex-col items-center justify-center uppercase select-none rounded">
+                        <div className={`w-full h-full bg-gradient-to-b ${isLeader ? 'from-[#0a1b32] to-[#122e50]' : 'from-[#041d3d] to-[#0d3b66]'} ${cardThemeStyles.textGold} font-black text-xl flex flex-col items-center justify-center uppercase select-none rounded`}>
                           <span className="text-xl sm:text-2xl">{userProfile?.full_name ? userProfile.full_name.split(' ').map(n => n[0]).join('').substring(0, 2) : 'ST'}</span>
-                          <span className="text-[5px] sm:text-[6px] tracking-wider text-slate-400 mt-1 font-sans">MEMBER</span>
+                          <span className="text-[5px] sm:text-[6px] tracking-wider text-slate-400 mt-1 font-sans">{isLeader ? 'OFFICIAL' : 'MEMBER'}</span>
                         </div>
                       )}
                     </div>
                     {/* Corner shield verification tick mark on photo */}
-                    <div className="absolute -bottom-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-[#fbbf24] text-[#071830] flex items-center justify-center border border-[#071830] shadow">
+                    <div className={`absolute -bottom-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 rounded-full ${isLeader ? 'bg-[#fbbf24] text-[#071830]' : 'bg-[#0ea5e9] text-white'} flex items-center justify-center border border-[#071830] shadow`}>
                       <ShieldCheck className="w-2 sm:w-2.5 h-2 sm:h-2.5 fill-current" />
                     </div>
                   </div>
@@ -589,9 +656,9 @@ export default function DigitalIdCard() {
                     </div>
 
                     <div className="mt-0.5 sm:mt-1">
-                      <span className="text-[5px] xs:text-[5.5px] sm:text-[6.5px] font-black text-slate-400 uppercase tracking-widest block font-sans">INSTITUTION</span>
-                      <span className="text-[7.5px] xs:text-[8.5px] sm:text-[9.5px] font-bold text-slate-200 block truncate leading-tight mt-0.5" title={userProfile?.college_name || 'Not Set'}>
-                        {userProfile?.college_name && userProfile.college_name !== 'Not Set' ? userProfile.college_name : 'Not Set'}
+                      <span className="text-[5px] xs:text-[5.5px] sm:text-[6.5px] font-black text-slate-400 uppercase tracking-widest block font-sans">ROLE / DESIGNATION</span>
+                      <span className={`text-[7.5px] xs:text-[8.5px] sm:text-[9.5px] font-bold block truncate leading-tight mt-0.5 ${cardThemeStyles.textGold}`} title={roleDisplay}>
+                        {roleDisplay}
                       </span>
                     </div>
                   </div>
@@ -601,20 +668,20 @@ export default function DigitalIdCard() {
                 <div className="flex items-end justify-between border-t border-white/10 pt-1.5 sm:pt-2 z-10 w-full">
                   <div className="flex flex-col text-left">
                     <span className="text-[5px] xs:text-[5.5px] sm:text-[6.5px] text-slate-400 uppercase tracking-widest">CREDENTIAL NUMBER</span>
-                    <span className="text-[9.5px] xs:text-[10.5px] sm:text-[12px] font-bold font-mono text-[#fbbf24] tracking-wider mt-0.5">
+                    <span className={`text-[9.5px] xs:text-[10.5px] sm:text-[12px] font-bold font-mono ${cardThemeStyles.textGold} tracking-wider mt-0.5`}>
                       {identity?.trsv_member_id}
                     </span>
                   </div>
 
-                  {/* Official VERIFIED MEMBER Seal Badge */}
-                  <div className="flex items-center gap-1 sm:gap-1.5 border border-[#fbbf24]/30 bg-[#fbbf24]/5 px-1 py-0.5 sm:px-2 sm:py-1 rounded-md shadow-sm select-none shrink-0">
-                    <svg className="w-2.5 sm:w-3.5 h-2.5 sm:h-3.5 text-[#fbbf24]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="rgba(251, 191, 36, 0.1)"/>
+                  {/* Official VERIFIED Seal Badge */}
+                  <div className={`flex items-center gap-1 sm:gap-1.5 border px-1 py-0.5 sm:px-2 sm:py-1 rounded-md shadow-sm select-none shrink-0 ${cardThemeStyles.badgeClass}`}>
+                    <svg className="w-2.5 sm:w-3.5 h-2.5 sm:h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill={isLeader ? "rgba(251, 191, 36, 0.1)" : "rgba(14, 165, 233, 0.1)"}/>
                       <path d="m9 12 2 2 4-4" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                     <div className="flex flex-col leading-none text-left">
-                      <span className="text-[6px] sm:text-[7.5px] font-black text-[#fbbf24] uppercase tracking-wider">VERIFIED</span>
-                      <span className="text-[4.5px] sm:text-[5.5px] font-bold text-white uppercase tracking-widest mt-0.5">MEMBER</span>
+                      <span className="text-[6px] sm:text-[7.5px] font-black uppercase tracking-wider">VERIFIED</span>
+                      <span className={`text-[4.5px] sm:text-[5.5px] font-bold uppercase tracking-widest mt-0.5 ${cardThemeStyles.badgeTextColor}`}>{isLeader ? 'EXECUTIVE' : 'MEMBER'}</span>
                     </div>
                   </div>
                 </div>
@@ -622,25 +689,25 @@ export default function DigitalIdCard() {
 
               {/* --- BACK SIDE --- */}
               <div 
-                className={`absolute inset-0 p-3.5 xs:p-4 sm:p-5 flex flex-col justify-between backface-hidden rotate-y-180 bg-[#06142c] rounded-2xl transition-all duration-300 border border-[#fbbf24]/40 ${
+                className={`absolute inset-0 p-3.5 xs:p-4 sm:p-5 flex flex-col justify-between backface-hidden rotate-y-180 rounded-2xl transition-all duration-300 border bg-gradient-to-br ${cardThemeStyles.bgGradient} ${cardThemeStyles.borderClass} ${
                   isFlipped ? 'z-25 opacity-100' : 'z-10 opacity-0 pointer-events-none'
                 }`}
               >
                 {/* Back card Header */}
                 <div className="flex items-center justify-between border-b border-slate-200/10 dark:border-slate-800/50 pb-1.5 sm:pb-2">
                   <div className="flex flex-col text-left">
-                    <span className="text-[7.5px] xs:text-[8px] sm:text-[9px] font-black tracking-widest text-cyan-400 uppercase">TRSV DATABASE GRID</span>
+                    <span className={`text-[7.5px] xs:text-[8px] sm:text-[9px] font-black tracking-widest ${cardThemeStyles.textGold} uppercase`}>TRSV DATABASE GRID</span>
                     <span className="text-[5px] sm:text-[6px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-widest mt-0.5 font-sans">Verification Portal</span>
                   </div>
-                  <div className="w-6 h-4 sm:w-8 sm:h-6 rounded bg-gradient-to-tr from-amber-500 to-amber-300 relative overflow-hidden border border-amber-600/30 shrink-0">
-                    <div className="absolute top-1/2 left-0 right-0 h-[1px] bg-amber-700/40" />
-                    <div className="absolute left-1/2 top-0 bottom-0 w-[1px] bg-amber-700/40" />
+                  <div className={`w-6 h-4 sm:w-8 sm:h-6 rounded relative overflow-hidden border shrink-0 ${isLeader ? 'bg-gradient-to-tr from-amber-500 to-amber-300 border-amber-600/30' : 'bg-gradient-to-tr from-slate-400 to-slate-200 border-slate-500/30'}`}>
+                    <div className="absolute top-1/2 left-0 right-0 h-[1px] bg-slate-800/20" />
+                    <div className="absolute left-1/2 top-0 bottom-0 w-[1px] bg-slate-800/20" />
                   </div>
                 </div>
 
                 {/* Back card Middle: LARGE CENTRAL QR CODE */}
                 <div className="flex flex-col items-center justify-center my-auto gap-1 sm:gap-1.5 py-1 sm:py-1.5">
-                  <div className="p-1 rounded-lg sm:rounded-xl bg-white border border-cyan-500/20 shadow-glow-cyan/15 flex items-center justify-center shrink-0">
+                  <div className={`p-1 rounded-lg sm:rounded-xl bg-white border ${isLeader ? 'border-amber-500/20 shadow-glow-amber/15' : 'border-cyan-500/20 shadow-glow-cyan/15'} flex items-center justify-center shrink-0`}>
                     {qrDataUrl ? (
                       <img 
                         src={qrDataUrl} 
@@ -652,7 +719,7 @@ export default function DigitalIdCard() {
                     )}
                   </div>
                   <div className="flex flex-col items-center gap-0.5 mt-0.5">
-                    <span className="text-[6px] sm:text-[7px] font-black text-cyan-400 tracking-widest uppercase">SCAN TO AUDIT PROFILE</span>
+                    <span className={`text-[6px] sm:text-[7px] font-black ${cardThemeStyles.textGold} tracking-widest uppercase`}>SCAN TO AUDIT PROFILE</span>
                     <span className="text-[4px] sm:text-[5px] text-slate-500 dark:text-slate-400 uppercase tracking-widest font-mono">NEON POSTGRESQL HOSTED LEDGER</span>
                   </div>
                 </div>
