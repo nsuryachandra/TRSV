@@ -560,26 +560,65 @@ select {
 }
 
 /* ================================================================
-   MICRO-MOTION INPUT ICON ANIMATIONS — Premium Glow & Scale (Non-Bouncing)
+   MICRO-MOTION INPUT ICON ANIMATIONS — Elite Focus Radar Transition
    ================================================================ */
 
-.animate-icon-bounce-centered {
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), color 0.25s ease, filter 0.25s ease;
+.animate-icon-bounce-centered,
+.animate-icon-bounce-static {
+  position: relative;
   will-change: transform, filter;
-}
-.peer:focus ~ .animate-icon-bounce-centered {
-  transform: translateY(-50%) scale(1.08);
-  color: #0ea5e9 !important; /* Sky-500 premium color */
-  filter: drop-shadow(0 0 4px rgba(14, 165, 233, 0.45));
 }
 
+/* Center-aligned absolute icons (top-1/2 -translate-y-1/2) */
+.animate-icon-bounce-centered {
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.25s ease, filter 0.25s ease;
+}
+.peer:focus ~ .animate-icon-bounce-centered {
+  transform: translateY(-50%) scale(1.1);
+  color: #0ea5e9 !important; /* Sky-500 premium color */
+  filter: drop-shadow(0 0 5px rgba(14, 165, 233, 0.45));
+}
+
+/* Static/Flex/Top-aligned absolute icons */
 .animate-icon-bounce-static {
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), color 0.25s ease, filter 0.25s ease;
-  will-change: transform, filter;
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.25s ease, filter 0.25s ease;
 }
 .peer:focus ~ .animate-icon-bounce-static {
-  transform: scale(1.08);
+  transform: scale(1.1);
   color: #0ea5e9 !important; /* Sky-500 premium color */
-  filter: drop-shadow(0 0 4px rgba(14, 165, 233, 0.45));
+  filter: drop-shadow(0 0 5px rgba(14, 165, 233, 0.45));
+}
+
+/* ── Radar Ring Expansion Pseudo-element ── */
+.animate-icon-bounce-centered::after,
+.animate-icon-bounce-static::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 28px;
+  height: 28px;
+  border: 1.5px solid rgba(14, 165, 233, 0.65);
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(0.5);
+  will-change: transform, opacity;
+}
+
+.peer:focus ~ .animate-icon-bounce-centered::after,
+.peer:focus ~ .animate-icon-bounce-static::after {
+  animation: radar-ripple 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes radar-ripple {
+  0% {
+    transform: translate(-50%, -50%) scale(0.5);
+    opacity: 0.85;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.45);
+    opacity: 0;
+  }
 }
 
