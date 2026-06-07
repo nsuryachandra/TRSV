@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import ThreeTelanganaMap from '../components/ThreeTelanganaMap';
 
 const formatRole = (role, tier) => {
-  if (role === 'supreme_admin') return 'TRSV Founder';
+  if (role === 'supreme_admin') return 'TVRS Founder';
   if (role === 'president' || role === 'state_president') {
     if (tier === 'state') return 'State President';
     if (tier === 'hub') return 'President';
@@ -350,7 +350,7 @@ export default function Districts() {
                 size="sm"
                 className="w-full flex items-center justify-center gap-1 text-[10px] font-extrabold uppercase py-2.5"
               >
-                Raise a Complaint <ArrowRight className="w-3 h-3" />
+                Get Help <ArrowRight className="w-3 h-3" />
               </PremiumButton>
             </div>
           </GlassCard>
@@ -464,7 +464,7 @@ export default function Districts() {
               const leadName = dist.coordinator_name || 'Vacant Coordinate';
               let leadRoleLabel = 'Board Assignment Pending';
               if (dist.coordinator_role) {
-                if (dist.coordinator_role === 'supreme_admin') leadRoleLabel = 'TRSV Founder';
+                if (dist.coordinator_role === 'supreme_admin') leadRoleLabel = 'TVRS Founder';
                 else if (dist.coordinator_role === 'president' || dist.coordinator_role === 'state_president') leadRoleLabel = 'State President';
                 else if (dist.coordinator_role === 'general_secretary') leadRoleLabel = 'General Secretary';
                 else leadRoleLabel = dist.coordinator_role.replace(/_/g, ' ').toUpperCase();

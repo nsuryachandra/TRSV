@@ -17,7 +17,7 @@ export default function Features() {
     },
     {
       icon: <MessageSquare className="w-8 h-8 text-sky-500" />,
-      title: 'Holographic Complaint Registry',
+      title: 'Holographic Issue Registry',
       details: 'A multi-tier ticketing system that accepts verified files and logs. Tickets auto-escalate from campus nodes to district boards within designated timeframe boundaries.',
       badge: 'Statewide'
     },
@@ -116,7 +116,7 @@ export default function Features() {
             Access The Student Governance Network
           </h2>
           <p className="text-sm sm:text-base text-slate-550 dark:text-slate-400 leading-relaxed max-w-xl">
-            Register your profile, file secure complaints, review resolved ticket metrics, or connect with active state district leads.
+            Register your profile, file secure issues, review resolved ticket metrics, or connect with active state district leads.
           </p>
           <div className="flex items-center gap-4">
             <PremiumButton 

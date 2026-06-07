@@ -64,7 +64,7 @@ export default function ComplaintFilters({ onFilterChange, constituencies = [], 
 
         {/* Category */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Complaint Category</label>
+          <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Issue Category</label>
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}

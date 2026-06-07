@@ -9,18 +9,18 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: 'TRSV Governance',
-        short_name: 'TRSV',
-        description: 'Statewide Governance & Issue Resolution Network',
+        name: 'TVRS Governance',
+        short_name: 'TVRS',
+        description: 'Statewide Student Governance & Issue Resolution Network',
         theme_color: '#0f172a',
         icons: [
           {
-            src: '/trsv.jpeg',
+            src: '/tvrs.jpeg',
             sizes: '192x192',
             type: 'image/jpeg'
           },
           {
-            src: '/trsv.jpeg',
+            src: '/tvrs.jpeg',
             sizes: '512x512',
             type: 'image/jpeg'
           }

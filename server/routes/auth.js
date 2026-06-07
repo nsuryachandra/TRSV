@@ -5,6 +5,7 @@ import path from 'path';
 import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 import { query } from '../config/db.js';
+import { resolveConstituencyWithAI } from '../services/aiMapping.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -199,23 +200,65 @@ router.post('/signup', async (req, res) => {
       return res.status(400).json({ success: false, message: 'An account with this username already exists.' });
     }
 
-    // 1. Resolve collegeId if collegeName is provided dynamically
+    // 1. Resolve collegeId and constituencyId using Groq AI
     let resolvedCollegeId = collegeId || null;
+    let resolvedConstituencyId = constituencyId ? parseInt(constituencyId) : null;
 
-    if (!resolvedCollegeId && collegeName && constituencyId) {
+    if (!resolvedCollegeId && collegeName) {
       const trimmedName = collegeName.trim();
+      
+      // Check if college already exists
       const colCheck = await query(
-        'SELECT id FROM colleges WHERE LOWER(college_name) = LOWER($1) AND constituency_id = $2',
-        [trimmedName, parseInt(constituencyId)]
+        'SELECT id, constituency_id FROM colleges WHERE LOWER(college_name) = LOWER($1)',
+        [trimmedName]
       );
 
       if (colCheck.rows.length > 0) {
         resolvedCollegeId = colCheck.rows[0].id;
+        if (!resolvedConstituencyId) {
+          resolvedConstituencyId = colCheck.rows[0].constituency_id;
+        }
       } else {
-        // Create new academic node on the fly!
+        // If constituencyId is missing, resolve via AI
+        if (!resolvedConstituencyId) {
+          try {
+            const constList = await query('SELECT id, constituency_name, district FROM constituencies');
+            const aiResult = await resolveConstituencyWithAI(trimmedName, constList.rows);
+            if (aiResult) {
+              if (aiResult.is_new) {
+                // Register new constituency on the fly
+                const newConst = await query(
+                  "INSERT INTO constituencies (constituency_name, district, status) VALUES ($1, $2, 'active') ON CONFLICT (constituency_name) DO UPDATE SET status = 'active' RETURNING id",
+                  [aiResult.constituency_name, aiResult.district || 'Statewide']
+                );
+                resolvedConstituencyId = newConst.rows[0].id;
+              } else {
+                const matched = constList.rows.find(c => c.constituency_name === aiResult.constituency_name);
+                if (matched) {
+                  resolvedConstituencyId = matched.id;
+                } else {
+                  const constDbCheck = await query('SELECT id FROM constituencies WHERE LOWER(constituency_name) = LOWER($1)', [aiResult.constituency_name]);
+                  if (constDbCheck.rows.length > 0) {
+                    resolvedConstituencyId = constDbCheck.rows[0].id;
+                  }
+                }
+              }
+            }
+          } catch (err) {
+            console.error('🚨 [AI Mapping Error] Failed to resolve constituency via AI:', err.message);
+          }
+        }
+
+        // Fallback to "Upcoming Area" if not resolved
+        if (!resolvedConstituencyId) {
+          const fallbackRes = await query("SELECT id FROM constituencies WHERE constituency_name = 'Upcoming Area' OR constituency_name = 'Upcoming Area Node' LIMIT 1");
+          resolvedConstituencyId = fallbackRes.rows.length > 0 ? fallbackRes.rows[0].id : null;
+        }
+
+        // Create new academic college node
         const newCol = await query(
           'INSERT INTO colleges (college_name, constituency_id) VALUES ($1, $2) RETURNING id',
-          [trimmedName, parseInt(constituencyId)]
+          [trimmedName, resolvedConstituencyId]
         );
         resolvedCollegeId = newCol.rows[0].id;
       }
@@ -232,10 +275,24 @@ router.post('/signup', async (req, res) => {
     const passwordHash = hashPassword(password);
 
     // Insert new user record into Neon Postgres
-    const insertResult = await query(
+    await query(
       `INSERT INTO users (id, full_name, email, password_hash, role, constituency_id, college_id, phone, profile_image, verified) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
-      [userId, fullName, cleanEmail, passwordHash, userRole, constituencyId || null, resolvedCollegeId, phone || null, profileImage || null, true]
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+      [userId, fullName, cleanEmail, passwordHash, userRole, resolvedConstituencyId || null, resolvedCollegeId, phone || null, profileImage || null, true]
+    );
+
+    // Fetch hydrated profile info including parent hub
+    const profile = await query(
+      `SELECT u.*, con.constituency_name, con.district, con.parent_id as constituency_parent_id,
+              col.college_name,
+              p.constituency_name as parent_name,
+              COALESCE(p.constituency_name, con.constituency_name, 'Upcoming Area') as hub_name
+       FROM users u
+       LEFT JOIN constituencies con ON u.constituency_id = con.id
+       LEFT JOIN constituencies p ON con.parent_id = p.id
+       LEFT JOIN colleges col ON u.college_id = col.id
+       WHERE u.id = $1`,
+      [userId]
     );
 
     // Generate JWT token with 7-day expiry
@@ -252,7 +309,7 @@ router.post('/signup', async (req, res) => {
       `Student profile created and authenticated locally via JWT`
     ]);
 
-    res.status(201).json({ success: true, message: 'Identity registered and verified successfully.', token, user: insertResult.rows[0] });
+    res.status(201).json({ success: true, message: 'Identity registered and verified successfully.', token, user: profile.rows[0] });
   } catch (error) {
     console.error('🚨 [Local Signup Error]:', error.message);
     res.status(500).json({ success: false, message: 'Database registration failed.', error: error.message });
@@ -310,48 +367,7 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    // 1.5 Dynamic test user login support
-    if (cleanEmail === 'test_user' && password === 'userpass') {
-      let testUserQuery = await query('SELECT * FROM users WHERE LOWER(email) = LOWER($1)', ['test_user']);
-      let testUser;
-      if (testUserQuery.rows.length === 0) {
-        const conRes = await query('SELECT id FROM constituencies LIMIT 1');
-        const colRes = await query('SELECT id FROM colleges LIMIT 1');
-        const constituencyId = conRes.rows.length > 0 ? conRes.rows[0].id : null;
-        const collegeId = colRes.rows.length > 0 ? colRes.rows[0].id : null;
-
-        const insertRes = await query(`
-          INSERT INTO users (id, full_name, email, role, verified, constituency_id, college_id)
-          VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *
-        `, ['TEST_USER_UID', 'Test Complainant', 'test_user', 'student', true, constituencyId, collegeId]);
-        testUser = insertRes.rows[0];
-      } else {
-        testUser = testUserQuery.rows[0];
-      }
-
-      const token = jwt.sign(
-        { uid: testUser.id, email: testUser.email, role: testUser.role, name: testUser.full_name },
-        JWT_SECRET,
-        { expiresIn: '7d' }
-      );
-
-      const profile = await query(
-        `SELECT u.*, con.constituency_name, con.district, con.parent_id as constituency_parent_id, col.college_name 
-         FROM users u
-         LEFT JOIN constituencies con ON u.constituency_id = con.id
-         LEFT JOIN colleges col ON u.college_id = col.id
-         WHERE u.id = $1`,
-        [testUser.id]
-      );
-
-      await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details) VALUES ($1, $2, $3)', [
-        testUser.id,
-        'LOGIN',
-        'Test student logged in dynamically'
-      ]);
-
-      return res.json({ success: true, token, user: profile.rows[0] });
-    }
+    // Dynamic test user login support has been permanently disabled for production security.
 
     // 2. Query standard student profile from PostgreSQL
     const userQuery = await query('SELECT * FROM users WHERE LOWER(email) = LOWER($1)', [cleanEmail]);
@@ -380,9 +396,13 @@ router.post('/login', async (req, res) => {
 
     // Fetch complete hydrated profile
     const profile = await query(
-      `SELECT u.*, con.constituency_name, con.district, con.parent_id as constituency_parent_id, col.college_name 
+      `SELECT u.*, con.constituency_name, con.district, con.parent_id as constituency_parent_id,
+              col.college_name,
+              p.constituency_name as parent_name,
+              COALESCE(p.constituency_name, con.constituency_name, 'Upcoming Area') as hub_name
        FROM users u
        LEFT JOIN constituencies con ON u.constituency_id = con.id
+       LEFT JOIN constituencies p ON con.parent_id = p.id
        LEFT JOIN colleges col ON u.college_id = col.id
        WHERE u.id = $1`,
       [user.id]
@@ -420,9 +440,13 @@ router.get('/profile', async (req, res) => {
 
     // Retrieve user and join location names from PostgreSQL
     const profile = await query(
-      `SELECT u.*, con.constituency_name, con.district, con.parent_id as constituency_parent_id, col.college_name 
+      `SELECT u.*, con.constituency_name, con.district, con.parent_id as constituency_parent_id,
+              col.college_name,
+              p.constituency_name as parent_name,
+              COALESCE(p.constituency_name, con.constituency_name, 'Upcoming Area') as hub_name
        FROM users u
        LEFT JOIN constituencies con ON u.constituency_id = con.id
+       LEFT JOIN constituencies p ON con.parent_id = p.id
        LEFT JOIN colleges col ON u.college_id = col.id
        WHERE u.id = $1`,
       [decodedUser.uid]
@@ -483,25 +507,66 @@ router.post('/update-college', async (req, res) => {
     const decodedUser = jwt.verify(token, JWT_SECRET);
     const { collegeName, constituencyId } = req.body;
 
-    if (!collegeName || !constituencyId) {
-      return res.status(400).json({ success: false, message: 'College name and constituency mapping are required.' });
+    if (!collegeName) {
+      return res.status(400).json({ success: false, message: 'College name is required.' });
     }
 
-    // Resolve or create collegeId
+    // Resolve or create collegeId and constituencyId using Groq AI
     let resolvedCollegeId = null;
+    let resolvedConstituencyId = constituencyId ? parseInt(constituencyId) : null;
     const trimmedName = collegeName.trim();
+
+    // Check if college already exists
     const colCheck = await query(
-      'SELECT id FROM colleges WHERE LOWER(college_name) = LOWER($1) AND constituency_id = $2',
-      [trimmedName, parseInt(constituencyId)]
+      'SELECT id, constituency_id FROM colleges WHERE LOWER(college_name) = LOWER($1)',
+      [trimmedName]
     );
 
     if (colCheck.rows.length > 0) {
       resolvedCollegeId = colCheck.rows[0].id;
+      if (!resolvedConstituencyId) {
+        resolvedConstituencyId = colCheck.rows[0].constituency_id;
+      }
     } else {
-      // Create new academic node on the fly!
+      // Resolve constituency using AI if not provided or to verify
+      if (!resolvedConstituencyId) {
+        try {
+          const constList = await query('SELECT id, constituency_name, district FROM constituencies');
+          const aiResult = await resolveConstituencyWithAI(trimmedName, constList.rows);
+          if (aiResult) {
+            if (aiResult.is_new) {
+              const newConst = await query(
+                "INSERT INTO constituencies (constituency_name, district, status) VALUES ($1, $2, 'active') ON CONFLICT (constituency_name) DO UPDATE SET status = 'active' RETURNING id",
+                [aiResult.constituency_name, aiResult.district || 'Statewide']
+              );
+              resolvedConstituencyId = newConst.rows[0].id;
+            } else {
+              const matched = constList.rows.find(c => c.constituency_name === aiResult.constituency_name);
+              if (matched) {
+                resolvedConstituencyId = matched.id;
+              } else {
+                const constDbCheck = await query('SELECT id FROM constituencies WHERE LOWER(constituency_name) = LOWER($1)', [aiResult.constituency_name]);
+                if (constDbCheck.rows.length > 0) {
+                  resolvedConstituencyId = constDbCheck.rows[0].id;
+                }
+              }
+            }
+          }
+        } catch (err) {
+          console.error('🚨 [AI Mapping Error] Failed to resolve constituency via AI:', err.message);
+        }
+      }
+
+      // Fallback
+      if (!resolvedConstituencyId) {
+        const fallbackRes = await query("SELECT id FROM constituencies WHERE constituency_name = 'Upcoming Area' OR constituency_name = 'Upcoming Area Node' LIMIT 1");
+        resolvedConstituencyId = fallbackRes.rows.length > 0 ? fallbackRes.rows[0].id : null;
+      }
+
+      // Create new college node
       const newCol = await query(
         'INSERT INTO colleges (college_name, constituency_id) VALUES ($1, $2) RETURNING id',
-        [trimmedName, parseInt(constituencyId)]
+        [trimmedName, resolvedConstituencyId]
       );
       resolvedCollegeId = newCol.rows[0].id;
     }
@@ -511,14 +576,18 @@ router.post('/update-college', async (req, res) => {
       `UPDATE users 
        SET college_id = $1, constituency_id = $2, updated_at = NOW() 
        WHERE id = $3`,
-      [resolvedCollegeId, parseInt(constituencyId), decodedUser.uid]
+      [resolvedCollegeId, resolvedConstituencyId, decodedUser.uid]
     );
 
     // Fetch refreshed complete profile
     const profile = await query(
-      `SELECT u.*, con.constituency_name, con.district, col.college_name 
+      `SELECT u.*, con.constituency_name, con.district, con.parent_id as constituency_parent_id,
+              col.college_name,
+              p.constituency_name as parent_name,
+              COALESCE(p.constituency_name, con.constituency_name, 'Upcoming Area') as hub_name
        FROM users u
        LEFT JOIN constituencies con ON u.constituency_id = con.id
+       LEFT JOIN constituencies p ON con.parent_id = p.id
        LEFT JOIN colleges col ON u.college_id = col.id
        WHERE u.id = $1`,
       [decodedUser.uid]
@@ -528,7 +597,7 @@ router.post('/update-college', async (req, res) => {
     await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details) VALUES ($1, $2, $3)', [
       decodedUser.uid,
       'PROFILE_MAP_UPDATE',
-      `Campus pinned dynamically: ${trimmedName} bound to constituency #${constituencyId}`
+      `Campus pinned dynamically: ${trimmedName} bound to constituency #${resolvedConstituencyId}`
     ]);
 
     res.json({ success: true, message: 'Campus geo-coordinates saved successfully!', user: profile.rows[0] });
@@ -746,9 +815,27 @@ router.post('/simplified-entry', async (req, res) => {
     // Check if user already exists
     let userQuery = await query('SELECT * FROM users WHERE LOWER(email) = LOWER($1)', [email]);
     let user;
+    let clientSecretToReturn = null;
 
     if (userQuery.rows.length > 0) {
       user = userQuery.rows[0];
+      if (type === 'username') {
+        const incomingSecret = req.body.clientSecret;
+        if (user.password_hash) {
+          const isSecretValid = verifyPassword(incomingSecret || '', user.password_hash);
+          if (!isSecretValid) {
+            return res.status(401).json({ 
+              success: false, 
+              message: 'This username is registered on another device. Please choose a different username.' 
+            });
+          }
+        } else {
+          // Legacy user with no password hash (device secret) setup
+          clientSecretToReturn = crypto.randomUUID() + crypto.randomBytes(8).toString('hex');
+          const hashedSecret = hashPassword(clientSecretToReturn);
+          await query('UPDATE users SET password_hash = $1 WHERE id = $2', [hashedSecret, user.id]);
+        }
+      }
     } else {
       // Register on the fly
       const userId = crypto.randomUUID();
@@ -757,10 +844,16 @@ router.post('/simplified-entry', async (req, res) => {
       const constituencyId = null;
       const collegeId = null;
 
+      let passwordHash = null;
+      if (type === 'username') {
+        clientSecretToReturn = crypto.randomUUID() + crypto.randomBytes(8).toString('hex');
+        passwordHash = hashPassword(clientSecretToReturn);
+      }
+
       const insertResult = await query(
-        `INSERT INTO users (id, full_name, email, role, verified, constituency_id, college_id) 
-         VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
-        [userId, fullName, email, 'student', true, constituencyId, collegeId]
+        `INSERT INTO users (id, full_name, email, role, verified, constituency_id, college_id, password_hash) 
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+        [userId, fullName, email, 'student', true, constituencyId, collegeId, passwordHash]
       );
       user = insertResult.rows[0];
 
@@ -781,9 +874,13 @@ router.post('/simplified-entry', async (req, res) => {
 
     // Fetch full profile info
     const profile = await query(
-      `SELECT u.*, con.constituency_name, con.district, con.parent_id as constituency_parent_id, col.college_name 
+      `SELECT u.*, con.constituency_name, con.district, con.parent_id as constituency_parent_id,
+              col.college_name,
+              p.constituency_name as parent_name,
+              COALESCE(p.constituency_name, con.constituency_name, 'Upcoming Area') as hub_name
        FROM users u
        LEFT JOIN constituencies con ON u.constituency_id = con.id
+       LEFT JOIN constituencies p ON con.parent_id = p.id
        LEFT JOIN colleges col ON u.college_id = col.id
        WHERE u.id = $1`,
       [user.id]
@@ -799,7 +896,8 @@ router.post('/simplified-entry', async (req, res) => {
       success: true, 
       token, 
       user: profile.rows[0],
-      username: targetUsername 
+      username: targetUsername,
+      clientSecret: clientSecretToReturn
     });
   } catch (error) {
     console.error('🚨 [Simplified Entry Error]:', error.message);

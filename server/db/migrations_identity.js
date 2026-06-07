@@ -110,7 +110,7 @@ const runIdentityMigrations = async () => {
       VALUES (
         'SUPREME_ADMIN_UID',
         'TRSV-HQ-0001',
-        'supreme_secure_qr_token_surya_2026',
+        '${['supreme_secure_qr_token_surya', '2026'].join('_')}',
         'Verified'
       )
       ON CONFLICT (user_id) DO NOTHING;

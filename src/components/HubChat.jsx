@@ -4,14 +4,22 @@ import { Send, Users, Shield, MessageSquare, Search, Info, ArrowLeft } from 'luc
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 
-export default function HubChat({ user }) {
+export default function HubChat({ user, chatMode = 'admin' }) {
   const { logout } = useAuth();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [currentChannel, setCurrentChannel] = useState(() => {
+    if (chatMode === 'social' || user?.role === 'student') {
+      return `Social-Sector-${user.hub_name || 'Upcoming Area'}`;
+    }
     return localStorage.getItem('trsv_active_chat_channel') || 'GH-Global';
   });
-  const [mobileView, setMobileView] = useState('channels'); // 'channels' or 'chat'
+  const [mobileView, setMobileView] = useState(() => {
+    if (chatMode === 'social' || user?.role === 'student') {
+      return 'chat';
+    }
+    return 'channels';
+  }); // 'channels' or 'chat'
   
   const handleSelectChannel = (channelId) => {
     setCurrentChannel(channelId);
@@ -24,8 +32,15 @@ export default function HubChat({ user }) {
   const [socketConnected, setSocketConnected] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem('trsv_active_chat_channel', currentChannel);
-  }, [currentChannel]);
+    if (chatMode === 'social' || user?.role === 'student') {
+      const socialChannel = `Social-Sector-${user.hub_name || 'Upcoming Area'}`;
+      if (currentChannel !== socialChannel) {
+        setCurrentChannel(socialChannel);
+      }
+    } else {
+      localStorage.setItem('trsv_active_chat_channel', currentChannel);
+    }
+  }, [currentChannel, user?.role, user?.hub_name, chatMode]);
 
   // Editing state
   const [editingMessageId, setEditingMessageId] = useState(null);
@@ -248,158 +263,175 @@ export default function HubChat({ user }) {
     };
   };
 
+  const showSidebar = chatMode !== 'social' && user?.role !== 'student';
+  const socialNeedsLocation = (chatMode === 'social' || user?.role === 'student') && (!user?.hub_name || user.hub_name === 'Upcoming Area' || !user?.constituency_name || !user?.constituency_id);
+
   return (
     <div className="flex flex-col lg:flex-row gap-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 sm:p-6 flex-1 min-h-0 shadow-premium-light dark:shadow-premium-dark overflow-hidden">
       
       {/* SIDEBAR: Channels & Switcher */}
-      <div className={`w-full lg:w-[280px] shrink-0 lg:border-r border-slate-200 dark:border-slate-800/60 lg:pr-6 flex flex-col h-full overflow-hidden ${
-        mobileView === 'channels' ? 'flex' : 'hidden lg:flex'
-      }`}>
-        <div className="pb-4 border-b border-slate-200 dark:border-slate-800/40 flex items-center gap-2.5 shrink-0 h-[57px]">
-          <div className="p-1.5 rounded-xl bg-cyan-500/10 dark:bg-cyan-500/10 border border-cyan-200 dark:border-cyan-500/20 shadow-sm">
-            <MessageSquare className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
+      {showSidebar && (
+        <div className={`w-full lg:w-[280px] shrink-0 lg:border-r border-slate-200 dark:border-slate-800/60 lg:pr-6 flex flex-col h-full overflow-hidden ${
+          mobileView === 'channels' ? 'flex' : 'hidden lg:flex'
+        }`}>
+          <div className="pb-4 border-b border-slate-200 dark:border-slate-800/40 flex items-center gap-2.5 shrink-0 h-[57px]">
+            <div className="p-1.5 rounded-xl bg-cyan-500/10 dark:bg-cyan-500/10 border border-cyan-200 dark:border-cyan-500/20 shadow-sm">
+              <MessageSquare className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
+            </div>
+            <h3 className="font-black text-slate-800 dark:text-slate-100 text-sm tracking-wide uppercase leading-none">Messenger</h3>
           </div>
-          <h3 className="font-black text-slate-800 dark:text-slate-100 text-sm tracking-wide uppercase leading-none">Messenger</h3>
-        </div>
+          {/* Channels List */}
+          <div className="space-y-5 flex-1 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800 scrollbar-track-transparent">
+            {/* Main Lounges */}
+            <div className="space-y-2">
+              {/* Global channel */}
+              {user.role !== 'student' && (
+                <button
+                  onClick={() => handleSelectChannel('GH-Global')}
+                  className={`w-full text-left p-3.5 rounded-2xl flex items-center gap-3.5 transition-all duration-300 cursor-pointer border ${
+                    currentChannel === 'GH-Global'
+                      ? 'bg-sky-50 dark:bg-cyan-500/10 border-sky-200 dark:border-cyan-500/30 text-sky-900 dark:text-cyan-200 shadow-sm font-extrabold'
+                      : 'bg-slate-50/50 dark:bg-slate-950/20 border-slate-100 dark:border-slate-800/50 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/40 hover:text-slate-855 hover:text-slate-800 dark:hover:text-slate-200 hover:border-slate-200 dark:hover:border-slate-700/30'
+                  }`}
+                >
+                  <div className={`p-2.5 rounded-xl transition-all duration-300 ${
+                    currentChannel === 'GH-Global' ? 'bg-cyan-100 dark:bg-cyan-500/20 text-cyan-755 dark:text-cyan-400' : 'bg-slate-200/50 dark:bg-slate-800 text-slate-500'
+                  }`}>
+                    <Users className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0 flex-1 text-left">
+                    <div className="font-extrabold text-sm tracking-wide">Statewide Lounge</div>
+                    <div className="text-[10px] text-slate-450 dark:text-slate-500 mt-0.5">All State Admins</div>
+                  </div>
+                </button>
+              )}
 
-        {/* Channels List */}
-        <div className="space-y-5 flex-1 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800 scrollbar-track-transparent">
-          {/* Main Lounges */}
-          <div className="space-y-2">
-            {/* Global channel */}
-            <button
-              onClick={() => handleSelectChannel('GH-Global')}
-              className={`w-full text-left p-3.5 rounded-2xl flex items-center gap-3.5 transition-all duration-300 cursor-pointer border ${
-                currentChannel === 'GH-Global'
-                  ? 'bg-sky-50 dark:bg-cyan-500/10 border-sky-200 dark:border-cyan-500/30 text-sky-900 dark:text-cyan-200 shadow-sm font-extrabold'
-                  : 'bg-slate-50/50 dark:bg-slate-950/20 border-slate-100 dark:border-slate-800/50 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/40 hover:text-slate-800 dark:hover:text-slate-200 hover:border-slate-200 dark:hover:border-slate-700/30'
-              }`}
-            >
-              <div className={`p-2.5 rounded-xl transition-all duration-300 ${
-                currentChannel === 'GH-Global' ? 'bg-cyan-100 dark:bg-cyan-500/20 text-cyan-755 dark:text-cyan-400' : 'bg-slate-200/50 dark:bg-slate-800 text-slate-500'
-              }`}>
-                <Users className="w-4 h-4" />
-              </div>
-              <div className="min-w-0 flex-1 text-left">
-                <div className="font-extrabold text-sm tracking-wide">Statewide Lounge</div>
-                <div className="text-[10px] text-slate-450 dark:text-slate-500 mt-0.5">All State Admins</div>
-              </div>
-            </button>
+              {/* Regular Admin Constituency channel */}
+              {user.role !== 'student' && !isDevOrSupreme && user.constituency_name && (
+                <button
+                  onClick={() => handleSelectChannel(`GH-Constituency-${user.constituency_name}`)}
+                  className={`w-full text-left p-3.5 rounded-2xl flex items-center gap-3.5 transition-all duration-300 cursor-pointer border ${
+                    currentChannel === `GH-Constituency-${user.constituency_name}`
+                      ? 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30 text-emerald-900 dark:text-emerald-250 shadow-sm font-extrabold'
+                      : 'bg-slate-50/50 dark:bg-slate-950/20 border-slate-100 dark:border-slate-800/50 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/40 hover:text-slate-800 dark:hover:text-emerald-250 hover:border-slate-200 dark:hover:border-slate-700/30'
+                  }`}
+                >
+                  <div className={`p-2.5 rounded-xl transition-all duration-300 ${
+                    currentChannel === `GH-Constituency-${user.constituency_name}` ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-450' : 'bg-slate-200/50 dark:bg-slate-800 text-slate-500'
+                  }`}>
+                    <Shield className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0 flex-1 text-left">
+                    <div className="font-extrabold text-sm tracking-wide">{user.constituency_name} Chat</div>
+                    <div className="text-[10px] text-slate-450 dark:text-slate-500 mt-0.5">Local Area Group</div>
+                  </div>
+                </button>
+              )}
+            </div>
 
-            {/* Regular Admin Constituency channel */}
-            {!isDevOrSupreme && user.constituency_name && (
-              <button
-                onClick={() => handleSelectChannel(`GH-Constituency-${user.constituency_name}`)}
-                className={`w-full text-left p-3.5 rounded-2xl flex items-center gap-3.5 transition-all duration-300 cursor-pointer border ${
-                  currentChannel === `GH-Constituency-${user.constituency_name}`
-                    ? 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30 text-emerald-900 dark:text-emerald-250 shadow-sm font-extrabold'
-                    : 'bg-slate-50/50 dark:bg-slate-950/20 border-slate-100 dark:border-slate-800/50 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/40 hover:text-slate-800 dark:hover:text-slate-200 hover:border-slate-200 dark:hover:border-slate-700/30'
-                }`}
-              >
-                <div className={`p-2.5 rounded-xl transition-all duration-300 ${
-                  currentChannel === `GH-Constituency-${user.constituency_name}` ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-450' : 'bg-slate-200/50 dark:bg-slate-800 text-slate-500'
-                }`}>
-                  <Shield className="w-4 h-4" />
+            {/* Area Switcher (Dev/Supreme or Parent Hub leaders - Leadership only) */}
+            {user.role !== 'student' && (isDevOrSupreme || filteredConstituencies.length > 0) && (
+              <div className="pt-3 flex flex-col border-t border-slate-200 dark:border-slate-800/50 gap-2.5">
+                <span className="text-[9px] font-black text-rose-655 dark:text-rose-400/90 uppercase tracking-widest px-1 block">
+                  {isDevOrSupreme ? 'All Area Switcher' : 'Sub-Area Switcher'}
+                </span>
+                
+                {/* Search bar */}
+                <div className="relative">
+                  <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
+                  <input
+                    type="text"
+                    placeholder="Search Area..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:border-rose-500/40 focus:ring-1 focus:ring-rose-500/10 text-xs rounded-xl py-2.5 pl-9 pr-3 text-slate-800 dark:text-slate-200 focus:outline-none placeholder-slate-400 dark:placeholder-slate-650"
+                  />
                 </div>
-                <div className="min-w-0 flex-1 text-left">
-                  <div className="font-extrabold text-sm tracking-wide">{user.constituency_name} Chat</div>
-                  <div className="text-[10px] text-slate-450 dark:text-slate-500 mt-0.5">Local Area Group</div>
+
+                {/* Scrollable list */}
+                <div className="space-y-1.5 overflow-y-auto max-h-[160px] pr-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
+                  {filteredConstituencies.map((c) => {
+                    const channelKey = `GH-Constituency-${c.constituency_name}`;
+                    const isActive = currentChannel === channelKey;
+                    return (
+                      <button
+                        key={c.id}
+                        onClick={() => handleSelectChannel(channelKey)}
+                        className={`w-full text-left py-2.5 px-3.5 rounded-xl text-[11px] font-semibold transition-all duration-300 flex items-center justify-between cursor-pointer border ${
+                          isActive
+                            ? 'bg-rose-50 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30 text-rose-850 dark:text-rose-300 shadow-sm'
+                            : 'bg-slate-50 dark:bg-slate-905/10 border-transparent text-slate-550 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/30 hover:text-slate-800 dark:hover:text-slate-200 hover:border-slate-200 dark:hover:border-slate-700/20'
+                        }`}
+                      >
+                        <span className="truncate">📍 {c.constituency_name}</span>
+                        {isActive && <span className="w-1.5 h-1.5 rounded-full bg-rose-500 dark:bg-rose-400 animate-pulse shrink-0 ml-1.5" />}
+                      </button>
+                    );
+                  })}
+                  {filteredConstituencies.length === 0 && (
+                    <div className="text-[11px] text-slate-400 dark:text-slate-500 text-center py-4">No area match.</div>
+                  )}
                 </div>
-              </button>
+              </div>
             )}
           </div>
 
-
-
-          {/* Area Switcher (Dev/Supreme or Parent Hub leaders) */}
-          {(isDevOrSupreme || filteredConstituencies.length > 0) && (
-            <div className="pt-3 flex flex-col border-t border-slate-200 dark:border-slate-800/50 gap-2.5">
-              <span className="text-[9px] font-black text-rose-655 dark:text-rose-400/90 uppercase tracking-widest px-1 block">
-                {isDevOrSupreme ? 'All Area Switcher' : 'Sub-Area Switcher'}
-              </span>
-              
-              {/* Search bar */}
-              <div className="relative">
-                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
-                <input
-                  type="text"
-                  placeholder="Search Area..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:border-rose-500/40 focus:ring-1 focus:ring-rose-500/10 text-xs rounded-xl py-2.5 pl-9 pr-3 text-slate-800 dark:text-slate-200 focus:outline-none placeholder-slate-400 dark:placeholder-slate-650"
-                />
-              </div>
-
-              {/* Scrollable list */}
-              <div className="space-y-1.5 overflow-y-auto max-h-[160px] pr-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
-                {filteredConstituencies.map((c) => {
-                  const channelKey = `GH-Constituency-${c.constituency_name}`;
-                  const isActive = currentChannel === channelKey;
-                  return (
-                    <button
-                      key={c.id}
-                      onClick={() => handleSelectChannel(channelKey)}
-                      className={`w-full text-left py-2.5 px-3.5 rounded-xl text-[11px] font-semibold transition-all duration-300 flex items-center justify-between cursor-pointer border ${
-                        isActive
-                          ? 'bg-rose-50 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30 text-rose-850 dark:text-rose-300 shadow-sm'
-                          : 'bg-slate-50 dark:bg-slate-900/10 border-transparent text-slate-550 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/30 hover:text-slate-800 dark:hover:text-slate-200 hover:border-slate-200 dark:hover:border-slate-705/20'
-                      }`}
-                    >
-                      <span className="truncate">📍 {c.constituency_name}</span>
-                      {isActive && <span className="w-1.5 h-1.5 rounded-full bg-rose-500 dark:bg-rose-400 animate-pulse shrink-0 ml-1.5" />}
-                    </button>
-                  );
-                })}
-                {filteredConstituencies.length === 0 && (
-                  <div className="text-[11px] text-slate-400 dark:text-slate-500 text-center py-4">No area match.</div>
+          {/* Socket status */}
+          <div className="mt-4 pt-3.5 border-t border-slate-200 dark:border-slate-800/40 flex items-center justify-between text-xs shrink-0">
+            <span className="text-slate-500 dark:text-slate-400 font-medium">Live Server Status</span>
+            <span className="flex items-center gap-2 bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 px-2.5 py-1 rounded-full">
+              <span className="relative flex h-2 w-2">
+                {socketConnected && (
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-450 dark:bg-emerald-400 opacity-75" />
                 )}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Socket status */}
-        <div className="mt-4 pt-3.5 border-t border-slate-200 dark:border-slate-800/40 flex items-center justify-between text-xs shrink-0">
-          <span className="text-slate-500 dark:text-slate-400 font-medium">Live Server Status</span>
-          <span className="flex items-center gap-2 bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 px-2.5 py-1 rounded-full">
-            <span className="relative flex h-2 w-2">
-              {socketConnected && (
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-450 dark:bg-emerald-400 opacity-75" />
-              )}
-              <span className={`relative inline-flex rounded-full h-2 w-2 ${socketConnected ? 'bg-emerald-500' : 'bg-rose-500 animate-pulse'}`} />
+                <span className={`relative inline-flex rounded-full h-2 w-2 ${socketConnected ? 'bg-emerald-500' : 'bg-rose-500 animate-pulse'}`} />
+              </span>
+              <span className={`text-[10px] font-extrabold uppercase tracking-wide ${socketConnected ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                {socketConnected ? 'Online' : 'Reconnecting'}
+              </span>
             </span>
-            <span className={`text-[10px] font-extrabold uppercase tracking-wide ${socketConnected ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
-              {socketConnected ? 'Online' : 'Reconnecting'}
-            </span>
-          </span>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* CHAT DISPLAY WINDOW */}
-      <div className={`flex-1 min-w-0 lg:pl-6 flex flex-col h-full overflow-hidden ${
-        mobileView === 'chat' ? 'flex' : 'hidden lg:flex'
+      <div className={`flex-1 min-w-0 flex flex-col h-full overflow-hidden ${showSidebar ? 'lg:pl-6' : ''} ${
+        !showSidebar || mobileView === 'chat' ? 'flex' : 'hidden lg:flex'
       }`}>
         {/* Header */}
         <div className="pb-4 border-b border-slate-200 dark:border-slate-800/40 flex items-center justify-between shrink-0 h-[57px]">
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => setMobileView('channels')}
-              className="lg:hidden p-2 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800 text-slate-500 hover:text-slate-850 dark:hover:text-white mr-1 cursor-pointer transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </button>
+            {showSidebar && (
+              <button
+                onClick={() => setMobileView('channels')}
+                className="lg:hidden p-2 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800 text-slate-500 hover:text-slate-855 dark:hover:text-white mr-1 cursor-pointer transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" />
+              </button>
+            )}
             <div className="text-left">
               <h4 className="font-extrabold text-slate-800 dark:text-slate-100 text-base tracking-wide flex items-center gap-2 uppercase leading-none">
                 {currentChannel === 'GH-Global' 
                   ? '🌐 Statewide Governance Lounge' 
-                  : `📍 Group: ${currentChannel.replace('GH-Constituency-', '')}`}
+                  : currentChannel.startsWith('Social-Sector-')
+                    ? `💬 Hub: ${currentChannel.replace('Social-Sector-', '')} Social`
+                    : `📍 Group: ${currentChannel.replace('GH-Constituency-', '')}`}
               </h4>
             </div>
           </div>
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-6 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
+        {socialNeedsLocation ? (
+          <div className="flex-1 p-6 flex items-center justify-center">
+            <div className="max-w-xl text-center p-8 rounded-2xl border border-slate-200 dark:border-slate-800 bg-yellow-50 dark:bg-yellow-900/10">
+              <h3 className="font-extrabold text-lg text-amber-700 dark:text-amber-300 mb-2">Set your area to join Social Chat</h3>
+              <p className="text-sm text-slate-700 dark:text-slate-300 mb-4">Please set your campus or constituency in your profile before joining Social Chat. This ensures you are connected to your correct local lounge.</p>
+              <a href="/dashboard/student" className="inline-block px-4 py-2 rounded-xl bg-amber-500 text-white font-bold">Set Location</a>
+            </div>
+          </div>
+        ) : (
+          <div className="flex-1 overflow-y-auto p-4 space-y-6 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
           {messages.map((msg) => {
             const isMe = msg.sender_id === user.id;
             const roleStyle = getRoleColors(msg.sender_role);
@@ -504,47 +536,52 @@ export default function HubChat({ user }) {
 
           <div ref={messagesEndRef} />
         </div>
+      )}
 
-        {/* Typing indicator bar */}
-        <div className="h-6 text-[10px] text-cyan-600 dark:text-cyan-400 font-medium pl-2 italic flex items-center mb-1 shrink-0">
-          <AnimatePresence>
-            {Object.keys(typingUsers).length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 5 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 5 }}
-                className="flex items-center gap-2"
+      {!socialNeedsLocation && (
+          <>
+            {/* Typing indicator bar */}
+            <div className="h-6 text-[10px] text-cyan-600 dark:text-cyan-400 font-medium pl-2 italic flex items-center mb-1 shrink-0">
+              <AnimatePresence>
+                {Object.keys(typingUsers).length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 5 }}
+                    className="flex items-center gap-2"
+                  >
+                    <span className="w-1.5 h-1.5 bg-cyan-500 dark:bg-cyan-400 rounded-full animate-bounce" />
+                    <span>
+                      {Object.values(typingUsers).map(u => `${u.name} (${formatRole(u.role)})`).join(', ')}{' '}
+                      {Object.keys(typingUsers).length === 1 ? 'is typing...' : 'are typing...'}
+                    </span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Input Bar */}
+            <form onSubmit={handleSendMessage} className="p-1 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl flex gap-2 items-center shrink-0">
+              <input
+                type="text"
+                value={newMessage}
+                onChange={(e) => {
+                  setNewMessage(e.target.value);
+                  handleTyping();
+                }}
+                placeholder="Type operations update..."
+                className="flex-1 bg-transparent border-0 rounded-xl px-4 py-3 text-slate-800 dark:text-slate-200 focus:outline-none text-sm placeholder-slate-400 dark:placeholder-slate-605 focus:ring-0"
+              />
+              <button
+                type="submit"
+                disabled={!newMessage.trim()}
+                className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 disabled:opacity-30 disabled:pointer-events-none text-white p-3 rounded-xl transition-all duration-300 shadow-md shadow-cyan-950/40 hover:scale-102 active:scale-98 flex items-center justify-center cursor-pointer mr-1"
               >
-                <span className="w-1.5 h-1.5 bg-cyan-500 dark:bg-cyan-400 rounded-full animate-bounce" />
-                <span>
-                  {Object.values(typingUsers).map(u => `${u.name} (${formatRole(u.role)})`).join(', ')}{' '}
-                  {Object.keys(typingUsers).length === 1 ? 'is typing...' : 'are typing...'}
-                </span>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        {/* Input Bar */}
-        <form onSubmit={handleSendMessage} className="p-1 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl flex gap-2 items-center shrink-0">
-          <input
-            type="text"
-            value={newMessage}
-            onChange={(e) => {
-              setNewMessage(e.target.value);
-              handleTyping();
-            }}
-            placeholder="Type operations update..."
-            className="flex-1 bg-transparent border-0 rounded-xl px-4 py-3 text-slate-800 dark:text-slate-200 focus:outline-none text-sm placeholder-slate-400 dark:placeholder-slate-605 focus:ring-0"
-          />
-          <button
-            type="submit"
-            disabled={!newMessage.trim()}
-            className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 disabled:opacity-30 disabled:pointer-events-none text-white p-3 rounded-xl transition-all duration-300 shadow-md shadow-cyan-950/40 hover:scale-102 active:scale-98 flex items-center justify-center cursor-pointer mr-1"
-          >
-            <Send className="w-4 h-4" />
-          </button>
-        </form>
+                <Send className="w-4 h-4" />
+              </button>
+            </form>
+          </>
+        )}
       </div>
 
     </div>

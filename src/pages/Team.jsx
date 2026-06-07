@@ -1,36 +1,93 @@
-import React, { useState, useEffect } from 'react';
-import { ShieldCheck, Award, Users, Building2, MapPin } from 'lucide-react';
+import React from 'react';
+import { Award, Users, Building2, Terminal } from 'lucide-react';
 import GlassCard from '../components/GlassCard';
 import AnimatedSection from '../components/AnimatedSection';
 
-const formatRole = (role, tier) => {
-  if (role === 'supreme_admin') return 'TRSV Founder';
-  if ((role === 'president' || role === 'state_president') && tier === 'state') return 'State President';
-  if ((role === 'president' || role === 'state_president') && tier === 'hub') return 'President';
-  if (role === 'president' || role === 'state_president') return 'Local President';
-  if (role === 'general_secretary' && tier === 'hub') return 'General Secretary';
-  if (role === 'general_secretary') return 'General Secretary';
-  if (role === 'digital_operations_president') return 'Digital Operations President';
-  if (role === 'dev') return 'Developer & Digital Operations President';
-  if (role === 'vice_president') return 'Vice President';
-  if (role === 'secretary') return 'Secretary';
-  return role.replace(/_/g, ' ').toUpperCase();
-};
+const LEADERS = [
+  {
+    id: 'kavitha',
+    full_name: 'Kavitha Kalvakuntla Garu',
+    role: 'Founder',
+    profile_image: '/akka.jpg',
+    category: 'Founding Leadership',
+    accentColor: 'cyan',
+    description: 'Founder & Patron of TRSV. Dedicated to championing student rights, state education reforms, and empowering youth across all districts of Telangana.'
+  },
+  {
+    id: 'aaditya',
+    full_name: 'Aaditya Devanapalli Garu',
+    role: 'Leader',
+    profile_image: null,
+    category: 'Founding Leadership',
+    accentColor: 'cyan',
+    description: 'Senior Leader guiding organizational strategies, campus coordination frameworks, and student advocacy operations throughout the state.'
+  },
+  {
+    id: 'ramu',
+    full_name: 'Ramu Yadav',
+    role: 'State President',
+    profile_image: '/ramuanna.jpg',
+    category: 'Statewide Executive Command',
+    accentColor: 'emerald',
+    description: 'Commands statewide student welfare campaigns, regional coordination committees, and executive campus advocacy cells.'
+  },
+  {
+    id: 'naveen',
+    full_name: 'Naveen Goud',
+    role: 'State Vice President',
+    profile_image: null,
+    category: 'Statewide Executive Command',
+    accentColor: 'emerald',
+    description: 'Supervises state-level campaigns, campus safety units, and represents student welfare delegations to governing bodies.'
+  },
+  {
+    id: 'bhagath',
+    full_name: 'Bhagath Yadav',
+    role: 'State General Secretary',
+    profile_image: null,
+    category: 'Statewide Executive Command',
+    accentColor: 'emerald',
+    description: 'Manages compliance auditing, student organization charters, and internal governance workflows across Telangana.'
+  },
+  {
+    id: 'madhu',
+    full_name: 'Kandula Madhu',
+    role: 'State Secretary',
+    profile_image: null,
+    category: 'Statewide Executive Command',
+    accentColor: 'emerald',
+    description: 'Coordinates communication channels, resolves regional student disputes, and leads student awareness assemblies.'
+  },
+  {
+    id: 'rajkumar',
+    full_name: 'B.Rajkumar',
+    role: 'Rangareddy District President',
+    profile_image: null,
+    category: 'Regional Command',
+    accentColor: 'violet',
+    description: 'Oversees organizational growth, campus student welfare operations, and local grievance redressal cells in the Rangareddy district.'
+  },
+  {
+    id: 'karthik',
+    full_name: 'Karthik Yadav',
+    role: 'Greater Hyderabad General Secretary',
+    profile_image: '/karthiknew.jpeg',
+    category: 'Regional Command',
+    accentColor: 'violet',
+    description: 'Commands regional assembly clusters, compliance reporting, and student grievance cells throughout Greater Hyderabad.'
+  },
+  {
+    id: 'suryachandra',
+    full_name: 'Suryachandra',
+    role: 'Developer & Digital Operations President',
+    profile_image: null,
+    category: 'Digital Operations & Tech Command',
+    accentColor: 'cyan',
+    description: 'Digital Architect of TRSV - designs, implements, and maintains the portal, database infrastructure, and student safety telemetry systems.'
+  }
+];
 
-const getRoleDesc = (role, tier) => {
-  if (role === 'supreme_admin') return 'Founding director of TRSV — established the statewide student rights movement, legal advocacy networks, and the digital governance infrastructure protecting students across Telangana.';
-  if ((role === 'president' || role === 'state_president') && tier === 'state') return 'Commands all constituency hub operations, campus safety cell deployments, emergency dispatches, and district-level governance protocols across the state.';
-  if ((role === 'president' || role === 'state_president') && tier === 'hub') return 'Directs the Greater Hyderabad regional assembly operations, on-ground safety squads, issue escalation chains, and district executive coordination networks.';
-  if (role === 'general_secretary' && tier === 'hub') return 'Manages compliance documentation, college cluster governance nodes, complaint escalation records, and administrative coordination across Greater Hyderabad.';
-  if (role === 'president' || role === 'state_president') return 'Leads local constituency operations, campus safety coordination, and complaint redressal processes for assigned student communities.';
-  if (role === 'general_secretary') return 'Handles constituency documentation, issue tracking, representative coordination, and administrative escalation workflows.';
-  if (role === 'digital_operations_president') return 'Commands Greater Hyderabad digital operations, managing real-time security telemetry, constituency hub networks, and the online safety portal.';
-  if (role === 'dev') return 'Digital Architect of TRSV — designs, implements, and maintains the high-fidelity secure operating portal, database clusters, and student emergency telemetry networks, and commands Greater Hyderabad digital operations.';
-  return 'Board coordinator providing governance support, legal aid, and dispute resolution tracking in the assigned region.';
-};
-
-// Big cinematic portrait card (like Home.jsx)
-const CinematicCard = ({ lead, tier, accentColor = 'cyan' }) => {
+const CinematicCard = ({ lead, accentColor = 'cyan' }) => {
   const accents = {
     cyan: {
       gradient: 'from-cyan-500/20 to-transparent',
@@ -60,11 +117,10 @@ const CinematicCard = ({ lead, tier, accentColor = 'cyan' }) => {
       dept: 'text-violet-500/80',
     },
   };
-  const c = accents[accentColor];
+  const c = accents[accentColor] || accents.cyan;
 
   return (
     <GlassCard hoverEffect={true} className="group p-0 flex flex-col items-stretch text-left bg-gradient-to-b from-white/40 to-white/10 dark:from-slate-950/50 dark:to-slate-950/20 border border-slate-200/50 dark:border-slate-800 shadow-xl overflow-hidden rounded-3xl">
-
       {/* Cinematic Portrait */}
       <div className="w-full h-[320px] sm:h-[380px] relative overflow-hidden bg-slate-100 dark:bg-slate-950">
         {lead.profile_image ? (
@@ -80,10 +136,10 @@ const CinematicCard = ({ lead, tier, accentColor = 'cyan' }) => {
               <Users className="w-7 h-7 text-cyan-400" />
             </div>
             <span className="text-[10px] font-black text-cyan-400 tracking-[0.25em] uppercase mb-1">
-              TRSV Officer
+              TVRS Officer
             </span>
             <span className="text-xs font-bold text-slate-500 tracking-wider">
-              Revealing Soon
+              Executive Board
             </span>
           </div>
         )}
@@ -94,7 +150,7 @@ const CinematicCard = ({ lead, tier, accentColor = 'cyan' }) => {
         <div className={`absolute top-4 left-4 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900/85 backdrop-blur-md border ${c.badge} shadow-lg`}>
           <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${c.pulseDot}`} />
           <span className={`text-[9px] font-black uppercase tracking-widest ${c.roleColor}`}>
-            {formatRole(lead.role, tier)}
+            {lead.role}
           </span>
         </div>
 
@@ -103,19 +159,13 @@ const CinematicCard = ({ lead, tier, accentColor = 'cyan' }) => {
           <h3 className={`text-xl sm:text-2xl font-black text-white leading-tight mb-1 transition-colors duration-300 ${c.hoverColor}`}>
             {lead.full_name}
           </h3>
-          {lead.constituency_name && (
-            <span className={`text-[10px] font-bold uppercase tracking-wider ${c.dept} flex items-center gap-1`}>
-              <MapPin className="w-3 h-3" />
-              {lead.constituency_name}
-            </span>
-          )}
         </div>
       </div>
 
       {/* Details below portrait */}
       <div className="flex flex-col gap-3 p-6">
-        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-          {getRoleDesc(lead.role, tier)}
+        <p className="text-xs sm:text-sm text-slate-550 dark:text-slate-400 leading-relaxed">
+          {lead.description}
         </p>
       </div>
     </GlassCard>
@@ -142,33 +192,12 @@ const SectionHeader = ({ icon, title, subtitle, color = 'cyan' }) => {
 };
 
 export default function Team() {
-  const [leadersData, setLeadersData] = useState({ statewideLeaders: [], mainHubLeaders: [], localLeaders: [] });
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchLeaders = async () => {
-      try {
-        const res = await fetch('/api/constituencies/leaders-grid');
-        const data = await res.json();
-        if (data.success) {
-          setLeadersData({
-            statewideLeaders: data.statewideLeaders || [],
-            mainHubLeaders: data.mainHubLeaders || [],
-            localLeaders: data.localLeaders || [],
-          });
-        }
-      } catch (err) {
-        console.error('Failed to fetch team:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchLeaders();
-  }, []);
+  const foundingLeaders = LEADERS.filter(l => l.category === 'Founding Leadership');
+  const statewideLeaders = LEADERS.filter(l => l.category === 'Statewide Executive Command');
+  const regionalLeaders = LEADERS.filter(l => l.category === 'Regional Command' || l.category === 'Digital Operations & Tech Command');
 
   return (
     <div className="w-full flex flex-col gap-16 py-4">
-
       {/* Header */}
       <AnimatedSection direction="up" className="text-center max-w-3xl mx-auto flex flex-col gap-4">
         <span className="text-xs font-bold text-cyan-600 dark:text-cyan-400 tracking-widest uppercase">
@@ -178,85 +207,68 @@ export default function Team() {
           Executive Board & Command Council
         </h1>
         <p className="text-base sm:text-lg text-slate-500 dark:text-slate-400 leading-relaxed">
-          The 3-tier governance leadership of TRSV — from Statewide Command down to Greater Hyderabad and local constituency officers.
+          The unified leadership council of Telangana Rakshana Sena Vidyarthi Vibhagam (TRSV), guiding student welfare and security across Telangana.
         </p>
       </AnimatedSection>
 
-      {loading ? (
-        <div className="py-20 text-center text-sm text-slate-400 animate-pulse">
-          Syncing leadership council from database...
-        </div>
-      ) : (
-        <div className="flex flex-col gap-16 text-left animate-fadeIn">
-
-          {/* Tier 1: Statewide */}
-          {leadersData.statewideLeaders.length > 0 && (
-            <AnimatedSection direction="up" delay={0.05} className="flex flex-col gap-6">
-              <SectionHeader
-                icon={<Award className="w-4 h-4" />}
-                title="Tier 1 — Statewide Command"
-                subtitle="Overall state governance and supreme authority"
-                color="cyan"
+      <div className="flex flex-col gap-16 text-left animate-fadeIn">
+        {/* Category 1: Founding Leadership */}
+        <AnimatedSection direction="up" delay={0.05} className="flex flex-col gap-6">
+          <SectionHeader
+            icon={<Award className="w-4 h-4" />}
+            title="Founding Leadership"
+            subtitle="Patron leaders guiding the state movement"
+            color="cyan"
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {foundingLeaders.map(lead => (
+              <CinematicCard
+                key={lead.id}
+                lead={lead}
+                accentColor={lead.accentColor}
               />
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {leadersData.statewideLeaders.map(lead => (
-                  <CinematicCard
-                    key={lead.id}
-                    lead={lead}
-                    tier="state"
-                    accentColor="cyan"
-                  />
-                ))}
-              </div>
-            </AnimatedSection>
-          )}
+            ))}
+          </div>
+        </AnimatedSection>
 
-          {/* Tier 2: Greater Hyderabad Hub */}
-          {leadersData.mainHubLeaders.length > 0 && (
-            <AnimatedSection direction="up" delay={0.1} className="flex flex-col gap-6">
-              <SectionHeader
-                icon={<Building2 className="w-4 h-4" />}
-                title="Tier 2 — Greater Hyderabad Command"
-                subtitle="Regional hub overseeing all Hyderabad area constituencies"
-                color="emerald"
+        {/* Category 2: Statewide Executive Command */}
+        <AnimatedSection direction="up" delay={0.1} className="flex flex-col gap-6">
+          <SectionHeader
+            icon={<Building2 className="w-4 h-4" />}
+            title="Statewide Executive Command"
+            subtitle="Directing operations and campaigns across the state"
+            color="emerald"
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {statewideLeaders.map(lead => (
+              <CinematicCard
+                key={lead.id}
+                lead={lead}
+                accentColor={lead.accentColor}
               />
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {leadersData.mainHubLeaders.map(lead => (
-                  <CinematicCard
-                    key={lead.id}
-                    lead={lead}
-                    tier="hub"
-                    accentColor="emerald"
-                  />
-                ))}
-              </div>
-            </AnimatedSection>
-          )}
+            ))}
+          </div>
+        </AnimatedSection>
 
-          {/* Tier 3: Local sub-officers */}
-          {leadersData.localLeaders.length > 0 && (
-            <AnimatedSection direction="up" delay={0.15} className="flex flex-col gap-6">
-              <SectionHeader
-                icon={<Users className="w-4 h-4" />}
-                title="Tier 3 — Local Constituency Officers"
-                subtitle="Assigned local representatives for specific assembly areas"
-                color="violet"
+        {/* Category 3: Regional & Technical Command */}
+        <AnimatedSection direction="up" delay={0.15} className="flex flex-col gap-6">
+          <SectionHeader
+            icon={<Terminal className="w-4 h-4" />}
+            title="Regional & Tech Command"
+            subtitle="Local district coordination and digital operations"
+            color="violet"
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {regionalLeaders.map(lead => (
+              <CinematicCard
+                key={lead.id}
+                lead={lead}
+                accentColor={lead.accentColor}
               />
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {leadersData.localLeaders.map(lead => (
-                  <CinematicCard
-                    key={lead.id}
-                    lead={lead}
-                    tier="local"
-                    accentColor="violet"
-                  />
-                ))}
-              </div>
-            </AnimatedSection>
-          )}
-
-        </div>
-      )}
+            ))}
+          </div>
+        </AnimatedSection>
+      </div>
     </div>
   );
 }

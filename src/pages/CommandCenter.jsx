@@ -271,7 +271,7 @@ export default function CommandCenter() {
     setFetchingRequests(true);
     try {
       const token = localStorage.getItem('trsv_session_token');
-      const res = await fetch('/api/join-trsv', {
+      const res = await fetch('/api/join-tvrs', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
@@ -294,7 +294,7 @@ export default function CommandCenter() {
   const handleUpdateRequestStatus = async (id, status) => {
     try {
       const token = localStorage.getItem('trsv_session_token');
-      const res = await fetch(`/api/join-trsv/${id}`, {
+      const res = await fetch(`/api/join-tvrs/${id}`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -626,7 +626,7 @@ export default function CommandCenter() {
               ))}
             </div>
             <form onSubmit={handleAddConstituency} className="flex flex-col gap-3.5 border-t border-slate-200 dark:border-slate-800 pt-4 mt-1">
-              <span className="text-[10px] font-black text-slate-455 uppercase tracking-widest block">Inject Constituency Node</span>
+              <span className="text-[10px] font-black text-slate-455 uppercase tracking-widest block">Inject Constituency</span>
               <div className="grid grid-cols-2 gap-3">
                 <input
                   type="text"
@@ -646,7 +646,7 @@ export default function CommandCenter() {
                 />
               </div>
               <PremiumButton type="submit" variant="primary" size="sm" className="w-full" disabled={loading}>
-                Inject Constituency Node
+                Inject Constituency
               </PremiumButton>
             </form>
           </GlassCard>
@@ -812,7 +812,7 @@ export default function CommandCenter() {
           <div className="p-6 flex flex-col gap-4 text-left rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-premium-light dark:shadow-premium-dark">
             <h3 className="font-extrabold text-sm text-slate-700 dark:text-white uppercase tracking-wider flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
               <Users className="w-4 h-4 text-cyan-500" />
-              Join TRSV Requests
+              Join TVRS Requests
             </h3>
 
             {fetchingRequests ? (

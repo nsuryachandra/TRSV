@@ -55,7 +55,7 @@ export default function PublicVerification() {
       });
       const resData = await res.json();
       if (resData.success) {
-        setActionMessage(`✓ Successfully shifted complaint #${complaintId} status to '${nextStatus}'!`);
+        setActionMessage(`✓ Successfully shifted issue #${complaintId} status to '${nextStatus}'!`);
         // Refresh scanned student data to reflect state shift
         runVerificationScan();
       } else {
@@ -70,7 +70,7 @@ export default function PublicVerification() {
   };
 
   const renderStepper = (status) => {
-    const stages = ['Complaint Registered', 'Complaint Verified', 'Solving Started', 'Solved'];
+    const stages = ['Issue Registered', 'Issue Verified', 'Solving Started', 'Solved'];
     let currentIdx = 0;
     if (status === 'Complaint Registered' || status === 'Audit Phase' || status === 'Registered') {
       currentIdx = 0;
@@ -159,8 +159,8 @@ export default function PublicVerification() {
             {error}
           </p>
           <div className="text-[10px] text-slate-450 mt-6 leading-relaxed">
-            TELANGANA RAKSHANA SENA VIDYARTHI VIBHAGAM<br />
-            State Audit Security Node: <span className="font-mono">TRSV-SEC-CORE</span>
+            TELANGANA VIDYARTHI RAKSHANA SENA<br />
+            State Audit Security Node: <span className="font-mono">TVRS-SEC-CORE</span>
           </div>
         </GlassCard>
       </div>
@@ -226,7 +226,7 @@ export default function PublicVerification() {
           {statusVisual.icon}
         </div>
         <div className="flex flex-col text-center md:text-left gap-1.5 min-w-0">
-          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">TRSV Public Verification Node</span>
+          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">TVRS Public Verification Node</span>
           <h1 className={`text-3xl font-black tracking-tight ${statusVisual.textClass}`}>
             {statusVisual.title}
           </h1>
@@ -248,7 +248,7 @@ export default function PublicVerification() {
                 Profile Identity
               </h2>
               <span className="text-[8px] font-mono font-bold text-slate-450 dark:text-slate-500 uppercase tracking-widest">
-                TRSV-ID-{identity.id}
+                TVRS-ID-{identity.id}
               </span>
             </div>
 
@@ -300,7 +300,7 @@ export default function PublicVerification() {
           {/* Verification Audit security badge */}
           <div className="flex items-center gap-3 p-4 rounded-xl border border-slate-200/60 dark:border-slate-800 bg-white/40 dark:bg-slate-900/40 text-[10px] text-slate-450 leading-normal text-left">
             <Award className="w-5 h-5 text-cyan-400 shrink-0" />
-            <span>This verification ledger is signed securely by the Telangana Rakshana Sena Vidyarthi Vibhagam core administrative team. System audits are recorded on Neon PostgreSQL nodes.</span>
+            <span>This verification ledger is signed securely by the Telangana Vidyarthi Rakshana Sena core administrative team. System audits are recorded on Neon PostgreSQL nodes.</span>
           </div>
         </div>
 
@@ -312,19 +312,19 @@ export default function PublicVerification() {
             {profile.role === 'student' ? (
               <>
                 <GlassCard className="p-4 flex flex-col text-left gap-1" hoverEffect={false}>
-                  <span className="text-[9px] font-black text-slate-450 uppercase tracking-wider">Total Complaints</span>
+                  <span className="text-[9px] font-black text-slate-450 uppercase tracking-wider">Total Issues</span>
                   <strong className="text-xl font-black text-slate-800 dark:text-white">
                     {data.studentStats?.total_complaints || 0}
                   </strong>
                 </GlassCard>
                 <GlassCard className="p-4 flex flex-col text-left gap-1" hoverEffect={false}>
-                  <span className="text-[9px] font-black text-slate-450 uppercase tracking-wider">Resolved Complaints</span>
+                  <span className="text-[9px] font-black text-slate-450 uppercase tracking-wider">Resolved Issues</span>
                   <strong className="text-xl font-black text-emerald-500">
                     {data.studentStats?.resolved_complaints || 0}
                   </strong>
                 </GlassCard>
                 <GlassCard className="p-4 flex flex-col text-left gap-1" hoverEffect={false}>
-                  <span className="text-[9px] font-black text-slate-450 uppercase tracking-wider">Pending Complaints</span>
+                  <span className="text-[9px] font-black text-slate-450 uppercase tracking-wider">Pending Issues</span>
                   <strong className="text-xl font-black text-cyan-500">
                     {data.studentStats?.pending_complaints || 0}
                   </strong>
@@ -371,7 +371,7 @@ export default function PublicVerification() {
             <div className="flex items-center justify-between border-b border-slate-200/50 dark:border-slate-850 pb-3">
               <h3 className="font-extrabold text-base text-slate-800 dark:text-white flex items-center gap-2">
                 <Activity className="w-5 h-5 text-cyan-400" />
-                {profile.role === 'student' ? 'Academic & Complaint History' : 'Leadership Milestones'}
+                {profile.role === 'student' ? 'Academic & Issue History' : 'Leadership Milestones'}
               </h3>
               <span className="text-[8px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-widest font-mono">
                 Postgres Audit History
@@ -405,7 +405,7 @@ export default function PublicVerification() {
               <div className="flex items-center justify-between border-b border-slate-200/50 dark:border-slate-850 pb-3">
                 <h3 className="font-extrabold text-base text-slate-850 dark:text-white flex items-center gap-2">
                   <Activity className="w-5 h-5 text-cyan-400" />
-                  Active Complaints & Life Cycle
+                  Open Issues & Life Cycle
                 </h3>
                 <span className="text-[8px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-widest font-mono">
                   Live SaaS Pipeline
@@ -460,7 +460,7 @@ export default function PublicVerification() {
                   ))
                 ) : (
                   <div className="text-xs text-slate-400 py-6 italic text-center">
-                    No registered complaints found for this student.
+                    No registered issues found for this student.
                   </div>
                 )}
               </div>

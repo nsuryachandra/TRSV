@@ -18,13 +18,30 @@ router.get('/', requireAuth, async (req, res) => {
   const searchTerm = `%${q}%`;
 
   try {
-    // 1. Search Complaints (Titles, Categories, Urgency)
-    const complaintsQuery = await query(`
-      SELECT 'complaint' as type, id, title as primary_text, category || ' • ' || status as secondary_text, urgency as tag
-      FROM complaints
-      WHERE title ILIKE $1 OR category ILIKE $1
-      LIMIT 5
-    `, [searchTerm]);
+    // 1. Search Complaints (Titles, Categories, Urgency) - Role-scoped to prevent data leakage
+    let complaintsQuery;
+    if (req.user.role === 'supreme_admin') {
+      complaintsQuery = await query(`
+        SELECT 'complaint' as type, id, title as primary_text, category || ' • ' || status as secondary_text, urgency as tag
+        FROM complaints
+        WHERE title ILIKE $1 OR category ILIKE $1
+        LIMIT 5
+      `, [searchTerm]);
+    } else if (req.user.role === 'student') {
+      complaintsQuery = await query(`
+        SELECT 'complaint' as type, id, title as primary_text, category || ' • ' || status as secondary_text, urgency as tag
+        FROM complaints
+        WHERE (title ILIKE $1 OR category ILIKE $1) AND student_id = $2
+        LIMIT 5
+      `, [searchTerm, req.user.uid]);
+    } else {
+      complaintsQuery = await query(`
+        SELECT 'complaint' as type, id, title as primary_text, category || ' • ' || status as secondary_text, urgency as tag
+        FROM complaints
+        WHERE (title ILIKE $1 OR category ILIKE $1) AND constituency_id = $2
+        LIMIT 5
+      `, [searchTerm, req.user.constituency_id]);
+    }
 
     // 2. Search Announcements
     const announcementsQuery = await query(`

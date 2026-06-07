@@ -11,8 +11,8 @@ ON CONFLICT (constituency_name) DO NOTHING;
 
 -- 2. Insert Core Colleges mapped to Constituencies
 INSERT INTO colleges (college_name, constituency_id) VALUES
-('JNTUH College of Engineering, Hyderabad', (SELECT id FROM constituencies WHERE constituency_name = 'Kukatpally Constituency')),
-('VNR VIGNANA JYOTHI, Bachupally', (SELECT id FROM constituencies WHERE constituency_name = 'Kukatpally Constituency')),
+('JNTUH College of Engineering, Hyderabad', NULL),
+('VNR VIGNANA JYOTHI, Bachupally', NULL),
 ('Secunderabad PG College, Secunderabad', (SELECT id FROM constituencies WHERE constituency_name = 'Secunderabad Constituency')),
 ('Kakatiya Institute of Technology, Warangal', (SELECT id FROM constituencies WHERE constituency_name = 'Warangal West Node')),
 ('Nalgonda Degree College, Nalgonda', (SELECT id FROM constituencies WHERE constituency_name = 'Nalgonda Node')),

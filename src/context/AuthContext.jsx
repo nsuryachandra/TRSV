@@ -381,10 +381,11 @@ export const AuthProvider = ({ children }) => {
   };
 
   const loginSimplified = async (type, username) => {
+    const savedSecret = type === 'username' ? localStorage.getItem(`trsv_secret_${username}`) || '' : '';
     const response = await fetch('/api/auth/simplified-entry', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type, username }),
+      body: JSON.stringify({ type, username, clientSecret: savedSecret }),
     });
 
     const data = await response.json();
@@ -400,6 +401,9 @@ export const AuthProvider = ({ children }) => {
     if (type === 'username' && data.username) {
       localStorage.setItem('trsv_saved_username', data.username);
       localStorage.setItem('trsv_saved_username_expiry', (Date.now() + 30 * 24 * 60 * 60 * 1000).toString());
+      if (data.clientSecret) {
+        localStorage.setItem(`trsv_secret_${data.username}`, data.clientSecret);
+      }
     }
 
     return data.user;
@@ -455,7 +459,7 @@ export const AuthProvider = ({ children }) => {
     if (!window.Capacitor) throw new Error('Biometrics is only supported on mobile devices.');
     try {
       await NativeBiometric.verifyIdentity({
-        reason: "Authorize TRSV Secure Biometric Authentication",
+        reason: "Authorize TVRS Secure Biometric Authentication",
         title: "Verify Identity",
         subtitle: "Confirm with your fingerprint/face scanner",
         description: "Enrolls your credentials securely in the hardware Keystore.",
@@ -494,7 +498,7 @@ export const AuthProvider = ({ children }) => {
     if (!window.Capacitor) throw new Error('Biometrics is only supported on mobile devices.');
     try {
       await NativeBiometric.verifyIdentity({
-        reason: "Access your secure TRSV coordination terminal",
+        reason: "Access your secure TVRS coordination terminal",
         title: "Biometric Login",
         subtitle: "Scan your fingerprint to continue",
         description: "Verify your identity using biometric sensors",

@@ -337,7 +337,7 @@ export default function SystemLogs() {
                                 {log.full_name || 'System Node'}
                               </span>
                               <span className="text-[10px] text-slate-450 dark:text-slate-450 truncate">
-                                {log.email || 'admin@trsv.gov.in'}
+                                {log.email || 'admin@tvrs.gov.in'}
                               </span>
                               <span className="text-[9px] font-black text-cyan-600 dark:text-cyan-400 tracking-wider mt-0.5 uppercase">
                                 {formatRole(log.role)}

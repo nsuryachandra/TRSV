@@ -138,8 +138,9 @@ router.get('/leaders-grid', async (req, res) => {
   try {
     // Tier 1: Statewide leaders (constituency_id IS NULL, role = president/general_secretary)
     const stateResult = await query(`
-      SELECT u.id, u.full_name, u.email, u.role, u.phone, u.profile_image, u.verified
+      SELECT u.id, u.full_name, u.email, u.role, u.phone, u.profile_image, u.verified, col.college_name
       FROM users u
+      LEFT JOIN colleges col ON u.college_id = col.id
       WHERE u.role IN ('president', 'state_president', 'general_secretary') AND u.constituency_id IS NULL
       ORDER BY CASE u.role
         WHEN 'state_president' THEN 1
@@ -152,9 +153,10 @@ router.get('/leaders-grid', async (req, res) => {
     // Tier 2: Main Hub leaders (e.g. Greater Hyderabad — constituencies with parent_id IS NULL but not statewide)
     const hubResult = await query(`
       SELECT u.id, u.full_name, u.email, u.role, u.phone, u.profile_image, u.verified,
-             u.constituency_id, con.constituency_name, con.id as hub_id
+             u.constituency_id, con.constituency_name, con.id as hub_id, col.college_name
       FROM users u
       LEFT JOIN constituencies con ON u.constituency_id = con.id
+      LEFT JOIN colleges col ON u.college_id = col.id
       WHERE u.role != 'student' AND u.role != 'supreme_admin' AND u.role != 'dev'
         AND u.constituency_id IS NOT NULL
         AND con.parent_id IS NULL
@@ -168,15 +170,25 @@ router.get('/leaders-grid', async (req, res) => {
       END ASC
     `);
 
+    const filterConstId = req.query.constituencyId || req.query.constituency_id;
+
     // Tier 3: Local sub-constituency leaders (constituencies with a parent_id set)
-    const localResult = await query(`
+    let localQuery = `
       SELECT u.id, u.full_name, u.email, u.role, u.phone, u.profile_image, u.verified,
-             u.constituency_id, con.constituency_name, con.parent_id
+             u.constituency_id, con.constituency_name, con.parent_id, col.college_name
       FROM users u
       LEFT JOIN constituencies con ON u.constituency_id = con.id
+      LEFT JOIN colleges col ON u.college_id = col.id
       WHERE u.role != 'student' AND u.role != 'supreme_admin' AND u.role != 'dev'
         AND u.constituency_id IS NOT NULL
         AND con.parent_id IS NOT NULL
+    `;
+    const localParams = [];
+    if (filterConstId) {
+      localQuery += ` AND u.constituency_id = $1`;
+      localParams.push(parseInt(filterConstId));
+    }
+    localQuery += `
       ORDER BY con.constituency_name ASC, CASE u.role
         WHEN 'state_president' THEN 1
         WHEN 'president' THEN 2
@@ -184,12 +196,15 @@ router.get('/leaders-grid', async (req, res) => {
         WHEN 'secretary' THEN 4
         ELSE 5
       END ASC
-    `);
+    `;
+
+    const localResult = await query(localQuery, localParams);
 
     // Retrieve developer to display in Tier 2 (Greater Hyderabad)
     const devResult = await query(`
-      SELECT u.id, u.full_name, u.email, u.role, u.phone, u.profile_image, u.verified
+      SELECT u.id, u.full_name, u.email, u.role, u.phone, u.profile_image, u.verified, col.college_name
       FROM users u
+      LEFT JOIN colleges col ON u.college_id = col.id
       WHERE u.role = 'dev'
       LIMIT 1
     `);

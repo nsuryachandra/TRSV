@@ -7,7 +7,7 @@ import PremiumButton from '../components/PremiumButton';
 import { uploadGrievanceMedia } from '../config/supabase';
 
 const formatRole = (role) => {
-  if (role === 'supreme_admin') return 'TRSV Founder';
+  if (role === 'supreme_admin') return 'TVRS Founder';
   if (role === 'dev') return 'Developer';
   if (role === 'president' || role === 'state_president') return 'State President';
   if (role === 'general_secretary') return 'General Secretary';

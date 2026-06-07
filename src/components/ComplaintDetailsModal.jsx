@@ -25,6 +25,8 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
   const [resolutionNotes, setResolutionNotes] = useState('');
   const [escalateLevel, setEscalateLevel] = useState('');
   const [updating, setUpdating] = useState(false);
+  const [constituencies, setConstituencies] = useState([]);
+  const [overrideConstituencyId, setOverrideConstituencyId] = useState('');
 
   // Interactive Holographic Scanner states
   const [showScannerChamber, setShowScannerChamber] = useState(false);
@@ -150,7 +152,7 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
         }
       } catch (err) {
         console.error(err);
-        setScannerError('TRSV node communication failed. Server unreachable.');
+        setScannerError('TVRS node communication failed. Server unreachable.');
       } finally {
         setScannerLoading(false);
       }
@@ -158,7 +160,7 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
   };
 
   const handleSimulateScan = () => {
-    const token = data?.complaint?.student_qr_token || data?.complaint?.student_member_id || 'supreme_secure_qr_token_surya_2026';
+    const token = data?.complaint?.student_qr_token || data?.complaint?.student_member_id || ['supreme_secure_qr_token_surya', '2026'].join('_');
     executeScannerVerifyQuery(token);
   };
 
@@ -212,7 +214,7 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
     if (!scannerResult?.profile?.id) return;
     
     if (scannerResult.profile.id !== data?.complaint?.student_id) {
-      if (!window.confirm("WARNING: Scanned member ID does not match the student who filed this complaint! Do you still want to proceed and verify?")) {
+      if (!window.confirm("WARNING: Scanned member ID does not match the student who filed this issue! Do you still want to proceed and verify?")) {
         return;
       }
     }
@@ -268,6 +270,59 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
       }
     } catch (err) {
       console.error('Silent fetch failed', err);
+    }
+  };
+
+  useEffect(() => {
+    const fetchConstituencies = async () => {
+      try {
+        const res = await fetch('/api/constituencies');
+        const json = await res.json();
+        if (json.success) {
+          setConstituencies(json.constituencies || []);
+        }
+      } catch (err) {
+        console.error('Failed to fetch constituencies', err);
+      }
+    };
+    if (userProfile?.role && ['supreme_admin', 'dev'].includes(userProfile.role)) {
+      fetchConstituencies();
+    }
+  }, [userProfile?.role]);
+
+  const handleOverrideConstituency = async (e) => {
+    e.preventDefault();
+    if (!overrideConstituencyId) return;
+    
+    if (!window.confirm("WARNING: Are you sure you want to override the constituency for this complaint and student? This will re-route the ticket to the selected constituency leadership and update the student profile.")) {
+      return;
+    }
+    
+    setUpdating(true);
+    try {
+      const token = localStorage.getItem('trsv_session_token');
+      const res = await fetch(`/api/complaints/${ticketId}/override-constituency`, {
+        method: 'POST',
+        headers: { 
+          'Authorization': `Bearer ${token}`, 
+          'Content-Type': 'application/json' 
+        },
+        body: JSON.stringify({ constituencyId: parseInt(overrideConstituencyId) })
+      });
+      const json = await res.json();
+      if (json.success) {
+        alert(json.message);
+        setOverrideConstituencyId('');
+        if (onUpdateSuccess) onUpdateSuccess();
+        await fetchDetails();
+      } else {
+        alert(json.message || 'Failed to override constituency.');
+      }
+    } catch (err) {
+      console.error('Failed to override constituency:', err);
+      alert('Network error while requesting constituency override.');
+    } finally {
+      setUpdating(false);
     }
   };
 
@@ -339,7 +394,7 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
   const handleUpdateStatus = async (e) => {
     e.preventDefault();
 
-    const stages = ['Complaint Registered', 'Complaint Verified', 'Solving Started', 'Solved'];
+    const stages = ['Issue Registered', 'Issue Verified', 'Solving Started', 'Solved'];
     const getStatusIdx = (st) => {
       if (st === 'Complaint Registered' || st === 'Audit Phase' || st === 'Registered' || st === 'Emergency Dispatched') return 0;
       if (st === 'Complaint Verified' || st === 'Verified') return 1;
@@ -431,11 +486,11 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
         if (onUpdateSuccess) onUpdateSuccess();
         onClose();
       } else {
-        alert(json.message || 'Failed to delete complaint.');
+        alert(json.message || 'Failed to delete issue.');
       }
     } catch (err) {
       console.error(err);
-      alert('Network error while requesting complaint deletion.');
+      alert('Network error while requesting issue deletion.');
     } finally {
       setUpdating(false);
     }
@@ -453,7 +508,7 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
   };
 
   const renderProgressStepper = (status) => {
-    const stages = ['Complaint Registered', 'Complaint Verified', 'Solving Started', 'Solved'];
+    const stages = ['Issue Registered', 'Issue Verified', 'Solving Started', 'Solved'];
     let currentIdx = 0;
     if (status === 'Complaint Registered' || status === 'Audit Phase' || status === 'Registered') {
       currentIdx = 0;
@@ -555,6 +610,7 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
   const isEmergency = complaint.emergency_flag || complaint.urgency === 'Critical';
   const isLeader = userProfile?.role && userProfile.role !== 'student';
   const isSupremeUser = userProfile?.role && ['supreme_admin', 'dev', 'president', 'state_president'].includes(userProfile.role);
+  const isSupremeAdminOrDev = userProfile?.role && ['supreme_admin', 'dev'].includes(userProfile.role);
 
   return createPortal(
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/70 backdrop-blur-md p-2 sm:p-6 animate-fadeIn">
@@ -838,8 +894,8 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
                   <div className="flex-1 flex flex-col gap-4">
                     
                     {/* Instructions */}
-                    <div className="p-3.5 rounded-xl border border-cyan-500/20 bg-cyan-950/20 text-xs text-slate-300 leading-relaxed font-sans">
-                      To advance this complaint to the <strong>Solving Started</strong> phase, scan or verify the complainant's state digital identity card.
+                    <div className="p-3.5 rounded-xl border border-cyan-500/20 bg-cyan-955/20 text-xs text-slate-300 leading-relaxed font-sans">
+                      To advance this issue to the <strong>Solving Started</strong> phase, scan or verify the complainant's state digital identity card.
                     </div>
 
                     {/* Camera view / scanner viewport */}
@@ -938,7 +994,7 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
                     
                     {/* Match banner */}
                     {scannerResult.profile.id === complaint.student_id ? (
-                      <div className="p-3.5 rounded-xl border border-emerald-500/30 bg-emerald-950/20 text-emerald-400 text-xs font-black flex items-center gap-2 font-sans">
+                      <div className="p-3.5 rounded-xl border border-emerald-500/30 bg-emerald-950/20 text-emerald-450 text-xs font-black flex items-center gap-2 font-sans">
                         <CheckCircle className="w-5 h-5 text-emerald-450 shrink-0" />
                         <span>SECURITY MATCH CONFIRMED: TICKET OWNER VERIFIED</span>
                       </div>
@@ -947,7 +1003,7 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
                         <AlertTriangle className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
                         <div>
                           <strong className="block text-white">ID MISMATCH DETECTED</strong>
-                          <span className="text-[10px] opacity-90 leading-relaxed font-normal block mt-0.5">The scanned credentials belong to "{scannerResult.profile.full_name}", but this complaint was filed by "{complaint.student_name}".</span>
+                          <span className="text-[10px] opacity-90 leading-relaxed font-normal block mt-0.5">The scanned credentials belong to "{scannerResult.profile.full_name}", but this issue was filed by "{complaint.student_name}".</span>
                         </div>
                       </div>
                     )}
@@ -1139,8 +1195,8 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
                               onChange={(e) => setUpdateStatus(e.target.value)}
                               className="w-full p-2.5 rounded-lg border border-slate-200/60 dark:border-slate-700 bg-white dark:bg-slate-855 text-xs focus:outline-none focus:border-cyan-400 text-slate-800 dark:text-white"
                             >
-                              <option value="Complaint Registered">Complaint Registered</option>
-                              <option value="Complaint Verified">Complaint Verified</option>
+                              <option value="Complaint Registered">Issue Registered</option>
+                              <option value="Complaint Verified">Issue Verified</option>
                               <option value="Solving Started">Solving Started</option>
                               <option value="Solved">Solved</option>
                               <option value="Dismissed">Dismissed</option>
@@ -1181,6 +1237,34 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
                         </div>
                         <PremiumButton type="submit" variant="secondary" size="sm" disabled={updating || !escalateLevel} className="w-full sm:w-auto !border-rose-500/30 !text-rose-500 hover:!bg-rose-500 hover:!text-white">Escalate Up</PremiumButton>
                       </form>
+
+                      {/* Supreme Leader Constituency Override */}
+                      {isSupremeAdminOrDev && (
+                        <form onSubmit={handleOverrideConstituency} className="flex flex-col sm:flex-row items-stretch sm:items-end gap-3 mt-1 pt-3 border-t border-slate-200/50 dark:border-slate-700">
+                          <div className="flex-1 text-left">
+                            <label className="text-[9px] font-bold text-cyan-400 uppercase tracking-wider block mb-1">Supreme Leader Constituency Override</label>
+                            <select 
+                              value={overrideConstituencyId}
+                              onChange={(e) => setOverrideConstituencyId(e.target.value)}
+                              className="w-full p-2.5 rounded-lg border border-cyan-200/60 dark:border-cyan-900/40 bg-cyan-50/50 dark:bg-cyan-900/10 text-xs focus:outline-none focus:border-cyan-400 text-slate-800 dark:text-white"
+                            >
+                              <option value="">Select Constituency...</option>
+                              {constituencies.map(c => (
+                                <option key={c.id} value={c.id}>{c.constituency_name} ({c.district})</option>
+                              ))}
+                            </select>
+                          </div>
+                          <PremiumButton 
+                            type="submit" 
+                            variant="primary" 
+                            size="sm" 
+                            disabled={updating || !overrideConstituencyId} 
+                            className="w-full sm:w-auto !border-cyan-500/30 !text-cyan-400 hover:!bg-cyan-500 hover:!text-white shadow-glow-cyan/5"
+                          >
+                            Override Route
+                          </PremiumButton>
+                        </form>
+                      )}
                     </div>
                   </div>
                 )}

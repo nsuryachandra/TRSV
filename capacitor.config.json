@@ -1,12 +1,12 @@
 {
-  "appId": "com.trsv.app",
-  "appName": "TRSV",
+  "appId": "com.tvrs.app",
+  "appName": "TVRS",
   "webDir": "dist",
   "bundledWebRuntime": false,
   "server": {
     "androidScheme": "http",
     "allowNavigation": [
-      "trsv-union.onrender.com"
+      "tvrs-union.onrender.com"
     ]
   },
   "plugins": {

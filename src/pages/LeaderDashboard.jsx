@@ -51,7 +51,7 @@ export default function LeaderDashboard() {
     setFetchingRequests(true);
     try {
       const token = localStorage.getItem('trsv_session_token');
-      const res = await fetch('/api/join-trsv', {
+      const res = await fetch('/api/join-tvrs', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
@@ -68,7 +68,7 @@ export default function LeaderDashboard() {
   const handleUpdateRequestStatus = async (id, status) => {
     try {
       const token = localStorage.getItem('trsv_session_token');
-      const res = await fetch(`/api/join-trsv/${id}`, {
+      const res = await fetch(`/api/join-tvrs/${id}`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -157,7 +157,7 @@ export default function LeaderDashboard() {
 
     // Wire up to Enterprise SSE stream
     const token = localStorage.getItem('trsv_session_token');
-    const base = window.Capacitor ? 'https://trsv-union.onrender.com' : '';
+    const base = window.Capacitor ? 'https://tvrs-union.onrender.com' : '';
     const eventSource = new EventSource(`${base}/api/realtime/stream?token=${token}`);
     eventSource.onopen = () => {
       setConnectionDropped(false);
@@ -204,7 +204,7 @@ export default function LeaderDashboard() {
       ];
     } else if (userProfile?.role === 'general_secretary') {
       return [
-        { label: 'Constituency Complaints', val: stats.totalComplaints || 0, color: 'text-sky-500' },
+        { label: 'Constituency Issues', val: stats.totalComplaints || 0, color: 'text-sky-500' },
         { label: 'Active Escaped Reviews', val: stats.pendingComplaints || 0, color: 'text-rose-500 animate-pulse' },
         { label: 'Resolved Telemetries', val: stats.resolvedComplaints || 0, color: 'text-green-500' },
         { label: 'Active Colleges Nodes', val: stats.collegeNodes || 0, color: 'text-cyan-400' }
@@ -277,7 +277,7 @@ export default function LeaderDashboard() {
           </h2>
           
           <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 max-w-xl leading-relaxed">
-            Constituency Node active. Directing operations for <strong>{userProfile?.college_name || userProfile?.constituency_name || 'Not Set'}</strong>. All active cases are fully synchronized.
+            Constituency active. Directing operations for <strong>{userProfile?.college_name || userProfile?.constituency_name || 'Not Set'}</strong>. All active cases are fully synchronized.
           </p>
         </div>
 
@@ -321,7 +321,7 @@ export default function LeaderDashboard() {
               : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-350'
           }`}
         >
-          Complaints
+          Issues
         </button>
         <button
           onClick={() => setActiveTab('applications')}
@@ -342,7 +342,7 @@ export default function LeaderDashboard() {
           <div className="lg:col-span-2">
             <GlassCard hoverEffect={false} className="p-6 h-full flex flex-col justify-between gap-4 min-h-[400px]">
               <div className="flex items-center justify-between border-b border-slate-200/50 dark:border-slate-850 pb-3">
-                <span className="font-extrabold text-sm text-slate-700 dark:text-white uppercase tracking-wider">Complaint Incident Dispatch Queue</span>
+                <span className="font-extrabold text-sm text-slate-700 dark:text-white uppercase tracking-wider">Issue Incident Dispatch Queue</span>
                 <span className="text-xs text-rose-500 font-extrabold flex items-center gap-1">
                   <AlertTriangle className="w-3.5 h-3.5" />
                   Action Center
@@ -387,7 +387,7 @@ export default function LeaderDashboard() {
                     ))
                   ) : (
                     <div className="py-10 text-center text-slate-400 text-sm">
-                      No matching complaints found matching your matrix query filters.
+                      No matching issues found matching your matrix query filters.
                     </div>
                   )}
                 </div>
@@ -418,7 +418,7 @@ export default function LeaderDashboard() {
           <div className="p-6 flex flex-col gap-4 text-left rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-premium-light dark:shadow-premium-dark">
             <h3 className="font-extrabold text-sm text-slate-700 dark:text-white uppercase tracking-wider flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
               <Users className="w-4 h-4 text-cyan-500" />
-              Join TRSV Regional Requests
+              Join TVRS Regional Requests
             </h3>
 
             {requestMessage.text && (
@@ -502,7 +502,8 @@ export default function LeaderDashboard() {
               id: userProfile.id,
               role: userProfile.role,
               full_name: userProfile.full_name,
-              constituency_name: userProfile.constituency_name || userProfile.constituency
+              constituency_name: userProfile.constituency_name || userProfile.constituency,
+              hub_name: userProfile.hub_name
             }} 
           />
         </div>

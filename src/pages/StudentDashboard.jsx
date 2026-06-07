@@ -33,21 +33,10 @@ export default function StudentDashboard() {
     }
   }, [openTicketId]);
 
-  // OpenStreetMap Autocomplete & Live Map States
+  // Manual Profile Location & Selection States
   const [constituencies, setConstituencies] = useState([]);
-  const [dbColleges, setDbColleges] = useState([]);
   const [collegeSearch, setCollegeSearch] = useState(userProfile?.college_name && userProfile.college_name !== 'Not Set' ? userProfile.college_name : '');
-  const [suggestions, setSuggestions] = useState([]);
-  const [searchLoading, setSearchLoading] = useState(false);
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [mappedMsg, setMappedMsg] = useState('');
   const [selectedConstituencyId, setSelectedConstituencyId] = useState(userProfile?.constituency_id && userProfile.constituency_id !== 'Not Set' ? userProfile.constituency_id : '');
-  const [mapType, setMapType] = useState('vector'); // 'vector' | 'satellite'
-  const tileLayerRef = useRef(null);
-  
-  const [mapInstance, setMapInstance] = useState(null);
-  const [markerInstance, setMarkerInstance] = useState(null);
-  const [mapResolving, setMapResolving] = useState(false);
   const [savingMap, setSavingMap] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState('');
   const [showWarningModal, setShowWarningModal] = useState(false);
@@ -65,330 +54,37 @@ export default function StudentDashboard() {
     setShowWarningModal(false);
   };
 
-  // Evaluate if the resolved college area is active (Greater Hyderabad) or inactive (statewide, complain only)
+  // Sync profile details if available
   useEffect(() => {
-    if (!selectedConstituencyId || constituencies.length === 0) return;
-    const conId = parseInt(selectedConstituencyId);
-    const matchedCon = constituencies.find(c => c.id === conId);
-    if (matchedCon) {
-      if (matchedCon.constituency_name === 'Upcoming Area') {
-        setMappedMsg(`⚠️ Campus in future expansion node. TRSV is launching in all constituencies soon!`);
-        return;
+    if (userProfile) {
+      if (userProfile.college_name && userProfile.college_name !== 'Not Set') {
+        setCollegeSearch(userProfile.college_name);
       }
-      const isGH = matchedCon.id === 23 || matchedCon.parent_id === 23;
-      if (isGH) {
-        setMappedMsg(`✓ Automatically mapped to active regional node: ${matchedCon.constituency_name}`);
-      } else {
-        setMappedMsg(`⚠️ Your area (${matchedCon.constituency_name}) is not active, but you can still register a complaint!`);
+      if (userProfile.constituency_id && userProfile.constituency_id !== 'Not Set') {
+        setSelectedConstituencyId(userProfile.constituency_id.toString());
       }
     }
-  }, [selectedConstituencyId, constituencies]);
+  }, [userProfile]);
 
-  // 1. Dynamic Leaflet Stylesheet, JS and Constituencies Loader
+  // Load constituencies
   useEffect(() => {
-    // Inject Leaflet CSS
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-    link.id = 'leaflet-css';
-    if (!document.getElementById('leaflet-css')) {
-      document.head.appendChild(link);
-    }
-
-    // Inject Leaflet JS
-    const script = document.createElement('script');
-    script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-    script.id = 'leaflet-js';
-    if (!document.getElementById('leaflet-js')) {
-      document.body.appendChild(script);
-    }
-
     const fetchConstituencies = async () => {
       try {
         const response = await fetch('/api/constituencies');
         const data = await response.json();
         if (data.success) {
           setConstituencies(data.constituencies);
+          // If no constituency is preselected, default to the first one
+          if (!selectedConstituencyId && data.constituencies.length > 0) {
+            setSelectedConstituencyId(data.constituencies[0].id.toString());
+          }
         }
       } catch (error) {
         console.error('Failed to load constituencies:', error);
       }
     };
-
-    const fetchDbColleges = async () => {
-      try {
-        const response = await fetch('/api/colleges');
-        const data = await response.json();
-        if (data.success) {
-          setDbColleges(data.colleges);
-        }
-      } catch (error) {
-        console.error('Failed to load database colleges:', error);
-      }
-    };
-
     fetchConstituencies();
-    fetchDbColleges();
   }, []);
-
-  // 2. Initialize Leaflet Map when dashboard components are fully loaded
-  useEffect(() => {
-    if (loading) return;
-
-    const timer = setInterval(() => {
-      if (window.L && document.getElementById('dashboard-map')) {
-        clearInterval(timer);
-        initDashboardMap();
-      }
-    }, 100);
-
-    return () => clearInterval(timer);
-  }, [loading]);
-
-  const initDashboardMap = () => {
-    if (document.getElementById('dashboard-map') && !mapInstance) {
-      const defaultLat = 17.3850; // Hyderabad Center
-      const defaultLng = 78.4867;
-
-      const map = window.L.map('dashboard-map', {
-        zoomControl: true,
-        scrollWheelZoom: true
-      }).setView([defaultLat, defaultLng], 12);
-
-      const isDark = document.documentElement.classList.contains('dark');
-      const tileUrl = isDark 
-        ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-        : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png';
-
-      const tileLayer = window.L.tileLayer(tileUrl, {
-        maxZoom: 20,
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-        subdomains: 'abcd'
-      }).addTo(map);
-      
-      tileLayerRef.current = tileLayer;
-
-      // Create a gorgeous locator marker
-      const marker = window.L.marker([defaultLat, defaultLng], {
-        draggable: true
-      }).addTo(map);
-
-      marker.bindPopup("<div class='text-[10px] font-bold text-slate-800'>📍 Drag me over your college campus!</div>").openPopup();
-
-      setMapInstance(map);
-      setMarkerInstance(marker);
-
-      map.on('click', (e) => {
-        const { lat, lng } = e.latlng;
-        marker.setLatLng([lat, lng]);
-        resolveMapCoordinates(lat, lng, marker);
-      });
-
-      marker.on('dragend', () => {
-        const position = marker.getLatLng();
-        resolveMapCoordinates(position.lat, position.lng, marker);
-      });
-    }
-  };
-
-  const handleToggleMapType = () => {
-    if (!mapInstance || !tileLayerRef.current) return;
-    
-    mapInstance.removeLayer(tileLayerRef.current);
-    
-    if (mapType === 'vector') {
-      const satelliteLayer = window.L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
-        maxZoom: 19
-      }).addTo(mapInstance);
-      tileLayerRef.current = satelliteLayer;
-      setMapType('satellite');
-    } else {
-      const isDark = document.documentElement.classList.contains('dark');
-      const tileUrl = isDark 
-        ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-        : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png';
-
-      const vectorLayer = window.L.tileLayer(tileUrl, {
-        maxZoom: 20,
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-        subdomains: 'abcd'
-      }).addTo(mapInstance);
-      tileLayerRef.current = vectorLayer;
-      setMapType('vector');
-    }
-  };
-
-  const resolveMapCoordinates = async (lat, lng, markerRef) => {
-    setMapResolving(true);
-    setSaveSuccess('');
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&addressdetails=1`
-      );
-      const data = await response.json();
-      if (data) {
-        handleSelectCollege(data, false); // select it dynamically but don't pan map to keep drag smooth
-      }
-    } catch (err) {
-      console.error('Reverse Geocode error:', err);
-    } finally {
-      setMapResolving(false);
-    }
-  };
-
-  // 3. Debounced Search Autocomplete to Nominatim & Local Database
-  useEffect(() => {
-    if (!collegeSearch || collegeSearch.length < 3 || collegeSearch === userProfile?.college_name) {
-      setSuggestions([]);
-      setShowDropdown(false);
-      return;
-    }
-
-    // Filter database colleges locally and show them immediately
-    const filterTerm = collegeSearch.toLowerCase();
-    const dbMatches = dbColleges
-      .filter(col => col.college_name.toLowerCase().includes(filterTerm))
-      .slice(0, 5)
-      .map(col => ({
-        isDbRecord: true,
-        place_id: `db_${col.id}`,
-        id: col.id,
-        name: col.college_name,
-        display_name: `🏛️ Registered Campus - ${col.constituency_name || 'Regional Constituency'}`,
-        constituency_id: col.constituency_id,
-        college_name: col.college_name
-      }));
-
-    setSuggestions(dbMatches);
-    setShowDropdown(dbMatches.length > 0);
-
-    const delayDebounce = setTimeout(async () => {
-      setSearchLoading(true);
-      try {
-        const queryStr = encodeURIComponent(collegeSearch);
-        const response = await fetch(
-          `https://nominatim.openstreetmap.org/search?q=${queryStr}&format=json&addressdetails=1&limit=5&countrycodes=in`
-        );
-        const data = await response.json();
-        
-        let osmMatches = [];
-        if (data && Array.isArray(data)) {
-          osmMatches = data;
-        }
-
-        // Merge keeping DB records first and avoiding exact duplicates
-        setSuggestions(prev => {
-          const onlyDb = prev.filter(item => item.isDbRecord);
-          const filteredOsm = osmMatches.filter(osm => 
-            !onlyDb.some(db => db.name.toLowerCase() === (osm.name || osm.display_name).split(',')[0].toLowerCase())
-          );
-          const merged = [...onlyDb, ...filteredOsm];
-          return merged;
-        });
-        setShowDropdown(true);
-      } catch (err) {
-        console.error('OSM Search Error:', err);
-      } finally {
-        setSearchLoading(false);
-      }
-    }, 400);
-
-    return () => clearTimeout(delayDebounce);
-  }, [collegeSearch, dbColleges]);
-
-  const handleSelectCollege = async (place, panMap = true) => {
-    setSuggestions([]);
-    setShowDropdown(false);
-    setMappedMsg('');
-
-    if (place.isDbRecord) {
-      setCollegeSearch(place.name);
-      if (place.constituency_id) {
-        setSelectedConstituencyId(place.constituency_id.toString());
-        const conMatch = constituencies.find(c => c.id === place.constituency_id);
-        if (conMatch) {
-          setMappedMsg(`✓ Automatically mapped to regional node: ${conMatch.constituency_name}`);
-        }
-      }
-
-      if (panMap && mapInstance && markerInstance) {
-        try {
-          const queryStr = encodeURIComponent(place.name + ', Telangana, India');
-          const response = await fetch(
-            `https://nominatim.openstreetmap.org/search?q=${queryStr}&format=json&limit=1`
-          );
-          const data = await response.json();
-          if (data && data.length > 0) {
-            const lat = parseFloat(data[0].lat);
-            const lng = parseFloat(data[0].lon);
-            markerInstance.setLatLng([lat, lng]);
-            mapInstance.setView([lat, lng], 15);
-          }
-        } catch (err) {
-          console.warn('[handleSelectCollege] Failed background geocoding for database campus:', err);
-        }
-      }
-      return;
-    }
-
-    const selectedName = place.display_name;
-    const address = place.address || {};
-
-    setCollegeSearch(selectedName);
-
-    // Attempt to automatically match place details to active constituencies
-    const addressKeys = ['suburb', 'neighbourhood', 'city_district', 'county', 'state_district', 'city', 'town', 'village'];
-    
-    let matchedCon = null;
-
-    for (const key of addressKeys) {
-      const val = address[key];
-      if (val) {
-        const cleanVal = val.toLowerCase().replace(/[^a-z0-9]/g, '');
-        const match = constituencies.find(con => {
-          const cleanCon = con.constituency_name.toLowerCase().replace(/[^a-z0-9]/g, '');
-          return cleanCon.includes(cleanVal) || cleanVal.includes(cleanCon);
-        });
-
-        if (match) {
-          matchedCon = match;
-          break;
-        }
-      }
-    }
-
-    if (matchedCon) {
-      setSelectedConstituencyId(matchedCon.id.toString());
-      setMappedMsg(`✓ Automatically mapped to regional node: ${matchedCon.constituency_name}`);
-    } else {
-      const displayLower = selectedName.toLowerCase();
-      const textMatch = constituencies.find(con => {
-        const cleanCon = con.constituency_name.toLowerCase().trim();
-        return displayLower.includes(cleanCon);
-      });
-
-      if (textMatch) {
-        setSelectedConstituencyId(textMatch.id.toString());
-        setMappedMsg(`✓ Automatically mapped to regional node: ${textMatch.constituency_name}`);
-      } else {
-        // Auto-select "Upcoming Area" instead of leaving a random constituency
-        const upcomingCon = constituencies.find(con => con.constituency_name === 'Upcoming Area');
-        if (upcomingCon) {
-          setSelectedConstituencyId(upcomingCon.id.toString());
-        }
-        setMappedMsg(`⚠️ Campus in future expansion node. TRSV is launching in all constituencies soon!`);
-      }
-    }
-
-    // Move marker and pan map if requested
-    if (panMap && mapInstance && markerInstance && place.lat && place.lon) {
-      const lat = parseFloat(place.lat);
-      const lng = parseFloat(place.lon);
-      markerInstance.setLatLng([lat, lng]);
-      mapInstance.setView([lat, lng], 15);
-    }
-  };
 
   const handleLockCoordinates = async () => {
     if (!collegeSearch) return;
@@ -409,7 +105,7 @@ export default function StudentDashboard() {
       });
       const data = await response.json();
       if (data.success) {
-        setSaveSuccess('🎉 Verified campus geolocations synchronized and locked successfully!');
+        setSaveSuccess('🎉 Profile campus & constituency details locked successfully!');
         await refreshProfile();
       } else {
         setSaveSuccess(`❌ Sync failure: ${data.message}`);
@@ -490,7 +186,7 @@ export default function StudentDashboard() {
   };
 
   const renderStatusStepper = (status) => {
-    const stages = ['Complaint Registered', 'Complaint Verified', 'Solving Started', 'Solved'];
+    const stages = ['Issue Registered', 'Issue Verified', 'Solving Started', 'Solved'];
     let currentIdx = 0;
     if (status === 'Complaint Registered' || status === 'Audit Phase' || status === 'Registered') {
       currentIdx = 0;
@@ -576,7 +272,7 @@ export default function StudentDashboard() {
           </h2>
           
           <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 max-w-xl leading-relaxed">
-            Registered Student Coordinator node active. Your digital identity credentials, local district cluster, and complaint records are fully synchronized with the Neon database.
+            Registered Student Coordinator node active. Your digital identity credentials, local district cluster, and issue records are fully synchronized with the Neon database.
           </p>
         </div>
         
@@ -587,7 +283,7 @@ export default function StudentDashboard() {
           disabled={syncing}
           icon={<RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />}
         >
-          {syncing ? 'Syncing Network...' : 'Sync Credentials'}
+          {syncing ? 'Syncing Network...' : 'Sync Profile'}
         </PremiumButton>
       </div>
 
@@ -600,7 +296,7 @@ export default function StudentDashboard() {
           </div>
 
           <div className="flex flex-col gap-4 text-left">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">State Advocacy Badge</span>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">My Profile</span>
             
             <div className="flex items-center gap-4 bg-slate-100/50 dark:bg-slate-900/60 p-4 rounded-xl border border-slate-200/30 dark:border-slate-850">
               {userProfile?.profile_image ? (
@@ -630,13 +326,13 @@ export default function StudentDashboard() {
 
           <div className="flex flex-col gap-2.5 text-xs text-slate-500 dark:text-slate-400 text-left border-t border-slate-200/50 dark:border-slate-850 pt-4">
             <div className="flex justify-between">
-              <span>Organization Status:</span>
+              <span>Role:</span>
               <strong className="text-slate-800 dark:text-slate-200">
                 {userProfile?.role ? userProfile.role.charAt(0).toUpperCase() + userProfile.role.slice(1) : 'Student'}
               </strong>
             </div>
             <div className="flex justify-between">
-              <span>Constituency Node:</span>
+              <span>Constituency:</span>
               <strong className="text-slate-800 dark:text-slate-250">
                 {userProfile?.constituency_name || 'Not Set'}
               </strong>
@@ -655,7 +351,7 @@ export default function StudentDashboard() {
           <GlassCard hoverEffect={false} className="p-6 h-full flex flex-col justify-between gap-4 text-left">
             <div className="flex flex-col gap-2 border-b border-slate-200/50 dark:border-slate-850 pb-3">
               <div className="flex items-center justify-between">
-                <span className="font-extrabold text-sm text-slate-700 dark:text-white uppercase tracking-wider">Complaint Dispatch Tracker</span>
+                <span className="font-extrabold text-sm text-slate-700 dark:text-white uppercase tracking-wider">My Issues</span>
                 <span className="text-xs text-slate-400">{tickets.length} Logged</span>
               </div>
               
@@ -670,7 +366,7 @@ export default function StudentDashboard() {
                       : 'bg-white/40 dark:bg-slate-900/40 border-slate-200/60 dark:border-slate-800 text-slate-500 dark:text-slate-400'
                   }`}
                 >
-                  Active Complaints ({activeTickets.length})
+                  Open Issues ({activeTickets.length})
                 </button>
                 <button
                   type="button"
@@ -681,7 +377,7 @@ export default function StudentDashboard() {
                       : 'bg-white/40 dark:bg-slate-900/40 border-slate-200/60 dark:border-slate-800 text-slate-500 dark:text-slate-400'
                   }`}
                 >
-                  Resolved Complaints ({resolvedTickets.length})
+                  Resolved Issues ({resolvedTickets.length})
                 </button>
               </div>
             </div>
@@ -746,7 +442,7 @@ export default function StudentDashboard() {
                   <span className="text-[10px] font-extrabold uppercase tracking-wider">⏳ Cooldown</span>
                   <span className="font-mono font-black text-sm">{formatCooldown(cooldownRemaining)}</span>
                 </div>
-                <p className="text-[9px] text-slate-400 text-center">Next complaint available after cooldown expires.</p>
+                <p className="text-[9px] text-slate-400 text-center">Next issue submission available after cooldown expires.</p>
               </div>
             ) : (
               <PremiumButton
@@ -756,15 +452,14 @@ export default function StudentDashboard() {
                 className="w-full mt-2"
                 onClick={() => navigate('/dashboard/contact')}
               >
-                Raise a Complaint
+                Get Help
               </PremiumButton>
             )}
           </GlassCard>
         </div>
-
       </div>
 
-      {/* 4. Verified Campus Spatial Coordinates Geolocator Map Hub */}
+       {/* 4. Profile Location & Constituency Hub */}
       <GlassCard hoverEffect={false} className="p-6 flex flex-col gap-5 border border-cyan-500/10 relative overflow-hidden">
         {/* Glow backing */}
         <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-bl from-cyan-500/5 to-transparent blur-2xl pointer-events-none" />
@@ -776,163 +471,128 @@ export default function StudentDashboard() {
             </div>
             <div className="flex flex-col text-left">
               <h3 className="font-black text-base text-slate-800 dark:text-white uppercase tracking-wider">
-                📍 Campus Spatial Locator Node
+                📍 Campus & Constituency Selection
               </h3>
               <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
-                Drop your official campus locator pin on the high-fidelity map below to bind your verified credentials to active constituency nodes.
+                Set your college campus name and select your assembly constituency to route your issues to the correct leaders.
               </p>
             </div>
           </div>
           
           {userProfile?.college_name && userProfile.college_name !== 'Not Set' ? (
             <span className="self-start md:self-center text-[9px] font-black bg-emerald-500/10 text-emerald-500 dark:text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-full uppercase tracking-wider">
-              ✓ Active Campus Pinned: {userProfile.college_name.split(',')[0]}
+              ✓ Profile Details Locked: {userProfile.college_name}
             </span>
           ) : (
             <span className="self-start md:self-center text-[9px] font-black bg-amber-500/10 text-amber-500 dark:text-amber-400 border border-amber-500/20 px-2.5 py-1 rounded-full uppercase tracking-wider">
-              ⚠️ No Campus Set
+              ⚠️ Details Not Set
             </span>
           )}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
-          {/* Left Panel: College Autocomplete search and locking controls */}
-          <div className="lg:col-span-2 flex flex-col gap-4 text-left">
-            <div className="flex flex-col gap-1 relative">
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                Search or Type College Campus Name
-              </label>
-              
-              <div className="relative">
-                <Building className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400" strokeWidth={2.2} />
-                <input
-                  type="text"
-                  placeholder="e.g. Aurora Technological Uppal"
-                  value={collegeSearch}
-                  onChange={(e) => {
-                    setCollegeSearch(e.target.value);
-                    setSaveSuccess('');
-                  }}
-                  className="w-full pl-11 pr-4 py-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-800 dark:text-slate-100 shadow-sm"
-                />
-                {searchLoading && (
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border border-t-cyan-500 border-slate-200 dark:border-slate-800 animate-spin" />
-                )}
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-stretch">
+          {/* Left Panel: College name and constituency dropdown */}
+          <div className="lg:col-span-2 flex flex-col gap-4 text-left justify-between">
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  College / School Name
+                </label>
+                <div className="relative">
+                  <Building className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400" strokeWidth={2.2} />
+                  <input
+                    type="text"
+                    placeholder="e.g. Aurora Technological Uppal"
+                    value={collegeSearch}
+                    onChange={(e) => {
+                      setCollegeSearch(e.target.value);
+                      setSaveSuccess('');
+                    }}
+                    className="w-full pl-11 pr-4 py-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-800 dark:text-slate-100 shadow-sm"
+                  />
+                </div>
               </div>
 
-              {/* Floating Suggestions Dropdown */}
-              {showDropdown && suggestions.length > 0 && (
-                <div className="absolute left-0 right-0 top-full mt-1.5 max-h-52 overflow-y-auto rounded-xl border border-slate-200/60 dark:border-slate-800 bg-white/95 dark:bg-slate-950/95 shadow-2xl z-35 flex flex-col text-[11px] divide-y divide-slate-150 dark:divide-slate-850 animate-[fadeIn_0.15s_ease-out]">
-                  {suggestions.map((place) => (
-                    <button
-                      key={place.place_id}
-                      type="button"
-                      onClick={() => handleSelectCollege(place, true)}
-                      className="w-full text-left py-2.5 px-4 hover:bg-cyan-500/10 hover:text-cyan-500 dark:hover:bg-cyan-400/10 text-slate-700 dark:text-slate-250 font-medium transition-all duration-150 flex flex-col gap-0.5 cursor-pointer active:bg-cyan-500/20"
-                    >
-                      <span className="font-bold truncate">{place.name || place.display_name}</span>
-                      <span className="text-[9px] text-slate-400 dark:text-slate-500 truncate">{place.display_name}</span>
-                    </button>
-                  ))}
-                  
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowDropdown(false);
-                      setMappedMsg('💡 Custom college entered manually.');
-                    }}
-                    className="w-full text-left py-2.5 px-4 hover:bg-cyan-500/10 hover:text-cyan-500 dark:hover:bg-cyan-400/10 text-slate-750 dark:text-slate-250 font-bold transition-all duration-150 flex flex-col gap-0.5 cursor-pointer active:bg-cyan-500/20 border-t border-slate-200/40"
+              {/* Manual constituency select option */}
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  Assembly Constituency
+                </label>
+                <div className="relative">
+                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400" strokeWidth={2.2} />
+                  <select
+                    value={selectedConstituencyId}
+                    onChange={(e) => setSelectedConstituencyId(e.target.value)}
+                    className="w-full pl-11 pr-4 py-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-850 dark:text-slate-100"
                   >
-                    <span className="font-extrabold text-cyan-500">✨ Click to type custom campus name</span>
-                    <span className="text-[9px] text-slate-400 dark:text-slate-500">Keep: "{collegeSearch}"</span>
-                  </button>
+                    {constituencies.map(con => (
+                      <option key={con.id} value={con.id}>
+                        {con.constituency_name === 'Upcoming Area' || con.constituency_name === 'Upcoming Area Node'
+                          ? 'Not Listed (Send to All State Leaders)'
+                          : con.constituency_name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
-              )}
-
-              {/* No suggestions helper */}
-              {showDropdown && suggestions.length === 0 && collegeSearch.length >= 3 && (
-                <div className="absolute left-0 right-0 top-full mt-1.5 p-4 rounded-xl border border-slate-200/60 dark:border-slate-800 bg-white/95 dark:bg-slate-955/95 shadow-2xl z-35 flex flex-col gap-1 text-[11px] animate-[fadeIn_0.15s_ease-out]">
-                  <span className="font-bold text-slate-800 dark:text-slate-255">🔍 No OpenStreetMap matches found</span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowDropdown(false);
-                      setMappedMsg('💡 Custom college entered manually.');
-                    }}
-                    className="text-left text-cyan-500 font-extrabold hover:underline mt-1 cursor-pointer"
-                  >
-                    ✨ Click here to keep typed name: "{collegeSearch}"
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Resolved constituency badge */}
-            {mappedMsg && (
-              <div className="p-3 rounded-xl bg-cyan-500/5 border border-cyan-500/15 text-[10px] font-bold text-cyan-600 dark:text-cyan-400 uppercase tracking-wider flex items-center gap-1.5 animate-scaleUp">
-                {mappedMsg}
-              </div>
-            )}
-
-            {/* Manual constituency overriding select option */}
-            <div className="flex flex-col gap-1 mt-1">
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                Electoral Node Constituency Map
-              </label>
-              <div className="relative">
-                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400" strokeWidth={2.2} />
-                <select
-                  value={selectedConstituencyId}
-                  onChange={(e) => setSelectedConstituencyId(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-850 dark:text-slate-100"
-                >
-                  {constituencies.map(con => (
-                    <option key={con.id} value={con.id}>{con.constituency_name}</option>
-                  ))}
-                </select>
               </div>
             </div>
 
-            {/* Sync locking button */}
-            <PremiumButton
-              type="button"
-              variant="glow"
-              size="md"
-              className="w-full mt-2"
-              onClick={handleLockCoordinates}
-              disabled={savingMap || !collegeSearch}
-            >
-              {savingMap ? 'Locking Coordinates...' : 'Lock Campus Coordinates'}
-            </PremiumButton>
+            <div className="flex flex-col gap-2">
+              {/* Lock details button */}
+              <PremiumButton
+                type="button"
+                variant="glow"
+                size="md"
+                className="w-full"
+                onClick={handleLockCoordinates}
+                disabled={savingMap || !collegeSearch}
+              >
+                {savingMap ? 'Locking Details...' : 'Lock Profile Details'}
+              </PremiumButton>
 
-            {saveSuccess && (
-              <p className={`text-[10px] font-bold uppercase tracking-wider mt-1 text-left ${saveSuccess.startsWith('❌') ? 'text-rose-500' : 'text-emerald-500 dark:text-emerald-400'}`}>
-                {saveSuccess}
-              </p>
-            )}
+              {saveSuccess && (
+                <p className={`text-[10px] font-bold uppercase tracking-wider mt-1 text-left ${saveSuccess.startsWith('❌') ? 'text-rose-500' : 'text-emerald-500 dark:text-emerald-400'}`}>
+                  {saveSuccess}
+                </p>
+              )}
+            </div>
           </div>
 
-          {/* Right Panel: Massive leaflet map canvas */}
-          <div className="lg:col-span-3 w-full flex flex-col gap-2 relative">
-            <div className="rounded-xl overflow-hidden border border-slate-200/60 dark:border-slate-800 bg-white/40 dark:bg-slate-950/40 p-1 shadow-glow-cyan/5 relative">
-              {/* Premium Map Type Toggle pill button */}
-              <button
-                type="button"
-                onClick={handleToggleMapType}
-                className="absolute top-3 right-3 z-[1000] flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200/60 dark:border-slate-800 bg-white/90 dark:bg-slate-950/90 hover:bg-white dark:hover:bg-slate-950 text-slate-800 dark:text-white text-[10px] font-black uppercase tracking-wider transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] cursor-pointer shadow-md select-none"
-              >
-                {mapType === 'vector' ? '🛰️ Satellite View' : '🗺️ Detailed Map'}
-              </button>
-              <div id="dashboard-map" className="h-64 w-full rounded-lg z-10" />
-            </div>
-            
-            <div className="flex justify-between items-center text-[9px] text-slate-400 font-bold uppercase tracking-wider px-1">
-              <span>📍 Hyderabad, Telangana Grid Cluster</span>
-              {mapResolving ? (
-                <span className="text-cyan-500 animate-pulse">⚡ Resolving marker pin details...</span>
-              ) : (
-                <span>✓ Interactive coordinates lock active</span>
-              )}
+          {/* Right Panel: How to find your constituency instructions */}
+          <div className="lg:col-span-3 w-full flex flex-col justify-between p-5 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-slate-500/5 relative overflow-hidden">
+            <div className="flex flex-col gap-4 text-left">
+              <div className="flex items-center gap-2 text-cyan-500">
+                <HelpCircle className="w-5 h-5 text-cyan-500" />
+                <span className="text-xs font-black uppercase tracking-widest text-slate-400">
+                  Constituency Identification Guide
+                </span>
+              </div>
+              <div className="flex flex-col gap-3.5 text-xs text-slate-650 dark:text-slate-400 font-semibold leading-relaxed">
+                <div className="flex items-start gap-2.5">
+                  <div className="w-5 h-5 rounded-full bg-cyan-500/10 border border-cyan-500/25 flex items-center justify-center text-[10px] text-cyan-500 font-black shrink-0 mt-0.5">1</div>
+                  <p>
+                    <strong className="text-slate-800 dark:text-slate-200">Get your Campus Pincode:</strong> Check the address of your college or school to locate its 6-digit postal pincode.
+                  </p>
+                </div>
+                <div className="flex items-start gap-2.5">
+                  <div className="w-5 h-5 rounded-full bg-cyan-500/10 border border-cyan-500/25 flex items-center justify-center text-[10px] text-cyan-500 font-black shrink-0 mt-0.5">2</div>
+                  <p>
+                    <strong className="text-slate-800 dark:text-slate-200">Search on Google:</strong> Type your college pincode followed by <span className="font-mono text-cyan-600 dark:text-cyan-400">"assembly constituency"</span> into Google search (e.g. search: <span className="font-mono text-cyan-600 dark:text-cyan-400">"500001 assembly constituency"</span>).
+                  </p>
+                </div>
+                <div className="flex items-start gap-2.5">
+                  <div className="w-5 h-5 rounded-full bg-cyan-500/10 border border-cyan-500/25 flex items-center justify-center text-[10px] text-cyan-500 font-black shrink-0 mt-0.5">3</div>
+                  <p>
+                    <strong className="text-slate-800 dark:text-slate-200">Select & Save:</strong> Match the Google result with our constituency list dropdown. Click <span className="text-cyan-500">"Lock Profile Details"</span> to save.
+                  </p>
+                </div>
+                <div className="flex items-start gap-2.5">
+                  <div className="w-5 h-5 rounded-full bg-amber-500/10 border border-amber-500/25 flex items-center justify-center text-[10px] text-amber-500 font-black shrink-0 mt-0.5">!</div>
+                  <p>
+                    <strong className="text-amber-500">Not Listed?</strong> If your constituency is not present in our database, select <strong className="text-amber-500">"Not Listed (Send to All State Leaders)"</strong>. Your issue tickets will be dispatched globally to all state committee members.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -962,14 +622,14 @@ export default function StudentDashboard() {
                 ⚠️ Be Alert!
               </h3>
               <p className="text-[10px] text-slate-550 dark:text-slate-400 font-extrabold uppercase tracking-widest">
-                Official TRSV Student Notice
+                Official TVRS Student Notice
               </p>
             </div>
 
             <p className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed font-semibold z-10">
-              Complaint tickets logged in the TRSV Command Node are transmitted directly to regional boards. 
-              <span className="text-amber-600 dark:text-amber-400 font-bold block mt-1">You must file only real and genuine complaints.</span> 
-              Filing simulated, fake, or false complaints is strictly prohibited and will result in permanent student credential suspension.
+              Issue tickets logged in the TVRS Command Node are transmitted directly to regional boards. 
+              <span className="text-amber-600 dark:text-amber-400 font-bold block mt-1">You must file only real and genuine issues.</span> 
+              Filing simulated, fake, or false issues is strictly prohibited and will result in permanent student credential suspension.
             </p>
 
             <button

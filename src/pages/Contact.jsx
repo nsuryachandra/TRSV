@@ -417,7 +417,7 @@ export default function Contact() {
           State Complaint Submission Gate
         </h1>
         <p className="text-base sm:text-lg text-slate-500 dark:text-slate-400 leading-relaxed text-center">
-          Raise your academic, campus-safety, or administrative complaint directly into the TRSV Command Node. Every submission is digitally routed to local and statewide leaders.
+          Raise your academic, campus-safety, or administrative complaint directly into the TVRS Command Node. Every submission is digitally routed to local and statewide leaders.
         </p>
       </AnimatedSection>
 
@@ -475,7 +475,7 @@ export default function Contact() {
                 <div className="flex flex-col gap-1 pb-3 border-b border-slate-200/50 dark:border-slate-850">
                   <h3 className="font-black text-lg text-slate-850 dark:text-white flex items-center gap-2">
                     <ShieldAlert className="w-5 h-5 text-cyan-500" />
-                    Raise Official Complaint
+                    Get Official Help
                   </h3>
                   <p className="text-xs text-slate-400">
                     All fields are mandatory. Filing false complaints will result in permanent credential suspension.
@@ -487,7 +487,7 @@ export default function Contact() {
                   <AlertTriangle className="w-4.5 h-4.5 shrink-0 text-rose-500 mt-0.5" />
                   <div>
                     <strong className="block font-extrabold uppercase mb-1">⚠️ Mandatory Disclaimer</strong>
-                    By submitting this complaint, you declare under union regulations that all facts, details, and attachments are genuine and true. Lodging simulated, fake, or false reports is strictly prohibited under the TRSV State Charter, and will result in immediate suspension of student credentials and potential legal actions.
+                    By submitting this complaint, you declare under union regulations that all facts, details, and attachments are genuine and true. Lodging simulated, fake, or false reports is strictly prohibited under the TVRS State Charter, and will result in immediate suspension of student credentials and potential legal actions.
                   </div>
                 </div>
 
@@ -784,7 +784,7 @@ export default function Contact() {
                     disabled={submitting}
                     icon={submitting ? null : <Send className="w-4 h-4 text-white" strokeWidth={2.5} />}
                   >
-                    {submitting ? 'Transmitting Evidences & Raising...' : (isEmergency ? 'Trigger Emergency Dispatch' : 'Raise Official Complaint')}
+                    {submitting ? 'Transmitting Evidences & Submitting...' : (isEmergency ? 'Trigger Emergency Dispatch' : 'Get Help')}
                   </PremiumButton>
                 )}
               </form>
@@ -901,7 +901,7 @@ export default function Contact() {
                 ) : (
                   <div className="flex flex-col items-center justify-center py-12 text-slate-400 text-xs border-2 border-dashed border-slate-200/20 dark:border-slate-800 rounded-2xl bg-slate-50/50 dark:bg-slate-905/30">
                     <AlertTriangle className="w-8 h-8 text-slate-400 mb-2 opacity-50 animate-pulse" />
-                    No tickets in this section. Raise a complaint to activate real-time tracking.
+                    No tickets in this section. Submit a ticket under Get Help to activate real-time tracking.
                   </div>
                 )}
               </div>

@@ -76,7 +76,7 @@ const corsOriginHandler = (origin, callback) => {
   if (
     allowedOrigins.indexOf(origin) !== -1 ||
     origin.startsWith('http://localhost:') ||
-    origin.includes('trsv-union.onrender.com') ||
+    origin.includes('tvrs-union.onrender.com') ||
     origin.includes('onrender.com')
   ) {
     return callback(null, true);
@@ -164,7 +164,7 @@ app.use('/api/automation', automationRouter);
 app.use('/api/identity', identityRouter);
 app.use('/api/chat', chatRouter);
 app.use('/api/notifications', notificationsRouter);
-app.use('/api/join-trsv', joinRouter);
+app.use('/api/join-tvrs', joinRouter);
 
 // Health Check Endpoint
 app.get('/api/health', async (req, res) => {
@@ -172,14 +172,14 @@ app.get('/api/health', async (req, res) => {
     const dbCheck = await pool.query('SELECT NOW()');
     res.json({
       status: 'healthy',
-      service: 'TRSV Governance Core Node',
+      service: 'TVRS Governance Core Node',
       database: 'connected',
       timestamp: dbCheck.rows[0].now
     });
   } catch (error) {
     res.status(500).json({
       status: 'degraded',
-      service: 'TRSV Governance Core Node',
+      service: 'TVRS Governance Core Node',
       database: 'disconnected',
       error: error.message
     });
@@ -215,14 +215,34 @@ app.use((err, req, res, next) => {
 });
 
 // Configure Socket.io Authentication Middleware
-io.use((socket, next) => {
+io.use(async (socket, next) => {
   const token = socket.handshake.auth?.token;
   if (!token) {
     return next(new Error('Authentication error: Token missing'));
   }
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    socket.user = decoded; // { uid, email, role, name }
+    
+    // Fetch live profile details including parent/hub structure
+    const userRes = await pool.query(`
+      SELECT u.id, u.role, u.full_name, u.email, u.constituency_id,
+             c.constituency_name,
+             p.constituency_name as parent_name,
+             COALESCE(p.constituency_name, c.constituency_name, 'Upcoming Area') as hub_name
+      FROM users u
+      LEFT JOIN constituencies c ON u.constituency_id = c.id
+      LEFT JOIN constituencies p ON c.parent_id = p.id
+      WHERE u.id = $1
+    `, [decoded.uid]);
+
+    if (userRes.rows.length === 0) {
+      return next(new Error('Authentication error: User profile not found'));
+    }
+
+    socket.user = {
+      ...userRes.rows[0],
+      uid: userRes.rows[0].id // Maintain compatibility with existing code using socket.user.uid
+    };
     next();
   } catch (err) {
     return next(new Error('Authentication error: Invalid or expired token'));
@@ -310,7 +330,7 @@ const sendBackgroundPush = async (userId, title, message) => {
     // Construct FCM multicast payload
     const payload = {
       notification: {
-        title: title || 'TRSV Alert',
+        title: title || 'TVRS Alert',
         body: message || ''
       },
       android: {
@@ -354,8 +374,53 @@ io.on('connection', (socket) => {
   // Join user's personal room for direct notification alerts
   socket.join(`user_${socket.user.uid}`);
 
+  const checkChannelAuth = async (user, channel_id) => {
+    if (user.role === 'dev' || user.role === 'supreme_admin') {
+      return true;
+    }
+    if (user.role === 'student') {
+      return channel_id === `Social-Sector-${user.hub_name}`;
+    }
+    // Leader roles
+    if (channel_id.startsWith('Social-Sector-')) {
+      return true;
+    }
+    if (channel_id === 'GH-Global') {
+      return true;
+    }
+    if (channel_id.startsWith('GH-Constituency-')) {
+      const constituencyName = channel_id.replace('GH-Constituency-', '');
+      if (
+        user.constituency_name && 
+        (user.constituency_name.toLowerCase() === constituencyName.toLowerCase() ||
+         user.parent_name && user.parent_name.toLowerCase() === constituencyName.toLowerCase())
+      ) {
+        return true;
+      }
+      try {
+        const hierarchyCheck = await pool.query(`
+          SELECT 1 
+          FROM constituencies child
+          JOIN constituencies parent ON child.parent_id = parent.id
+          WHERE LOWER(child.constituency_name) = LOWER($1)
+            AND LOWER(parent.constituency_name) = LOWER($2)
+        `, [constituencyName, user.constituency_name]);
+        return hierarchyCheck.rows.length > 0;
+      } catch (err) {
+        console.error('🚨 [Socket.io Channel Auth Error]:', err.message);
+        return false;
+      }
+    }
+    return false;
+  };
+
   // 1. Join Chat Room
-  socket.on('join_channel', (channel_id) => {
+  socket.on('join_channel', async (channel_id) => {
+    const isAuth = await checkChannelAuth(socket.user, channel_id);
+    if (!isAuth) {
+      console.warn(`⚠️ [Socket.io] Unauthorized join attempt by socket ${socket.id} to channel ${channel_id}`);
+      return;
+    }
     socket.join(channel_id);
     console.log(`👥 [Socket.io] Socket ${socket.id} joined channel: ${channel_id}`);
   });
@@ -367,6 +432,12 @@ io.on('connection', (socket) => {
     // Strict sender_id validation (prevents spoofing)
     if (sender_id !== socket.user.uid) {
       console.warn(`⚠️ [Socket.io] Spoofing attempt by socket ${socket.id} (Claimed: ${sender_id}, Actual: ${socket.user.uid})`);
+      return;
+    }
+
+    const isAuth = await checkChannelAuth(socket.user, channel_id);
+    if (!isAuth) {
+      console.warn(`⚠️ [Socket.io] Unauthorized message post attempt by socket ${socket.id} to channel ${channel_id}`);
       return;
     }
 
@@ -444,12 +515,29 @@ io.on('connection', (socket) => {
             [sender_id, constName]
           );
           recipientTokens = tokenRes.rows.map(r => r.token);
+        } else if (channel_id.startsWith('Social-Sector-')) {
+          const hubName = channel_id.replace('Social-Sector-', '');
+          const tokenRes = await pool.query(
+            `SELECT DISTINCT f.token 
+             FROM user_fcm_tokens f
+             JOIN users u ON f.user_id = u.id
+             LEFT JOIN constituencies c ON u.constituency_id = c.id
+             LEFT JOIN constituencies p ON c.parent_id = p.id
+             WHERE u.id != $1 
+               AND LOWER(COALESCE(p.constituency_name, c.constituency_name, 'Upcoming Area')) = LOWER($2)`,
+            [sender_id, hubName]
+          );
+          recipientTokens = tokenRes.rows.map(r => r.token);
         }
 
         if (recipientTokens.length > 0 && firebaseApp) {
+          const notificationTitle = channel_id.startsWith('Social-Sector-')
+            ? `${channel_id.replace('Social-Sector-', '')} Social`
+            : (channel_id === 'GH-Global' ? 'Statewide Lounge' : channel_id.replace('GH-Constituency-', ''));
+
           const payload = {
             notification: {
-              title: `💬 ${channel_id === 'GH-Global' ? 'Statewide Lounge' : channel_id.replace('GH-Constituency-', '')}`,
+              title: `💬 ${notificationTitle}`,
               body: `${senderName}: ${message_text.substring(0, 100)}${message_text.length > 100 ? '...' : ''}`
             },
             android: {
@@ -492,7 +580,27 @@ io.on('connection', (socket) => {
   // 3. Edit Message Telemetry
   socket.on('edit_message', async (data) => {
     const { id, channel_id, message_text } = data;
+    const isAuth = await checkChannelAuth(socket.user, channel_id);
+    if (!isAuth) {
+      console.warn(`⚠️ [Socket.io] Unauthorized edit attempt by socket ${socket.id} to channel ${channel_id}`);
+      return;
+    }
     try {
+      // Verify message ownership
+      const msgRes = await pool.query('SELECT sender_id FROM chat_messages WHERE id = $1', [id]);
+      if (msgRes.rows.length === 0) {
+        return;
+      }
+      
+      const message = msgRes.rows[0];
+      const isOwner = message.sender_id === socket.user.uid;
+      const isAdmin = socket.user.role === 'supreme_admin' || socket.user.role === 'dev';
+
+      if (!isOwner && !isAdmin) {
+        console.warn(`⚠️ [Socket.io] Unauthorized edit attempt by socket ${socket.id} (not owner or admin)`);
+        return;
+      }
+
       const result = await pool.query(
         `UPDATE chat_messages 
          SET message_text = $1, is_edited = TRUE 
@@ -532,7 +640,7 @@ io.on('connection', (socket) => {
 // semicolon-separated multi-statement strings.
 // ─────────────────────────────────────────────────────────────────────────────
 httpServer.listen(PORT, async () => {
-  console.log(`🚀 [Server] TRSV Phase 4 Governance backend live on http://localhost:${PORT}`);
+  console.log(`🚀 [Server] TVRS Phase 4 Governance backend live on http://localhost:${PORT}`);
 
   // STEP 1: Fix role CHECK constraint FIRST — must run before any role-dependent seeds
   try {
@@ -588,7 +696,21 @@ httpServer.listen(PORT, async () => {
     `);
     await pool.query(`ALTER TABLE chat_messages ADD COLUMN IF NOT EXISTS is_edited BOOLEAN DEFAULT FALSE`);
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_chat_messages_channel_id ON chat_messages(channel_id)`);
-    console.log('🔹 [Database] Chat messages schema synchronized.');
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_chat_messages_sender_id ON chat_messages(sender_id)`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_join_requests_constituency_id ON join_requests(constituency_id)`);
+    
+    // Safely check if qr_verification_logs exists before trying to index it
+    const qrTableExists = await pool.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_name = 'member_identities'
+      )
+    `);
+    if (qrTableExists.rows[0].exists) {
+      await pool.query(`CREATE INDEX IF NOT EXISTS idx_member_identities_user_id ON member_identities(user_id)`);
+    }
+    
+    console.log('🔹 [Database] Chat messages schema and performance indexes synchronized.');
   } catch (chatDbErr) {
     console.error('🚨 [Database] Failed to sync chat messages schema:', chatDbErr.message);
   }

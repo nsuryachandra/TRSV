@@ -416,7 +416,13 @@ export default function DashboardLayout() {
           path: '/dashboard/messenger',
           icon: <MessageSquare className="w-5 h-5" />,
           desc: 'Internal team chat rooms'
-        }] : [])
+        }] : []),
+        {
+          name: 'Social Chat',
+          path: '/dashboard/social-chat',
+          icon: <Users className="w-5 h-5" />,
+          desc: 'Regional student lounge'
+        }
       ]
     },
     {
@@ -452,7 +458,7 @@ export default function DashboardLayout() {
           desc: 'Verifiable complaint list'
         },
         {
-          name: 'TRSV Team',
+          name: 'TVRS Team',
           path: '/dashboard/team',
           icon: <Users className="w-5 h-5" />,
           desc: 'Union state leaders'
@@ -475,17 +481,17 @@ export default function DashboardLayout() {
       category: 'Info',
       links: [
         {
-          name: 'About TRSV',
+          name: 'About TVRS',
           path: '/dashboard/about',
           icon: <Info className="w-5 h-5" />,
-          desc: 'About TRSV union'
+          desc: 'About TVRS union'
         },
         // Only student roles can apply to join the union
         ...(userProfile?.role === 'student' ? [{
-          name: 'Join TRSV',
+          name: 'Join TVRS',
           path: '/dashboard/join',
           icon: <UserPlus className="w-5 h-5" />,
-          desc: 'Apply to join TRSV'
+          desc: 'Apply to join TVRS'
         }] : [])
       ]
     }
@@ -516,12 +522,12 @@ export default function DashboardLayout() {
         <div className="p-6 border-b border-slate-200/50 dark:border-slate-900/60 flex items-center gap-3">
           <img 
             src="/trsv.jpeg" 
-            alt="TRSV Logo" 
+            alt="TVRS Logo" 
             className="w-10 h-10 rounded-2xl object-cover border border-cyan-500/30 shadow-[0_0_8px_rgba(6,182,212,0.15)] shrink-0"
           />
           <div className="text-left">
             <span className="font-black text-base tracking-tight text-slate-800 dark:text-white uppercase block">
-              TRSV State OS
+              TVRS State OS
             </span>
             <span className="text-[10px] font-extrabold text-cyan-600 dark:text-cyan-400 tracking-widest uppercase block mt-0.5">
               STATE CONTROL TERM
@@ -578,13 +584,6 @@ export default function DashboardLayout() {
 
         {/* Sidebar bottom action control */}
         <div className="p-4 border-t border-slate-200/50 dark:border-slate-900/60 flex flex-col gap-2">
-          <Link
-            to="/"
-            className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs font-black border border-slate-350 dark:border-slate-800 text-slate-850 dark:text-slate-100 hover:bg-slate-100/50 dark:hover:bg-slate-900/50 transition-all duration-300"
-          >
-            <ArrowLeft className="w-4 h-4 text-cyan-500" />
-            Public Portal Website
-          </Link>
           <button
             onClick={handleLogout}
             className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs font-black bg-rose-500/15 text-rose-600 dark:text-rose-400 hover:bg-rose-500 hover:text-white transition-all duration-300"
@@ -618,10 +617,10 @@ export default function DashboardLayout() {
                 <div className="flex items-center gap-3">
                   <img 
                     src="/trsv.jpeg" 
-                    alt="TRSV Logo" 
+                    alt="TVRS Logo" 
                     className="w-9 h-9 rounded-xl object-cover border border-cyan-500/30 shadow-[0_0_8px_rgba(6,182,212,0.15)] shrink-0"
                   />
-                  <span className="font-extrabold text-sm text-slate-800 dark:text-white uppercase tracking-wider">TRSV OS</span>
+                  <span className="font-extrabold text-sm text-slate-800 dark:text-white uppercase tracking-wider">TVRS OS</span>
                 </div>
                 <button
                   onClick={() => setSidebarOpen(false)}
@@ -671,14 +670,6 @@ export default function DashboardLayout() {
               </div>
 
               <div className="pt-4 border-t border-slate-200/50 dark:border-slate-900/60 flex flex-col gap-2 shrink-0">
-                <Link
-                  to="/"
-                  onClick={() => setSidebarOpen(false)}
-                  className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-black border border-slate-350 dark:border-slate-800 text-slate-850 dark:text-slate-100 hover:bg-slate-100/50 dark:hover:bg-slate-900/50 transition-all duration-200"
-                >
-                  <ArrowLeft className="w-4 h-4 text-cyan-500" />
-                  Public Website
-                </Link>
                 <button
                   onClick={handleLogout}
                   className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-black bg-rose-500/15 text-rose-600 dark:text-rose-400 hover:bg-rose-500 hover:text-white transition-all duration-200"
@@ -711,8 +702,8 @@ export default function DashboardLayout() {
               {/* Compact Title Group */}
               <div className="flex flex-col text-left">
                 <h1 className="text-xs sm:text-sm font-black text-slate-850 dark:text-white uppercase tracking-wider flex items-center gap-2 leading-none">
-                  <span className="hidden sm:inline">State Governance Terminal</span>
-                  <span className="sm:hidden">TRSV OS</span>
+                  <span className="hidden sm:inline">TVRS Student Network</span>
+                  <span className="sm:hidden">TVRS OS</span>
                   <span className="px-1.5 py-0.5 rounded-full text-[8px] font-bold bg-green-500/10 text-green-500 border border-green-500/20 animate-pulse">
                     Live
                   </span>

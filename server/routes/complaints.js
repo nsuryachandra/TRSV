@@ -764,4 +764,115 @@ router.delete('/:id', requireRole(['supreme_admin', 'state_president', 'dev']), 
   }
 });
 
+/**
+ * 8. Override Complaint and Student Constituency (Supreme Admin and Dev only)
+ */
+router.post('/:id/override-constituency', requireRole(['supreme_admin', 'dev']), async (req, res) => {
+  const { id } = req.params;
+  const { constituencyId } = req.body;
+  const adminUid = req.user.uid || 'SUPREME_ADMIN_UID';
+
+  if (!constituencyId) {
+    return res.status(400).json({ success: false, message: 'New constituency ID is required.' });
+  }
+
+  try {
+    // 1. Fetch complaint and check if it exists
+    const check = await query('SELECT id, student_id, college_id, title FROM complaints WHERE id = $1', [id]);
+    if (check.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Complaint ticket not found.' });
+    }
+
+    const complaint = check.rows[0];
+    const newConstId = parseInt(constituencyId);
+
+    // Fetch constituency name
+    const conRes = await query('SELECT constituency_name FROM constituencies WHERE id = $1', [newConstId]);
+    if (conRes.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'New constituency not found.' });
+    }
+    const constituencyName = conRes.rows[0].constituency_name;
+
+    // 2. Update complaint constituency
+    await query('UPDATE complaints SET constituency_id = $1, updated_at = NOW() WHERE id = $2', [newConstId, id]);
+
+    // 3. Update student user constituency
+    if (complaint.student_id) {
+      await query('UPDATE users SET constituency_id = $1, updated_at = NOW() WHERE id = $2', [newConstId, complaint.student_id]);
+    }
+
+    // 4. Update college constituency (if it exists and is currently NULL or differs)
+    if (complaint.college_id) {
+      await query('UPDATE colleges SET constituency_id = $1 WHERE id = $2', [newConstId, complaint.college_id]);
+    }
+
+    // 5. Timeline update
+    await query(
+      `INSERT INTO complaint_timeline (complaint_id, action_by, status, note) 
+       VALUES ($1, $2, (SELECT status FROM complaints WHERE id = $1), $3)`,
+      [id, adminUid, `Constituency classification manually overridden to "${constituencyName}" by Supreme Leader.`]
+    );
+
+    // 6. Notify student
+    if (complaint.student_id) {
+      await query(
+        'INSERT INTO notifications (user_id, title, message) VALUES ($1, $2, $3)',
+        [
+          complaint.student_id,
+          '📍 Constituency Re-classified',
+          `Supreme Leadership has routed your issue and updated your profile to "${constituencyName}".`
+        ]
+      );
+    }
+
+    // 7. Notify regional leaders of new constituency
+    try {
+      let leaderIds = new Set();
+      const conDetails = await query('SELECT parent_id FROM constituencies WHERE id = $1', [newConstId]);
+      const parentId = conDetails.rows[0]?.parent_id;
+
+      const scopeIds = [newConstId];
+      if (parentId) scopeIds.push(parentId);
+
+      const localLeaders = await query(
+        `SELECT id FROM users WHERE constituency_id = ANY($1::int[]) AND role != 'student'`,
+        [scopeIds]
+      );
+      localLeaders.rows.forEach(r => leaderIds.add(r.id));
+
+      const stateLeaders = await query(
+        "SELECT id FROM users WHERE role IN ('president', 'state_president', 'supreme_admin', 'dev')"
+      );
+      stateLeaders.rows.forEach(r => leaderIds.add(r.id));
+
+      for (const leaderId of leaderIds) {
+        if (leaderId !== adminUid && leaderId !== complaint.student_id) {
+          await query(
+            'INSERT INTO notifications (user_id, title, message) VALUES ($1, $2, $3)',
+            [
+              leaderId,
+              '🚨 Constituency Override Audit',
+              `Issue #${id} ("${complaint.title}") has been manually routed to your regional jurisdiction.`
+            ]
+          );
+        }
+      }
+    } catch (notifErr) {
+      console.error('⚠️ [Override Leaders Notification Trigger Failed]:', notifErr.message);
+    }
+
+    // 8. Write activity log
+    await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details) VALUES ($1, $2, $3)', [
+      adminUid,
+      'CONSTITUENCY_OVERRIDE',
+      `Manually routed Ticket #${id} and Student ${complaint.student_id || 'N/A'} to "${constituencyName}"`
+    ]);
+
+    res.json({ success: true, message: `Constituency manual override succeeded. Ticket and student updated to "${constituencyName}".` });
+  } catch (error) {
+    console.error('🚨 [Constituency Override Error]:', error.message);
+    res.status(500).json({ success: false, message: 'Failed to execute constituency override.', error: error.message });
+  }
+});
+
 export default router;

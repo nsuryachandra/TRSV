@@ -288,10 +288,10 @@ export default function Welcome() {
         >
           <span className="text-slate-800">Welcome to</span><br />
           <span className="bg-clip-text text-transparent bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600">
-            Telangana Rakshana Sena
+            Telangana Vidyarthi
           </span><br />
           <span className="bg-clip-text text-transparent bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600">
-            Vidyarthi Vibhagam
+            Rakshana Sena
           </span>
         </h1>
 
@@ -455,7 +455,7 @@ export default function Welcome() {
                         icon={User}
                         value={adminEmail}
                         onChange={(e) => setAdminEmail(e.target.value)}
-                        placeholder="officer@trsv.gov.in"
+                        placeholder="officer@tvrs.gov.in"
                         disabled={loading}
                       />
                       <div className="relative">

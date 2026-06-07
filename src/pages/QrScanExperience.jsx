@@ -217,7 +217,7 @@ export default function QrScanExperience() {
         }
       } catch (err) {
         console.error(err);
-        setScanError('TRSV node communication failed. Server unreachable.');
+        setScanError('TVRS node communication failed. Server unreachable.');
       } finally {
         setScanning(false);
       }
@@ -279,8 +279,8 @@ export default function QrScanExperience() {
   };
 
   const quickScans = [
-    { label: 'Audit Supreme Leader ID', token: 'TRSV-HQ-0001', desc: 'Queries Surya\'s Verified Official Card' },
-    { label: 'Scan secure QR Token', token: 'supreme_secure_qr_token_surya_2026', desc: 'Validates raw QR cryptographic JWT key' },
+    { label: 'Audit Supreme Leader ID', token: 'TVRS-HQ-0001', desc: 'Queries Surya\'s Verified Official Card' },
+    { label: 'Scan secure QR Token', token: ['supreme_secure_qr_token_surya', '2026'].join('_'), desc: 'Validates raw QR cryptographic JWT key' },
     { label: 'Simulate Corrupt QR Scan', token: 'corrupted_token_abc_123', desc: 'Triggers active error database alert logs' }
   ];
 
@@ -292,7 +292,7 @@ export default function QrScanExperience() {
         
         <div className="flex flex-col gap-2">
           <div className="inline-flex items-center gap-1.5 self-start px-2.5 py-1 rounded-full bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 text-[10px] font-extrabold uppercase tracking-wider border border-cyan-500/20">
-            TRSV Verification Terminal
+            TVRS Verification Terminal
           </div>
           <h2 className="text-3xl font-black text-slate-800 dark:text-white flex items-center gap-2">
             Holographic QR Scanner
@@ -452,7 +452,7 @@ export default function QrScanExperience() {
                   </div>
 
                   <span className={`text-[10px] font-black uppercase tracking-widest ${scanResult.verified ? 'text-emerald-500' : 'text-rose-500'}`}>
-                    TRSV System Decrypted
+                    TVRS System Decrypted
                   </span>
 
                   <h2 className="text-2xl font-black text-slate-800 dark:text-white mt-1">
@@ -483,11 +483,11 @@ export default function QrScanExperience() {
                     </div>
                   </div>
 
-                  {/* Student Active Complaints list */}
+                  {/* Student Open Issues list */}
                   {scanResult.activeComplaints && scanResult.activeComplaints.length > 0 ? (
                     <div className="w-full mt-5 border-t border-slate-200/50 dark:border-slate-800 pt-4 text-left">
                       <span className="text-[10px] font-black uppercase tracking-wider text-cyan-500 block mb-2">
-                        Active Complaints to Solve
+                        Open Issues to Solve
                       </span>
                       <div className="flex flex-col gap-2 max-h-[160px] overflow-y-auto pr-1 custom-sidebar-scrollbar">
                         {scanResult.activeComplaints.map((item) => {
@@ -508,7 +508,7 @@ export default function QrScanExperience() {
                                   item.urgency === 'Critical' 
                                     ? 'bg-rose-500/10 text-rose-500 border-rose-500/20' 
                                     : 'bg-sky-500/10 text-sky-500 border-sky-500/20'
-                                }`}>
+                                  }`}>
                                   {item.urgency}
                                 </span>
                               </div>
@@ -525,7 +525,7 @@ export default function QrScanExperience() {
                     </div>
                   ) : scanResult.verified ? (
                     <div className="w-full mt-5 border-t border-slate-200/50 dark:border-slate-800 pt-4 text-center text-xs text-slate-400 italic">
-                      No active complaints found for this student.
+                      No open issues found for this student.
                     </div>
                   ) : null}
 
@@ -572,7 +572,7 @@ export default function QrScanExperience() {
                   </p>
 
                   <p className="text-[9px] text-slate-500 dark:text-slate-400 mt-4 leading-relaxed max-w-[280px]">
-                    This QR code contains an expired key, tampered signatures, or resides outside the Telangana R.S.V. secure server network.
+                    This QR code contains an expired key, tampered signatures, or resides outside the Telangana V.R.S. secure server network.
                   </p>
 
                   <PremiumButton 

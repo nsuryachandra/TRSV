@@ -62,7 +62,7 @@ export default {
         violet: {
           750: '#6424c7',
         },
-        trsv: {
+        tvrs: {
           accent: {
             light: '#22d3ee', // cyan-400
             DEFAULT: '#0891b2', // cyan-600

@@ -58,7 +58,7 @@ export default function Transparency() {
           Public Accountability Portal
         </h1>
         <p className="text-base sm:text-lg text-slate-500 dark:text-slate-400 leading-relaxed max-w-2xl mx-auto">
-          TRSV operates with 100% transparency. Every complaint tracked, every emergency dispatched, and every constituency ranked publicly for total systemic accountability.
+          TVRS operates with 100% transparency. Every issue tracked, every emergency dispatched, and every constituency ranked publicly for total systemic accountability.
         </p>
       </AnimatedSection>
 
@@ -143,7 +143,7 @@ export default function Transparency() {
             <div className="p-2 bg-slate-200 dark:bg-slate-800 rounded-lg text-slate-600 dark:text-slate-400">
               <Activity className="w-5 h-5" />
             </div>
-            <h2 className="font-extrabold text-xl text-slate-850 dark:text-white tracking-tight">Live Complaint Tracker</h2>
+            <h2 className="font-extrabold text-xl text-slate-850 dark:text-white tracking-tight">Live Issue Tracker</h2>
           </div>
 
           <GlassCard className="flex flex-col gap-1 p-2 overflow-hidden relative h-full max-h-[500px]">

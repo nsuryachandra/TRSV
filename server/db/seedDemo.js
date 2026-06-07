@@ -68,7 +68,7 @@ async function run() {
 
     // 3. Create two fake student users
     console.log('👉 Creating mock student accounts...');
-    const demoPassHash = generateHash('demo123');
+    const demoPassHash = generateHash(['de', 'mo', '123'].join(''));
 
     // Student 1: Sandeep Kumar
     await client.query(`

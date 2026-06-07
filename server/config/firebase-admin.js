@@ -38,8 +38,12 @@ export const verifyIdToken = async (authHeader) => {
   }
 
   const token = authHeader.split('Bearer ')[1];
+  const isProduction = process.env.NODE_ENV === 'production';
 
   if (useMockAuth || token === 'mock_token' || token.startsWith('mock_')) {
+    if (isProduction) {
+      throw new Error('Production Launch Security Constraint: Simulated review authentication mode is strictly disabled.');
+    }
     // Development Review fallback: decode mock tokens
     console.log('🔑 [Auth] Verifying token in Development Review Mode...');
     try {

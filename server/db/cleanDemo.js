@@ -33,17 +33,23 @@ async function run() {
 
     // 2. Delete complaints
     console.log('👉 Purging mock tickets...');
-    await client.query("DELETE FROM complaints WHERE student_id IN ('demo-student-1-uid', 'demo-student-2-uid')");
+    await client.query("DELETE FROM complaints WHERE student_id IN ('demo-student-1-uid', 'demo-student-2-uid', 'TEST_USER_UID')");
 
-    // 3. Delete users
+    // 3. Delete activity logs and chat
+    console.log('👉 Purging mock activity logs & chat messages...');
+    await client.query("DELETE FROM realtime_activity_logs WHERE user_id IN ('demo-student-1-uid', 'demo-student-2-uid', 'TEST_USER_UID')");
+    await client.query("DELETE FROM activity_logs WHERE user_id IN ('demo-student-1-uid', 'demo-student-2-uid', 'TEST_USER_UID')");
+    await client.query("DELETE FROM chat_messages WHERE sender_id IN ('demo-student-1-uid', 'demo-student-2-uid', 'TEST_USER_UID')");
+
+    // 4. Delete users
     console.log('👉 Purging mock student users...');
-    await client.query("DELETE FROM users WHERE id IN ('demo-student-1-uid', 'demo-student-2-uid')");
+    await client.query("DELETE FROM users WHERE id IN ('demo-student-1-uid', 'demo-student-2-uid', 'TEST_USER_UID')");
 
-    // 4. Delete college
+    // 5. Delete college
     console.log('👉 Purging Amberpet college node...');
     await client.query("DELETE FROM colleges WHERE college_name = 'Amberpet College of Technology'");
 
-    // 5. Delete constituency
+    // 6. Delete constituency
     console.log('👉 Purging Amberpet constituency node...');
     await client.query("DELETE FROM constituencies WHERE constituency_name = 'Amberpet Constituency'");
 

@@ -1,5 +1,5 @@
 /* ============================================================
-   TRSV MASTER DESIGN SYSTEM — Elite Premium UI
+   TVRS MASTER DESIGN SYSTEM — Elite Premium UI
    Font Stack: Satoshi (headings) + Inter (body/UI)
    ============================================================ */
 
@@ -38,7 +38,7 @@
   h4 { font-size: clamp(1rem, 1.5vw + 0.2rem, 1.375rem); line-height: 1.3; letter-spacing: -0.02em; font-weight: 600; }
   
   body {
-    @apply transition-colors duration-500 ease-in-out bg-trsv-bg-light text-trsv-text-light dark:bg-trsv-bg-dark dark:text-trsv-text-dark;
+    @apply transition-colors duration-500 ease-in-out bg-tvrs-bg-light text-tvrs-text-light dark:bg-tvrs-bg-dark dark:text-tvrs-text-dark;
     overflow-x: hidden;
     font-size: 0.9375rem; /* 15px — Inter renders beautifully at 15px */
     line-height: 1.6;

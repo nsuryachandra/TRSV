@@ -5,8 +5,8 @@ import { query } from '../config/db.js';
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET;
 
-// Mid-tier authorization middleware
-const authenticateAdmin = async (req, res, next) => {
+// Mid-tier authorization middleware supporting students and leaders
+const authenticateChatUser = async (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) {
     return res.status(401).json({ success: false, message: 'Authorization header required.' });
@@ -16,24 +16,23 @@ const authenticateAdmin = async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
 
-    // Query user profile from database to get live role and constituency
-    const userQuery = await query(
-      'SELECT id, role, full_name, email, (SELECT constituency_name FROM constituencies WHERE id = users.constituency_id) as constituency_name FROM users WHERE id = $1', 
-      [decoded.uid]
-    );
+    // Query user profile from database to get live role, constituency, and hub name
+    const userQuery = await query(`
+      SELECT u.id, u.role, u.full_name, u.email, u.constituency_id,
+             c.constituency_name,
+             p.constituency_name as parent_name,
+             COALESCE(p.constituency_name, c.constituency_name, 'Upcoming Area') as hub_name
+      FROM users u
+      LEFT JOIN constituencies c ON u.constituency_id = c.id
+      LEFT JOIN constituencies p ON c.parent_id = p.id
+      WHERE u.id = $1
+    `, [decoded.uid]);
 
     if (userQuery.rows.length === 0) {
       return res.status(404).json({ success: false, message: 'Governance profile not found.' });
     }
 
     const user = userQuery.rows[0];
-    
-    // Check if the user is an admin or dev
-    const allowedRoles = ['dev', 'supreme_admin', 'president', 'state_president', 'vice_president', 'general_secretary', 'secretary'];
-    if (!allowedRoles.includes(user.role)) {
-      return res.status(403).json({ success: false, message: 'Access denied. Administrator clearance required.' });
-    }
-
     req.user = user;
     next();
   } catch (err) {
@@ -45,38 +44,52 @@ const authenticateAdmin = async (req, res, next) => {
  * GET /history/:channel_id
  * Fetches the last 50 messages for a specific channel
  */
-router.get('/history/:channel_id', authenticateAdmin, async (req, res) => {
+router.get('/history/:channel_id', authenticateChatUser, async (req, res) => {
   const { channel_id } = req.params;
   const user = req.user;
 
   // Authorization Check:
+  // - Students can ONLY access their own Social Sector Lounge: 'Social-Sector-[TheirHubName]'
   // - 'dev' and 'supreme_admin' roles have access to ALL channels
-  // - Other roles can only access 'GH-Global' OR 'GH-Constituency-[Their Constituency Name]'
-  const isGlobal = channel_id === 'GH-Global';
-  const myConstituencyChannel = `GH-Constituency-${user.constituency_name}`;
-  
-  let isAuthorized = 
-    user.role === 'dev' || 
-    user.role === 'supreme_admin' || 
-    isGlobal || 
-    channel_id === myConstituencyChannel;
+  // - Leaders can access all Social Sector Lounges
+  // - Leaders can access 'GH-Global' and their constituency-specific admin channels
+  let isAuthorized = false;
 
-  if (!isAuthorized && channel_id.startsWith('GH-Constituency-')) {
-    const requestedConstituencyName = channel_id.replace('GH-Constituency-', '');
-    try {
-      const hierarchyCheck = await query(`
-        SELECT 1 
-        FROM constituencies child
-        JOIN constituencies parent ON child.parent_id = parent.id
-        WHERE LOWER(child.constituency_name) = LOWER($1)
-          AND LOWER(parent.constituency_name) = LOWER($2)
-      `, [requestedConstituencyName, user.constituency_name]);
-      
-      if (hierarchyCheck.rows.length > 0) {
+  if (user.role === 'dev' || user.role === 'supreme_admin') {
+    isAuthorized = true;
+  } else if (user.role === 'student') {
+    isAuthorized = channel_id === `Social-Sector-${user.hub_name}`;
+  } else {
+    // Leader roles
+    if (channel_id.startsWith('Social-Sector-')) {
+      isAuthorized = true;
+    } else if (channel_id === 'GH-Global') {
+      isAuthorized = true;
+    } else if (channel_id.startsWith('GH-Constituency-')) {
+      const constituencyName = channel_id.replace('GH-Constituency-', '');
+      if (
+        user.constituency_name && 
+        (user.constituency_name.toLowerCase() === constituencyName.toLowerCase() ||
+         user.parent_name && user.parent_name.toLowerCase() === constituencyName.toLowerCase())
+      ) {
         isAuthorized = true;
+      } else {
+        try {
+          const hierarchyCheck = await query(`
+            SELECT 1 
+            FROM constituencies child
+            JOIN constituencies parent ON child.parent_id = parent.id
+            WHERE LOWER(child.constituency_name) = LOWER($1)
+              AND LOWER(parent.constituency_name) = LOWER($2)
+          `, [constituencyName, user.constituency_name]);
+          
+          if (hierarchyCheck.rows.length > 0) {
+            isAuthorized = true;
+          }
+        } catch (err) {
+          console.error('🚨 [Chat Hierarchy Check Error]:', err.message);
+        }
       }
-    } catch (err) {
-      console.error('🚨 [Chat Hierarchy Check Error]:', err.message);
     }
   }
 
@@ -117,7 +130,7 @@ router.get('/history/:channel_id', authenticateAdmin, async (req, res) => {
  * GET /active-channels
  * Fetches all channels that currently contain chat history along with active participant profiles (Dev/Supreme only)
  */
-router.get('/active-channels', authenticateAdmin, async (req, res) => {
+router.get('/active-channels', authenticateChatUser, async (req, res) => {
   const user = req.user;
   if (user.role !== 'dev' && user.role !== 'supreme_admin') {
     return res.status(403).json({ success: false, message: 'Access restricted to developers and supreme administrators.' });

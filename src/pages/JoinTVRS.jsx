@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { ShieldCheck, AlertTriangle, ArrowLeft, Send, CheckCircle2, User, Mail, Phone, MapPin, AlignLeft } from 'lucide-react';
+import { ShieldCheck, AlertTriangle, ArrowLeft, Send, CheckCircle2, User, Mail, Phone, MapPin, AlignLeft, HelpCircle } from 'lucide-react';
 import GlassCard from '../components/GlassCard';
 import AnimatedSection from '../components/AnimatedSection';
 import { useNavigate } from 'react-router-dom';
 import PremiumButton from '../components/PremiumButton';
 import { useAuth } from '../context/AuthContext';
 
-export default function JoinTRSV() {
+export default function JoinTVRS() {
   const navigate = useNavigate();
   const { userProfile } = useAuth();
   
@@ -73,7 +73,7 @@ export default function JoinTRSV() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/join-trsv', {
+      const response = await fetch('/api/join-tvrs', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -113,7 +113,7 @@ export default function JoinTRSV() {
             </div>
 
             <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed max-w-md">
-              Your application to join the <strong>Telangana Rakshana Sena Vidyarthi Vibhagam</strong> has been registered on our secure node. Our regional committee will inspect your student profile and contact you soon.
+              Your application to join the <strong>Telangana Vidyarthi Rakshana Sena</strong> has been registered on our secure node. Our regional committee will inspect your student profile and contact you soon.
             </p>
 
             <PremiumButton
@@ -142,8 +142,8 @@ export default function JoinTRSV() {
             <span className="text-[10px] font-black text-cyan-600 dark:text-cyan-400 tracking-widest uppercase block">
               RECRUITMENT TERMINAL
             </span>
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-850 dark:text-white leading-tight">
-              Apply to Join TRSV
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-855 dark:text-white leading-tight">
+              Apply to Join TVRS
             </h1>
             <p className="text-xs text-slate-400 dark:text-slate-500 leading-relaxed mt-0.5">
               Submit your credentials to stand as a digital coordinator node and represent student advocacy rights across educational zones.
@@ -211,7 +211,7 @@ export default function JoinTRSV() {
 
               {/* Constituency */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Constituency Node</label>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Constituency</label>
                 <div className="relative">
                   <select
                     value={formData.constituencyId}
@@ -219,16 +219,33 @@ export default function JoinTRSV() {
                     className="peer w-full pl-11 pr-4 py-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-855 dark:text-slate-100 font-bold cursor-pointer"
                   >
                     {loadingConstituencies ? (
-                      <option value="">Syncing Constituency nodes...</option>
+                      <option value="">Syncing Constituencies...</option>
                     ) : (
                       constituencies.map((con) => (
-                        <option key={con.id} value={con.id}>{con.constituency_name}</option>
+                        <option key={con.id} value={con.id}>
+                          {con.constituency_name === 'Upcoming Area' || con.constituency_name === 'Upcoming Area Node'
+                            ? 'Not Listed (Send to All State Leaders)'
+                            : con.constituency_name}
+                        </option>
                       ))
                     )}
                   </select>
                   <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400 pointer-events-none z-10 animate-icon-bounce-centered" strokeWidth={2.2} />
                 </div>
               </div>
+            </div>
+
+            {/* Constituency Finder Help Box */}
+            <div className="p-4 rounded-xl border border-slate-200/60 dark:border-slate-800 bg-slate-500/5 text-left flex flex-col gap-2">
+              <div className="flex items-center gap-2 text-cyan-500">
+                <HelpCircle className="w-4 h-4 text-cyan-500" />
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                  Constituency Finder Helper
+                </span>
+              </div>
+              <p className="text-xs text-slate-550 dark:text-slate-400 leading-relaxed font-semibold">
+                To find your constituency, search Google for your college/school address pincode followed by <span className="font-mono text-cyan-600 dark:text-cyan-400">"assembly constituency"</span> (e.g. search: <span className="font-mono text-cyan-600 dark:text-cyan-400">"500001 assembly constituency"</span>). Match it with the dropdown select list. If it is not listed, select <strong className="text-amber-500">"Not Listed (Send to All State Leaders)"</strong>.
+              </p>
             </div>
 
             {/* Motivation / Reason */}
