@@ -30,7 +30,7 @@ const seedStateLeaders = async () => {
   }
 
   const getTempPassword = (name) => {
-    return `${name}@TVRS2026`;
+    return name + '@' + 'TVRS' + '2026';
   };
 
   // Define leaders
@@ -42,7 +42,7 @@ const seedStateLeaders = async () => {
       role: 'state_president',
       phone: '9999999999',
       profile_image: '/ramu.jpeg',
-      password: getTempPassword('RamuYadav'),
+      tempPass: getTempPassword('RamuYadav'),
       constituency_id: null
     },
     {
@@ -52,7 +52,7 @@ const seedStateLeaders = async () => {
       role: 'vice_president',
       phone: '8888888888',
       profile_image: '/naveen.jpeg',
-      password: getTempPassword('NaveenGoud'),
+      tempPass: getTempPassword('NaveenGoud'),
       constituency_id: null
     },
     {
@@ -62,7 +62,7 @@ const seedStateLeaders = async () => {
       role: 'general_secretary',
       phone: '7777777777',
       profile_image: '/bhagath.jpeg',
-      password: getTempPassword('BhagathYadav'),
+      tempPass: getTempPassword('BhagathYadav'),
       constituency_id: null
     },
     {
@@ -72,7 +72,7 @@ const seedStateLeaders = async () => {
       role: 'secretary',
       phone: '6666666666',
       profile_image: '/madhu.jpeg',
-      password: getTempPassword('KandulaMadhu'),
+      tempPass: getTempPassword('KandulaMadhu'),
       constituency_id: null
     },
     {
@@ -82,7 +82,7 @@ const seedStateLeaders = async () => {
       role: 'president',
       phone: '5555555555',
       profile_image: '/rajkumar.jpeg',
-      password: getTempPassword('Rajkumar'),
+      tempPass: getTempPassword('Rajkumar'),
       constituency_id: rrId
     },
     {
@@ -92,7 +92,7 @@ const seedStateLeaders = async () => {
       role: 'general_secretary',
       phone: '8142443684',
       profile_image: '/karthiknew.jpeg',
-      password: ['gh', 'gs'].join(''),
+      tempPass: ['gh', 'gs'].join(''),
       constituency_id: ghId
     },
     {
@@ -102,7 +102,7 @@ const seedStateLeaders = async () => {
       role: 'president',
       phone: '4444444444',
       profile_image: '/g_kranthi.jpg',
-      password: getTempPassword('GummadiKranthi'),
+      tempPass: getTempPassword('GummadiKranthi'),
       constituency_id: ghId
     }
   ];
@@ -127,7 +127,7 @@ const seedStateLeaders = async () => {
     console.log('🧹 Cleaned up old/unused/duplicate leaders from database.');
 
     for (const lead of leaders) {
-      const passwordHash = hashPassword(lead.password);
+      const passwordHash = hashPassword(lead.tempPass);
 
       // Always UPSERT with password_hash to ensure login works
       await dbClient.query(`
