@@ -470,8 +470,9 @@ export default function Welcome() {
                         disabled={loading}
                         helperText="Use 3–20 letters, numbers, _, *, or . only — (temporary: password = your username)"
                       />
-                      <div className="text-right">
-                        <button
+                      <div>
+                        <motion.button
+                          whileTap={{ scale: 0.98 }}
                           type="button"
                           onClick={async () => {
                             if (!isUsernameValid) return setErrorMsg('Enter a valid username first.');
@@ -485,10 +486,10 @@ export default function Welcome() {
                             } finally { setLoading(false); }
                           }}
                           disabled={loading || !isUsernameValid}
-                          className="text-xs font-bold text-amber-600 hover:underline"
+                          className="w-full py-3 rounded-2xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200/50 dark:border-amber-900/30 text-amber-700 dark:text-amber-400 font-bold hover:bg-amber-100/80 disabled:opacity-50"
                         >
                           Already a user? Login now (password = username)
-                        </button>
+                        </motion.button>
                       </div>
                       <ShimmerCTA type="submit" disabled={loading || !isUsernameValid} gradient="linear-gradient(135deg, #0ea5e9, #2563eb)">
                         {loading ? <span className="flex items-center justify-center gap-1.5"><Loader2 className="w-3.5 h-3.5 animate-spin" /> Verifying...</span> : 'Continue'}
