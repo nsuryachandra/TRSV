@@ -41,7 +41,7 @@ const seedStateLeaders = async () => {
       email: 'ramuanna@tvrs.gov.in',
       role: 'state_president',
       phone: '9999999999',
-      profile_image: '/ramu.jpeg',
+      profile_image: '/ramuanna.jpg',
       tempPass: getTempPassword('RamuYadav'),
       constituency_id: null
     },
@@ -51,7 +51,7 @@ const seedStateLeaders = async () => {
       email: 'naveen@tvrs.gov.in',
       role: 'vice_president',
       phone: '8888888888',
-      profile_image: '/naveen.jpeg',
+      profile_image: '/naveen_goud.jpg',
       tempPass: getTempPassword('NaveenGoud'),
       constituency_id: null
     },
@@ -61,7 +61,7 @@ const seedStateLeaders = async () => {
       email: 'bhagath@tvrs.gov.in',
       role: 'general_secretary',
       phone: '7777777777',
-      profile_image: '/bhagath.jpeg',
+      profile_image: '/bhagatyadav.jpg',
       tempPass: getTempPassword('BhagathYadav'),
       constituency_id: null
     },
@@ -71,7 +71,7 @@ const seedStateLeaders = async () => {
       email: 'madhu@tvrs.gov.in',
       role: 'secretary',
       phone: '6666666666',
-      profile_image: '/madhu.jpeg',
+      profile_image: '/kandulamadhu.jpg',
       tempPass: getTempPassword('KandulaMadhu'),
       constituency_id: null
     },
@@ -81,7 +81,7 @@ const seedStateLeaders = async () => {
       email: 'rajkumar@tvrs.gov.in',
       role: 'president',
       phone: '5555555555',
-      profile_image: '/rajkumar.jpeg',
+      profile_image: '/raj_rangareddy.jpg',
       tempPass: getTempPassword('Rajkumar'),
       constituency_id: rrId
     },
@@ -104,6 +104,26 @@ const seedStateLeaders = async () => {
       profile_image: '/g_kranthi.jpg',
       tempPass: getTempPassword('GummadiKranthi'),
       constituency_id: ghId
+    },
+    {
+      id: 'gh-vp-shekar',
+      full_name: 'Vogoti Shekar',
+      email: 'shekar@tvrs.gov.in',
+      role: 'vice_president',
+      phone: '3333333333',
+      profile_image: '/shekar_hydvice.jpg',
+      tempPass: getTempPassword('VogotiShekar'),
+      constituency_id: ghId
+    },
+    {
+      id: 'gh-sec-omkar',
+      full_name: 'Omkar Mane',
+      email: 'omkar@tvrs.gov.in',
+      role: 'secretary',
+      phone: '2222222222',
+      profile_image: '/omkar_hydsec.jpg',
+      tempPass: getTempPassword('OmkarMane'),
+      constituency_id: ghId
     }
   ];
 
@@ -118,10 +138,12 @@ const seedStateLeaders = async () => {
         'ramuanna@trsv.gov.in', 'kranthi@trsv.gov.in', 'pranith@trsv.gov.in', 
         'omkar@trsv.gov.in', 'karthik@trsv.gov.in', 'ramuanna@tvrs.gov.in',
         'naveen@tvrs.gov.in', 'bhagath@tvrs.gov.in', 'madhu@tvrs.gov.in',
-        'rajkumar@tvrs.gov.in', 'kranthi@tvrs.gov.in'
+        'rajkumar@tvrs.gov.in', 'kranthi@tvrs.gov.in', 'shekar@tvrs.gov.in',
+        'omkar@tvrs.gov.in'
       ) OR id IN (
         'state-president-ramu', 'state-vp-naveen', 'state-gs-bhagath',
-        'state-sec-madhu', 'rr-president-rajkumar', 'gh-president-kranthi'
+        'state-sec-madhu', 'rr-president-rajkumar', 'gh-president-kranthi',
+        'gh-vp-shekar', 'gh-sec-omkar'
       )
     `);
     console.log('🧹 Cleaned up old/unused/duplicate leaders from database.');

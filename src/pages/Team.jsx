@@ -56,7 +56,7 @@ const LEADERS = [
     id: 'bhagath',
     full_name: 'Bhagath Yadav',
     role: 'General Secretary',
-    profile_image: null,
+    profile_image: '/bhagatyadav.jpg',
     accentColor: 'emerald',
     description: 'Manages compliance auditing, student organization charters, and internal governance workflows across Telangana.'
   },
@@ -64,7 +64,7 @@ const LEADERS = [
     id: 'madhu',
     full_name: 'Kandula Madhu',
     role: 'Secretary',
-    profile_image: null,
+    profile_image: '/kandulamadhu.jpg',
     accentColor: 'emerald',
     description: 'Coordinates communication channels, resolves regional student disputes, and leads student awareness assemblies.'
   },
@@ -72,7 +72,7 @@ const LEADERS = [
     id: 'rajkumar',
     full_name: 'B.Rajkumar',
     role: 'Rangareddy District President',
-    profile_image: null,
+    profile_image: '/raj_rangareddy.jpg',
     accentColor: 'violet',
     description: 'Oversees organizational growth, campus student welfare operations, and local grievance redressal cells in the Rangareddy district.'
   },
@@ -83,6 +83,22 @@ const LEADERS = [
     profile_image: '/g_kranthi.jpg',
     accentColor: 'violet',
     description: 'Oversees campus welfare initiatives, district union coordination, and student advocacy committees throughout Greater Hyderabad.'
+  },
+  {
+    id: 'vogoti_shekar',
+    full_name: 'Vogoti Shekar',
+    role: 'Greater Hyderabad Vice President',
+    profile_image: '/shekar_hydvice.jpg',
+    accentColor: 'violet',
+    description: 'Manages student outreach initiatives, campus union activities, and regional support networks across Greater Hyderabad.'
+  },
+  {
+    id: 'omkar_mane',
+    full_name: 'Omkar Mane',
+    role: 'Greater Hyderabad Secretary',
+    profile_image: '/omkar_hydsec.jpg',
+    accentColor: 'violet',
+    description: 'Coordinates communications, regional dispute resolutions, and student union assemblies within Greater Hyderabad.'
   }
 ];
 
