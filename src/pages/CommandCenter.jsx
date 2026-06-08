@@ -152,6 +152,8 @@ export default function CommandCenter() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
   const [connectionDropped, setConnectionDropped] = useState(false);
+  const [nodeHealth, setNodeHealth] = useState(null);
+  const [healthLoading, setHealthLoading] = useState(false);
 
   // Fetch live operational feeds and analytics
   useEffect(() => {
@@ -218,6 +220,37 @@ export default function CommandCenter() {
     return () => {
       eventSource.close();
     };
+  }, [activeTab]);
+
+  // Poll node health for the Terminal Node Health card
+  useEffect(() => {
+    let mounted = true;
+    const fetchHealth = async () => {
+      setHealthLoading(true);
+      try {
+        const start = Date.now();
+        const res = await fetch('/api/health');
+        const elapsed = Date.now() - start;
+        const data = await res.json();
+        if (!mounted) return;
+        setNodeHealth({ ...data, ping_ms: elapsed });
+        setConnectionDropped(false);
+      } catch (err) {
+        if (!mounted) return;
+        setNodeHealth(null);
+        setConnectionDropped(true);
+      } finally {
+        if (mounted) setHealthLoading(false);
+      }
+    };
+
+    // Initial fetch + interval
+    if (activeTab === 'telemetry') {
+      fetchHealth();
+      const id = setInterval(fetchHealth, 15000);
+      return () => { mounted = false; clearInterval(id); };
+    }
+    return () => { mounted = false; };
   }, [activeTab]);
 
   // Load constituencies, colleges, and users
@@ -575,18 +608,36 @@ export default function CommandCenter() {
               <Activity className="w-4 h-4 text-emerald-500 group-hover:scale-120 group-hover:animate-pulse transition-all duration-300" />
             </div>
             <div className="flex-1 flex flex-col justify-center min-h-0">
-              <EmergencyFallback 
-                isOffline={connectionDropped} 
-                onRetry={async () => {
-                  try {
-                    await fetch('/api/health');
-                    setConnectionDropped(false);
-                    loadData();
-                  } catch (e) {
-                    console.warn('Re-connect attempt failed');
-                  }
-                }} 
-              />
+              {connectionDropped ? (
+                <EmergencyFallback 
+                  isOffline={connectionDropped} 
+                  onRetry={async () => {
+                    try {
+                      await fetch('/api/health');
+                      setConnectionDropped(false);
+                      loadData();
+                    } catch (e) {
+                      console.warn('Re-connect attempt failed');
+                    }
+                  }} 
+                />
+              ) : (
+                <div className="flex flex-col items-start gap-3">
+                  <div className="flex items-center gap-3">
+                    <span className={`inline-flex items-center justify-center w-3.5 h-3.5 rounded-full ${nodeHealth && nodeHealth.status === 'healthy' ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+                    <div className="text-sm font-semibold text-slate-700 dark:text-white">{nodeHealth ? (nodeHealth.status === 'healthy' ? 'Operational' : 'Degraded') : (healthLoading ? 'Checking...' : 'Unknown')}</div>
+                  </div>
+
+                  {nodeHealth && (
+                    <div className="text-xs text-slate-500 dark:text-slate-400 font-mono">
+                      <div>Service: {nodeHealth.service}</div>
+                      <div>Database: {nodeHealth.database}</div>
+                      <div>Latency: {nodeHealth.ping_ms} ms</div>
+                      <div>Checked: {new Date(nodeHealth.timestamp || Date.now()).toLocaleString()}</div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </GlassCard>
 
