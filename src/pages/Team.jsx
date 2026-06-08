@@ -26,7 +26,7 @@ const LEADERS = [
     role: 'Greater Hyderabad General Secretary',
     profile_image: '/karthiknew.jpeg',
     accentColor: 'violet',
-    description: 'Commands regional assembly clusters, compliance reporting, and student grievance cells throughout Greater Hyderabad.'
+    description: 'Commands regional assembly clusters, compliance reporting, and student grievance cells throughout Greater Hyderabad. Main pillar, supporter of this portal.'
   },
   {
     id: 'suryachandra',
