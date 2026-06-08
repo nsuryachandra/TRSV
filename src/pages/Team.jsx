@@ -33,7 +33,7 @@ const LEADERS = [
     full_name: 'Suryachandra',
     role: 'Developer & Digital Operations President',
     profile_image: null,
-    accentColor: 'cyan',
+    accentColor: 'amber',
     description: 'Digital Architect of TVRS - designs, implements, and maintains the portal, database infrastructure, and student safety telemetry systems.'
   },
   {
@@ -106,6 +106,15 @@ const CinematicCard = ({ lead, accentColor = 'cyan' }) => {
       hoverColor: 'group-hover:text-violet-400',
       officeIcon: 'text-violet-500',
       dept: 'text-violet-500/80',
+    },
+    amber: {
+      gradient: 'from-amber-550/20 to-transparent',
+      badge: 'border-amber-500/45 text-amber-450 dark:text-amber-400',
+      pulseDot: 'bg-amber-400',
+      roleColor: 'text-amber-450 dark:text-amber-400',
+      hoverColor: 'group-hover:text-amber-450 dark:group-hover:text-amber-400',
+      officeIcon: 'text-amber-500',
+      dept: 'text-amber-500/80',
     },
   };
   const c = accents[accentColor] || accents.cyan;
