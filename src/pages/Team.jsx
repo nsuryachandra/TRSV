@@ -1,5 +1,5 @@
 import React from 'react';
-import { Award, Users, Building2, Terminal } from 'lucide-react';
+import { Users } from 'lucide-react';
 import GlassCard from '../components/GlassCard';
 import AnimatedSection from '../components/AnimatedSection';
 
@@ -9,70 +9,22 @@ const LEADERS = [
     full_name: 'Kavitha Kalvakuntla Garu',
     role: 'Founder',
     profile_image: '/akka.jpg',
-    category: 'Founding Leadership',
     accentColor: 'cyan',
-    description: 'Founder & Patron of TRSV. Dedicated to championing student rights, state education reforms, and empowering youth across all districts of Telangana.'
+    description: 'Founder & Patron of TVRS. Dedicated to championing student rights, state education reforms, and empowering youth across all districts of Telangana.'
   },
   {
     id: 'aaditya',
     full_name: 'Aaditya Devanapalli Garu',
     role: 'Leader',
     profile_image: null,
-    category: 'Founding Leadership',
     accentColor: 'cyan',
     description: 'Senior Leader guiding organizational strategies, campus coordination frameworks, and student advocacy operations throughout the state.'
-  },
-  {
-    id: 'ramu',
-    full_name: 'Ramu Yadav',
-    role: 'State President',
-    profile_image: '/ramuanna.jpg',
-    category: 'Statewide Executive Command',
-    accentColor: 'emerald',
-    description: 'Commands statewide student welfare campaigns, regional coordination committees, and executive campus advocacy cells.'
-  },
-  {
-    id: 'naveen',
-    full_name: 'Naveen Goud',
-    role: 'State Vice President',
-    profile_image: null,
-    category: 'Statewide Executive Command',
-    accentColor: 'emerald',
-    description: 'Supervises state-level campaigns, campus safety units, and represents student welfare delegations to governing bodies.'
-  },
-  {
-    id: 'bhagath',
-    full_name: 'Bhagath Yadav',
-    role: 'State General Secretary',
-    profile_image: null,
-    category: 'Statewide Executive Command',
-    accentColor: 'emerald',
-    description: 'Manages compliance auditing, student organization charters, and internal governance workflows across Telangana.'
-  },
-  {
-    id: 'madhu',
-    full_name: 'Kandula Madhu',
-    role: 'State Secretary',
-    profile_image: null,
-    category: 'Statewide Executive Command',
-    accentColor: 'emerald',
-    description: 'Coordinates communication channels, resolves regional student disputes, and leads student awareness assemblies.'
-  },
-  {
-    id: 'rajkumar',
-    full_name: 'B.Rajkumar',
-    role: 'Rangareddy District President',
-    profile_image: null,
-    category: 'Regional Command',
-    accentColor: 'violet',
-    description: 'Oversees organizational growth, campus student welfare operations, and local grievance redressal cells in the Rangareddy district.'
   },
   {
     id: 'karthik',
     full_name: 'Karthik Yadav',
     role: 'Greater Hyderabad General Secretary',
     profile_image: '/karthiknew.jpeg',
-    category: 'Regional Command',
     accentColor: 'violet',
     description: 'Commands regional assembly clusters, compliance reporting, and student grievance cells throughout Greater Hyderabad.'
   },
@@ -81,9 +33,48 @@ const LEADERS = [
     full_name: 'Suryachandra',
     role: 'Developer & Digital Operations President',
     profile_image: null,
-    category: 'Digital Operations & Tech Command',
     accentColor: 'cyan',
-    description: 'Digital Architect of TRSV - designs, implements, and maintains the portal, database infrastructure, and student safety telemetry systems.'
+    description: 'Digital Architect of TVRS - designs, implements, and maintains the portal, database infrastructure, and student safety telemetry systems.'
+  },
+  {
+    id: 'ramu',
+    full_name: 'Ramu Yadav',
+    role: 'President',
+    profile_image: '/ramuanna.jpg',
+    accentColor: 'emerald',
+    description: 'Commands statewide student welfare campaigns, regional coordination committees, and executive campus advocacy cells.'
+  },
+  {
+    id: 'naveen',
+    full_name: 'Naveen Goud',
+    role: 'Vice President',
+    profile_image: null,
+    accentColor: 'emerald',
+    description: 'Supervises state-level campaigns, campus safety units, and represents student welfare delegations to governing bodies.'
+  },
+  {
+    id: 'bhagath',
+    full_name: 'Bhagath Yadav',
+    role: 'General Secretary',
+    profile_image: null,
+    accentColor: 'emerald',
+    description: 'Manages compliance auditing, student organization charters, and internal governance workflows across Telangana.'
+  },
+  {
+    id: 'madhu',
+    full_name: 'Kandula Madhu',
+    role: 'Secretary',
+    profile_image: null,
+    accentColor: 'emerald',
+    description: 'Coordinates communication channels, resolves regional student disputes, and leads student awareness assemblies.'
+  },
+  {
+    id: 'rajkumar',
+    full_name: 'B.Rajkumar',
+    role: 'Rangareddy District President',
+    profile_image: null,
+    accentColor: 'violet',
+    description: 'Oversees organizational growth, campus student welfare operations, and local grievance redressal cells in the Rangareddy district.'
   }
 ];
 
@@ -172,94 +163,26 @@ const CinematicCard = ({ lead, accentColor = 'cyan' }) => {
   );
 };
 
-const SectionHeader = ({ icon, title, subtitle, color = 'cyan' }) => {
-  const cols = {
-    cyan: 'text-cyan-500',
-    emerald: 'text-emerald-500',
-    violet: 'text-violet-500',
-  };
-  return (
-    <div className="flex flex-col gap-1 border-b border-slate-200/50 dark:border-slate-800 pb-4 mb-2">
-      <div className={`flex items-center gap-2 ${cols[color]}`}>
-        {icon}
-        <span className="text-xs font-black uppercase tracking-widest text-slate-400">
-          {title}
-        </span>
-      </div>
-      {subtitle && <p className="text-xs text-slate-400 mt-0.5 ml-6">{subtitle}</p>}
-    </div>
-  );
-};
-
 export default function Team() {
-  const foundingLeaders = LEADERS.filter(l => l.category === 'Founding Leadership');
-  const statewideLeaders = LEADERS.filter(l => l.category === 'Statewide Executive Command');
-  const regionalLeaders = LEADERS.filter(l => l.category === 'Regional Command' || l.category === 'Digital Operations & Tech Command');
-
   return (
     <div className="w-full flex flex-col gap-16 py-4">
       {/* Header */}
       <AnimatedSection direction="up" className="text-center max-w-3xl mx-auto flex flex-col gap-4">
         <span className="text-xs font-bold text-cyan-600 dark:text-cyan-400 tracking-widest uppercase">
-          TRSV DIRECTORY
+          TVRS DIRECTORY
         </span>
         <h1 className="fluid-heading-2 font-black text-slate-850 dark:text-white leading-tight">
           Executive Board & Command Council
         </h1>
         <p className="text-base sm:text-lg text-slate-500 dark:text-slate-400 leading-relaxed">
-          The unified leadership council of Telangana Rakshana Sena Vidyarthi Vibhagam (TRSV), guiding student welfare and security across Telangana.
+          The unified leadership council of Telangana Vidyarthi Rakshana Sena (TVRS), guiding student welfare and security across Telangana.
         </p>
       </AnimatedSection>
 
       <div className="flex flex-col gap-16 text-left animate-fadeIn">
-        {/* Category 1: Founding Leadership */}
         <AnimatedSection direction="up" delay={0.05} className="flex flex-col gap-6">
-          <SectionHeader
-            icon={<Award className="w-4 h-4" />}
-            title="Founding Leadership"
-            subtitle="Patron leaders guiding the state movement"
-            color="cyan"
-          />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {foundingLeaders.map(lead => (
-              <CinematicCard
-                key={lead.id}
-                lead={lead}
-                accentColor={lead.accentColor}
-              />
-            ))}
-          </div>
-        </AnimatedSection>
-
-        {/* Category 2: Statewide Executive Command */}
-        <AnimatedSection direction="up" delay={0.1} className="flex flex-col gap-6">
-          <SectionHeader
-            icon={<Building2 className="w-4 h-4" />}
-            title="Statewide Executive Command"
-            subtitle="Directing operations and campaigns across the state"
-            color="emerald"
-          />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {statewideLeaders.map(lead => (
-              <CinematicCard
-                key={lead.id}
-                lead={lead}
-                accentColor={lead.accentColor}
-              />
-            ))}
-          </div>
-        </AnimatedSection>
-
-        {/* Category 3: Regional & Technical Command */}
-        <AnimatedSection direction="up" delay={0.15} className="flex flex-col gap-6">
-          <SectionHeader
-            icon={<Terminal className="w-4 h-4" />}
-            title="Regional & Tech Command"
-            subtitle="Local district coordination and digital operations"
-            color="violet"
-          />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {regionalLeaders.map(lead => (
+            {LEADERS.map(lead => (
               <CinematicCard
                 key={lead.id}
                 lead={lead}

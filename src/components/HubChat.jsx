@@ -264,7 +264,8 @@ export default function HubChat({ user, chatMode = 'admin' }) {
   };
 
   const showSidebar = chatMode !== 'social' && user?.role !== 'student';
-  const socialNeedsLocation = (chatMode === 'social' || user?.role === 'student') && (!user?.hub_name || user.hub_name === 'Upcoming Area' || !user?.constituency_name || !user?.constituency_id);
+  const isAdmin = ['supreme_admin', 'dev'].includes(user?.role);
+  const socialNeedsLocation = !isAdmin && (chatMode === 'social' || user?.role === 'student') && (!user?.hub_name || user.hub_name === 'Upcoming Area' || !user?.constituency_name || !user?.constituency_id);
 
   return (
     <div className="flex flex-col lg:flex-row gap-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 sm:p-6 flex-1 min-h-0 shadow-premium-light dark:shadow-premium-dark overflow-hidden">

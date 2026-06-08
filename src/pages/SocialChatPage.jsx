@@ -9,7 +9,8 @@ export default function SocialChatPage() {
   if (!userProfile) {
     return <Navigate to="/login" replace />;
   }
-  const hasLocation = userProfile.constituency_id && userProfile.hub_name && userProfile.hub_name !== 'Upcoming Area';
+  const isAdmin = ['supreme_admin', 'dev'].includes(userProfile.role);
+  const hasLocation = isAdmin || (userProfile.constituency_id && userProfile.hub_name && userProfile.hub_name !== 'Upcoming Area');
 
   return (
     <div className="w-full flex-1 min-h-0 flex flex-col gap-4 animate-fadeIn text-left">
