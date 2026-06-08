@@ -112,14 +112,13 @@ const CinematicCard = ({ lead, accentColor = 'cyan' }) => {
 
   return (
     <GlassCard hoverEffect={true} className="group p-0 flex flex-col items-stretch text-left bg-gradient-to-b from-white/40 to-white/10 dark:from-slate-950/50 dark:to-slate-950/20 border border-slate-200/50 dark:border-slate-800 shadow-xl overflow-hidden rounded-3xl">
-      {/* Cinematic Portrait */}
-      <div className="w-full h-[320px] sm:h-[380px] relative overflow-hidden bg-slate-100 dark:bg-slate-950">
+      <div className="w-full aspect-[3/4] relative overflow-hidden bg-slate-100 dark:bg-slate-950">
         {lead.profile_image ? (
           <img
             src={lead.profile_image}
             alt={lead.full_name}
             loading="lazy"
-            className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+            className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-slate-950 via-slate-900 to-cyan-950/40 flex flex-col items-center justify-center p-6 text-center select-none border-b border-slate-900/50">

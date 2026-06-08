@@ -103,7 +103,7 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://unpkg.com"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://unpkg.com", "https://fonts.googleapis.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://unpkg.com", "https://fonts.googleapis.com", "https://api.fontshare.com", "https://*.fontshare.com"],
       imgSrc: [
         "'self'", 
         "data:", 
@@ -121,9 +121,11 @@ app.use(helmet({
         "wss:",
         "https://*.supabase.co",
         "https://nominatim.openstreetmap.org",
-        "https://unpkg.com"
+        "https://unpkg.com",
+        "https://api.fontshare.com",
+        "https://*.fontshare.com"
       ],
-      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com", "https://api.fontshare.com", "https://*.fontshare.com"],
       frameSrc: ["'self'", "https://maps.google.com", "https://www.google.com"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'", "data:"],
