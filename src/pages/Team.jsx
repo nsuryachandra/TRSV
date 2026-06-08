@@ -16,7 +16,7 @@ const LEADERS = [
     id: 'aaditya',
     full_name: 'Aaditya Devanapalli Garu',
     role: 'Leader',
-    profile_image: null,
+    profile_image: '/aaditya.jpg',
     accentColor: 'cyan',
     description: 'Senior Leader guiding organizational strategies, campus coordination frameworks, and student advocacy operations throughout the state.'
   },
@@ -48,7 +48,7 @@ const LEADERS = [
     id: 'naveen',
     full_name: 'Naveen Goud',
     role: 'Vice President',
-    profile_image: null,
+    profile_image: '/naveen_goud.jpg',
     accentColor: 'emerald',
     description: 'Supervises state-level campaigns, campus safety units, and represents student welfare delegations to governing bodies.'
   },
@@ -75,6 +75,14 @@ const LEADERS = [
     profile_image: null,
     accentColor: 'violet',
     description: 'Oversees organizational growth, campus student welfare operations, and local grievance redressal cells in the Rangareddy district.'
+  },
+  {
+    id: 'gummadi_kranthi',
+    full_name: 'Gummadi Kranthi',
+    role: 'Greater Hyderabad President',
+    profile_image: '/g_kranthi.jpg',
+    accentColor: 'violet',
+    description: 'Oversees campus welfare initiatives, district union coordination, and student advocacy committees throughout Greater Hyderabad.'
   }
 ];
 

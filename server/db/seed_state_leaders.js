@@ -94,6 +94,16 @@ const seedStateLeaders = async () => {
       profile_image: '/karthiknew.jpeg',
       password: ['gh', 'gs'].join(''),
       constituency_id: ghId
+    },
+    {
+      id: 'gh-president-kranthi',
+      full_name: 'Gummadi Kranthi',
+      email: 'kranthi@tvrs.gov.in',
+      role: 'president',
+      phone: '4444444444',
+      profile_image: '/g_kranthi.jpg',
+      password: getTempPassword('GummadiKranthi'),
+      constituency_id: ghId
     }
   ];
 
@@ -108,10 +118,10 @@ const seedStateLeaders = async () => {
         'ramuanna@trsv.gov.in', 'kranthi@trsv.gov.in', 'pranith@trsv.gov.in', 
         'omkar@trsv.gov.in', 'karthik@trsv.gov.in', 'ramuanna@tvrs.gov.in',
         'naveen@tvrs.gov.in', 'bhagath@tvrs.gov.in', 'madhu@tvrs.gov.in',
-        'rajkumar@tvrs.gov.in'
+        'rajkumar@tvrs.gov.in', 'kranthi@tvrs.gov.in'
       ) OR id IN (
         'state-president-ramu', 'state-vp-naveen', 'state-gs-bhagath',
-        'state-sec-madhu', 'rr-president-rajkumar'
+        'state-sec-madhu', 'rr-president-rajkumar', 'gh-president-kranthi'
       )
     `);
     console.log('🧹 Cleaned up old/unused/duplicate leaders from database.');
