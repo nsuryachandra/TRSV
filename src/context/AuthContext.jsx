@@ -262,8 +262,7 @@ export const AuthProvider = ({ children }) => {
     window.fetch = async (input, init) => {
       let finalInput = input;
       const isCapacitor = !!window.Capacitor;
-      const isLocalDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      const apiBase = (isCapacitor && !isLocalDev) ? 'https://trsv-union.onrender.com' : '';
+      const apiBase = isCapacitor ? 'https://trsv-union.onrender.com' : '';
 
       if (apiBase) {
         if (typeof input === 'string') {
@@ -333,7 +332,17 @@ export const AuthProvider = ({ children }) => {
       body: JSON.stringify({ email, password }),
     });
 
-    const data = await response.json();
+    let data;
+    try {
+      const ct = response.headers.get('content-type') || '';
+      if (!ct.includes('application/json')) {
+        const text = await response.text();
+        throw new Error(`Server returned non-JSON response: ${text.slice(0,200)}`);
+      }
+      data = await response.json();
+    } catch (err) {
+      throw new Error(err.message || 'Authentication failed. Server response could not be parsed.');
+    }
     if (!data.success) {
       throw new Error(data.message || 'Authentication failed. Please verify credentials.');
     }
@@ -388,7 +397,17 @@ export const AuthProvider = ({ children }) => {
       body: JSON.stringify({ type, username, clientSecret: savedSecret }),
     });
 
-    const data = await response.json();
+    let data;
+    try {
+      const ct = response.headers.get('content-type') || '';
+      if (!ct.includes('application/json')) {
+        const text = await response.text();
+        throw new Error(`Server returned non-JSON response: ${text.slice(0,200)}`);
+      }
+      data = await response.json();
+    } catch (err) {
+      throw new Error(err.message || 'Simplified authentication failed. Server response could not be parsed.');
+    }
     if (!data.success) {
       throw new Error(data.message || 'Simplified authentication failed.');
     }

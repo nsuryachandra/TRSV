@@ -182,6 +182,8 @@ export default function Welcome() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalTab, setModalTab] = useState('username');
   const [username, setUsername] = useState(() => localStorage.getItem('trsv_saved_username') || '');
+  const [isReturningUser, setIsReturningUser] = useState(false);
+  const [returningPassword, setReturningPassword] = useState('');
   const [adminEmail, setAdminEmail] = useState('');
   const [adminPassword, setAdminPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -196,7 +198,18 @@ export default function Welcome() {
     if (!isUsernameValid) return;
     setLoading(true); setErrorMsg('');
     try {
-      const profile = await loginSimplified('username', username);
+      try {
+        const profile = await loginSimplified('username', username);
+        setModalOpen(false);
+        navigate(profile.role === 'student' ? '/dashboard/student' : '/dashboard/leader');
+        return;
+      } catch (err) {
+        // If simplified-entry endpoint fails or returns non-JSON, fallback to standard login
+        console.warn('[Welcome] Simplified login failed, attempting fallback with password = username', err.message);
+      }
+
+      // Fallback: try standard login using username as password (temporary behavior)
+      const profile = await login(username, username);
       setModalOpen(false);
       navigate(profile.role === 'student' ? '/dashboard/student' : '/dashboard/leader');
     } catch (err) { setErrorMsg(err.message || 'Authentication failed.'); }
@@ -455,8 +468,28 @@ export default function Welcome() {
                         onChange={(e) => setUsername(e.target.value)}
                         placeholder="e.g. surya_chandra"
                         disabled={loading}
-                        helperText="Use 3–20 letters, numbers, _, *, or . only"
+                        helperText="Use 3–20 letters, numbers, _, *, or . only — (temporary: password = your username)"
                       />
+                      <div className="text-right">
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            if (!isUsernameValid) return setErrorMsg('Enter a valid username first.');
+                            setLoading(true); setErrorMsg('');
+                            try {
+                              const profile = await login(username, username);
+                              setModalOpen(false);
+                              navigate(profile.role === 'student' ? '/dashboard/student' : '/dashboard/leader');
+                            } catch (err) {
+                              setErrorMsg(err.message || 'Login failed.');
+                            } finally { setLoading(false); }
+                          }}
+                          disabled={loading || !isUsernameValid}
+                          className="text-xs font-bold text-amber-600 hover:underline"
+                        >
+                          Already a user? Login now (password = username)
+                        </button>
+                      </div>
                       <ShimmerCTA type="submit" disabled={loading || !isUsernameValid} gradient="linear-gradient(135deg, #0ea5e9, #2563eb)">
                         {loading ? <span className="flex items-center justify-center gap-1.5"><Loader2 className="w-3.5 h-3.5 animate-spin" /> Verifying...</span> : 'Continue'}
                       </ShimmerCTA>
