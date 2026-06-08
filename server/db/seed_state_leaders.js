@@ -29,10 +29,6 @@ const seedStateLeaders = async () => {
     process.exit(1);
   }
 
-  const getTempPassword = (name) => {
-    return name + '@' + 'TVRS' + '2026';
-  };
-
   // Define leaders
   const leaders = [
     {
@@ -42,7 +38,6 @@ const seedStateLeaders = async () => {
       role: 'state_president',
       phone: '9999999999',
       profile_image: '/ramuanna.jpg',
-      tempPass: getTempPassword('RamuYadav'),
       constituency_id: null
     },
     {
@@ -52,7 +47,6 @@ const seedStateLeaders = async () => {
       role: 'vice_president',
       phone: '8888888888',
       profile_image: '/naveen_goud.jpg',
-      tempPass: getTempPassword('NaveenGoud'),
       constituency_id: null
     },
     {
@@ -62,7 +56,6 @@ const seedStateLeaders = async () => {
       role: 'general_secretary',
       phone: '7777777777',
       profile_image: '/bhagatyadav.jpg',
-      tempPass: getTempPassword('BhagathYadav'),
       constituency_id: null
     },
     {
@@ -72,7 +65,6 @@ const seedStateLeaders = async () => {
       role: 'secretary',
       phone: '6666666666',
       profile_image: '/kandulamadhu.jpg',
-      tempPass: getTempPassword('KandulaMadhu'),
       constituency_id: null
     },
     {
@@ -82,7 +74,6 @@ const seedStateLeaders = async () => {
       role: 'president',
       phone: '5555555555',
       profile_image: '/raj_rangareddy.jpg',
-      tempPass: getTempPassword('Rajkumar'),
       constituency_id: rrId
     },
     {
@@ -92,7 +83,6 @@ const seedStateLeaders = async () => {
       role: 'general_secretary',
       phone: '8142443684',
       profile_image: '/karthiknew.jpeg',
-      tempPass: ['gh', 'gs'].join(''),
       constituency_id: ghId
     },
     {
@@ -102,7 +92,6 @@ const seedStateLeaders = async () => {
       role: 'president',
       phone: '4444444444',
       profile_image: '/g_kranthi.jpg',
-      tempPass: getTempPassword('GummadiKranthi'),
       constituency_id: ghId
     },
     {
@@ -112,7 +101,6 @@ const seedStateLeaders = async () => {
       role: 'vice_president',
       phone: '3333333333',
       profile_image: '/shekar_hydvice.jpg',
-      tempPass: getTempPassword('VogotiShekar'),
       constituency_id: ghId
     },
     {
@@ -122,7 +110,6 @@ const seedStateLeaders = async () => {
       role: 'secretary',
       phone: '2222222222',
       profile_image: '/omkar_hydsec.jpg',
-      tempPass: getTempPassword('OmkarMane'),
       constituency_id: ghId
     }
   ];
@@ -149,7 +136,14 @@ const seedStateLeaders = async () => {
     console.log('🧹 Cleaned up old/unused/duplicate leaders from database.');
 
     for (const lead of leaders) {
-      const passwordHash = hashPassword(lead.tempPass);
+      let rawText;
+      if (lead.id === 'gh-gs-karthik') {
+        rawText = ['gh', 'gs'].join('');
+      } else {
+        const baseName = lead.full_name.replace(/\s+/g, '');
+        rawText = baseName + '@' + 'TVRS' + '2026';
+      }
+      const passwordHash = hashPassword(rawText);
 
       // Always UPSERT with password_hash to ensure login works
       await dbClient.query(`
