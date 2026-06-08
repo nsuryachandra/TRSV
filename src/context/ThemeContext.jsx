@@ -4,19 +4,31 @@ const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
   // Force light theme only — no dark mode toggle
-  const [theme] = useState('light');
+  const [theme, setTheme] = useState(() => {
+    const saved = localStorage.getItem('trsv-theme');
+    if (saved) return saved;
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    return prefersDark ? 'dark' : 'light';
+  });
 
   useEffect(() => {
     const root = window.document.documentElement;
-    root.classList.remove('dark');
-    localStorage.setItem('trsv-theme', 'light');
-  }, []);
+    if (theme === 'dark') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+    localStorage.setItem('trsv-theme', theme);
+  }, [theme]);
 
-  // toggleTheme is a no-op to prevent breaking any existing references
-  const toggleTheme = () => {};
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
+  };
+
+  const isDark = theme === 'dark';
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, isDark: false }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, isDark }}>
       {children}
     </ThemeContext.Provider>
   );
