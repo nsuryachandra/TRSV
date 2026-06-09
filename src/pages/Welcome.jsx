@@ -190,6 +190,14 @@ export default function Welcome() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
+  const isAdminEmailValid = (email) => {
+    try {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    } catch (e) {
+      return false;
+    }
+  };
+
   const usernameRegex = /^[a-zA-Z0-9_*.]+$/;
   const isUsernameValid = username.length >= 3 && username.length <= 20 && usernameRegex.test(username);
 
@@ -544,7 +552,7 @@ export default function Welcome() {
                           {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                         </button>
                       </div>
-                      <ShimmerCTA type="submit" disabled={loading || !adminEmail || !adminPassword} gradient="linear-gradient(135deg, #f59e0b, #d97706)">
+                      <ShimmerCTA type="submit" disabled={loading || !isAdminEmailValid(adminEmail) || !adminPassword} gradient="linear-gradient(135deg, #f59e0b, #d97706)">
                         {loading ? <span className="flex items-center justify-center gap-1.5"><Loader2 className="w-3.5 h-3.5 animate-spin" /> Authorizing...</span> : 'Secure Connect'}
                       </ShimmerCTA>
 
@@ -569,11 +577,7 @@ export default function Welcome() {
                         </div>
                       )}
 
-                      {biometricsAvailable && !biometricsConfigured && (
-                        <p className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold text-center mt-2">
-                          💡 Tip: Enable biometric sign-in in your dashboard settings for instant access.
-                        </p>
-                      )}
+                      {/* Biometric enrollment tip removed per request */}
                     </motion.form>
                   )}
                 </div>

@@ -344,7 +344,10 @@ export const AuthProvider = ({ children }) => {
       throw new Error(err.message || 'Authentication failed. Server response could not be parsed.');
     }
     if (!data.success) {
-      throw new Error(data.message || 'Authentication failed. Please verify credentials.');
+      const errMsg = data.message || 'Authentication failed. Please verify credentials.';
+      const extra = data.error ? ` (${data.error})` : '';
+      console.error('[Auth] login failed:', errMsg, data.error || '');
+      throw new Error(errMsg + extra);
     }
 
     setToken(data.token);
@@ -409,7 +412,10 @@ export const AuthProvider = ({ children }) => {
       throw new Error(err.message || 'Simplified authentication failed. Server response could not be parsed.');
     }
     if (!data.success) {
-      throw new Error(data.message || 'Simplified authentication failed.');
+      const errMsg = data.message || 'Simplified authentication failed.';
+      const extra = data.error ? ` (${data.error})` : '';
+      console.error('[Auth] simplified-entry failed:', errMsg, data.error || '');
+      throw new Error(errMsg + extra);
     }
 
     setToken(data.token);

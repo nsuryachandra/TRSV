@@ -311,7 +311,7 @@ router.post('/signup', async (req, res) => {
 
     res.status(201).json({ success: true, message: 'Identity registered and verified successfully.', token, user: profile.rows[0] });
   } catch (error) {
-    console.error('🚨 [Local Signup Error]:', error.message);
+    console.error('🚨 [Local Signup Error]:', error.stack || error.message);
     res.status(500).json({ success: false, message: 'Database registration failed.', error: error.message });
   }
 });
@@ -423,7 +423,7 @@ router.post('/login', async (req, res) => {
 
     res.json({ success: true, token, user: profile.rows[0] });
   } catch (error) {
-    console.error('🚨 [Local Login Error]:', error.message);
+    console.error('🚨 [Local Login Error]:', error.stack || error.message);
     res.status(500).json({ success: false, message: 'Authentication failed.', error: error.message });
   }
 });
@@ -907,7 +907,7 @@ router.post('/simplified-entry', async (req, res) => {
       clientSecret: clientSecretToReturn
     });
   } catch (error) {
-    console.error('🚨 [Simplified Entry Error]:', error.message);
+    console.error('🚨 [Simplified Entry Error]:', error.stack || error.message);
     res.status(500).json({ success: false, message: 'Simplified authentication gateway error.', error: error.message });
   }
 });
