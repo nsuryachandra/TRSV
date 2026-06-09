@@ -11,6 +11,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const router = express.Router();
+import { requireAuth } from '../middleware/auth.js';
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
   console.error('🚨 FATAL: JWT_SECRET is not configured. Auth module cannot operate.');
@@ -305,9 +306,10 @@ router.post('/signup', async (req, res) => {
       // Create a long-lived refresh token (rotating) and store in DB
       try {
         const refreshToken = crypto.randomBytes(40).toString('hex');
+        const tokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
         const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
-        await query('INSERT INTO refresh_tokens(token, user_id, expires_at) VALUES ($1, $2, $3) ON CONFLICT (token) DO UPDATE SET expires_at = EXCLUDED.expires_at', [refreshToken, userId, expiresAt]);
-        // Set HttpOnly secure cookie
+        await query('INSERT INTO refresh_tokens(token_hash, user_id, expires_at) VALUES ($1, $2, $3) ON CONFLICT (token_hash) DO UPDATE SET expires_at = EXCLUDED.expires_at', [tokenHash, userId, expiresAt]);
+        // Set HttpOnly secure cookie with raw token (server stores only the hash)
         res.cookie('trsv_refresh', refreshToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', maxAge: 30 * 24 * 60 * 60 * 1000 });
       } catch (rtErr) {
         console.warn('⚠️ [Signup] Failed to create refresh token:', rtErr.message);
@@ -439,8 +441,9 @@ router.post('/login', async (req, res) => {
     // Issue long-lived refresh token and persist
     try {
       const refreshToken = crypto.randomBytes(40).toString('hex');
+      const tokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
       const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-      await query('INSERT INTO refresh_tokens(token, user_id, expires_at) VALUES ($1, $2, $3) ON CONFLICT (token) DO UPDATE SET expires_at = EXCLUDED.expires_at', [refreshToken, user.id, expiresAt]);
+      await query('INSERT INTO refresh_tokens(token_hash, user_id, expires_at) VALUES ($1, $2, $3) ON CONFLICT (token_hash) DO UPDATE SET expires_at = EXCLUDED.expires_at', [tokenHash, user.id, expiresAt]);
       res.cookie('trsv_refresh', refreshToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', maxAge: 30 * 24 * 60 * 60 * 1000 });
     } catch (rtErr) {
       console.warn('⚠️ [Login] Failed to persist refresh token:', rtErr.message);
@@ -532,15 +535,30 @@ router.post('/refresh', async (req, res) => {
       return res.status(401).json({ success: false, message: 'No refresh token provided.' });
     }
 
-    const rtRow = await query('SELECT token, user_id, expires_at FROM refresh_tokens WHERE token = $1', [provided]);
+    const providedHash = crypto.createHash('sha256').update(provided).digest('hex');
+    const rtRow = await query('SELECT token_hash AS token, user_id, expires_at, revoked FROM refresh_tokens WHERE token_hash = $1', [providedHash]);
     if (rtRow.rows.length === 0) {
+      console.warn('⚠️ [Auth Refresh] Provided refresh token not found in DB; possible invalid or reuse attempt.');
       return res.status(401).json({ success: false, message: 'Refresh token invalid.' });
     }
 
     const row = rtRow.rows[0];
+    if (row.revoked) {
+      // Token was already rotated/revoked — treat as reuse and revoke all sessions
+      try {
+        await query('DELETE FROM refresh_tokens WHERE user_id = $1', [row.user_id]);
+        res.clearCookie('trsv_refresh');
+        console.warn('🚨 [Auth Refresh] Refresh token reuse detected. All sessions revoked for user:', row.user_id);
+        return res.status(401).json({ success: false, message: 'Refresh token reuse detected. All sessions revoked. Please login again.' });
+      } catch (revokeErr) {
+        console.error('🚨 [Auth Refresh] Failed to revoke sessions after reuse detection:', revokeErr.message);
+        return res.status(500).json({ success: false, message: 'Failed to process refresh reuse event.' });
+      }
+    }
+
     if (new Date(row.expires_at) < new Date()) {
       // Remove expired token
-      await query('DELETE FROM refresh_tokens WHERE token = $1', [provided]);
+      await query('DELETE FROM refresh_tokens WHERE token_hash = $1', [providedHash]);
       return res.status(401).json({ success: false, message: 'Refresh token expired.' });
     }
 
@@ -551,12 +569,13 @@ router.post('/refresh', async (req, res) => {
 
     const newAccess = jwt.sign({ uid: user.id, email: user.email, role: user.role, name: user.full_name }, JWT_SECRET, { expiresIn: '7d' });
 
-    // Rotate refresh token
+    // Rotate refresh token: mark current row revoked and insert new rotated token
     try {
       const newRefresh = crypto.randomBytes(40).toString('hex');
+      const newHash = crypto.createHash('sha256').update(newRefresh).digest('hex');
       const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-      await query('DELETE FROM refresh_tokens WHERE token = $1', [provided]);
-      await query('INSERT INTO refresh_tokens(token, user_id, expires_at) VALUES ($1, $2, $3)', [newRefresh, user.id, expiresAt]);
+      await query('UPDATE refresh_tokens SET revoked = TRUE, replaced_by_hash = $1, last_used_at = NOW() WHERE token_hash = $2', [newHash, providedHash]);
+      await query('INSERT INTO refresh_tokens(token_hash, user_id, expires_at) VALUES ($1, $2, $3)', [newHash, user.id, expiresAt]);
       res.cookie('trsv_refresh', newRefresh, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', maxAge: 30 * 24 * 60 * 60 * 1000 });
     } catch (rotErr) {
       console.warn('⚠️ [Auth Refresh] Failed to rotate refresh token:', rotErr.message);
@@ -848,6 +867,44 @@ router.post('/reset-password', async (req, res) => {
   } catch (error) {
     console.error('🚨 [Password Reset Error]:', error.message);
     res.status(500).json({ success: false, message: 'Database query failed.', error: error.message });
+  }
+});
+
+/**
+ * Logout: revoke the refresh token stored in cookie and clear cookie
+ */
+router.post('/logout', async (req, res) => {
+  try {
+    const provided = req.cookies && req.cookies.trsv_refresh;
+    if (provided) {
+      const providedHash = crypto.createHash('sha256').update(provided).digest('hex');
+      try {
+        await query('UPDATE refresh_tokens SET revoked = TRUE, last_used_at = NOW() WHERE token_hash = $1', [providedHash]);
+      } catch (e) {
+        console.warn('⚠️ [Logout] Failed to mark refresh token revoked:', e.message);
+        await query('DELETE FROM refresh_tokens WHERE token_hash = $1', [providedHash]);
+      }
+    }
+    res.clearCookie('trsv_refresh');
+    return res.json({ success: true, message: 'Logged out from this device.' });
+  } catch (err) {
+    console.error('🚨 [Logout Error]:', err.message);
+    return res.status(500).json({ success: false, message: 'Failed to logout.' });
+  }
+});
+
+/**
+ * Logout all devices for current user (revoke all refresh tokens)
+ */
+router.post('/logout-all', requireAuth, async (req, res) => {
+  try {
+    const uid = req.user.uid;
+    await query('DELETE FROM refresh_tokens WHERE user_id = $1', [uid]);
+    res.clearCookie('trsv_refresh');
+    return res.json({ success: true, message: 'Logged out from all devices.' });
+  } catch (err) {
+    console.error('🚨 [Logout All Error]:', err.message);
+    return res.status(500).json({ success: false, message: 'Failed to logout from all devices.' });
   }
 });
 

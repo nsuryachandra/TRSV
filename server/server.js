@@ -36,6 +36,7 @@ try {
 // Import config and routes
 import pool from './config/db.js';
 import authRouter from './routes/auth.js';
+import sessionsRouter from './routes/sessions.js';
 import constituencyRouter from './routes/constituencies.js';
 import collegeRouter from './routes/colleges.js';
 import complaintRouter from './routes/complaints.js';
@@ -159,6 +160,7 @@ app.use((req, res, next) => {
 
 // Register API Sub-Modules
 app.use('/api/auth', authRouter);
+app.use('/api/auth', sessionsRouter);
 app.use('/api/constituencies', constituencyRouter);
 app.use('/api/colleges', collegeRouter);
 app.use('/api/complaints', complaintRouter);
@@ -266,25 +268,41 @@ io.use(async (socket, next) => {
             const parsed = cookieHeader ? Object.fromEntries(cookieHeader.split(';').map(s=>s.split('=').map(p=>p.trim()))) : {};
             const provided = parsed.trsv_refresh || null;
             if (provided) {
-              const rt = await pool.query('SELECT token, user_id, expires_at FROM refresh_tokens WHERE token = $1', [provided]);
-              if (rt.rows.length > 0 && new Date(rt.rows[0].expires_at) > new Date()) {
-                const userRes2 = await pool.query('SELECT id, role, full_name, email, constituency_id FROM users WHERE id = $1', [decoded.uid]);
-                if (userRes2.rows.length > 0) {
-                  const userRow = userRes2.rows[0];
-                  // Accept connection and attach user
-                  socket.user = { ...userRow, uid: userRow.id };
-                  // Rotate refresh token and issue new access token for socket
+              const providedHash = crypto.createHash('sha256').update(provided).digest('hex');
+              const rt = await pool.query('SELECT token_hash AS token, user_id, expires_at, revoked FROM refresh_tokens WHERE token_hash = $1', [providedHash]);
+              if (rt.rows.length > 0) {
+                const r = rt.rows[0];
+                if (r.revoked) {
+                  // Reuse detected: revoke all sessions for this user
                   try {
-                    const newRefresh = crypto.randomBytes(40).toString('hex');
-                    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-                    await pool.query('DELETE FROM refresh_tokens WHERE token = $1', [provided]);
-                    await pool.query('INSERT INTO refresh_tokens(token, user_id, expires_at) VALUES ($1, $2, $3)', [newRefresh, userRow.id, expiresAt]);
-                    // instruct client to update cookie via Set-Cookie is not possible over socket; but server will emit refreshed token for client to persist
-                  } catch (rotErr) {
-                    console.warn('⚠️ [Socket Auth] Failed to rotate refresh token:', rotErr.message);
+                    await pool.query('DELETE FROM refresh_tokens WHERE user_id = $1', [r.user_id]);
+                    console.warn('🚨 [Socket Auth] Refresh token reuse detected during socket handshake. All sessions revoked for user:', r.user_id);
+                    return next(new Error('Authentication error: Refresh token reuse detected'));
+                  } catch (revErr) {
+                    console.error('🚨 [Socket Auth] Failed to revoke sessions after reuse detection:', revErr.message);
+                    return next(new Error('Authentication error: Refresh token invalid'));
                   }
-                  socket.__newAuthToken = jwt.sign({ uid: userRow.id, email: userRow.email, role: userRow.role, name: userRow.full_name }, process.env.JWT_SECRET, { expiresIn: '7d' });
-                  return next();
+                }
+                if (new Date(r.expires_at) > new Date()) {
+                  const userRes2 = await pool.query('SELECT id, role, full_name, email, constituency_id FROM users WHERE id = $1', [decoded.uid]);
+                  if (userRes2.rows.length > 0) {
+                    const userRow = userRes2.rows[0];
+                    // Accept connection and attach user
+                    socket.user = { ...userRow, uid: userRow.id };
+                    // Rotate refresh token and issue new access token for socket
+                    try {
+                      const newRefresh = crypto.randomBytes(40).toString('hex');
+                      const newHash = crypto.createHash('sha256').update(newRefresh).digest('hex');
+                      const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+                      await pool.query('UPDATE refresh_tokens SET revoked = TRUE, replaced_by_hash = $1, last_used_at = NOW() WHERE token_hash = $2', [newHash, providedHash]);
+                      await pool.query('INSERT INTO refresh_tokens(token_hash, user_id, expires_at) VALUES ($1, $2, $3)', [newHash, userRow.id, expiresAt]);
+                      // Note: cannot set cookie over socket; server will emit refreshed token for client to persist
+                    } catch (rotErr) {
+                      console.warn('⚠️ [Socket Auth] Failed to rotate refresh token:', rotErr.message);
+                    }
+                    socket.__newAuthToken = jwt.sign({ uid: userRow.id, email: userRow.email, role: userRow.role, name: userRow.full_name }, process.env.JWT_SECRET, { expiresIn: '7d' });
+                    return next();
+                  }
                 }
               }
             }
@@ -292,14 +310,7 @@ io.use(async (socket, next) => {
             console.warn('⚠️ [Socket Auth] Cookie validation failed:', cookieErr.message);
           }
 
-          // Fallback: accept expired token for all roles and emit refreshed access token
-          const userRes2 = await pool.query('SELECT id, role, full_name, email, constituency_id FROM users WHERE id = $1', [decoded.uid]);
-          if (userRes2.rows.length > 0) {
-            const userRow = userRes2.rows[0];
-            socket.user = { ...userRow, uid: userRow.id };
-            socket.__newAuthToken = jwt.sign({ uid: userRow.id, email: userRow.email, role: userRow.role, name: userRow.full_name }, process.env.JWT_SECRET, { expiresIn: '7d' });
-            return next();
-          }
+          // No fallback: require valid refresh cookie to accept expired tokens via socket handshake
         }
       }
     } catch (innerErr) {
@@ -759,12 +770,20 @@ httpServer.listen(PORT, async () => {
   try {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS refresh_tokens (
-        token VARCHAR(255) PRIMARY KEY,
+        id SERIAL PRIMARY KEY,
+        token_hash VARCHAR(128) UNIQUE NOT NULL,
         user_id VARCHAR(255) REFERENCES users(id) ON DELETE CASCADE,
         expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+        revoked BOOLEAN DEFAULT FALSE,
+        replaced_by_hash VARCHAR(128) NULL,
+        last_used_at TIMESTAMP WITH TIME ZONE NULL,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
       )
     `);
+    // Ensure compat columns exist for older DBs
+    await pool.query(`ALTER TABLE refresh_tokens ADD COLUMN IF NOT EXISTS revoked BOOLEAN DEFAULT FALSE`);
+    await pool.query(`ALTER TABLE refresh_tokens ADD COLUMN IF NOT EXISTS replaced_by_hash VARCHAR(128)`);
+    await pool.query(`ALTER TABLE refresh_tokens ADD COLUMN IF NOT EXISTS last_used_at TIMESTAMP WITH TIME ZONE`);
     console.log('🔹 [Database] refresh_tokens table ensured.');
   } catch (rtErr) {
     console.error('🚨 [Database] Failed to create refresh_tokens table:', rtErr.message);
