@@ -91,14 +91,6 @@ const LEADERS = [
     profile_image: '/shekar_hydvice.jpg',
     accentColor: 'violet',
     description: 'Manages student outreach initiatives, campus union activities, and regional support networks across Greater Hyderabad.'
-  },
-  {
-    id: 'omkar_mane',
-    full_name: 'Omkar Mane',
-    role: 'Greater Hyderabad Secretary',
-    profile_image: '/omkar_hydsec.jpg',
-    accentColor: 'violet',
-    description: 'Coordinates communications, regional dispute resolutions, and student union assemblies within Greater Hyderabad.'
   }
 ];
 
