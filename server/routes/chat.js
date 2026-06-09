@@ -36,6 +36,7 @@ const authenticateChatUser = async (req, res, next) => {
     req.user = user;
     next();
   } catch (err) {
+    console.warn('⚠️ [Chat Auth] Token verification failed:', err.message);
     return res.status(403).json({ success: false, message: 'Invalid or expired token.' });
   }
 };

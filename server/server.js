@@ -123,7 +123,11 @@ app.use(helmet({
         "https://nominatim.openstreetmap.org",
         "https://unpkg.com",
         "https://api.fontshare.com",
-        "https://*.fontshare.com"
+        "https://*.fontshare.com",
+        // Allow onrender deployments and known TVRS hostnames for SSE and realtime sockets
+        "https://trsv-union.onrender.com",
+        "https://tvrs-union.onrender.com",
+        "https://*.onrender.com"
       ],
       fontSrc: ["'self'", "https://fonts.gstatic.com", "https://api.fontshare.com", "https://*.fontshare.com"],
       frameSrc: ["'self'", "https://maps.google.com", "https://www.google.com"],
