@@ -112,9 +112,9 @@ export const AuthProvider = ({ children }) => {
       const res = await fetch('/api/auth/refresh', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${currentToken}`,
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // send HttpOnly refresh cookie when available
       });
       if (!res.ok) return null;
       const data = await res.json();
@@ -287,6 +287,18 @@ export const AuthProvider = ({ children }) => {
           : '';
 
       const response = await originalFetch(finalInput, init);
+
+      // If server issued a refreshed token via header, persist it immediately
+      try {
+        const refreshed = response.headers && (response.headers.get('X-New-Auth-Token') || response.headers.get('x-new-auth-token'));
+        if (refreshed) {
+          setToken(refreshed);
+          localStorage.setItem('trsv_session_token', refreshed);
+          console.log('🔁 [AuthContext] Received refreshed token from server and updated session.');
+        }
+      } catch (e) {
+        /* ignore header parsing errors */
+      }
 
       const isApiCall = url.includes('/api/');
       const isAuthRoute =
@@ -561,6 +573,14 @@ export const AuthProvider = ({ children }) => {
     confirmResetPassword,
     refreshProfile: () => fetchDbProfile(token),
     silentRefresh: () => silentRefresh(token),
+    // Allow external code (socket listeners) to apply a refreshed token into auth state
+    applyExternalToken: (newTok) => {
+      if (!newTok) return;
+      setToken(newTok);
+      localStorage.setItem('trsv_session_token', newTok);
+      // kick off background profile fetch to refresh UI
+      fetchDbProfile(newTok).catch(() => {});
+    },
     checkBiometricsAvailable,
     enableBiometricLogin,
     disableBiometricLogin,

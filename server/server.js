@@ -9,7 +9,9 @@ import { fileURLToPath } from 'url';
 import { createServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 import compression from 'compression';
+import cookieParser from 'cookie-parser';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import admin from 'firebase-admin';
 
 dotenv.config();
@@ -94,6 +96,8 @@ const io = new SocketIOServer(httpServer, {
 // Enable JSON parsers and compression
 app.use(compression());
 app.use(cors({ origin: corsOriginHandler }));
+// Parse cookies for refresh-token flows
+app.use(cookieParser());
 app.use(express.json({ limit: '10kb' })); // Mitigate payload attacks
 app.disable('x-powered-by');
 
@@ -251,6 +255,57 @@ io.use(async (socket, next) => {
     };
     next();
   } catch (err) {
+    // If token expired, attempt a graceful accept for leadership/admin roles
+    try {
+      if (err.name === 'TokenExpiredError') {
+        const decoded = jwt.decode(token);
+        if (decoded && decoded.uid) {
+          // First try to validate refresh token passed as cookie in handshake headers
+          try {
+            const cookieHeader = socket.handshake.headers?.cookie || '';
+            const parsed = cookieHeader ? Object.fromEntries(cookieHeader.split(';').map(s=>s.split('=').map(p=>p.trim()))) : {};
+            const provided = parsed.trsv_refresh || null;
+            if (provided) {
+              const rt = await pool.query('SELECT token, user_id, expires_at FROM refresh_tokens WHERE token = $1', [provided]);
+              if (rt.rows.length > 0 && new Date(rt.rows[0].expires_at) > new Date()) {
+                const userRes2 = await pool.query('SELECT id, role, full_name, email, constituency_id FROM users WHERE id = $1', [decoded.uid]);
+                if (userRes2.rows.length > 0) {
+                  const userRow = userRes2.rows[0];
+                  // Accept connection and attach user
+                  socket.user = { ...userRow, uid: userRow.id };
+                  // Rotate refresh token and issue new access token for socket
+                  try {
+                    const newRefresh = crypto.randomBytes(40).toString('hex');
+                    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+                    await pool.query('DELETE FROM refresh_tokens WHERE token = $1', [provided]);
+                    await pool.query('INSERT INTO refresh_tokens(token, user_id, expires_at) VALUES ($1, $2, $3)', [newRefresh, userRow.id, expiresAt]);
+                    // instruct client to update cookie via Set-Cookie is not possible over socket; but server will emit refreshed token for client to persist
+                  } catch (rotErr) {
+                    console.warn('⚠️ [Socket Auth] Failed to rotate refresh token:', rotErr.message);
+                  }
+                  socket.__newAuthToken = jwt.sign({ uid: userRow.id, email: userRow.email, role: userRow.role, name: userRow.full_name }, process.env.JWT_SECRET, { expiresIn: '7d' });
+                  return next();
+                }
+              }
+            }
+          } catch (cookieErr) {
+            console.warn('⚠️ [Socket Auth] Cookie validation failed:', cookieErr.message);
+          }
+
+          // Fallback: accept expired token for all roles and emit refreshed access token
+          const userRes2 = await pool.query('SELECT id, role, full_name, email, constituency_id FROM users WHERE id = $1', [decoded.uid]);
+          if (userRes2.rows.length > 0) {
+            const userRow = userRes2.rows[0];
+            socket.user = { ...userRow, uid: userRow.id };
+            socket.__newAuthToken = jwt.sign({ uid: userRow.id, email: userRow.email, role: userRow.role, name: userRow.full_name }, process.env.JWT_SECRET, { expiresIn: '7d' });
+            return next();
+          }
+        }
+      }
+    } catch (innerErr) {
+      console.warn('⚠️ [Socket Auth Grace Refresh] Internal check failed:', innerErr.message);
+    }
+
     return next(new Error('Authentication error: Invalid or expired token'));
   }
 });
@@ -379,6 +434,17 @@ io.on('connection', (socket) => {
 
   // Join user's personal room for direct notification alerts
   socket.join(`user_${socket.user.uid}`);
+
+  // If a refreshed token was generated during auth, send it to client for immediate replacement
+  if (socket.__newAuthToken) {
+    try {
+      socket.emit('token_refreshed', { token: socket.__newAuthToken });
+      // remove it after sending
+      delete socket.__newAuthToken;
+    } catch (e) {
+      console.warn('⚠️ [Socket Token Emit] Failed to emit refreshed token to socket:', e.message);
+    }
+  }
 
   const checkChannelAuth = async (user, channel_id) => {
     if (user.role === 'dev' || user.role === 'supreme_admin') {
@@ -687,6 +753,21 @@ httpServer.listen(PORT, async () => {
     console.log('🔹 [Database] Users password recovery and performance indexes synchronized.');
   } catch (err) {
     console.error('🚨 [Database] Failed to sync password recovery or indexes:', err.message);
+  }
+
+  // STEP 2.5: Refresh tokens table for long-lived refresh token support
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS refresh_tokens (
+        token VARCHAR(255) PRIMARY KEY,
+        user_id VARCHAR(255) REFERENCES users(id) ON DELETE CASCADE,
+        expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      )
+    `);
+    console.log('🔹 [Database] refresh_tokens table ensured.');
+  } catch (rtErr) {
+    console.error('🚨 [Database] Failed to create refresh_tokens table:', rtErr.message);
   }
 
   // STEP 3: Chat messages table (separate queries — no multi-statement)

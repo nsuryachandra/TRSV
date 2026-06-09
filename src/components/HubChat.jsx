@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 
 export default function HubChat({ user, chatMode = 'admin' }) {
-  const { logout } = useAuth();
+  const { logout, applyExternalToken } = useAuth();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [currentChannel, setCurrentChannel] = useState(() => {
@@ -79,7 +79,8 @@ export default function HubChat({ user, chatMode = 'admin' }) {
     socketRef.current = io(socketUrl, {
       transports: ['websocket'],
       upgrade: false,
-      auth: { token }
+      auth: { token },
+      withCredentials: true
     });
 
     socketRef.current.on('connect', () => {
@@ -91,6 +92,17 @@ export default function HubChat({ user, chatMode = 'admin' }) {
 
     socketRef.current.on('disconnect', () => {
       setSocketConnected(false);
+    });
+
+    // Accept refreshed tokens emitted by the server and apply to session
+    socketRef.current.on('token_refreshed', ({ token: refreshed }) => {
+      console.log('🔁 [HubChat Socket] Received refreshed token.');
+      try {
+        if (typeof applyExternalToken === 'function') applyExternalToken(refreshed);
+        else localStorage.setItem('trsv_session_token', refreshed);
+      } catch (e) {
+        localStorage.setItem('trsv_session_token', refreshed);
+      }
     });
 
     // Message listener

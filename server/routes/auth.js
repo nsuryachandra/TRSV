@@ -302,6 +302,17 @@ router.post('/signup', async (req, res) => {
       { expiresIn: '7d' }
     );
 
+      // Create a long-lived refresh token (rotating) and store in DB
+      try {
+        const refreshToken = crypto.randomBytes(40).toString('hex');
+        const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
+        await query('INSERT INTO refresh_tokens(token, user_id, expires_at) VALUES ($1, $2, $3) ON CONFLICT (token) DO UPDATE SET expires_at = EXCLUDED.expires_at', [refreshToken, userId, expiresAt]);
+        // Set HttpOnly secure cookie
+        res.cookie('trsv_refresh', refreshToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', maxAge: 30 * 24 * 60 * 60 * 1000 });
+      } catch (rtErr) {
+        console.warn('⚠️ [Signup] Failed to create refresh token:', rtErr.message);
+      }
+
     // Write audit log
     await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details) VALUES ($1, $2, $3)', [
       userId,
@@ -425,6 +436,16 @@ router.post('/login', async (req, res) => {
       { expiresIn: '7d' }
     );
 
+    // Issue long-lived refresh token and persist
+    try {
+      const refreshToken = crypto.randomBytes(40).toString('hex');
+      const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+      await query('INSERT INTO refresh_tokens(token, user_id, expires_at) VALUES ($1, $2, $3) ON CONFLICT (token) DO UPDATE SET expires_at = EXCLUDED.expires_at', [refreshToken, user.id, expiresAt]);
+      res.cookie('trsv_refresh', refreshToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', maxAge: 30 * 24 * 60 * 60 * 1000 });
+    } catch (rtErr) {
+      console.warn('⚠️ [Login] Failed to persist refresh token:', rtErr.message);
+    }
+
     // Fetch complete hydrated profile
     const profile = await query(
       `SELECT u.*, con.constituency_name, con.district, con.parent_id as constituency_parent_id,
@@ -501,27 +522,51 @@ router.get('/profile', async (req, res) => {
 router.post('/refresh', async (req, res) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ success: false, message: 'No authorization header provided.' });
+    // Allow refresh solely via refresh cookie
+    // fall through — we'll validate refresh token cookie below
   }
-
-  const oldToken = authHeader.split('Bearer ')[1];
-
   try {
-    const decoded = jwt.verify(oldToken, JWT_SECRET);
+    const refreshCookie = req.cookies && req.cookies.trsv_refresh;
+    const provided = refreshCookie || req.body?.refreshToken;
+    if (!provided) {
+      return res.status(401).json({ success: false, message: 'No refresh token provided.' });
+    }
 
-    // Issue a brand-new 7-day token with same claims
-    const newToken = jwt.sign(
-      { uid: decoded.uid, email: decoded.email, role: decoded.role, name: decoded.name },
-      JWT_SECRET,
-      { expiresIn: '7d' }
-    );
+    const rtRow = await query('SELECT token, user_id, expires_at FROM refresh_tokens WHERE token = $1', [provided]);
+    if (rtRow.rows.length === 0) {
+      return res.status(401).json({ success: false, message: 'Refresh token invalid.' });
+    }
 
-    console.log(`🔄 [Auth Refresh] Token refreshed for uid: ${decoded.uid}`);
-    return res.json({ success: true, token: newToken });
+    const row = rtRow.rows[0];
+    if (new Date(row.expires_at) < new Date()) {
+      // Remove expired token
+      await query('DELETE FROM refresh_tokens WHERE token = $1', [provided]);
+      return res.status(401).json({ success: false, message: 'Refresh token expired.' });
+    }
+
+    // All good — issue new access token and rotate refresh token
+    const userRes = await query('SELECT id, email, role, full_name FROM users WHERE id = $1', [row.user_id]);
+    if (userRes.rows.length === 0) return res.status(404).json({ success: false, message: 'User not found.' });
+    const user = userRes.rows[0];
+
+    const newAccess = jwt.sign({ uid: user.id, email: user.email, role: user.role, name: user.full_name }, JWT_SECRET, { expiresIn: '7d' });
+
+    // Rotate refresh token
+    try {
+      const newRefresh = crypto.randomBytes(40).toString('hex');
+      const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+      await query('DELETE FROM refresh_tokens WHERE token = $1', [provided]);
+      await query('INSERT INTO refresh_tokens(token, user_id, expires_at) VALUES ($1, $2, $3)', [newRefresh, user.id, expiresAt]);
+      res.cookie('trsv_refresh', newRefresh, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', maxAge: 30 * 24 * 60 * 60 * 1000 });
+    } catch (rotErr) {
+      console.warn('⚠️ [Auth Refresh] Failed to rotate refresh token:', rotErr.message);
+    }
+
+    res.setHeader('X-New-Auth-Token', newAccess);
+    return res.json({ success: true, token: newAccess });
   } catch (error) {
-    // Token is already expired or invalid — cannot refresh, must re-login
-    console.warn(`⚠️ [Auth Refresh] Refresh failed: ${error.message}`);
-    return res.status(401).json({ success: false, message: 'Invalid or expired token.' });
+    console.warn(`⚠️ [Auth Refresh] Refresh flow failed: ${error.message}`);
+    return res.status(401).json({ success: false, message: 'Refresh failed: ' + error.message });
   }
 });
 

@@ -44,7 +44,7 @@ export default function DashboardLayout() {
     checkBiometricsAvailable,
     enableBiometricLogin,
     disableBiometricLogin
-  } = useAuth();
+  , applyExternalToken } = useAuth();
 
   // Biometrics States
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
@@ -207,7 +207,8 @@ export default function DashboardLayout() {
       socketRef.current = io(socketUrl, {
         transports: ['websocket'],
         upgrade: false,
-        auth: { token }
+        auth: { token },
+        withCredentials: true
       });
 
       socketRef.current.on('connect', () => {
@@ -220,6 +221,19 @@ export default function DashboardLayout() {
           if (prev.some(p => p.id === notification.id)) return prev;
           return [notification, ...prev];
         });
+      });
+      // Listen for server-issued refreshed tokens on the socket
+      socketRef.current.on('token_refreshed', ({ token: refreshed }) => {
+        console.log('🔁 [Socket] Received refreshed token via socket.');
+        try {
+          if (typeof applyExternalToken === 'function') {
+            applyExternalToken(refreshed);
+          } else {
+            localStorage.setItem('trsv_session_token', refreshed);
+          }
+        } catch (e) {
+          localStorage.setItem('trsv_session_token', refreshed);
+        }
       });
     }
 

@@ -37,6 +37,29 @@ const authenticateChatUser = async (req, res, next) => {
     next();
   } catch (err) {
     console.warn('⚠️ [Chat Auth] Token verification failed:', err.message);
+    // Attempt safe auto-refresh for leadership/admin roles when token expired
+    try {
+      if (err.name === 'TokenExpiredError') {
+        const decoded = jwt.decode(token);
+        if (decoded && decoded.uid) {
+          const userQuery = await query('SELECT id, role, full_name, email, constituency_id FROM users WHERE id = $1', [decoded.uid]);
+          if (userQuery.rows.length > 0) {
+            const user = userQuery.rows[0];
+            const leadershipRoles = ['dev','supreme_admin','president','state_president','vice_president','general_secretary','secretary','president_of_state'];
+            if (leadershipRoles.includes(user.role)) {
+              const newToken = jwt.sign({ uid: user.id, email: user.email, role: user.role, name: user.full_name }, JWT_SECRET, { expiresIn: '7d' });
+              // Provide the new token as header so client can pick it up
+              res.setHeader('X-New-Auth-Token', newToken);
+              req.user = user;
+              return next();
+            }
+          }
+        }
+      }
+    } catch (innerErr) {
+      console.warn('⚠️ [Chat Auth Grace Refresh] Internal check failed:', innerErr.message);
+    }
+
     return res.status(403).json({ success: false, message: 'Invalid or expired token.' });
   }
 };
