@@ -65,6 +65,12 @@ REQUIRED_ENVS.forEach(env => {
 });
 
 const app = express();
+// Allow trusted proxy headers when deployed behind Render/other reverse proxies.
+// This prevents express-rate-limit from rejecting requests with X-Forwarded-For.
+const TRUST_PROXY = process.env.TRUST_PROXY || '1';
+if (TRUST_PROXY) {
+  app.set('trust proxy', TRUST_PROXY);
+}
 const PORT = process.env.PORT || 5000;
 const httpServer = createServer(app);
 const ALLOWED_ORIGIN = process.env.FRONTEND_URL || 'http://localhost:5173';
