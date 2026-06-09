@@ -470,9 +470,27 @@ io.on('connection', (socket) => {
     if (user.role === 'student') {
       return channel_id === `Social-Sector-${user.hub_name}`;
     }
-    // Leader roles
+    // Leader roles - Social-Sector channels restricted by constituency hierarchy
+    // Parent leaders can access their own + all child Social-Sectors
+    // Child leaders can only access their own Social-Sector
     if (channel_id.startsWith('Social-Sector-')) {
-      return true;
+      const sectorName = channel_id.replace('Social-Sector-', '');
+      const sectorLower = sectorName.toLowerCase();
+      if (user.constituency_name && user.constituency_name.toLowerCase() === sectorLower) {
+        return true;
+      }
+      if (user.constituency_id) {
+        try {
+          const childCheck = await pool.query(
+            `SELECT 1 FROM constituencies WHERE LOWER(constituency_name) = LOWER($1) AND parent_id = $2`,
+            [sectorName, user.constituency_id]
+          );
+          if (childCheck.rows.length > 0) return true;
+        } catch (err) {
+          console.error('🚨 [Socket.io Social Auth Error]:', err.message);
+        }
+      }
+      return false;
     }
     if (channel_id === 'GH-Global') {
       return true;

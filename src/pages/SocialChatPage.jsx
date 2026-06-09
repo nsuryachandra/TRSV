@@ -9,8 +9,8 @@ export default function SocialChatPage() {
   if (!userProfile) {
     return <Navigate to="/login" replace />;
   }
-  const isAdmin = ['supreme_admin', 'dev'].includes(userProfile.role);
-  const hasLocation = isAdmin || (userProfile.constituency_id && userProfile.hub_name && userProfile.hub_name !== 'Upcoming Area');
+  const isLeader = userProfile.role !== 'student';
+  const hasLocation = isLeader || (userProfile.constituency_id && userProfile.hub_name && userProfile.hub_name !== 'Upcoming Area');
 
   return (
     <div className="w-full flex-1 min-h-0 flex flex-col gap-4 animate-fadeIn text-left">
@@ -38,7 +38,8 @@ export default function SocialChatPage() {
             role: userProfile.role,
             full_name: userProfile.full_name,
             constituency_name: userProfile.constituency_name || userProfile.constituency,
-            hub_name: userProfile.hub_name
+            hub_name: userProfile.hub_name,
+            constituency_id: userProfile.constituency_id
           }} 
           chatMode="social"
         />

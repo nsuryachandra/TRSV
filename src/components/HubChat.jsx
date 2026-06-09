@@ -10,7 +10,10 @@ export default function HubChat({ user, chatMode = 'admin' }) {
   const [newMessage, setNewMessage] = useState('');
   const [currentChannel, setCurrentChannel] = useState(() => {
     if (chatMode === 'social' || user?.role === 'student') {
-      return `Social-Sector-${user.hub_name || 'Upcoming Area'}`;
+      const defaultSector = user?.role !== 'student' && user.constituency_name
+        ? user.constituency_name
+        : (user.hub_name || 'Upcoming Area');
+      return `Social-Sector-${defaultSector}`;
     }
     return localStorage.getItem('trsv_active_chat_channel') || 'GH-Global';
   });
@@ -33,14 +36,17 @@ export default function HubChat({ user, chatMode = 'admin' }) {
 
   useEffect(() => {
     if (chatMode === 'social' || user?.role === 'student') {
-      const socialChannel = `Social-Sector-${user.hub_name || 'Upcoming Area'}`;
+      const defaultSector = user?.role !== 'student' && user.constituency_name
+        ? user.constituency_name
+        : (user.hub_name || 'Upcoming Area');
+      const socialChannel = `Social-Sector-${defaultSector}`;
       if (currentChannel !== socialChannel) {
         setCurrentChannel(socialChannel);
       }
     } else {
       localStorage.setItem('trsv_active_chat_channel', currentChannel);
     }
-  }, [currentChannel, user?.role, user?.hub_name, chatMode]);
+  }, [currentChannel, user?.role, user?.hub_name, user?.constituency_name, chatMode]);
 
   // Editing state
   const [editingMessageId, setEditingMessageId] = useState(null);
@@ -275,9 +281,12 @@ export default function HubChat({ user, chatMode = 'admin' }) {
     };
   };
 
-  const showSidebar = chatMode !== 'social' && user?.role !== 'student';
-  const isAdmin = ['supreme_admin', 'dev'].includes(user?.role);
-  const socialNeedsLocation = !isAdmin && (chatMode === 'social' || user?.role === 'student') && (!user?.hub_name || user.hub_name === 'Upcoming Area' || !user?.constituency_name || !user?.constituency_id);
+  const isLeader = user?.role !== 'student';
+  const hasMultipleSocialSectors = isDevOrSupreme || filteredConstituencies.length > 0;
+  const showSidebar = chatMode !== 'social'
+    ? isLeader
+    : isLeader && hasMultipleSocialSectors;
+  const socialNeedsLocation = !isLeader && (chatMode === 'social' || user?.role === 'student') && (!user?.hub_name || user.hub_name === 'Upcoming Area' || !user?.constituency_name || !user?.constituency_id);
 
   return (
     <div className="flex flex-col lg:flex-row gap-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 sm:p-6 flex-1 min-h-0 shadow-premium-light dark:shadow-premium-dark overflow-hidden">
@@ -295,97 +304,176 @@ export default function HubChat({ user, chatMode = 'admin' }) {
           </div>
           {/* Channels List */}
           <div className="space-y-5 flex-1 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800 scrollbar-track-transparent">
-            {/* Main Lounges */}
-            <div className="space-y-2">
-              {/* Global channel */}
-              {user.role !== 'student' && (
-                <button
-                  onClick={() => handleSelectChannel('GH-Global')}
-                  className={`w-full text-left p-3.5 rounded-2xl flex items-center gap-3.5 transition-all duration-300 cursor-pointer border ${
-                    currentChannel === 'GH-Global'
-                      ? 'bg-sky-50 dark:bg-cyan-500/10 border-sky-200 dark:border-cyan-500/30 text-sky-900 dark:text-cyan-200 shadow-sm font-extrabold'
-                      : 'bg-slate-50/50 dark:bg-slate-950/20 border-slate-100 dark:border-slate-800/50 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/40 hover:text-slate-855 hover:text-slate-800 dark:hover:text-slate-200 hover:border-slate-200 dark:hover:border-slate-700/30'
-                  }`}
-                >
-                  <div className={`p-2.5 rounded-xl transition-all duration-300 ${
-                    currentChannel === 'GH-Global' ? 'bg-cyan-100 dark:bg-cyan-500/20 text-cyan-755 dark:text-cyan-400' : 'bg-slate-200/50 dark:bg-slate-800 text-slate-500'
-                  }`}>
-                    <Users className="w-4 h-4" />
-                  </div>
-                  <div className="min-w-0 flex-1 text-left">
-                    <div className="font-extrabold text-sm tracking-wide">Statewide Lounge</div>
-                    <div className="text-[10px] text-slate-450 dark:text-slate-500 mt-0.5">All State Admins</div>
-                  </div>
-                </button>
-              )}
-
-              {/* Regular Admin Constituency channel */}
-              {user.role !== 'student' && !isDevOrSupreme && user.constituency_name && (
-                <button
-                  onClick={() => handleSelectChannel(`GH-Constituency-${user.constituency_name}`)}
-                  className={`w-full text-left p-3.5 rounded-2xl flex items-center gap-3.5 transition-all duration-300 cursor-pointer border ${
-                    currentChannel === `GH-Constituency-${user.constituency_name}`
-                      ? 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30 text-emerald-900 dark:text-emerald-250 shadow-sm font-extrabold'
-                      : 'bg-slate-50/50 dark:bg-slate-950/20 border-slate-100 dark:border-slate-800/50 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/40 hover:text-slate-800 dark:hover:text-emerald-250 hover:border-slate-200 dark:hover:border-slate-700/30'
-                  }`}
-                >
-                  <div className={`p-2.5 rounded-xl transition-all duration-300 ${
-                    currentChannel === `GH-Constituency-${user.constituency_name}` ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-450' : 'bg-slate-200/50 dark:bg-slate-800 text-slate-500'
-                  }`}>
-                    <Shield className="w-4 h-4" />
-                  </div>
-                  <div className="min-w-0 flex-1 text-left">
-                    <div className="font-extrabold text-sm tracking-wide">{user.constituency_name} Chat</div>
-                    <div className="text-[10px] text-slate-450 dark:text-slate-500 mt-0.5">Local Area Group</div>
-                  </div>
-                </button>
-              )}
-            </div>
-
-            {/* Area Switcher (Dev/Supreme or Parent Hub leaders - Leadership only) */}
-            {user.role !== 'student' && (isDevOrSupreme || filteredConstituencies.length > 0) && (
-              <div className="pt-3 flex flex-col border-t border-slate-200 dark:border-slate-800/50 gap-2.5">
-                <span className="text-[9px] font-black text-rose-655 dark:text-rose-400/90 uppercase tracking-widest px-1 block">
-                  {isDevOrSupreme ? 'All Area Switcher' : 'Sub-Area Switcher'}
+            
+            {chatMode === 'social' ? (
+              /* ── SOCIAL MODE SIDEBAR ── */
+              <div className="space-y-2">
+                <span className="text-[9px] font-black text-cyan-600 dark:text-cyan-400 uppercase tracking-widest px-1 block">
+                  Social Lounges
                 </span>
-                
-                {/* Search bar */}
-                <div className="relative">
-                  <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
-                  <input
-                    type="text"
-                    placeholder="Search Area..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:border-rose-500/40 focus:ring-1 focus:ring-rose-500/10 text-xs rounded-xl py-2.5 pl-9 pr-3 text-slate-800 dark:text-slate-200 focus:outline-none placeholder-slate-400 dark:placeholder-slate-650"
-                  />
-                </div>
 
-                {/* Scrollable list */}
-                <div className="space-y-1.5 overflow-y-auto max-h-[160px] pr-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
-                  {filteredConstituencies.map((c) => {
-                    const channelKey = `GH-Constituency-${c.constituency_name}`;
-                    const isActive = currentChannel === channelKey;
-                    return (
-                      <button
-                        key={c.id}
-                        onClick={() => handleSelectChannel(channelKey)}
-                        className={`w-full text-left py-2.5 px-3.5 rounded-xl text-[11px] font-semibold transition-all duration-300 flex items-center justify-between cursor-pointer border ${
-                          isActive
-                            ? 'bg-rose-50 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30 text-rose-850 dark:text-rose-300 shadow-sm'
-                            : 'bg-slate-50 dark:bg-slate-905/10 border-transparent text-slate-550 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/30 hover:text-slate-800 dark:hover:text-slate-200 hover:border-slate-200 dark:hover:border-slate-700/20'
-                        }`}
-                      >
-                        <span className="truncate">📍 {c.constituency_name}</span>
-                        {isActive && <span className="w-1.5 h-1.5 rounded-full bg-rose-500 dark:bg-rose-400 animate-pulse shrink-0 ml-1.5" />}
-                      </button>
-                    );
-                  })}
-                  {filteredConstituencies.length === 0 && (
-                    <div className="text-[11px] text-slate-400 dark:text-slate-500 text-center py-4">No area match.</div>
+                {/* Own Social-Sector channel */}
+                {user.constituency_name && (
+                  <button
+                    onClick={() => handleSelectChannel(`Social-Sector-${user.constituency_name}`)}
+                    className={`w-full text-left p-3.5 rounded-2xl flex items-center gap-3.5 transition-all duration-300 cursor-pointer border ${
+                      currentChannel === `Social-Sector-${user.constituency_name}`
+                        ? 'bg-sky-50 dark:bg-cyan-500/10 border-sky-200 dark:border-cyan-500/30 text-sky-900 dark:text-cyan-200 shadow-sm font-extrabold'
+                        : 'bg-slate-50/50 dark:bg-slate-950/20 border-slate-100 dark:border-slate-800/50 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/40 hover:text-slate-800 dark:hover:text-slate-200 hover:border-slate-200 dark:hover:border-slate-700/30'
+                    }`}
+                  >
+                    <div className={`p-2.5 rounded-xl transition-all duration-300 ${
+                      currentChannel === `Social-Sector-${user.constituency_name}` ? 'bg-cyan-100 dark:bg-cyan-500/20 text-cyan-755 dark:text-cyan-400' : 'bg-slate-200/50 dark:bg-slate-800 text-slate-500'
+                    }`}>
+                      <Users className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0 flex-1 text-left">
+                      <div className="font-extrabold text-sm tracking-wide">{user.constituency_name} Social</div>
+                      <div className="text-[10px] text-slate-450 dark:text-slate-500 mt-0.5">Main Social Hub</div>
+                    </div>
+                  </button>
+                )}
+
+                {/* Child / All Social-Sector channels */}
+                {(isDevOrSupreme || filteredConstituencies.length > 0) && (
+                  <div className="pt-3 flex flex-col border-t border-slate-200 dark:border-slate-800/50 gap-2.5">
+                    <span className="text-[9px] font-black text-rose-655 dark:text-rose-400/90 uppercase tracking-widest px-1 block">
+                      {isDevOrSupreme ? 'All Social Lounges' : 'Sub-Area Social Lounges'}
+                    </span>
+
+                    <div className="relative">
+                      <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
+                      <input
+                        type="text"
+                        placeholder="Search Area..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:border-rose-500/40 focus:ring-1 focus:ring-rose-500/10 text-xs rounded-xl py-2.5 pl-9 pr-3 text-slate-800 dark:text-slate-200 focus:outline-none placeholder-slate-400 dark:placeholder-slate-650"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5 overflow-y-auto max-h-[220px] pr-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
+                      {(isDevOrSupreme ? constituencies : filteredConstituencies).map((c) => {
+                        const channelKey = `Social-Sector-${c.constituency_name}`;
+                        const isActive = currentChannel === channelKey;
+                        return (
+                          <button
+                            key={c.id}
+                            onClick={() => handleSelectChannel(channelKey)}
+                            className={`w-full text-left py-2.5 px-3.5 rounded-xl text-[11px] font-semibold transition-all duration-300 flex items-center justify-between cursor-pointer border ${
+                              isActive
+                                ? 'bg-rose-50 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30 text-rose-850 dark:text-rose-300 shadow-sm'
+                                : 'bg-slate-50 dark:bg-slate-905/10 border-transparent text-slate-550 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/30 hover:text-slate-800 dark:hover:text-slate-200 hover:border-slate-200 dark:hover:border-slate-700/20'
+                            }`}
+                          >
+                            <span className="truncate">💬 {c.constituency_name}</span>
+                            {isActive && <span className="w-1.5 h-1.5 rounded-full bg-rose-500 dark:bg-rose-400 animate-pulse shrink-0 ml-1.5" />}
+                          </button>
+                        );
+                      })}
+                      {filteredConstituencies.length === 0 && !isDevOrSupreme && (
+                        <div className="text-[11px] text-slate-400 dark:text-slate-500 text-center py-4">No sub-areas available.</div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              /* ── ADMIN MODE SIDEBAR ── */
+              <>
+                {/* Main Lounges */}
+                <div className="space-y-2">
+                  {/* Global channel */}
+                  {user.role !== 'student' && (
+                    <button
+                      onClick={() => handleSelectChannel('GH-Global')}
+                      className={`w-full text-left p-3.5 rounded-2xl flex items-center gap-3.5 transition-all duration-300 cursor-pointer border ${
+                        currentChannel === 'GH-Global'
+                          ? 'bg-sky-50 dark:bg-cyan-500/10 border-sky-200 dark:border-cyan-500/30 text-sky-900 dark:text-cyan-200 shadow-sm font-extrabold'
+                          : 'bg-slate-50/50 dark:bg-slate-950/20 border-slate-100 dark:border-slate-800/50 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/40 hover:text-slate-855 hover:text-slate-800 dark:hover:text-slate-200 hover:border-slate-200 dark:hover:border-slate-700/30'
+                      }`}
+                    >
+                      <div className={`p-2.5 rounded-xl transition-all duration-300 ${
+                        currentChannel === 'GH-Global' ? 'bg-cyan-100 dark:bg-cyan-500/20 text-cyan-755 dark:text-cyan-400' : 'bg-slate-200/50 dark:bg-slate-800 text-slate-500'
+                      }`}>
+                        <Users className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0 flex-1 text-left">
+                        <div className="font-extrabold text-sm tracking-wide">Statewide Lounge</div>
+                        <div className="text-[10px] text-slate-450 dark:text-slate-500 mt-0.5">All State Admins</div>
+                      </div>
+                    </button>
+                  )}
+
+                  {/* Regular Admin Constituency channel */}
+                  {user.role !== 'student' && !isDevOrSupreme && user.constituency_name && (
+                    <button
+                      onClick={() => handleSelectChannel(`GH-Constituency-${user.constituency_name}`)}
+                      className={`w-full text-left p-3.5 rounded-2xl flex items-center gap-3.5 transition-all duration-300 cursor-pointer border ${
+                        currentChannel === `GH-Constituency-${user.constituency_name}`
+                          ? 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30 text-emerald-900 dark:text-emerald-250 shadow-sm font-extrabold'
+                          : 'bg-slate-50/50 dark:bg-slate-950/20 border-slate-100 dark:border-slate-800/50 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/40 hover:text-slate-800 dark:hover:text-emerald-250 hover:border-slate-200 dark:hover:border-slate-700/30'
+                      }`}
+                    >
+                      <div className={`p-2.5 rounded-xl transition-all duration-300 ${
+                        currentChannel === `GH-Constituency-${user.constituency_name}` ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-450' : 'bg-slate-200/50 dark:bg-slate-800 text-slate-500'
+                      }`}>
+                        <Shield className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0 flex-1 text-left">
+                        <div className="font-extrabold text-sm tracking-wide">{user.constituency_name} Chat</div>
+                        <div className="text-[10px] text-slate-450 dark:text-slate-500 mt-0.5">Local Area Group</div>
+                      </div>
+                    </button>
                   )}
                 </div>
-              </div>
+
+                {/* Area Switcher (Dev/Supreme or Parent Hub leaders - Leadership only) */}
+                {user.role !== 'student' && (isDevOrSupreme || filteredConstituencies.length > 0) && (
+                  <div className="pt-3 flex flex-col border-t border-slate-200 dark:border-slate-800/50 gap-2.5">
+                    <span className="text-[9px] font-black text-rose-655 dark:text-rose-400/90 uppercase tracking-widest px-1 block">
+                      {isDevOrSupreme ? 'All Area Switcher' : 'Sub-Area Switcher'}
+                    </span>
+                    
+                    {/* Search bar */}
+                    <div className="relative">
+                      <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
+                      <input
+                        type="text"
+                        placeholder="Search Area..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:border-rose-500/40 focus:ring-1 focus:ring-rose-500/10 text-xs rounded-xl py-2.5 pl-9 pr-3 text-slate-800 dark:text-slate-200 focus:outline-none placeholder-slate-400 dark:placeholder-slate-650"
+                      />
+                    </div>
+
+                    {/* Scrollable list */}
+                    <div className="space-y-1.5 overflow-y-auto max-h-[160px] pr-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
+                      {filteredConstituencies.map((c) => {
+                        const channelKey = `GH-Constituency-${c.constituency_name}`;
+                        const isActive = currentChannel === channelKey;
+                        return (
+                          <button
+                            key={c.id}
+                            onClick={() => handleSelectChannel(channelKey)}
+                            className={`w-full text-left py-2.5 px-3.5 rounded-xl text-[11px] font-semibold transition-all duration-300 flex items-center justify-between cursor-pointer border ${
+                              isActive
+                                ? 'bg-rose-50 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30 text-rose-850 dark:text-rose-300 shadow-sm'
+                                : 'bg-slate-50 dark:bg-slate-905/10 border-transparent text-slate-550 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/30 hover:text-slate-800 dark:hover:text-slate-200 hover:border-slate-200 dark:hover:border-slate-700/20'
+                            }`}
+                          >
+                            <span className="truncate">📍 {c.constituency_name}</span>
+                            {isActive && <span className="w-1.5 h-1.5 rounded-full bg-rose-500 dark:bg-rose-400 animate-pulse shrink-0 ml-1.5" />}
+                          </button>
+                        );
+                      })}
+                      {filteredConstituencies.length === 0 && (
+                        <div className="text-[11px] text-slate-400 dark:text-slate-500 text-center py-4">No area match.</div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
 
