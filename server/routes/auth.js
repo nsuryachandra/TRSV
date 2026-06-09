@@ -331,12 +331,16 @@ router.post('/login', async (req, res) => {
   try {
     // 1. Try supreme administrative authentication dynamically first
     if (SUPREME_EMAIL && cleanEmail === SUPREME_EMAIL.toLowerCase() && password === SUPREME_PASSWORD) {
-      await query(`
-        INSERT INTO users (id, full_name, email, role, verified)
-        VALUES ($1, $2, $3, $4, $5)
-        ON CONFLICT (id) DO UPDATE 
-        SET full_name = EXCLUDED.full_name, email = EXCLUDED.email, role = EXCLUDED.role, verified = EXCLUDED.verified
-      `, ['SUPREME_ADMIN_UID', 'Supreme Leader', SUPREME_EMAIL, 'supreme_admin', true]);
+      // Upsert by email to avoid unique constraint failures when the supreme email
+      // already exists with a different id. Preserve any existing id and update
+      // role/metadata instead of forcing an insert conflict on id.
+      await query(
+        `INSERT INTO users (id, full_name, email, role, verified)
+         VALUES ($1, $2, $3, $4, $5)
+         ON CONFLICT (email) DO UPDATE
+         SET full_name = EXCLUDED.full_name, role = EXCLUDED.role, verified = EXCLUDED.verified`,
+        ['SUPREME_ADMIN_UID', 'Supreme Leader', SUPREME_EMAIL, 'supreme_admin', true]
+      );
 
       const token = jwt.sign(
         { uid: 'SUPREME_ADMIN_UID', email: SUPREME_EMAIL, role: 'supreme_admin', name: 'Supreme Leader' },
@@ -375,7 +379,27 @@ router.post('/login', async (req, res) => {
       queryEmail = `${queryEmail}@trsv.student`;
     }
 
-    const userQuery = await query('SELECT * FROM users WHERE LOWER(email) = LOWER($1)', [queryEmail]);
+    // Primary lookup (client may send username-only). Try multiple sensible fallbacks
+    // so admin accounts aren't missed due to domain suffix handling.
+    let userQuery = await query('SELECT * FROM users WHERE LOWER(email) = LOWER($1)', [queryEmail]);
+
+    // Fallback: if not found, try the raw input as provided (no @trsv.student appended)
+    if (userQuery.rows.length === 0 && queryEmail !== cleanEmail) {
+      const alt = await query('SELECT * FROM users WHERE LOWER(email) = LOWER($1)', [cleanEmail]);
+      if (alt.rows.length > 0) userQuery = alt;
+    }
+
+    // Fallback: try admin domain (common for admin accounts)
+    if (userQuery.rows.length === 0 && !cleanEmail.includes('@')) {
+      try {
+        const adminEmail = `${cleanEmail}@trsv.gov.in`;
+        const alt2 = await query('SELECT * FROM users WHERE LOWER(email) = LOWER($1)', [adminEmail]);
+        if (alt2.rows.length > 0) userQuery = alt2;
+      } catch (e) {
+        console.warn('⚠️ [Auth Lookup] Admin-domain fallback query failed:', e.message);
+      }
+    }
+
     if (userQuery.rows.length === 0) {
       return res.status(401).json({ success: false, message: 'No registered user found with this username.' });
     }
