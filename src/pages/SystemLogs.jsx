@@ -91,7 +91,7 @@ export default function SystemLogs() {
   }, [refreshInterval, isPaused, searchTerm, selectedType, limit]);
 
   const handleCopy = (log) => {
-    const textToCopy = `[${new Date(log.created_at).toLocaleString()}] [${log.activity_type}] By ${log.full_name || 'System'} (${log.email || 'N/A'}): ${log.details}`;
+    const textToCopy = `[${new Date(log.created_at).toLocaleString()}] [${log.activity_type}] [IP: ${log.ip_address || 'N/A'}] By ${log.full_name || 'System'} (${log.email || 'N/A'}): ${log.details}`;
     navigator.clipboard.writeText(textToCopy);
     setCopiedId(log.id);
     setTimeout(() => setCopiedId(null), 2000);
@@ -285,6 +285,7 @@ export default function SystemLogs() {
               <tr className="border-b border-slate-250 dark:border-slate-850 bg-slate-100/40 dark:bg-slate-900/30">
                 <th className="p-4 text-[10px] font-black text-slate-500 uppercase tracking-widest w-40">TIMESTAMP</th>
                 <th className="p-4 text-[10px] font-black text-slate-500 uppercase tracking-widest w-48">ACTION TYPE</th>
+                <th className="p-4 text-[10px] font-black text-slate-500 uppercase tracking-widest w-44">IP ADDRESS</th>
                 <th className="p-4 text-[10px] font-black text-slate-500 uppercase tracking-widest w-64">ACTOR Badges</th>
                 <th className="p-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">EVENT DESCRIPTION</th>
                 <th className="p-4 text-[10px] font-black text-slate-500 uppercase tracking-widest w-20 text-center">ACTION</th>
@@ -323,6 +324,13 @@ export default function SystemLogs() {
                         <td className="p-4 align-top">
                           <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-extrabold border font-mono tracking-wider ${badge.bg} ${badge.text} ${badge.border}`}>
                             {log.activity_type}
+                          </span>
+                        </td>
+
+                        {/* IP Address */}
+                        <td className="p-4 align-top">
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-[10px] font-mono text-slate-600 dark:text-slate-400 font-semibold tracking-wide">
+                            {log.ip_address || 'N/A'}
                           </span>
                         </td>
 
@@ -369,7 +377,7 @@ export default function SystemLogs() {
                   })
                 ) : (
                   <tr>
-                    <td colSpan={5} className="p-8 text-center text-xs font-semibold text-slate-400 dark:text-slate-500 font-mono">
+                    <td colSpan={6} className="p-8 text-center text-xs font-semibold text-slate-400 dark:text-slate-500 font-mono">
                       {loading ? 'Dispersing secure sub-threads and fetching telemetry...' : 'No telemetry matches found in current ledger scan.'}
                     </td>
                   </tr>

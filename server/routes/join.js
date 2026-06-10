@@ -1,6 +1,7 @@
 import express from 'express';
 import { query } from '../config/db.js';
 import { requireRole } from './constituencies.js';
+import { getClientIP } from '../utils/ip.js';
 
 const router = express.Router();
 
@@ -27,8 +28,8 @@ router.post('/', async (req, res) => {
     });
 
     await query(
-      'INSERT INTO realtime_activity_logs (user_id, activity_type, details) VALUES ($1, $2, $3)',
-      [null, 'SUBMIT_JOIN_REQUEST', `Public application submitted by ${fullName} (${email}) to join TRSV`]
+      'INSERT INTO realtime_activity_logs (user_id, activity_type, details, ip_address) VALUES ($1, $2, $3, $4)',
+      [null, 'SUBMIT_JOIN_REQUEST', `Public application submitted by ${fullName} (${email}) to join TRSV`, getClientIP(req)]
     );
   } catch (error) {
     console.error('🚨 [Join Request Submit Error]:', error.message);
@@ -102,8 +103,8 @@ router.patch('/:id', requireRole(['supreme_admin', 'president', 'state_president
 
     // Insert audit log
     await query(
-      'INSERT INTO realtime_activity_logs (user_id, activity_type, details) VALUES ($1, $2, $3)',
-      [req.user.uid, 'UPDATE_JOIN_REQUEST_STATUS', `Application request #${id} status changed to '${status}'`]
+      'INSERT INTO realtime_activity_logs (user_id, activity_type, details, ip_address) VALUES ($1, $2, $3, $4)',
+      [req.user.uid, 'UPDATE_JOIN_REQUEST_STATUS', `Application request #${id} status changed to '${status}'`, getClientIP(req)]
     );
 
     res.json({ success: true, message: `Application status updated to ${status}.`, request: result.rows[0] });

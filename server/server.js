@@ -468,7 +468,7 @@ io.on('connection', (socket) => {
       return true;
     }
     if (user.role === 'student') {
-      return channel_id === `Social-Sector-${user.hub_name}`;
+      return channel_id === `Social-Sector-${user.constituency_name || user.hub_name}`;
     }
     // Leader roles - Social-Sector channels restricted by constituency hierarchy
     // Parent leaders can access their own + all child Social-Sectors

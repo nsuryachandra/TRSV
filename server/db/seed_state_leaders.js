@@ -102,15 +102,6 @@ const seedStateLeaders = async () => {
       phone: '3333333333',
       profile_image: '/shekar_hydvice.jpg',
       constituency_id: ghId
-    },
-    {
-      id: 'gh-sec-omkar',
-      full_name: 'Omkar Mane',
-      email: 'omkar@tvrs.gov.in',
-      role: 'secretary',
-      phone: '2222222222',
-      profile_image: '/omkar_hydsec.jpg',
-      constituency_id: ghId
     }
   ];
 

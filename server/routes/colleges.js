@@ -1,5 +1,6 @@
 import express from 'express';
 import { query } from '../config/db.js';
+import { getClientIP } from '../utils/ip.js';
 import { requireRole } from './constituencies.js';
 
 const router = express.Router();
@@ -54,10 +55,11 @@ router.post('/', requireRole(['supreme_admin', 'state_president', 'dev']), async
       [collegeName, constituencyId]
     );
 
-    await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details) VALUES ($1, $2, $3)', [
+    await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details, ip_address) VALUES ($1, $2, $3, $4)', [
       req.user.uid || 'SUPREME_ADMIN_UID',
       'CREATE_COLLEGE',
-      `Academic node '${collegeName}' registered and bound to constituency #${constituencyId}`
+      `Academic node '${collegeName}' registered and bound to constituency #${constituencyId}`,
+      getClientIP(req)
     ]);
 
     res.status(201).json({ success: true, message: 'Campus academic node registered.', college: result.rows[0] });
@@ -80,10 +82,11 @@ router.delete('/:id', requireRole(['supreme_admin', 'state_president', 'dev']), 
 
     await query('DELETE FROM colleges WHERE id = $1', [id]);
 
-    await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details) VALUES ($1, $2, $3)', [
+    await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details, ip_address) VALUES ($1, $2, $3, $4)', [
       req.user.uid || 'SUPREME_ADMIN_UID',
       'DELETE_COLLEGE',
-      `College campus '${check.rows[0].college_name}' removed from statewide list`
+      `College campus '${check.rows[0].college_name}' removed from statewide list`,
+      getClientIP(req)
     ]);
 
     res.json({ success: true, message: 'College entry removed successfully.' });

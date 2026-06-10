@@ -6,6 +6,7 @@ import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 import { query } from '../config/db.js';
 import { resolveConstituencyWithAI } from '../services/aiMapping.js';
+import { getClientIP } from '../utils/ip.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -316,10 +317,11 @@ router.post('/signup', async (req, res) => {
       }
 
     // Write audit log
-    await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details) VALUES ($1, $2, $3)', [
+    await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details, ip_address) VALUES ($1, $2, $3, $4)', [
       userId,
       'SIGNUP',
-      `Student profile created and authenticated locally via JWT`
+      `Student profile created and authenticated locally via JWT`,
+      getClientIP(req)
     ]);
 
     res.status(201).json({ success: true, message: 'Identity registered and verified successfully.', token, user: profile.rows[0] });
@@ -363,10 +365,11 @@ router.post('/login', async (req, res) => {
 
       console.log('👑 [Supreme Auth] Supreme Admin connected successfully.');
 
-      await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details) VALUES ($1, $2, $3)', [
+      await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details, ip_address) VALUES ($1, $2, $3, $4)', [
         'SUPREME_ADMIN_UID',
         'SUPREME_LOGIN',
-        'Supreme Admin terminal session synchronized'
+        'Supreme Admin terminal session synchronized',
+        getClientIP(req)
       ]);
 
       return res.json({
@@ -463,10 +466,11 @@ router.post('/login', async (req, res) => {
       [user.id]
     );
 
-    await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details) VALUES ($1, $2, $3)', [
+    await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details, ip_address) VALUES ($1, $2, $3, $4)', [
       user.id,
       'LOGIN',
-      'Student authenticated successfully via local authority'
+      'Student authenticated successfully via local authority',
+      getClientIP(req)
     ]);
 
     res.json({ success: true, token, user: profile.rows[0] });
@@ -689,10 +693,11 @@ router.post('/update-college', async (req, res) => {
     );
 
     // Write audit log
-    await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details) VALUES ($1, $2, $3)', [
+    await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details, ip_address) VALUES ($1, $2, $3, $4)', [
       decodedUser.uid,
       'PROFILE_MAP_UPDATE',
-      `Campus pinned dynamically: ${trimmedName} bound to constituency #${resolvedConstituencyId}`
+      `Campus pinned dynamically: ${trimmedName} bound to constituency #${resolvedConstituencyId}`,
+      getClientIP(req)
     ]);
 
     res.json({ success: true, message: 'Campus geo-coordinates saved successfully!', user: profile.rows[0] });
@@ -856,10 +861,11 @@ router.post('/reset-password', async (req, res) => {
     );
 
     // Write audit log
-    await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details) VALUES ($1, $2, $3)', [
+    await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details, ip_address) VALUES ($1, $2, $3, $4)', [
       user.id,
       'PASSWORD_RESET',
-      'Student account access credentials updated and reset successfully via DB-backed OTP'
+      'Student account access credentials updated and reset successfully via DB-backed OTP',
+      getClientIP(req)
     ]);
 
     console.log(`✅ [Password Reset Success] Password reset successfully for student: ${cleanEmail}`);
@@ -991,10 +997,11 @@ router.post('/simplified-entry', async (req, res) => {
       user = insertResult.rows[0];
 
       // Insert log
-      await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details) VALUES ($1, $2, $3)', [
+      await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details, ip_address) VALUES ($1, $2, $3, $4)', [
         userId,
         isGuest ? 'GUEST_SIGNUP' : 'STUDENT_SIGNUP',
-        `${isGuest ? 'Guest' : 'Student'} profile initialized dynamically via onboarding entry`
+        `${isGuest ? 'Guest' : 'Student'} profile initialized dynamically via onboarding entry`,
+        getClientIP(req)
       ]);
     }
 
@@ -1019,10 +1026,11 @@ router.post('/simplified-entry', async (req, res) => {
       [user.id]
     );
 
-    await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details) VALUES ($1, $2, $3)', [
+    await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details, ip_address) VALUES ($1, $2, $3, $4)', [
       user.id,
       isGuest ? 'GUEST_LOGIN' : 'STUDENT_LOGIN',
-      `${isGuest ? 'Guest' : 'Student'} node active session established`
+      `${isGuest ? 'Guest' : 'Student'} node active session established`,
+      getClientIP(req)
     ]);
 
     return res.json({ 

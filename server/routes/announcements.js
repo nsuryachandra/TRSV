@@ -1,5 +1,6 @@
 import express from 'express';
 import { query } from '../config/db.js';
+import { getClientIP } from '../utils/ip.js';
 import { requireRole } from './constituencies.js';
 
 const router = express.Router();
@@ -99,10 +100,11 @@ router.post('/', requireRole(['general_secretary', 'president', 'state_president
       );
     }
 
-    await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details) VALUES ($1, $2, $3)', [
+    await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details, ip_address) VALUES ($1, $2, $3, $4)', [
       authorUid,
       'CREATE_ANNOUNCEMENT',
-      `Circular bulletin '${title}' published targeting audience '${targetAudience || 'all'}'`
+      `Circular bulletin '${title}' published targeting audience '${targetAudience || 'all'}'`,
+      getClientIP(req)
     ]);
 
     res.status(201).json({ success: true, message: 'Statewide circular published successfully.', announcement: result.rows[0] });
@@ -129,10 +131,11 @@ router.delete('/:id', requireRole(['supreme_admin', 'state_president', 'dev']), 
 
     await query('DELETE FROM announcements WHERE id = $1', [id]);
 
-    await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details) VALUES ($1, $2, $3)', [
+    await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details, ip_address) VALUES ($1, $2, $3, $4)', [
       authorUid,
       'DELETE_ANNOUNCEMENT',
-      `Circular bulletin '${title}' (ID: ${id}) deleted by admin/dev`
+      `Circular bulletin '${title}' (ID: ${id}) deleted by admin/dev`,
+      getClientIP(req)
     ]);
 
     res.json({ success: true, message: 'Circular deleted successfully.' });

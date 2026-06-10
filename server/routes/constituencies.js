@@ -1,6 +1,7 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import { query } from '../config/db.js';
+import { getClientIP } from '../utils/ip.js';
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -248,10 +249,11 @@ router.post('/', requireRole(['supreme_admin', 'state_president', 'dev']), async
     );
 
     // Audit logs
-    await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details) VALUES ($1, $2, $3)', [
+    await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details, ip_address) VALUES ($1, $2, $3, $4)', [
       req.user.uid || 'SUPREME_ADMIN_UID',
       'CREATE_CONSTITUENCY',
-      `Constituency '${constituencyName}' added to district '${district}'`
+      `Constituency '${constituencyName}' added to district '${district}'`,
+      getClientIP(req)
     ]);
 
     res.status(201).json({ success: true, message: 'Constituency node deployed.', constituency: result.rows[0] });
@@ -282,10 +284,11 @@ router.put('/:id', requireRole(['supreme_admin', 'state_president', 'dev']), asy
       [constituencyName, district, status, id]
     );
 
-    await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details) VALUES ($1, $2, $3)', [
+    await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details, ip_address) VALUES ($1, $2, $3, $4)', [
       req.user.uid || 'SUPREME_ADMIN_UID',
       'UPDATE_CONSTITUENCY',
-      `Constituency #${id} status set to '${status}'`
+      `Constituency #${id} status set to '${status}'`,
+      getClientIP(req)
     ]);
 
     res.json({ success: true, message: 'Constituency node updated.', constituency: result.rows[0] });
@@ -309,10 +312,11 @@ router.delete('/:id', requireRole(['supreme_admin', 'state_president', 'dev']), 
     // Delete query automatically triggers cascade deletes on bound colleges
     await query('DELETE FROM constituencies WHERE id = $1', [id]);
 
-    await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details) VALUES ($1, $2, $3)', [
+    await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details, ip_address) VALUES ($1, $2, $3, $4)', [
       req.user.uid || 'SUPREME_ADMIN_UID',
       'DELETE_CONSTITUENCY',
-      `Constituency '${check.rows[0].constituency_name}' removed from statewide system`
+      `Constituency '${check.rows[0].constituency_name}' removed from statewide system`,
+      getClientIP(req)
     ]);
 
     res.json({ success: true, message: 'Constituency and all associated college entries deleted successfully.' });

@@ -89,7 +89,7 @@ async function runMigrations() {
       );
     `);
 
-    // 8. Create realtime_activity_logs Table
+    // 8. Create realtime_activity_logs Table + add ip_address column
     console.log('🔹 Creating realtime_activity_logs table...');
     await query(`
       CREATE TABLE IF NOT EXISTS realtime_activity_logs (
@@ -99,6 +99,10 @@ async function runMigrations() {
         details TEXT NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
+    `);
+    await query(`
+      ALTER TABLE realtime_activity_logs
+      ADD COLUMN IF NOT EXISTS ip_address VARCHAR(45);
     `);
 
     // 9. Seed categories

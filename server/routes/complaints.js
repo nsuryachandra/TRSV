@@ -1,6 +1,7 @@
 import express from 'express';
 import { query } from '../config/db.js';
 import { requireRole } from './constituencies.js';
+import { getClientIP } from '../utils/ip.js';
 
 const router = express.Router();
 
@@ -255,10 +256,11 @@ router.post('/', requireRole(['student']), async (req, res) => {
     }
 
     // Write activity log
-    await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details) VALUES ($1, $2, $3)', [
+    await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details, ip_address) VALUES ($1, $2, $3, $4)', [
       req.user.uid,
       'COMPLAINT_RAISED',
-      `Student raised a ${isEmergency ? 'CRITICAL ' : ''}complaint: ${title}`
+      `Student raised a ${isEmergency ? 'CRITICAL ' : ''}complaint: ${title}`,
+      getClientIP(req)
     ]);
 
     res.status(201).json({ success: true, message: 'Complaint submitted successfully.', complaint: result.rows[0] });
@@ -549,10 +551,11 @@ router.put('/:id/status', requireRole(['secretary', 'general_secretary', 'vice_p
       [studentId, 'Complaint Status Updated', `Your ticket #${id} status changed to "${status}".`]
     );
 
-    await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details) VALUES ($1, $2, $3)', [
+    await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details, ip_address) VALUES ($1, $2, $3, $4)', [
       updaterUid,
       'UPDATE_COMPLAINT_STATUS',
-      `Ticket #${id} status updated to '${status}'`
+      `Ticket #${id} status updated to '${status}'`,
+      getClientIP(req)
     ]);
 
     res.json({ success: true, message: 'Complaint status updated and logged.', complaint: updated.rows[0] });
@@ -626,8 +629,8 @@ router.post('/:id/discuss', requireRole(['student', 'secretary', 'general_secret
 
     // Write audit log
     await query(
-      'INSERT INTO realtime_activity_logs (user_id, activity_type, details) VALUES ($1, $2, $3)',
-      [uid, 'COMPLAINT_COMMENT', `Added comment on Ticket #${id}: "${snippet.replace(/"/g, "'")}"`]
+      'INSERT INTO realtime_activity_logs (user_id, activity_type, details, ip_address) VALUES ($1, $2, $3, $4)',
+      [uid, 'COMPLAINT_COMMENT', `Added comment on Ticket #${id}: "${snippet.replace(/"/g, "'")}"`, getClientIP(req)]
     );
     
     if (uid === studentId) {
@@ -714,10 +717,11 @@ router.post('/:id/escalate', requireRole(['secretary', 'general_secretary', 'vic
       [id, uid, updated.rows[0].status, `Escalated from level ${level_from} to ${level_to}. Reason: ${reason}`]
     );
 
-    await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details) VALUES ($1, $2, $3)', [
+    await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details, ip_address) VALUES ($1, $2, $3, $4)', [
       uid,
       'COMPLAINT_ESCALATED',
-      `Ticket #${id} escalated to level ${level_to}`
+      `Ticket #${id} escalated to level ${level_to}`,
+      getClientIP(req)
     ]);
 
     res.json({ success: true, message: 'Complaint escalated successfully.', complaint: updated.rows[0] });
@@ -750,10 +754,11 @@ router.delete('/:id', requireRole(['supreme_admin', 'state_president', 'dev']), 
     await query('DELETE FROM complaints WHERE id = $1', [id]);
 
     // Log the deletion
-    await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details) VALUES ($1, $2, $3)', [
+    await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details, ip_address) VALUES ($1, $2, $3, $4)', [
       uid,
       'COMPLAINT_DELETED',
-      `Ticket #${id} ("${ticket.title}") permanently deleted by admin/dev`
+      `Ticket #${id} ("${ticket.title}") permanently deleted by admin/dev`,
+      getClientIP(req)
     ]);
 
     console.log(`🗑️ [Admin] Complaint #${id} deleted by ${uid}`);
@@ -862,10 +867,11 @@ router.post('/:id/override-constituency', requireRole(['supreme_admin', 'dev']),
     }
 
     // 8. Write activity log
-    await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details) VALUES ($1, $2, $3)', [
+    await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details, ip_address) VALUES ($1, $2, $3, $4)', [
       adminUid,
       'CONSTITUENCY_OVERRIDE',
-      `Manually routed Ticket #${id} and Student ${complaint.student_id || 'N/A'} to "${constituencyName}"`
+      `Manually routed Ticket #${id} and Student ${complaint.student_id || 'N/A'} to "${constituencyName}"`,
+      getClientIP(req)
     ]);
 
     res.json({ success: true, message: `Constituency manual override succeeded. Ticket and student updated to "${constituencyName}".` });

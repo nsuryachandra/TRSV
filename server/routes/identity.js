@@ -1,6 +1,7 @@
 import express from 'express';
 import crypto from 'crypto';
 import { query } from '../config/db.js';
+import { getClientIP } from '../utils/ip.js';
 import { requireRole } from './constituencies.js';
 
 const router = express.Router();
@@ -391,10 +392,11 @@ router.post('/update-status', requireRole(['supreme_admin', 'state_president', '
     `, [record.user_id, `Your digital governance ID status has been changed to "${newStatus}" by the Supreme Command.`]);
 
     // Create system audit activity log
-    await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details) VALUES ($1, $2, $3)', [
+    await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details, ip_address) VALUES ($1, $2, $3, $4)', [
       req.user.uid || 'SUPREME_ADMIN_UID',
       'MODIFY_IDENTITY',
-      `Modified identity state of '${record.full_name}' (${record.trsv_member_id}) to '${newStatus}'`
+      `Modified identity state of '${record.full_name}' (${record.trsv_member_id}) to '${newStatus}'`,
+      getClientIP(req)
     ]);
 
     res.json({

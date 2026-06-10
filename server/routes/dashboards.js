@@ -1,6 +1,7 @@
 import express from 'express';
 import { query } from '../config/db.js';
 import { requireRole } from './constituencies.js';
+import { getClientIP } from '../utils/ip.js';
 
 const router = express.Router();
 
@@ -254,8 +255,8 @@ router.post('/logs/prune', requireRole(['supreme_admin', 'dev']), async (req, re
 
     // Insert a new log entry to indicate the prune happened
     await query(
-      'INSERT INTO realtime_activity_logs (user_id, activity_type, details) VALUES ($1, $2, $3)',
-      [req.user.uid || 'SUPREME_ADMIN_UID', 'PRUNE_LOGS', `Manually pruned logs with a retention window of ${days} days. Cleared rows: ${result.rowCount || 0}`]
+      'INSERT INTO realtime_activity_logs (user_id, activity_type, details, ip_address) VALUES ($1, $2, $3, $4)',
+      [req.user.uid || 'SUPREME_ADMIN_UID', 'PRUNE_LOGS', `Manually pruned logs with a retention window of ${days} days. Cleared rows: ${result.rowCount || 0}`, getClientIP(req)]
     );
 
     res.json({
@@ -375,10 +376,11 @@ const handleAssignLeaderLogic = async (req, res) => {
     );
 
     // Write audit log
-    await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details) VALUES ($1, $2, $3)', [
+    await query('INSERT INTO realtime_activity_logs (user_id, activity_type, details, ip_address) VALUES ($1, $2, $3, $4)', [
       req.user.uid || 'SUPREME_ADMIN_UID',
       'ASSIGN_LEADER',
-      `Promoted '${full_name}' from '${previousRole}' to '${role}'`
+      `Promoted '${full_name}' from '${previousRole}' to '${role}'`,
+      getClientIP(req)
     ]);
 
     // Send direct SMTP invitation / update email if the user is set to an admin/leader role

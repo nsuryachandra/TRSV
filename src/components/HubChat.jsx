@@ -10,9 +10,7 @@ export default function HubChat({ user, chatMode = 'admin' }) {
   const [newMessage, setNewMessage] = useState('');
   const [currentChannel, setCurrentChannel] = useState(() => {
     if (chatMode === 'social' || user?.role === 'student') {
-      const defaultSector = user?.role !== 'student' && user.constituency_name
-        ? user.constituency_name
-        : (user.hub_name || 'Upcoming Area');
+      const defaultSector = user.constituency_name || user.hub_name || 'Upcoming Area';
       return `Social-Sector-${defaultSector}`;
     }
     return localStorage.getItem('trsv_active_chat_channel') || 'GH-Global';
@@ -36,9 +34,7 @@ export default function HubChat({ user, chatMode = 'admin' }) {
 
   useEffect(() => {
     if (chatMode === 'social' || user?.role === 'student') {
-      const defaultSector = user?.role !== 'student' && user.constituency_name
-        ? user.constituency_name
-        : (user.hub_name || 'Upcoming Area');
+      const defaultSector = user.constituency_name || user.hub_name || 'Upcoming Area';
       const socialChannel = `Social-Sector-${defaultSector}`;
       if (currentChannel !== socialChannel) {
         setCurrentChannel(socialChannel);
@@ -288,6 +284,16 @@ export default function HubChat({ user, chatMode = 'admin' }) {
     : isLeader && hasMultipleSocialSectors;
   const socialNeedsLocation = !isLeader && (chatMode === 'social' || user?.role === 'student') && (!user?.hub_name || user.hub_name === 'Upcoming Area' || !user?.constituency_name || !user?.constituency_id);
 
+  const welcomeMessage = {
+    id: '__welcome__',
+    sender_id: 'system',
+    sender_name: 'TVRS',
+    sender_role: 'system',
+    message_text: '👋 Hi, Welcome to the chat!',
+    created_at: '1970-01-01T00:00:00.000Z',
+  };
+  const displayMessages = [welcomeMessage, ...messages];
+
   return (
     <div className="flex flex-col lg:flex-row gap-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 sm:p-6 flex-1 min-h-0 shadow-premium-light dark:shadow-premium-dark overflow-hidden">
       
@@ -533,7 +539,16 @@ export default function HubChat({ user, chatMode = 'admin' }) {
           </div>
         ) : (
           <div className="flex-1 overflow-y-auto p-4 space-y-6 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
-          {messages.map((msg) => {
+          {displayMessages.map((msg) => {
+            if (msg.id === '__welcome__') {
+              return (
+                <div key="__welcome__" className="flex justify-center py-4">
+                  <div className="text-center px-6 py-3 rounded-2xl bg-cyan-50 dark:bg-cyan-950/20 border border-cyan-200 dark:border-cyan-800/30 text-cyan-700 dark:text-cyan-300 text-sm font-semibold shadow-sm">
+                    {msg.message_text}
+                  </div>
+                </div>
+              );
+            }
             const isMe = msg.sender_id === user.id;
             const roleStyle = getRoleColors(msg.sender_role);
             return (
@@ -625,15 +640,7 @@ export default function HubChat({ user, chatMode = 'admin' }) {
             );
           })}
           
-          {messages.length === 0 && (
-            <div className="h-full flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 py-16">
-              <div className="p-4 rounded-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 mb-3 animate-pulse">
-                <MessageSquare className="w-8 h-8 text-slate-450 dark:text-slate-500" />
-              </div>
-              <div className="text-sm font-black uppercase tracking-wider text-slate-550 dark:text-slate-400">Start of Operations Room</div>
-              <div className="text-xs text-slate-450 dark:text-slate-600 mt-1.5 max-w-xs text-center leading-relaxed">Submit your dispatch or operational update below. All communications are logged securely.</div>
-            </div>
-          )}
+
 
           <div ref={messagesEndRef} />
         </div>
