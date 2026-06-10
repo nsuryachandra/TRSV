@@ -774,6 +774,7 @@ httpServer.listen(PORT, async () => {
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_activity_logs_user_id ON activity_logs(user_id)`);
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_realtime_activity_logs_created_at ON realtime_activity_logs(created_at DESC)`);
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_realtime_activity_logs_activity_type ON realtime_activity_logs(activity_type)`);
+    await pool.query(`ALTER TABLE realtime_activity_logs ADD COLUMN IF NOT EXISTS ip_address VARCHAR(45)`);
     
     // Auto-prune realtime logs: Keep last 3000 entries max to conserve database storage
     await pool.query(`
