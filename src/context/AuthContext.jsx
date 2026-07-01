@@ -261,8 +261,8 @@ export const AuthProvider = ({ children }) => {
 
     window.fetch = async (input, init) => {
       let finalInput = input;
-      const isCapacitor = !!window.Capacitor;
-      const apiBase = isCapacitor ? 'https://trsv-union.onrender.com' : '';
+      const isNativeMobile = window.Capacitor && window.Capacitor.getPlatform && window.Capacitor.getPlatform() !== 'web';
+      const apiBase = isNativeMobile ? 'https://trsv-union.onrender.com' : '';
 
       if (apiBase) {
         if (typeof input === 'string') {
@@ -322,7 +322,7 @@ export const AuthProvider = ({ children }) => {
           if (data && EXPIRY_MESSAGES.includes(data.message)) {
             console.warn('🕵️ [Fetch Interceptor] Token expired — clearing session.');
             if (sessionClearRef.current) sessionClearRef.current();
-            window.location.href = window.Capacitor ? '#/login' : '/login';
+            window.location.href = isNativeMobile ? '#/login' : '/login';
           }
         } catch { /* Not JSON — ignore */ }
       }

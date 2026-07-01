@@ -7,7 +7,8 @@ import AppRoutes from './routes/AppRoutes';
 import CommandPalette from './components/CommandPalette';
 import ScrollToTop from './components/ScrollToTop';
 
-const Router = window.Capacitor ? HashRouter : BrowserRouter;
+const isNativeMobile = window.Capacitor && window.Capacitor.getPlatform && window.Capacitor.getPlatform() !== 'web';
+const Router = isNativeMobile ? HashRouter : BrowserRouter;
 
 function App() {
   return (

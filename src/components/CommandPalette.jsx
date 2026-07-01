@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, Command, FileText, MapPin, Radio, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 export default function CommandPalette() {
   const [isOpen, setIsOpen] = useState(false);
@@ -9,6 +10,7 @@ export default function CommandPalette() {
   const [loading, setLoading] = useState(false);
   const inputRef = useRef(null);
   const navigate = useNavigate();
+  const { userProfile } = useAuth();
 
   // Keyboard binding for Ctrl+K / Cmd+K
   useEffect(() => {
@@ -67,11 +69,21 @@ export default function CommandPalette() {
     setIsOpen(false);
     // Depending on the result type, navigate to the correct module
     if (item.type === 'complaint') {
-      navigate('/dashboard/leader'); // Usually they'll open the ticket from the queue
+      if (userProfile?.role === 'student') {
+        navigate(`/dashboard/student?open_ticket_id=${item.id}`);
+      } else if (userProfile?.role === 'supreme_admin' || userProfile?.role === 'dev') {
+        navigate(`/dashboard/command?open_ticket_id=${item.id}`);
+      } else {
+        navigate(`/dashboard/leader?open_ticket_id=${item.id}`);
+      }
     } else if (item.type === 'announcement') {
       navigate('/dashboard/announcements');
     } else if (item.type === 'region') {
-      navigate('/dashboard/command'); // Supreme admin maps
+      if (userProfile?.role === 'supreme_admin' || userProfile?.role === 'dev') {
+        navigate(`/dashboard/command?open_region_id=${item.id}`);
+      } else {
+        navigate(`/dashboard/districts?region_id=${item.id}`);
+      }
     }
   };
 

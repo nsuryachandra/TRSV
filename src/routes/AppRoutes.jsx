@@ -132,7 +132,11 @@ export default function AppRoutes() {
           <Route path="about" element={<About />} />
           <Route path="team" element={<Team />} />
           <Route path="announcements" element={<Announcements />} />
-          <Route path="contact" element={<Contact />} />
+          <Route path="contact" element={
+            <ProtectedRoute allowedRoles={['student']}>
+              <Contact />
+            </ProtectedRoute>
+          } />
           <Route path="join" element={
             <ProtectedRoute allowedRoles={['student']}>
               <JoinTVRS />
