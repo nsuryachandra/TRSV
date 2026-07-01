@@ -26,12 +26,13 @@ export default function ProtectedRoute({ children, allowedRoles }) {
     return <Navigate to="/" replace />;
   }
 
-  // 2. If role-specific guards are defined, check active permissions (dev bypasses all blocks)
-  if (allowedRoles && userProfile.role !== 'dev' && !allowedRoles.includes(userProfile.role)) {
+  // 2. If role-specific guards are defined, check active permissions (dev bypasses administrative/leader blocks but not student-only client forms)
+  const isDevBypass = userProfile.role === 'dev' && !allowedRoles.includes('student');
+  if (allowedRoles && !isDevBypass && !allowedRoles.includes(userProfile.role)) {
     console.warn(`🛡️ [Guard Alert] User of role "${userProfile.role}" attempted unauthorized access to restricted panel.`);
     
     // Redirect to correct dashboard bounds
-    if (userProfile.role === 'supreme_admin') {
+    if (userProfile.role === 'supreme_admin' || userProfile.role === 'dev') {
       return <Navigate to="/dashboard/command" replace />;
     } else if (userProfile.role === 'student') {
       return <Navigate to="/dashboard/student" replace />;
