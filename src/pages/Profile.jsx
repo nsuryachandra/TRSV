@@ -866,8 +866,8 @@ export default function Profile() {
   // Download ID PNG Export trigger
   const handleDownload = async () => {
     const canvas = document.createElement("canvas");
-    canvas.width = 960;
-    canvas.height = 320;
+    canvas.width = 2200;
+    canvas.height = 1720;
     const ctx = canvas.getContext("2d");
 
     const avatarUrl = userProfile?.profile_image || "";
@@ -877,17 +877,11 @@ export default function Profile() {
     ]);
 
     // Draw backdrop backing
-    const bgGradient = ctx.createLinearGradient(0, 0, 960, 320);
-    bgGradient.addColorStop(0, "#030712");
-    bgGradient.addColorStop(0.5, "#0b0f19");
-    bgGradient.addColorStop(1, "#020617");
+    const bgGradient = ctx.createLinearGradient(0, 0, 2200, 1720);
+    bgGradient.addColorStop(0, "#080c14");
+    bgGradient.addColorStop(1, "#0f172a");
     ctx.fillStyle = bgGradient;
-    ctx.fillRect(0, 0, 960, 320);
-
-    ctx.fillStyle = "rgba(251, 191, 36, 0.02)";
-    ctx.beginPath();
-    ctx.arc(200, 100, 180, 0, 2 * Math.PI);
-    ctx.fill();
+    ctx.fillRect(0, 0, 2200, 1720);
 
     const drawRoundedRect = (c, x, y, width, height, radius, fillStyle, strokeStyle, lineWidth) => {
       c.beginPath();
@@ -912,104 +906,459 @@ export default function Profile() {
       }
     };
 
-    const cW = 420;
-    const cH = 260;
-    const cY = 30;
-    const fX = 30;
-    const bX = 510;
-
-    const cardBgGradient = (x) => {
-      const g = ctx.createLinearGradient(x, cY, x + cW, cY + cH);
-      g.addColorStop(0, "#060c18");
-      g.addColorStop(1, "#0c162c");
-      return g;
+    const clipRoundedRect = (c, x, y, width, height, radius) => {
+      c.beginPath();
+      c.moveTo(x + radius, y);
+      c.lineTo(x + width - radius, y);
+      c.quadraticCurveTo(x + width, y, x + width, y + radius);
+      c.lineTo(x + width, y + height - radius);
+      c.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+      c.lineTo(x + radius, y + height);
+      c.quadraticCurveTo(x, y + height, x, y + height - radius);
+      c.lineTo(x, y + radius);
+      c.quadraticCurveTo(x, y, x + radius, y);
+      c.closePath();
+      c.clip();
     };
 
-    // Draw Front
-    drawRoundedRect(ctx, fX, cY, cW, cH, 16, cardBgGradient(fX), "rgba(251, 191, 36, 0.25)", 2);
-    ctx.fillStyle = "#fbbf24";
-    ctx.font = "bold 13px Sora, sans-serif";
-    ctx.fillText("TELANGANA VIDYARTHI RAKSHANA SENA", fX + 24, cY + 36);
+    const hashStringLocal = (str) => {
+      let h = 2166136261;
+      for (let i = 0; i < str.length; i++) {
+        h ^= str.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+      }
+      return h >>> 0;
+    };
 
-    ctx.fillStyle = "#94a3b8";
-    ctx.font = "bold 7px Outfit, sans-serif";
-    ctx.fillText("STATE STUDENT GOVERNANCE COUNCIL", fX + 24, cY + 48);
+    const drawVerificationGlyph = (c, val, gX, gY, gSize, dark) => {
+      const grid = 21;
+      const seed = hashStringLocal(val || "TVRS-DEFAULT");
+      let s = seed;
+      const rand = () => {
+        s ^= s << 13;
+        s ^= s >>> 17;
+        s ^= s << 5;
+        s >>>= 0;
+        return s / 4294967295;
+      };
 
-    // Status
-    drawRoundedRect(ctx, fX + cW - 100, cY + 24, 76, 16, 8, "rgba(251, 191, 36, 0.1)", "#fbbf24", 1);
-    ctx.fillStyle = "#fbbf24";
-    ctx.font = "bold 8px Outfit, sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText("VERIFIED", fX + cW - 62, cY + 35);
-    ctx.textAlign = "left";
+      const cells = [];
+      for (let y = 0; y < grid; y++) {
+        for (let x = 0; x < grid; x++) {
+          const inFinder =
+            (x < 7 && y < 7) ||
+            (x > grid - 8 && y < 7) ||
+            (x < 7 && y > grid - 8);
+          cells.push(inFinder ? 0 : rand() > 0.565 ? 1 : 0);
+        }
+      }
 
-    // Avatar
-    const avX = fX + 24;
-    const avY = cY + 68;
-    const avS = 64;
+      const cell = gSize / grid;
+      c.fillStyle = "#ffffff";
+      c.fillRect(gX, gY, gSize, gSize);
+
+      c.fillStyle = dark;
+      for (let i = 0; i < cells.length; i++) {
+        if (cells[i]) {
+          const cx = gX + (i % grid) * cell;
+          const cy = gY + Math.floor(i / grid) * cell;
+          drawRoundedRect(c, cx, cy, cell * 0.92, cell * 0.92, cell * 0.18, dark, null);
+        }
+      }
+
+      const drawFinder = (fx, fy) => {
+        const tx = gX + fx * cell;
+        const ty = gY + fy * cell;
+        drawRoundedRect(c, tx, ty, cell * 7, cell * 7, cell * 0.9, dark, null);
+        drawRoundedRect(c, tx + cell, ty + cell, cell * 5, cell * 5, cell * 0.6, "#ffffff", null);
+        drawRoundedRect(c, tx + cell * 2, ty + cell * 2, cell * 3, cell * 3, cell * 0.4, dark, null);
+      };
+
+      drawFinder(0, 0);
+      drawFinder(grid - 7, 0);
+      drawFinder(0, grid - 7);
+    };
+
+    const wrapText = (context, txt, x, y, maxWidth, lineHeight) => {
+      const words = txt.split(' ');
+      let line = '';
+      let currY = y;
+      for (let n = 0; n < words.length; n++) {
+        let testLine = line + words[n] + ' ';
+        let metrics = context.measureText(testLine);
+        let testWidth = metrics.width;
+        if (testWidth > maxWidth && n > 0) {
+          context.fillText(line, x, currY);
+          line = words[n] + ' ';
+          currY += lineHeight;
+        } else {
+          line = testLine;
+        }
+      }
+      context.fillText(line, x, currY);
+    };
+
+    const cW = 1012;
+    const cH = 1612;
+    const cY = 54;
+    const fX = 54;
+    const bX = 1134;
+
+    const drawGuillocheAndWatermarks = (c, cardX) => {
+      // Watermarks
+      c.save();
+      c.rotate(-18 * Math.PI / 180);
+      c.fillStyle = "rgba(10, 42, 84, 0.012)";
+      c.font = "bold 22px 'JetBrains Mono', monospace";
+      for (let row = -10; row < 50; row++) {
+        let line = Array(15).fill("TVRS \u2022 AUTHENTIC \u2022").join("  ");
+        c.fillText(line, -400, row * 52);
+      }
+      c.restore();
+
+      // Guilloche waves
+      c.strokeStyle = "rgba(10, 42, 84, 0.022)";
+      c.lineWidth = 1.2;
+      for (let cy = 0; cy < cH; cy += 120) {
+        c.beginPath();
+        for (let cx = 0; cx < cW; cx += 10) {
+          const sineY = cy + Math.sin(cx / 40) * 15;
+          if (cx === 0) c.moveTo(cardX + cx, cY + sineY);
+          else c.lineTo(cardX + cx, cY + sineY);
+        }
+        c.stroke();
+      }
+    };
+
+    // FRONT
+    ctx.save();
+    clipRoundedRect(ctx, fX, cY, cW, cH, 40);
+    ctx.fillStyle = "#FCFBF8";
+    ctx.fillRect(fX, cY, cW, cH);
+    drawGuillocheAndWatermarks(ctx, fX);
+
+    // Blue Gradient Header
+    const headGrad = ctx.createLinearGradient(fX, cY, fX + cW, cY + 380);
+    headGrad.addColorStop(0, "#0A2A54");
+    headGrad.addColorStop(1, "#123B78");
+    ctx.fillStyle = headGrad;
+    ctx.fillRect(fX, cY, cW, 380);
+
+    const borderGrad = ctx.createLinearGradient(fX, cY + 380, fX + cW, cY + 380);
+    borderGrad.addColorStop(0, "#C97F00");
+    borderGrad.addColorStop(0.5, "#F0A400");
+    borderGrad.addColorStop(1, "#C97F00");
+    ctx.fillStyle = borderGrad;
+    ctx.fillRect(fX, cY + 380, cW, 8);
+
+    // Header Logo Circle
+    ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
+    ctx.beginPath();
+    ctx.arc(fX + 110, cY + 190, 65, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+    ctx.lineWidth = 4;
+    ctx.stroke();
+
+    ctx.strokeStyle = "#0A2A54";
+    ctx.lineWidth = 6;
+    ctx.lineJoin = "round";
+    ctx.beginPath();
+    ctx.moveTo(fX + 110, cY + 190 - 32);
+    ctx.lineTo(fX + 110 + 26, cY + 190 - 18);
+    ctx.lineTo(fX + 110 + 26, cY + 190 + 12);
+    ctx.quadraticCurveTo(fX + 110 + 26, cY + 190 + 36, fX + 110, cY + 190 + 44);
+    ctx.quadraticCurveTo(fX + 110 - 26, cY + 190 + 36, fX + 110 - 26, cY + 190 + 12);
+    ctx.lineTo(fX + 110 - 26, cY + 190 - 18);
+    ctx.closePath();
+    ctx.stroke();
+
+    ctx.strokeStyle = "#0A2A54";
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.moveTo(fX + 110 - 12, cY + 190 + 2);
+    ctx.lineTo(fX + 110 - 2, cY + 190 + 12);
+    ctx.lineTo(fX + 110 + 14, cY + 190 - 8);
+    ctx.stroke();
+
+    // Header text
+    ctx.fillStyle = "#FFFFFF";
+    ctx.font = "bold 34px 'Sora', sans-serif";
+    ctx.fillText("TELANGANA VIDYARTHI", fX + 210, cY + 165);
+    ctx.fillText("RAKSHANA SENA", fX + 210, cY + 215);
+    ctx.fillStyle = "#F0A400";
+    ctx.font = "bold 20px 'Sora', sans-serif";
+    ctx.fillText("OFFICIAL DIGITAL IDENTITY", fX + 210, cY + 260);
+
+    // Photo Box
+    drawRoundedRect(ctx, fX + 60, cY + 310, 240, 300, 24, "#EDF0F5", "rgba(255, 255, 255, 1)", 8);
     if (avatarImg) {
       ctx.save();
-      ctx.beginPath();
-      ctx.arc(avX + avS / 2, avY + avS / 2, avS / 2, 0, 2 * Math.PI);
-      ctx.clip();
-      ctx.drawImage(avatarImg, avX, avY, avS, avS);
+      clipRoundedRect(ctx, fX + 60 + 4, cY + 310 + 4, 232, 292, 20);
+      ctx.drawImage(avatarImg, fX + 60 + 4, cY + 310 + 4, 232, 292);
       ctx.restore();
     } else {
-      drawRoundedRect(ctx, avX, avY, avS, avS, 12, "#0a2a54", null);
-      ctx.fillStyle = "#ffffff";
-      ctx.font = "bold 20px Sora, sans-serif";
+      ctx.fillStyle = "#5B6472";
+      ctx.font = "bold 26px 'Sora', sans-serif";
       ctx.textAlign = "center";
-      ctx.fillText(
-        userProfile?.full_name ? userProfile.full_name.charAt(0) : "T",
-        avX + avS / 2,
-        avY + avS / 2 + 7
-      );
+      ctx.fillText("PHOTO", fX + 180, cY + 475);
       ctx.textAlign = "left";
     }
 
-    // Name & Designation
-    ctx.fillStyle = "#ffffff";
-    ctx.font = "bold 17px Sora, sans-serif";
-    ctx.fillText(userProfile?.full_name || "Official", avX + avS + 16, avY + 20);
-
-    ctx.fillStyle = "#fbbf24";
-    ctx.font = "bold 9px Outfit, sans-serif";
-    ctx.fillText(designation, avX + avS + 16, avY + 36);
-
-    ctx.fillStyle = "#cbd5e1";
-    ctx.font = "9px Outfit, sans-serif";
-    ctx.fillText(`Constituency: ${userProfile?.constituency_name || "Not Set"}`, avX + avS + 16, avY + 52);
-    ctx.fillText(`District: ${userProfile?.district || "Not Set"}`, avX + avS + 16, avY + 66);
-
-    // ID Footer
-    ctx.fillStyle = "#64748b";
-    ctx.font = "8px Outfit, sans-serif";
-    ctx.fillText("TVRS SYSTEM NODE ID", fX + 24, cY + cH - 36);
-    ctx.fillStyle = "#fbbf24";
-    ctx.font = "bold 15px Courier New, monospace";
-    ctx.fillText(identity?.trsv_member_id || "TVRS-KHA-0001", fX + 24, cY + cH - 20);
-
-    // Draw Back
-    drawRoundedRect(ctx, bX, cY, cW, cH, 16, cardBgGradient(bX), "rgba(251, 191, 36, 0.25)", 2);
-    ctx.fillStyle = "#fbbf24";
-    ctx.font = "bold 11px Sora, sans-serif";
-    ctx.fillText("TVRS OFFICIAL IDENTITY", bX + 24, cY + 36);
-
-    if (qrImg) {
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(bX + cW - 124, cY + 64, 100, 100);
-      ctx.drawImage(qrImg, bX + cW - 124, cY + 64, 100, 100);
+    if (userProfile?.verified !== false) {
+      ctx.fillStyle = "#137A4B";
+      ctx.beginPath();
+      ctx.arc(fX + 280, cY + 590, 32, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.strokeStyle = "#FFFFFF";
+      ctx.lineWidth = 5;
+      ctx.stroke();
+      ctx.strokeStyle = "#FFFFFF";
+      ctx.lineWidth = 5;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(fX + 280 - 12, cY + 590 + 2);
+      ctx.lineTo(fX + 280 - 2, cY + 590 + 12);
+      ctx.lineTo(fX + 280 + 14, cY + 590 - 8);
+      ctx.stroke();
     }
 
-    ctx.fillStyle = "#cbd5e1";
-    ctx.font = "9px Outfit, sans-serif";
-    ctx.fillText("This digital identity card can be validated", bX + 24, cY + 70);
-    ctx.fillText("by scanning the official TVRS QR code key.", bX + 24, cY + 85);
-    ctx.fillText("State Student protection services intact.", bX + 24, cY + 100);
+    // Name & Designation
+    ctx.fillStyle = "#141922";
+    ctx.font = "bold 44px 'Sora', sans-serif";
+    ctx.fillText(userProfile?.full_name || "Official Name", fX + 340, cY + 460);
+
+    ctx.font = "bold 20px 'Sora', sans-serif";
+    const desigW = ctx.measureText(designation).width;
+    drawRoundedRect(ctx, fX + 340, cY + 490, desigW + 30, 42, 21, "rgba(10,42,84,0.07)", null, 0);
+    ctx.fillStyle = "#0A2A54";
+    ctx.fillText(designation, fX + 340 + 15, cY + 518);
+
+    if (userProfile?.verified !== false) {
+      drawRoundedRect(ctx, fX + 340 + desigW + 40, cY + 490, 140, 42, 21, "rgba(19,122,75,0.09)", "rgba(19,122,75,0.22)", 1);
+      ctx.fillStyle = "#137A4B";
+      ctx.beginPath();
+      ctx.arc(fX + 340 + desigW + 40 + 22, cY + 511, 6, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.font = "bold 16px 'Sora', sans-serif";
+      ctx.fillText("VERIFIED", fX + 340 + desigW + 40 + 38, cY + 517);
+    }
+
+    // ID Pill
+    const memberIdText = "ID   " + (identity?.trsv_member_id || "TVRS-HQ-0000");
+    ctx.font = "bold 26px 'JetBrains Mono', monospace";
+    const pillW = ctx.measureText(memberIdText).width;
+    drawRoundedRect(ctx, fX + 60, cY + 680, pillW + 40, 60, 10, "rgba(240,164,0,0.13)", "rgba(240,164,0,0.28)", 2.5);
+    ctx.fillStyle = "#0A2A54";
+    ctx.fillText(memberIdText, fX + 80, cY + 719);
+
+    // Fields Grid
+    const drawField = (lbl, val, fx, fy) => {
+      ctx.fillStyle = "#5B6472";
+      ctx.font = "bold 18px 'Sora', sans-serif";
+      ctx.fillText(lbl.toUpperCase(), fx, fy);
+      ctx.fillStyle = "#141922";
+      ctx.font = "bold 28px 'Sora', sans-serif";
+      ctx.fillText(val || "—", fx, fy + 38);
+    };
+
+    drawField("Constituency", userProfile?.constituency_name || "Statewide Headquarter", fX + 80, cY + 820);
+    drawField("District Node", userProfile?.district || "Hyderabad", fX + 540, cY + 820);
+    drawField("Joined Date", identity?.issued_at ? new Date(identity.issued_at).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" }) : "N/A", fX + 80, cY + 960);
+
+    // Divider
+    ctx.strokeStyle = "#E1E5EC";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(fX, cY + 1090);
+    ctx.lineTo(fX + cW, cY + 1090);
+    ctx.stroke();
+
+    // Footer
+    drawRoundedRect(ctx, fX + 60, cY + 1140, 892, 412, 28, "rgba(10,42,84,0.025)", "#EBEEF3", 2);
+    ctx.fillStyle = "#0A2A54";
+    ctx.font = "bold 28px 'Sora', sans-serif";
+    ctx.fillText("OFFICIAL VERIFICATION", fX + 110, cY + 1210);
+    ctx.fillStyle = "#5B6472";
+    ctx.font = "bold 22px 'Sora', sans-serif";
+    ctx.fillText("SCAN TO VERIFY COORDINATES", fX + 110, cY + 1260);
+
+    const qrUrlText = identity?.qr_token ? `verify.tvrs.org.in/id/${identity.trsv_member_id}` : "verify.tvrs.org.in";
+    ctx.fillStyle = "#5B6472";
+    ctx.font = "18px 'JetBrains Mono', monospace";
+    ctx.fillText(qrUrlText, fX + 110, cY + 1315);
+
+    ctx.fillStyle = "#0A2A54";
+    ctx.font = "bold 18px 'Sora', sans-serif";
+    ctx.fillText("TVRS OFFICIAL SCANNER", fX + 110, cY + 1485);
+
+    drawVerificationGlyph(ctx, identity?.qr_token || identity?.trsv_member_id, fX + 620, cY + 1200, 290, "#0A2A54");
+    ctx.restore();
+
+
+    // BACK
+    ctx.save();
+    clipRoundedRect(ctx, bX, cY, cW, cH, 40);
+    ctx.fillStyle = "#FCFBF8";
+    ctx.fillRect(bX, cY, cW, cH);
+    drawGuillocheAndWatermarks(ctx, bX);
+
+    // Blue Gradient Header
+    const backHeadGrad = ctx.createLinearGradient(bX, cY, bX + cW, cY + 150);
+    backHeadGrad.addColorStop(0, "#0A2A54");
+    backHeadGrad.addColorStop(1, "#123B78");
+    ctx.fillStyle = backHeadGrad;
+    ctx.fillRect(bX, cY, cW, 150);
+
+    ctx.fillStyle = borderGrad;
+    ctx.fillRect(bX, cY + 150, cW, 6);
+
+    // Header Logo Circle
+    ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
+    ctx.beginPath();
+    ctx.arc(bX + 90, cY + 80, 42, 0, 2 * Math.PI);
+    ctx.fill();
+
+    ctx.strokeStyle = "#0A2A54";
+    ctx.lineWidth = 4;
+    ctx.lineJoin = "round";
+    ctx.beginPath();
+    ctx.moveTo(bX + 90, cY + 80 - 20);
+    ctx.lineTo(bX + 90 + 16, cY + 80 - 11);
+    ctx.lineTo(bX + 90 + 16, cY + 80 + 8);
+    ctx.quadraticCurveTo(bX + 90 + 16, cY + 80 + 22, bX + 90, cY + 80 + 28);
+    ctx.quadraticCurveTo(bX + 90 - 16, cY + 80 + 22, bX + 90 - 16, cY + 80 + 8);
+    ctx.lineTo(bX + 90 - 16, cY + 80 - 11);
+    ctx.closePath();
+    ctx.stroke();
+
+    ctx.strokeStyle = "#0A2A54";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(bX + 90 - 8, cY + 80 + 1);
+    ctx.lineTo(bX + 90 - 1, cY + 80 + 8);
+    ctx.lineTo(bX + 90 + 9, cY + 80 - 5);
+    ctx.stroke();
+
+    // Header text
+    ctx.fillStyle = "#FFFFFF";
+    ctx.font = "bold 28px 'Sora', sans-serif";
+    ctx.fillText("TVRS OFFICIAL IDENTITY", bX + 160, cY + 90);
+
+    // Instructions Section
+    ctx.fillStyle = "#5B6472";
+    ctx.font = "bold 22px 'Sora', sans-serif";
+    ctx.fillText("OFFICIAL VERIFICATION INSTRUCTIONS", bX + 80, cY + 230);
+
+    ctx.fillStyle = "#141922";
+    ctx.font = "26px 'Sora', sans-serif";
+    const instructText = "This digital identity can be verified through the official TVRS Verification Portal by scanning the QR code using any smartphone camera or the official TVRS Scanner application.";
+    wrapText(ctx, instructText, bX + 80, cY + 290, 852, 42);
+
+    ctx.fillStyle = "#0A2A54";
+    ctx.font = "bold 26px 'JetBrains Mono', monospace";
+    ctx.fillText("verify.tvrs.org.in", bX + 80, cY + 510);
+
+    // Divider
+    ctx.strokeStyle = "#E1E5EC";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(bX + 80, cY + 590);
+    ctx.lineTo(bX + cW - 80, cY + 590);
+    ctx.stroke();
+
+    // Signature Area
+    ctx.strokeStyle = "#E1E5EC";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(bX + 80, cY + 790);
+    ctx.lineTo(bX + 580, cY + 790);
+    ctx.stroke();
+
+    ctx.fillStyle = "#9CA5B4";
+    ctx.font = "italic 32px 'Sora', sans-serif";
+    ctx.fillText("Signature on file", bX + 100, cY + 760);
+
+    ctx.fillStyle = "#141922";
+    ctx.font = "bold 24px 'Sora', sans-serif";
+    ctx.fillText("General Secretary", bX + 80, cY + 835);
+    ctx.fillStyle = "#5B6472";
+    ctx.font = "18px 'Sora', sans-serif";
+    ctx.fillText("Authorized Signatory", bX + 80, cY + 870);
+
+    // Organization Seal
+    const sX = bX + 810;
+    const sY = cY + 760;
+    ctx.strokeStyle = "#0A2A54";
+    ctx.lineWidth = 2;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.arc(sX, sY, 95, 0, 2 * Math.PI);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.strokeStyle = "rgba(10, 42, 84, 0.7)";
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.arc(sX, sY, 78, 0, 2 * Math.PI);
+    ctx.stroke();
+
+    ctx.save();
+    ctx.translate(sX, sY);
+    ctx.fillStyle = "#0A2A54";
+    ctx.font = "bold 15px 'Sora', sans-serif";
+    const sealText = "  TVRS \u2022 OFFICIAL SEAL \u2022 TELANGANA \u2022";
+    for (let i = 0; i < sealText.length; i++) {
+      ctx.save();
+      ctx.rotate((i * 360 / sealText.length) * Math.PI / 180);
+      ctx.fillText(sealText[i], -5, -84);
+      ctx.restore();
+    }
+    ctx.restore();
+
+    ctx.strokeStyle = "#0A2A54";
+    ctx.lineWidth = 3.5;
+    ctx.beginPath();
+    ctx.moveTo(sX, sY - 24);
+    ctx.lineTo(sX + 20, sY - 14);
+    ctx.lineTo(sX + 20, sY + 8);
+    ctx.quadraticCurveTo(sX + 20, sY + 24, sX, sY + 30);
+    ctx.quadraticCurveTo(sX - 20, sY + 24, sX - 20, sY + 8);
+    ctx.lineTo(sX - 20, sY - 14);
+    ctx.closePath();
+    ctx.stroke();
+
+    // Divider
+    ctx.strokeStyle = "#E1E5EC";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(bX + 80, cY + 930);
+    ctx.lineTo(bX + cW - 80, cY + 930);
+    ctx.stroke();
+
+    // Card Reference info
+    ctx.fillStyle = "#5B6472";
+    ctx.font = "bold 18px 'Sora', sans-serif";
+    ctx.fillText("CARD REFERENCE", bX + 80, cY + 1010);
+    ctx.fillStyle = "#141922";
+    ctx.font = "bold 26px 'JetBrains Mono', monospace";
+    ctx.fillText(identity?.trsv_member_id || "TVRS-HQ-0000", bX + 80, cY + 1060);
+
+    wrapText(ctx, "This card remains the property of TVRS and must be surrendered upon request or termination of membership.", bX + 80, cY + 1110, 480, 24);
+
+    // Scannable QR Code
+    if (qrImg) {
+      drawRoundedRect(ctx, bX + 680, cY + 1140, 252, 252, 20, "#ffffff", "rgba(10,42,84,0.08)", 2);
+      ctx.drawImage(qrImg, bX + 680 + 10, cY + 1140 + 10, 232, 232);
+    } else {
+      drawVerificationGlyph(ctx, identity?.qr_token || identity?.trsv_member_id, bX + 680, cY + 1140, 252, "#0A2A54");
+    }
+
+    ctx.restore();
 
     // Download trigger
     const link = document.createElement("a");
-    link.download = `${identity?.trsv_member_id || "TVRS_Personnel"}_ProfileID.png`;
+    link.download = `${identity?.trsv_member_id || "TVRS_Personnel"}_OfficialID.png`;
     link.href = canvas.toDataURL("image/png");
     link.click();
   };
