@@ -679,9 +679,7 @@ export default function PublicVerification() {
           Public Credentials Registry Node
         </h1>
         <div className="h-0.5 w-16 bg-gradient-to-r from-transparent via-amber-500 to-transparent mt-1" />
-      </div>
-
-      <div className="w-full flex flex-col gap-8 text-left max-w-6xl mx-auto pb-16">
+      </div>      <div className="w-full flex flex-col gap-8 text-left max-w-2xl mx-auto pb-16">
         
         {/* 👤 SECTION 1. Profile Header */}
         <div className="relative overflow-hidden rounded-3xl glass-panel-light dark:glass-panel-dark border border-slate-200/50 dark:border-slate-850 p-6 md:p-8 shadow-premium-light dark:shadow-premium-dark flex flex-col lg:flex-row items-center lg:items-start justify-between gap-6">
@@ -755,129 +753,45 @@ export default function PublicVerification() {
           </div>
         </div>
 
-        {/* 📊 SECTION 2. Overview */}
-        <div className="flex flex-col gap-4 animate-fadeIn">
-          <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">
-            Statewide Telemetry & Overview
-          </h3>
-          
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            <GlassCard className="p-4 flex flex-col text-left gap-1" hoverEffect={true}>
-              <span className="text-[10px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-wider block">
-                Assigned Complaints
-              </span>
-              <strong className="text-3xl font-black text-slate-800 dark:text-white mt-1">
-                {(metrics?.issues_resolved || 0) + (metrics?.issues_pending || 0)}
-              </strong>
-            </GlassCard>
-
-            <GlassCard className="p-4 flex flex-col text-left gap-1 border-emerald-500/20" hoverEffect={true}>
-              <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-wider block">
-                Resolved Cases
-              </span>
-              <strong className="text-3xl font-black text-emerald-600 dark:text-emerald-450 mt-1">
-                {metrics?.issues_resolved || 0}
-              </strong>
-            </GlassCard>
-
-            <GlassCard className="p-4 flex flex-col text-left gap-1 border-cyan-500/20" hoverEffect={true}>
-              <span className="text-[10px] font-bold text-cyan-500 uppercase tracking-wider block">
-                In Progress
-              </span>
-              <strong className="text-3xl font-black text-cyan-600 dark:text-cyan-400 mt-1">
-                {metrics?.issues_pending || 0}
-              </strong>
-            </GlassCard>
-
-            <GlassCard className="p-4 flex flex-col text-left gap-1 border-slate-300/40" hoverEffect={true}>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                Closed Cases
-              </span>
-              <strong className="text-3xl font-black text-slate-500 dark:text-slate-400 mt-1">
-                {metrics?.issues_resolved || 0}
-              </strong>
-            </GlassCard>
-
-            <GlassCard className="p-4 flex flex-col text-left gap-1 col-span-2 md:col-span-1 border-amber-500/20" hoverEffect={true}>
-              <span className="text-[10px] font-bold text-amber-500 uppercase tracking-wider block">
-                Resolution Rate
-              </span>
-              <strong className="text-3xl font-black text-amber-600 dark:text-amber-400 mt-1">
-                {resolutionRate}%
-              </strong>
-            </GlassCard>
-          </div>
-        </div>
-
-        {/* Grid: Activities (Left) + ID Preview (Right) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
-          {/* 📋 SECTION 3. Recent Activity */}
-          <div className="lg:col-span-6 flex flex-col gap-4">
+        {/* 🪪 SECTION 2. Digital Identity Card */}
+        <div ref={idSectionRef} className="w-full flex flex-col gap-4">
+          <div className="flex items-center justify-between">
             <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">
-              Recent Activity & Timeline
+              Official TVRS Digital ID
             </h3>
             
-            <GlassCard className="p-6 text-left flex flex-col gap-6" hoverEffect={false}>
-              <div className="relative border-l-2 border-slate-200 dark:border-slate-800 pl-6 ml-2 flex flex-col gap-6">
-                {recentActivities.map((act, index) => (
-                  <div key={index} className="relative group">
-                    <span className="absolute -left-[31px] top-1.5 w-3.5 h-3.5 rounded-full bg-slate-900 border-2 border-amber-500 shadow-glow-amber-strong group-hover:scale-110 transition-transform duration-200" />
-                    <div className="flex flex-col gap-0.5">
-                      <span className="text-[10px] font-bold text-slate-450 dark:text-slate-500 font-mono">
-                        {act.date}
-                      </span>
-                      <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 group-hover:text-amber-500 transition-colors duration-200">
-                        {act.text}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </GlassCard>
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="text-xs font-black text-amber-500 hover:underline cursor-pointer flex items-center gap-1"
+            >
+              <Eye className="w-3.5 h-3.5" />
+              View Full Screen
+            </button>
           </div>
 
-          {/* 🪪 SECTION 4. Digital Identity Card */}
-          <div ref={idSectionRef} className="lg:col-span-6 flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">
-                Official TVRS Digital ID
-              </h3>
-              
-              <button
-                onClick={() => setIsModalOpen(true)}
-                className="text-xs font-black text-amber-500 hover:underline cursor-pointer flex items-center gap-1"
-              >
-                <Eye className="w-3.5 h-3.5" />
-                View Full Screen
-              </button>
-            </div>
-
-            <GlassCard className="p-2 py-6 flex flex-col items-center justify-center" hoverEffect={false}>
-              <TVRSIdentityCard
-                photo={profile?.profile_image}
-                name={profile?.full_name}
-                tvrsId={identity?.trsv_member_id}
-                designation={designation}
-                constituency={profile?.constituency_name || 'Statewide Headquarter'}
-                district={profile?.district || 'Hyderabad'}
-                joinedDate={identity?.issued_at ? new Date(identity.issued_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '14 Jun 2023'}
-                verified={profile?.verified !== false}
-                qrValue={qrDataUrl}
-              />
-            </GlassCard>
-          </div>
-
+          <GlassCard className="p-2 py-6 flex flex-col items-center justify-center overflow-hidden" hoverEffect={false}>
+            <TVRSIdentityCard
+              photo={profile?.profile_image}
+              name={profile?.full_name}
+              tvrsId={identity?.trsv_member_id}
+              designation={designation}
+              constituency={profile?.constituency_name || 'Statewide Headquarter'}
+              district={profile?.district || 'Hyderabad'}
+              joinedDate={identity?.issued_at ? new Date(identity.issued_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '14 Jun 2023'}
+              verified={profile?.verified !== false}
+              qrValue={qrDataUrl}
+            />
+          </GlassCard>
         </div>
 
-        {/* ⚙️ SECTION 5. Account Information */}
+        {/* ⚙️ SECTION 3. Account Information */}
         <div className="flex flex-col gap-4">
           <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">
             Official Account Coordinates
           </h3>
 
           <GlassCard className="p-6" hoverEffect={false}>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               
               <div className="flex items-start gap-3 border-b md:border-b-0 pb-4 md:pb-0 border-slate-100 dark:border-slate-850">
                 <Shield className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />

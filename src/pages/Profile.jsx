@@ -759,7 +759,7 @@ export function TVRSIdentityCard({
         }
       `}</style>
 
-      <div className="tvrs-scene w-[340px] max-w-full">
+      <div className="tvrs-scene w-[340px] shrink-0 origin-center scale-[0.8] min-[360px]:scale-[0.85] min-[400px]:scale-[0.95] min-[440px]:scale-100 transition-transform duration-300 my-[-30px] min-[360px]:my-[-20px] min-[400px]:my-[-10px] min-[440px]:my-0">
         <div
           className="tvrs-card-shell relative aspect-[54/86] w-full cursor-pointer rounded-[22px] shadow-[0_18px_38px_-16px_rgba(10,42,84,0.28)] ring-1 ring-[rgba(10,42,84,0.08)]"
           onClick={() => setFlipped((f) => !f)}
