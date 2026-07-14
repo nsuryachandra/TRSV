@@ -440,23 +440,6 @@ export default function DashboardLayout() {
       ]
     },
     {
-      category: 'ID Verification',
-      links: [
-        {
-          name: 'Digital ID',
-          path: '/dashboard/digital-id',
-          icon: <CreditCard className="w-5 h-5" />,
-          desc: 'Main digital identity card'
-        },
-        ...(userProfile?.role !== 'student' ? [{
-          name: 'QR Scanner',
-          path: '/dashboard/qr-scanner',
-          icon: <QrCode className="w-5 h-5" />,
-          desc: 'Verify student ID cards'
-        }] : [])
-      ]
-    },
-    {
       category: 'Services',
       links: [
         {
@@ -506,6 +489,29 @@ export default function DashboardLayout() {
           path: '/dashboard/join',
           icon: <UserPlus className="w-5 h-5" />,
           desc: 'Apply to join TVRS'
+        }] : [])
+      ]
+    },
+    {
+      category: 'Profile',
+      links: [
+        ...(userProfile?.role !== 'student' ? [{
+          name: 'Official Profile',
+          path: '/dashboard/profile',
+          icon: <UserCheck className="w-5 h-5" />,
+          desc: 'Official personnel profile'
+        }] : []),
+        {
+          name: 'Digital ID',
+          path: '/dashboard/digital-id',
+          icon: <CreditCard className="w-5 h-5" />,
+          desc: 'Main digital identity card'
+        },
+        ...(userProfile?.role !== 'student' ? [{
+          name: 'QR Scanner',
+          path: '/dashboard/qr-scanner',
+          icon: <QrCode className="w-5 h-5" />,
+          desc: 'Verify student ID cards'
         }] : [])
       ]
     }
