@@ -416,7 +416,7 @@ export default function PublicVerification() {
     ctx.font = "bold 22px 'Sora', sans-serif";
     ctx.fillText('SCAN TO VERIFY COORDINATES', fX + 110, cY + 1260);
 
-    const qrUrlText = identity?.qr_token ? `verify.tvrs.org.in/id/${identity.trsv_member_id}` : 'verify.tvrs.org.in';
+    const qrUrlText = identity?.qr_token ? `trsv-union.onrender.com/verify/${identity.qr_token}` : 'trsv-union.onrender.com';
     ctx.fillStyle = '#5B6472';
     ctx.font = "18px 'JetBrains Mono', monospace";
     ctx.fillText(qrUrlText, fX + 110, cY + 1315);
@@ -490,7 +490,7 @@ export default function PublicVerification() {
 
     ctx.fillStyle = '#0A2A54';
     ctx.font = "bold 26px 'JetBrains Mono', monospace";
-    ctx.fillText('verify.tvrs.org.in', bX + 80, cY + 510);
+    ctx.fillText('trsv-union.onrender.com', bX + 80, cY + 510);
 
     ctx.strokeStyle = '#E1E5EC';
     ctx.lineWidth = 2;

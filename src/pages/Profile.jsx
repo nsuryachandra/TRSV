@@ -454,7 +454,7 @@ function CardFront(props) {
               className="mt-[6px] max-w-[128px] truncate text-[7.5px]"
               style={{ color: TOKENS.slate, fontFamily: "'JetBrains Mono', monospace" }}
             >
-              {qrValue || "verify.tvrs.org.in"}
+              {qrValue || "trsv-union.onrender.com"}
             </div>
             <div className="mt-2 flex items-center gap-1">
               <ScanLine size={11} color={TOKENS.blue} />
@@ -536,7 +536,7 @@ function CardBack(props) {
             className="text-[9px] font-semibold"
             style={{ color: TOKENS.blue, fontFamily: "'JetBrains Mono', monospace" }}
           >
-            verify.tvrs.org.in
+            trsv-union.onrender.com
           </span>
         </div>
       </div>
@@ -683,7 +683,7 @@ export function TVRSIdentityCard({
   district = "Warangal",
   joinedDate = "14 Jun 2023",
   verified = true,
-  qrValue = "https://verify.tvrs.org.in/id/TVRS-244819",
+  qrValue = "https://trsv-union.onrender.com/verify/TVRS-244819",
   signatureImage,
   organizationSeal,
 }) {
@@ -1217,7 +1217,7 @@ export default function Profile() {
     ctx.font = "bold 22px 'Sora', sans-serif";
     ctx.fillText("SCAN TO VERIFY COORDINATES", fX + 110, cY + 1260);
 
-    const qrUrlText = identity?.qr_token ? `verify.tvrs.org.in/id/${identity.trsv_member_id}` : "verify.tvrs.org.in";
+    const qrUrlText = identity?.qr_token ? `trsv-union.onrender.com/verify/${identity.qr_token}` : "trsv-union.onrender.com";
     ctx.fillStyle = "#5B6472";
     ctx.font = "18px 'JetBrains Mono', monospace";
     ctx.fillText(qrUrlText, fX + 110, cY + 1315);
@@ -1296,7 +1296,7 @@ export default function Profile() {
 
     ctx.fillStyle = "#0A2A54";
     ctx.font = "bold 26px 'JetBrains Mono', monospace";
-    ctx.fillText("verify.tvrs.org.in", bX + 80, cY + 510);
+    ctx.fillText("trsv-union.onrender.com", bX + 80, cY + 510);
 
     // Divider
     ctx.strokeStyle = "#E1E5EC";
