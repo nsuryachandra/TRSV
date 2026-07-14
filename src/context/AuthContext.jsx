@@ -322,7 +322,6 @@ export const AuthProvider = ({ children }) => {
           if (data && EXPIRY_MESSAGES.includes(data.message)) {
             console.warn('🕵️ [Fetch Interceptor] Token expired — clearing session.');
             if (sessionClearRef.current) sessionClearRef.current();
-            window.location.href = isNativeMobile ? '#/login' : '/login';
           }
         } catch { /* Not JSON — ignore */ }
       }
