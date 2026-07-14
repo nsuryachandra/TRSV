@@ -298,6 +298,7 @@ function CardFront(props) {
     joinedDate,
     verified,
     qrValue,
+    qrCodeDataUrl,
   } = props;
 
   return (
@@ -464,8 +465,12 @@ function CardFront(props) {
               </span>
             </div>
           </div>
-          <div className="shrink-0 rounded-[10px] bg-white p-2 shadow-[0_2px_10px_rgba(10,42,84,0.12)] ring-1 ring-[rgba(10,42,84,0.08)]">
-            <VerificationGlyph value={qrValue || tvrsId} size={77} />
+          <div className="shrink-0 rounded-[10px] bg-white p-1.5 shadow-[0_2px_10px_rgba(10,42,84,0.12)] ring-1 ring-[rgba(10,42,84,0.08)] flex items-center justify-center overflow-hidden" style={{ width: 93, height: 93 }}>
+            {qrCodeDataUrl ? (
+              <img src={qrCodeDataUrl} alt="QR Code" className="w-full h-full object-contain" />
+            ) : (
+              <VerificationGlyph value={qrValue || tvrsId} size={77} />
+            )}
           </div>
         </div>
       </div>
@@ -478,7 +483,7 @@ function CardFront(props) {
 /* ------------------------------------------------------------------ */
 
 function CardBack(props) {
-  const { logo, tvrsId, qrValue, signatureImage, organizationSeal } = props;
+  const { logo, tvrsId, qrValue, signatureImage, organizationSeal, qrCodeDataUrl } = props;
 
   return (
     <div
@@ -612,8 +617,12 @@ function CardBack(props) {
             upon request or termination of membership.
           </p>
         </div>
-        <div className="rounded-[9px] bg-white p-1.5 shadow-[0_2px_8px_rgba(10,42,84,0.1)] ring-1 ring-[rgba(10,42,84,0.08)]">
-          <VerificationGlyph value={qrValue || tvrsId} size={48} />
+        <div className="rounded-[9px] bg-white p-1 shadow-[0_2px_8px_rgba(10,42,84,0.1)] ring-1 ring-[rgba(10,42,84,0.08)] flex items-center justify-center overflow-hidden" style={{ width: 56, height: 56 }}>
+          {qrCodeDataUrl ? (
+            <img src={qrCodeDataUrl} alt="QR Code" className="w-full h-full object-contain" />
+          ) : (
+            <VerificationGlyph value={qrValue || tvrsId} size={48} />
+          )}
         </div>
       </div>
     </div>
@@ -672,6 +681,24 @@ export function TVRSIdentityCard({
   organizationSeal,
 }) {
   const [flipped, setFlipped] = useState(false);
+  const [qrCodeDataUrl, setQrCodeDataUrl] = useState("");
+
+  useEffect(() => {
+    if (qrValue) {
+      if (qrValue.startsWith("data:image")) {
+        setQrCodeDataUrl(qrValue);
+      } else {
+        QRCode.toDataURL(qrValue, {
+          width: 300,
+          margin: 1,
+          color: { dark: "#0A2A54", light: "#ffffff" },
+          errorCorrectionLevel: "H",
+        })
+          .then((url) => setQrCodeDataUrl(url))
+          .catch((err) => console.error("QR Code generation error:", err));
+      }
+    }
+  }, [qrValue]);
 
   const data = {
     photo,
@@ -744,7 +771,7 @@ export function TVRSIdentityCard({
         >
           <div className={`tvrs-flip relative h-full w-full ${flipped ? "is-flipped" : ""}`}>
             <div className="tvrs-face absolute inset-0 overflow-hidden rounded-[22px]">
-              <CardFront {...data} />
+              <CardFront {...data} qrCodeDataUrl={qrCodeDataUrl} />
               <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[22px]">
                 <div
                   className="tvrs-shine absolute -top-1/2 left-0 h-[220%] w-1/4"
@@ -756,7 +783,7 @@ export function TVRSIdentityCard({
               </div>
             </div>
             <div className="tvrs-face tvrs-face-back absolute inset-0 overflow-hidden rounded-[22px]">
-              <CardBack {...data} />
+              <CardBack {...data} qrCodeDataUrl={qrCodeDataUrl} />
             </div>
           </div>
         </div>
@@ -1192,7 +1219,12 @@ export default function Profile() {
     ctx.font = "bold 18px 'Sora', sans-serif";
     ctx.fillText("TVRS OFFICIAL SCANNER", fX + 110, cY + 1485);
 
-    drawVerificationGlyph(ctx, identity?.qr_token || identity?.trsv_member_id, fX + 620, cY + 1200, 290, "#0A2A54");
+    if (qrImg) {
+      drawRoundedRect(ctx, fX + 620, cY + 1200, 290, 290, 20, "#ffffff", "rgba(10,42,84,0.08)", 2);
+      ctx.drawImage(qrImg, fX + 620 + 10, cY + 1200 + 10, 270, 270);
+    } else {
+      drawVerificationGlyph(ctx, identity?.qr_token || identity?.trsv_member_id, fX + 620, cY + 1200, 290, "#0A2A54");
+    }
     ctx.restore();
 
 
