@@ -171,13 +171,30 @@ router.get('/verify/:token_or_id', async (req, res) => {
   const deviceInfo = req.headers['user-agent'] || 'Unknown Scanner Browser';
 
   try {
-    // Find identity matching token or member id
-    const identityQuery = await query(`
+    // Find identity matching token, member id, or user id
+    let identityQuery = await query(`
       SELECT mi.*, vs.status_label, vs.status_color
       FROM member_identities mi
       LEFT JOIN verification_status vs ON mi.verification_status = vs.status_code
-      WHERE mi.qr_token = $1 OR mi.trsv_member_id = $2
-    `, [token_or_id, token_or_id]);
+      WHERE mi.qr_token = $1 OR mi.trsv_member_id = $2 OR mi.user_id = $3
+    `, [token_or_id, token_or_id, token_or_id]);
+
+    if (identityQuery.rows.length === 0) {
+      // Check if user exists but has no member_identities entry yet
+      const userCheck = await query('SELECT id FROM users WHERE id = $1', [token_or_id]);
+      if (userCheck.rows.length > 0) {
+        console.log(`📡 [Identity API] Auto-provisioning identity on verification scan for: ${token_or_id}`);
+        await autoProvisionIdentity(token_or_id);
+        
+        // Re-query the newly created identity
+        identityQuery = await query(`
+          SELECT mi.*, vs.status_label, vs.status_color
+          FROM member_identities mi
+          LEFT JOIN verification_status vs ON mi.verification_status = vs.status_code
+          WHERE mi.qr_token = $1 OR mi.trsv_member_id = $2 OR mi.user_id = $3
+        `, [token_or_id, token_or_id, token_or_id]);
+      }
+    }
 
     if (identityQuery.rows.length === 0) {
       return res.status(404).json({
