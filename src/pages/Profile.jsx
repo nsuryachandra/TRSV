@@ -421,7 +421,7 @@ function CardFront(props) {
 
         <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-4">
           <Field icon={Landmark} label="Constituency" value={constituency} />
-          <Field icon={MapPin} label="District" value={district} />
+          <Field icon={Shield} label="Post" value={designation} />
           <Field icon={CalendarDays} label="Joined" value={joinedDate} />
         </div>
       </div>
@@ -571,8 +571,14 @@ function CardBack(props) {
             )}
           </div>
           <div
-            className="mt-2 text-[9px] font-semibold"
-            style={{ color: TOKENS.ink, fontFamily: "Inter, sans-serif" }}
+            className="mt-2 text-[9.5px] font-bold"
+            style={{ color: TOKENS.ink, fontFamily: "Sora, sans-serif" }}
+          >
+            Kavitha Garu
+          </div>
+          <div
+            className="text-[8px] font-bold uppercase"
+            style={{ color: TOKENS.blue, letterSpacing: "0.08em" }}
           >
             General Secretary
           </div>
@@ -1191,7 +1197,7 @@ export default function Profile() {
     };
 
     drawField("Constituency", userProfile?.constituency_name || "Statewide Headquarter", fX + 80, cY + 820);
-    drawField("District Node", userProfile?.district || "Hyderabad", fX + 540, cY + 820);
+    drawField("Post", designation, fX + 540, cY + 820);
     drawField("Joined Date", identity?.issued_at ? new Date(identity.issued_at).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" }) : "N/A", fX + 80, cY + 960);
 
     // Divider
@@ -1314,10 +1320,13 @@ export default function Profile() {
 
     ctx.fillStyle = "#141922";
     ctx.font = "bold 24px 'Sora', sans-serif";
-    ctx.fillText("General Secretary", bX + 80, cY + 835);
+    ctx.fillText("Kavitha Garu", bX + 80, cY + 830);
+    ctx.fillStyle = "#0A2A54";
+    ctx.font = "bold 18px 'Sora', sans-serif";
+    ctx.fillText("General Secretary", bX + 80, cY + 865);
     ctx.fillStyle = "#5B6472";
-    ctx.font = "18px 'Sora', sans-serif";
-    ctx.fillText("Authorized Signatory", bX + 80, cY + 870);
+    ctx.font = "14px 'Sora', sans-serif";
+    ctx.fillText("Authorized Signatory", bX + 80, cY + 895);
 
     // Organization Seal
     const sX = bX + 810;
@@ -1706,13 +1715,13 @@ export default function Profile() {
             </div>
 
             <div className="flex items-start gap-3 border-b md:border-b-0 pb-4 md:pb-0 border-slate-100 dark:border-slate-850">
-              <MapPin className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
+              <Shield className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
               <div className="flex flex-col">
                 <span className="text-[10px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-widest leading-none">
-                  District Node
+                  Official Post
                 </span>
                 <span className="mt-2 text-sm font-bold text-slate-800 dark:text-white">
-                  {userProfile?.district || "Hyderabad"}
+                  {designation}
                 </span>
               </div>
             </div>

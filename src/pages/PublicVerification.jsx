@@ -398,7 +398,7 @@ export default function PublicVerification() {
     };
 
     drawField('Constituency', profile?.constituency_name || 'Statewide Headquarter', fX + 80, cY + 820);
-    drawField('District Node', profile?.district || 'Hyderabad', fX + 540, cY + 820);
+    drawField('Post', designation, fX + 540, cY + 820);
     drawField('Joined Date', identity?.issued_at ? new Date(identity.issued_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) : 'N/A', fX + 80, cY + 960);
 
     ctx.strokeStyle = '#E1E5EC';
@@ -512,10 +512,13 @@ export default function PublicVerification() {
 
     ctx.fillStyle = '#141922';
     ctx.font = "bold 24px 'Sora', sans-serif";
-    ctx.fillText('General Secretary', bX + 80, cY + 835);
+    ctx.fillText('Kavitha Garu', bX + 80, cY + 830);
+    ctx.fillStyle = '#0A2A54';
+    ctx.font = "bold 18px 'Sora', sans-serif";
+    ctx.fillText('General Secretary', bX + 80, cY + 865);
     ctx.fillStyle = '#5B6472';
-    ctx.font = "18px 'Sora', sans-serif";
-    ctx.fillText('Authorized Signatory', bX + 80, cY + 870);
+    ctx.font = "14px 'Sora', sans-serif";
+    ctx.fillText('Authorized Signatory', bX + 80, cY + 895);
 
     const sX = bX + 810;
     const sY = cY + 760;
@@ -821,13 +824,13 @@ export default function PublicVerification() {
               </div>
 
               <div className="flex items-start gap-3 border-b md:border-b-0 pb-4 md:pb-0 border-slate-100 dark:border-slate-850">
-                <MapPin className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
+                <Shield className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
                 <div className="flex flex-col">
                   <span className="text-[10px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-widest leading-none">
-                    District Node
+                    Official Post
                   </span>
                   <span className="mt-2 text-sm font-bold text-slate-800 dark:text-white">
-                    {profile?.district || 'Hyderabad'}
+                    {designation}
                   </span>
                 </div>
               </div>
