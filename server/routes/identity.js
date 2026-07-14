@@ -256,10 +256,10 @@ router.get('/verify/:token_or_id', async (req, res) => {
         });
       });
     } else {
-      const milestoneQuery = await query('SELECT event_name, event_date FROM leadership_activity WHERE user_id = $1 ORDER BY event_date DESC LIMIT 5', [user.id]);
+      const milestoneQuery = await query('SELECT action_type, created_at FROM leadership_activity WHERE leader_id = $1 ORDER BY created_at DESC LIMIT 5', [user.id]);
       timeline = milestoneQuery.rows.map(m => ({
-        date: new Date(m.event_date).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }),
-        event: m.event_name
+        date: new Date(m.created_at).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }),
+        event: m.action_type
       }));
 
       if (timeline.length === 0) {

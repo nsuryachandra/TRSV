@@ -23,7 +23,8 @@ import {
   Lock,
   Eye,
   FileText,
-  ThumbsUp
+  ThumbsUp,
+  X
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import GlassCard from "../components/GlassCard";
@@ -1758,17 +1759,19 @@ export default function Profile() {
 
       {/* 🎴 Digital Identity Fullscreen Modal Overlay */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-fadeIn">
+        <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-fadeIn">
           <div className="absolute inset-0" onClick={() => setIsModalOpen(false)} />
           
+          {/* Floating Close Button */}
+          <button
+            onClick={() => setIsModalOpen(false)}
+            className="fixed top-6 right-6 p-3 rounded-full bg-slate-900/60 hover:bg-slate-800/80 text-white/80 hover:text-white backdrop-blur-md border border-white/10 shadow-lg cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95 z-50 flex items-center justify-center"
+            title="Close modal"
+          >
+            <X className="w-5 h-5" />
+          </button>
+
           <div className="relative bg-transparent max-w-lg w-full flex flex-col items-center justify-center z-10">
-            <button
-              onClick={() => setIsModalOpen(false)}
-              className="absolute -top-12 right-2 p-2 text-white/75 hover:text-white bg-slate-800/40 hover:bg-slate-800/60 rounded-full cursor-pointer text-xs font-bold uppercase tracking-wider"
-            >
-              Close
-            </button>
-            
             <div className="scale-110 md:scale-125 transition-transform duration-300">
               <TVRSIdentityCard
                 photo={userProfile?.profile_image}

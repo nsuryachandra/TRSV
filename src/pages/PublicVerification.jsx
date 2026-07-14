@@ -18,7 +18,8 @@ import {
   CalendarDays,
   AlertTriangle,
   BadgeCheck,
-  Shield
+  Shield,
+  X
 } from 'lucide-react';
 import GlassCard from '../components/GlassCard';
 import { TVRSIdentityCard } from './Profile';
@@ -965,14 +966,19 @@ export default function PublicVerification() {
 
       {/* 🎴 Digital Identity Fullscreen Modal Overlay */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4 animate-fadeIn">
-          <div className="relative w-full max-w-[420px] flex flex-col items-center gap-4">
-            <button
-              onClick={() => setIsModalOpen(false)}
-              className="absolute -top-12 right-0 text-white hover:text-amber-500 font-black text-xs uppercase tracking-widest cursor-pointer flex items-center gap-1"
-            >
-              ✕ Close
-            </button>
+        <div className="fixed inset-0 z-[150] flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4 animate-fadeIn">
+          <div className="absolute inset-0" onClick={() => setIsModalOpen(false)} />
+          
+          {/* Floating Close Button */}
+          <button
+            onClick={() => setIsModalOpen(false)}
+            className="fixed top-6 right-6 p-3 rounded-full bg-slate-900/60 hover:bg-slate-800/80 text-white/80 hover:text-white backdrop-blur-md border border-white/10 shadow-lg cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95 z-50 flex items-center justify-center"
+            title="Close modal"
+          >
+            <X className="w-5 h-5" />
+          </button>
+
+          <div className="relative w-full max-w-[420px] flex flex-col items-center gap-4 z-10">
             <TVRSIdentityCard
               photo={profile?.profile_image}
               name={profile?.full_name}
