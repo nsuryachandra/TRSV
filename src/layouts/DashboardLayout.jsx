@@ -68,6 +68,14 @@ export default function DashboardLayout() {
     }
   }, [checkBiometricsAvailable]);
 
+  const handleAvatarClick = () => {
+    if (userProfile?.role !== 'student') {
+      navigate('/dashboard/profile');
+    } else {
+      navigate('/dashboard/student');
+    }
+  };
+
   const handleToggleBiometrics = async () => {
     setBiometricError('');
     if (biometricsConfigured) {
@@ -82,6 +90,11 @@ export default function DashboardLayout() {
         }, 4500);
       } catch (err) {
         setBiometricError(err.message || 'Action failed.');
+        const toastId = Math.random().toString(36).substring(2, 9);
+        setToasts(prev => [...prev, { id: toastId, message: err.message || 'Action failed.', title: "Biometric Protocol Error" }]);
+        setTimeout(() => {
+          setToasts(prev => prev.filter(t => t.id !== toastId));
+        }, 4500);
       } finally {
         setBiometricsLoading(false);
       }
@@ -117,6 +130,11 @@ export default function DashboardLayout() {
       }, 4500);
     } catch (err) {
       setBiometricError(err.message || 'Verification check failed.');
+      const toastId = Math.random().toString(36).substring(2, 9);
+      setToasts(prev => [...prev, { id: toastId, message: err.message || 'Verification check failed.', title: "Biometric Protocol Error" }]);
+      setTimeout(() => {
+        setToasts(prev => prev.filter(t => t.id !== toastId));
+      }, 4500);
     } finally {
       setBiometricsLoading(false);
     }
@@ -495,24 +513,20 @@ export default function DashboardLayout() {
     {
       category: 'Profile',
       links: [
-        ...(userProfile?.role !== 'student' ? [{
-          name: 'Official Profile',
-          path: '/dashboard/profile',
-          icon: <UserCheck className="w-5 h-5" />,
-          desc: 'Official personnel profile'
-        }] : []),
-        {
-          name: 'Digital ID',
-          path: '/dashboard/digital-id',
-          icon: <CreditCard className="w-5 h-5" />,
-          desc: 'Main digital identity card'
-        },
-        ...(userProfile?.role !== 'student' ? [{
-          name: 'QR Scanner',
-          path: '/dashboard/qr-scanner',
-          icon: <QrCode className="w-5 h-5" />,
-          desc: 'Verify student ID cards'
-        }] : [])
+        ...(userProfile?.role !== 'student' ? [
+          {
+            name: 'Profile',
+            path: '/dashboard/profile',
+            icon: <UserCheck className="w-5 h-5" />,
+            desc: 'Official personnel profile'
+          },
+          {
+            name: 'QR Scanner',
+            path: '/dashboard/qr-scanner',
+            icon: <QrCode className="w-5 h-5" />,
+            desc: 'Verify student ID cards'
+          }
+        ] : [])
       ]
     }
   ];
@@ -557,7 +571,7 @@ export default function DashboardLayout() {
 
         {/* Sidebar Scrollable Nav List */}
         <div className="flex-1 overflow-y-auto px-4 py-6 flex flex-col gap-6 custom-sidebar-scrollbar">
-          {sidebarLinks.map((section, sIdx) => (
+          {sidebarLinks.filter(section => section.links.length > 0).map((section, sIdx) => (
             <div key={sIdx} className="flex flex-col gap-2.5 text-left">
               <span className="px-3.5 text-[9.5px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-wider">
                 {section.category}
@@ -651,7 +665,7 @@ export default function DashboardLayout() {
               </div>
 
               <div className="flex-1 py-4 overflow-y-auto flex flex-col gap-5 custom-sidebar-scrollbar min-h-0">
-                {sidebarLinks.map((section, sIdx) => (
+                {sidebarLinks.filter(section => section.links.length > 0).map((section, sIdx) => (
                   <div key={sIdx} className="flex flex-col gap-2.5 text-left">
                     <span className="px-3.5 text-[9.5px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-wider">
                       {section.category}
@@ -826,10 +840,27 @@ export default function DashboardLayout() {
                 </AnimatePresence>
               </div>
 
+              {/* Fingerprint Toggle Widget */}
+              {biometricsAvailable && (
+                <button
+                  type="button"
+                  disabled={biometricsLoading}
+                  onClick={handleToggleBiometrics}
+                  title={biometricsConfigured ? "Disable Fingerprint Login" : "Enable Fingerprint Login"}
+                  className={`p-2.5 rounded-xl border transition-all duration-200 cursor-pointer relative shrink-0 ${
+                    biometricsConfigured
+                      ? 'bg-cyan-500/10 border-cyan-500/35 text-cyan-600 dark:text-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.2)]'
+                      : 'bg-slate-100 dark:bg-slate-900 border-slate-200/50 dark:border-slate-800/60 text-slate-450 hover:text-slate-700 dark:hover:text-slate-300'
+                  }`}
+                >
+                  <Fingerprint className={`w-4 h-4 transition-transform duration-300 ${biometricsLoading ? 'animate-spin' : ''}`} />
+                </button>
+              )}
+
               {/* Avatar widget details */}
               <div className="relative">
                 <div 
-                  onClick={() => setProfileMenuOpen(!profileMenuOpen)}
+                  onClick={handleAvatarClick}
                   className="flex items-center gap-2 bg-slate-100/80 border border-slate-200/50 dark:bg-slate-900/60 dark:border-slate-800/60 px-2.5 py-1.5 rounded-xl shrink-0 cursor-pointer hover:bg-slate-200/55 dark:hover:bg-slate-850/70 transition-all select-none"
                 >
                   {userProfile?.profile_image ? (
@@ -852,101 +883,6 @@ export default function DashboardLayout() {
                     </span>
                   </div>
                 </div>
-
-                <AnimatePresence>
-                  {profileMenuOpen && (
-                    <>
-                      <div 
-                        className="fixed inset-0 z-[45]" 
-                        onClick={() => setProfileMenuOpen(false)}
-                      />
-                      
-                      <motion.div
-                        initial={{ opacity: 0, y: 8, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 8, scale: 0.95 }}
-                        transition={{ duration: 0.15 }}
-                        className="absolute right-0 mt-2 w-60 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl z-50 p-4"
-                      >
-                        <div className="flex flex-col items-center text-center gap-1.5 pb-3 border-b border-slate-100 dark:border-slate-800/65">
-                          {userProfile?.profile_image ? (
-                            <img 
-                              src={userProfile.profile_image} 
-                              alt={userProfile.full_name} 
-                              className="w-11 h-11 rounded-xl object-cover shadow-glow-cyan"
-                            />
-                          ) : (
-                            <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-sky-500 to-cyan-400 text-white font-black text-xs flex items-center justify-center uppercase shadow-glow-cyan">
-                              {userProfile?.full_name ? userProfile.full_name.split(' ').map(n => n[0]).join('').substring(0, 2) : 'ST'}
-                            </div>
-                          )}
-                          <div className="mt-0.5">
-                            <h4 className="font-extrabold text-xs text-slate-850 dark:text-white leading-snug">
-                              {userProfile?.full_name || 'Student'}
-                            </h4>
-                            <p className="text-[9px] text-slate-400 dark:text-slate-500 truncate max-w-[170px]">
-                              {userProfile?.email}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="py-2.5 flex flex-col gap-2">
-                          {biometricsAvailable ? (
-                            <div className="flex items-center justify-between px-1 py-0.5">
-                              <div className="flex flex-col text-left">
-                                <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200">
-                                  Fingerprint Login
-                                </span>
-                                <span className="text-[8px] text-slate-450 uppercase tracking-wider font-medium">
-                                  {biometricsConfigured ? 'Active' : 'Disabled'}
-                                </span>
-                              </div>
-                              <button
-                                type="button"
-                                disabled={biometricsLoading}
-                                onClick={handleToggleBiometrics}
-                                className={`w-9 h-5.5 rounded-full p-0.5 transition-colors duration-300 relative focus:outline-none cursor-pointer ${
-                                  biometricsConfigured ? 'bg-cyan-500' : 'bg-slate-200 dark:bg-slate-800'
-                                }`}
-                              >
-                                <div 
-                                  className={`w-4.5 h-4.5 rounded-full bg-white shadow-md transform transition-transform duration-300 ${
-                                    biometricsConfigured ? 'translate-x-3.5' : 'translate-x-0'
-                                  }`}
-                                />
-                              </button>
-                            </div>
-                          ) : (
-                            (window.Capacitor && window.Capacitor.getPlatform && window.Capacitor.getPlatform() !== 'web') && (
-                              <div className="px-1 py-1 text-[9px] text-slate-450 dark:text-slate-550 italic text-left">
-                                Hardware biometrics sensor not enrolled.
-                              </div>
-                            )
-                          )}
-                          
-                          {biometricError && (
-                            <div className="text-[8px] text-rose-500 text-left px-1.5 mt-0.5 bg-rose-500/10 border border-rose-500/15 py-1 rounded-md">
-                              {biometricError}
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="pt-2 border-t border-slate-100 dark:border-slate-800/65 flex flex-col">
-                          <button
-                            onClick={() => {
-                              setProfileMenuOpen(false);
-                              logout();
-                            }}
-                            className="w-full py-1.5 px-3 rounded-lg hover:bg-rose-500/10 text-rose-500 hover:text-rose-455 text-[10px] font-bold transition-all duration-200 flex items-center justify-center gap-1.5 cursor-pointer"
-                          >
-                            <LogOut className="w-3.5 h-3.5" />
-                            Sign Out Terminal
-                          </button>
-                        </div>
-                      </motion.div>
-                    </>
-                  )}
-                </AnimatePresence>
               </div>
 
               <ThemeToggle />
