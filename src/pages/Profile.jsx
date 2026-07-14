@@ -386,19 +386,11 @@ function CardFront(props) {
             >
               {name || "Member Name"}
             </div>
-            <div className="mt-2 flex flex-wrap items-center gap-1.5">
-              <div
-                className="inline-flex items-center rounded-full px-2 py-[3px] text-[8.5px] font-semibold uppercase"
-                style={{
-                  color: TOKENS.blue,
-                  background: "rgba(10,42,84,0.07)",
-                  letterSpacing: "0.06em",
-                }}
-              >
-                {designation || "Member"}
+            {verified && (
+              <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                <VerifiedChip />
               </div>
-              {verified && <VerifiedChip />}
-            </div>
+            )}
           </div>
         </div>
       </div>
@@ -1420,40 +1412,29 @@ export default function Profile() {
     const list = [];
     if (metrics?.timeline && Array.isArray(metrics.timeline)) {
       metrics.timeline.forEach((item) => {
+        let dateStr = item.date;
+        try {
+          const dateObj = new Date(item.date);
+          if (!isNaN(dateObj.getTime())) {
+            dateStr = dateObj.toLocaleString("en-IN", {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: true
+            });
+          }
+        } catch (e) {
+          // fallback
+        }
         list.push({
-          date: item.date,
-          text: item.event,
+          date: dateStr,
+          text: item.event || item.text,
         });
       });
     }
-
-    // Complement with high-fidelity mock organizational items to reach 6 items
-    const sampleEvents = [
-      { text: "Resolved Hostel Accomodation Issue", delayDays: 2 },
-      { text: "Assigned Fee Structure Complaint", delayDays: 4 },
-      { text: "Updated District Telemetry Node Status", delayDays: 5 },
-      { text: "Verified Regional Student Council Onboarding", delayDays: 7 },
-      { text: "Closed Emergency Transport Escalation Case", delayDays: 10 },
-      { text: "Synchronized Regional Leadership Credentials", delayDays: 14 }
-    ];
-
-    let count = 0;
-    while (list.length < 7 && count < sampleEvents.length) {
-      const targetDate = new Date();
-      targetDate.setDate(targetDate.getDate() - sampleEvents[count].delayDays);
-      list.push({
-        date: targetDate.toLocaleDateString("en-IN", {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-        }),
-        text: sampleEvents[count].text,
-      });
-      count++;
-    }
-
-    // Sort by date or order
-    return list.slice(0, 8);
+    return list;
   }, [metrics?.timeline]);
 
   if (loading) {
@@ -1627,24 +1608,30 @@ export default function Profile() {
           </h3>
           
           <GlassCard className="p-6 text-left flex flex-col gap-6" hoverEffect={false}>
-            <div className="relative border-l-2 border-slate-200 dark:border-slate-800 pl-6 ml-2 flex flex-col gap-6">
-              {recentActivities.map((act, index) => (
-                <div key={index} className="relative group">
-                  
-                  {/* Timeline dot */}
-                  <span className="absolute -left-[31px] top-1.5 w-3.5 h-3.5 rounded-full bg-slate-900 border-2 border-amber-500 shadow-glow-amber-strong group-hover:scale-110 transition-transform duration-200" />
-                  
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 font-mono">
-                      {act.date}
-                    </span>
-                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 group-hover:text-amber-500 transition-colors duration-200">
-                      {act.text}
-                    </p>
+            {recentActivities.length > 0 ? (
+              <div className="relative border-l-2 border-slate-200 dark:border-slate-800 pl-6 ml-2 flex flex-col gap-6">
+                {recentActivities.map((act, index) => (
+                  <div key={index} className="relative group">
+                    
+                    {/* Timeline dot */}
+                    <span className="absolute -left-[31px] top-1.5 w-3.5 h-3.5 rounded-full bg-slate-900 border-2 border-amber-500 shadow-glow-amber-strong group-hover:scale-110 transition-transform duration-200" />
+                    
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 font-mono">
+                        {act.date}
+                      </span>
+                      <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 group-hover:text-amber-500 transition-colors duration-200">
+                        {act.text}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-xs text-slate-450 dark:text-slate-500 italic">
+                No recent activity
+              </div>
+            )}
           </GlassCard>
         </div>
 
@@ -1690,17 +1677,7 @@ export default function Profile() {
         <GlassCard className="p-6" hoverEffect={false}>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             
-            <div className="flex items-start gap-3 border-b md:border-b-0 pb-4 md:pb-0 border-slate-100 dark:border-slate-850">
-              <Shield className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
-              <div className="flex flex-col">
-                <span className="text-[10px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-widest leading-none">
-                  Official Role
-                </span>
-                <span className="mt-2 text-sm font-bold text-slate-800 dark:text-white capitalize">
-                  {userProfile?.role ? userProfile.role.replace(/_/g, " ") : "N/A"}
-                </span>
-              </div>
-            </div>
+
 
             <div className="flex items-start gap-3 border-b md:border-b-0 pb-4 md:pb-0 border-slate-100 dark:border-slate-850">
               <Landmark className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />

@@ -799,17 +799,7 @@ export default function PublicVerification() {
           <GlassCard className="p-6" hoverEffect={false}>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               
-              <div className="flex items-start gap-3 border-b md:border-b-0 pb-4 md:pb-0 border-slate-100 dark:border-slate-850">
-                <Shield className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
-                <div className="flex flex-col">
-                  <span className="text-[10px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-widest leading-none">
-                    Official Role
-                  </span>
-                  <span className="mt-2 text-sm font-bold text-slate-800 dark:text-white capitalize">
-                    {profile?.role ? profile.role.replace(/_/g, ' ') : 'N/A'}
-                  </span>
-                </div>
-              </div>
+
 
               <div className="flex items-start gap-3 border-b md:border-b-0 pb-4 md:pb-0 border-slate-100 dark:border-slate-850">
                 <Landmark className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />

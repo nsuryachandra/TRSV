@@ -704,6 +704,21 @@ export default function DashboardLayout() {
               </div>
 
               <div className="pt-4 border-t border-slate-200/50 dark:border-slate-900/60 flex flex-col gap-2 shrink-0">
+                {biometricsAvailable && (
+                  <button
+                    type="button"
+                    disabled={biometricsLoading}
+                    onClick={handleToggleBiometrics}
+                    className={`flex md:hidden items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-black border transition-all duration-200 cursor-pointer ${
+                      biometricsConfigured
+                        ? 'bg-cyan-500/10 border-cyan-500/30 text-cyan-600 dark:text-cyan-400'
+                        : 'bg-slate-100 dark:bg-slate-900 border-slate-200/50 dark:border-slate-800 text-slate-700 dark:text-slate-200'
+                    }`}
+                  >
+                    <Fingerprint className={`w-4 h-4 ${biometricsLoading ? 'animate-spin' : ''}`} />
+                    {biometricsConfigured ? 'Disable Fingerprint' : 'Enable Fingerprint'}
+                  </button>
+                )}
                 <button
                   onClick={handleLogout}
                   className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-black bg-rose-500/15 text-rose-600 dark:text-rose-400 hover:bg-rose-500 hover:text-white transition-all duration-200"
@@ -847,7 +862,7 @@ export default function DashboardLayout() {
                   disabled={biometricsLoading}
                   onClick={handleToggleBiometrics}
                   title={biometricsConfigured ? "Disable Fingerprint Login" : "Enable Fingerprint Login"}
-                  className={`p-2.5 rounded-xl border transition-all duration-200 cursor-pointer relative shrink-0 ${
+                  className={`hidden md:inline-flex p-2.5 rounded-xl border transition-all duration-200 cursor-pointer relative shrink-0 ${
                     biometricsConfigured
                       ? 'bg-cyan-500/10 border-cyan-500/35 text-cyan-600 dark:text-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.2)]'
                       : 'bg-slate-100 dark:bg-slate-900 border-slate-200/50 dark:border-slate-800/60 text-slate-450 hover:text-slate-700 dark:hover:text-slate-300'

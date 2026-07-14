@@ -113,7 +113,7 @@ router.get('/my-id', requireRole(['student', 'secretary', 'general_secretary', '
 
     // Fetch full profile and metrics
     const profileQuery = await query(`
-      SELECT u.id, u.full_name, u.email, u.role, u.phone, u.profile_image, u.verified,
+      SELECT u.id, u.full_name, u.email, u.role, u.phone, u.profile_image, u.verified, u.created_at,
              con.constituency_name, con.district, col.college_name
       FROM users u
       LEFT JOIN constituencies con ON u.constituency_id = con.id
@@ -141,11 +141,84 @@ router.get('/my-id', requireRole(['student', 'secretary', 'general_secretary', '
       pendingCount = parseInt(pendingRes.rows[0].count || 0);
     }
 
+    // Build real role-based timeline dynamically with exact database timestamps
+    let timeline = [];
+    if (userRole === 'student') {
+      // Account created milestone
+      if (profile && profile.created_at) {
+        timeline.push({
+          date: profile.created_at,
+          event: 'Student Profile Created & Registered on TS-State Node'
+        });
+      }
+      
+      // Digital ID card issued milestone
+      if (identity && identity.issued_at) {
+        timeline.push({
+          date: identity.issued_at,
+          event: 'Digital Student ID Card Issued & QR Key Signed'
+        });
+      }
+
+      // Recent complaints milestones
+      const complaintsQuery = await query('SELECT title, created_at, status FROM complaints WHERE student_id = $1 ORDER BY created_at DESC LIMIT 10', [uid]);
+      complaintsQuery.rows.forEach(c => {
+        timeline.push({
+          date: c.created_at,
+          event: `Complaint Filed: "${c.title}" [Status: ${c.status}]`
+        });
+      });
+    } else {
+      // Leader activities
+      const milestoneQuery = await query('SELECT action_type, created_at FROM leadership_activity WHERE leader_id = $1 ORDER BY created_at DESC LIMIT 15', [uid]);
+      milestoneQuery.rows.forEach(m => {
+        timeline.push({
+          date: m.created_at,
+          event: m.action_type
+        });
+      });
+
+      // Handled complaints timeline
+      const handledComplaints = await query(
+        `SELECT c.id, c.title, c.status, ct.created_at 
+         FROM complaints c
+         JOIN complaint_timeline ct ON ct.complaint_id = c.id
+         WHERE ct.action_by = $1 AND c.current_handler = $1
+         ORDER BY ct.created_at DESC LIMIT 15`,
+        [uid]
+      );
+      handledComplaints.rows.forEach(c => {
+        timeline.push({
+          date: c.created_at,
+          event: `Handled Ticket #${c.id}: "${c.title}" [Status Update: ${c.status}]`
+        });
+      });
+
+      if (timeline.length === 0) {
+        if (identity && identity.issued_at) {
+          timeline.push({
+            date: identity.issued_at,
+            event: 'Commissioned as Official State Representative'
+          });
+        }
+        if (profile && profile.created_at) {
+          timeline.push({
+            date: profile.created_at,
+            event: 'Governance Node Account Registered'
+          });
+        }
+      }
+    }
+
+    // Sort timeline by date descending
+    timeline.sort((a, b) => new Date(b.date) - new Date(a.date));
+
     const metricsDb = metricsQuery.rows[0] || { issues_resolved: 0, issues_pending: 0, active_campaigns: 0, rating: 5.00, timeline: [] };
     const metrics = {
       ...metricsDb,
       issues_resolved: resolvedCount,
-      issues_pending: pendingCount
+      issues_pending: pendingCount,
+      timeline: timeline
     };
 
     res.json({
