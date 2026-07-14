@@ -679,7 +679,8 @@ export default function PublicVerification() {
           Public Credentials Registry Node
         </h1>
         <div className="h-0.5 w-16 bg-gradient-to-r from-transparent via-amber-500 to-transparent mt-1" />
-      </div>      <div className="w-full flex flex-col gap-8 text-left max-w-2xl mx-auto pb-16">
+      </div>
+      <div className="w-full flex flex-col gap-8 text-left max-w-6xl mx-auto pb-16">
         
         {/* 👤 SECTION 1. Profile Header */}
         <div className="relative overflow-hidden rounded-3xl glass-panel-light dark:glass-panel-dark border border-slate-200/50 dark:border-slate-850 p-6 md:p-8 shadow-premium-light dark:shadow-premium-dark flex flex-col lg:flex-row items-center lg:items-start justify-between gap-6">
@@ -722,7 +723,7 @@ export default function PublicVerification() {
                   {designation}
                 </span>
                 <span className="hidden md:inline text-slate-300 dark:text-slate-700">•</span>
-                <span className="font-mono bg-slate-100 dark:bg-slate-900/60 px-2 py-0.5 rounded text-[11px] border border-slate-200/50 dark:border-slate-800">
+                <span className="font-mono bg-slate-100 dark:bg-slate-900/60 px-2 py-0.5 rounded text-[11px] border border-slate-200/50 dark:border-slate-850">
                   TVRS ID: {identity?.trsv_member_id || 'TVRS-HQ-0000'}
                 </span>
               </div>
@@ -737,7 +738,7 @@ export default function PublicVerification() {
           <div className="flex flex-row md:flex-col lg:flex-row gap-3 mt-4 lg:mt-0 w-full md:w-auto shrink-0 justify-center">
             <button
               onClick={handleScrollToId}
-              className="flex-1 md:flex-initial flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border border-slate-200/60 dark:border-slate-800 bg-white/40 dark:bg-slate-900/40 hover:bg-white/70 dark:hover:bg-slate-900/70 text-slate-700 dark:text-slate-350 text-xs font-bold transition-all duration-200 cursor-pointer"
+              className="flex-1 md:flex-initial flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border border-slate-200/60 dark:border-slate-850 bg-white/40 dark:bg-slate-900/40 hover:bg-white/70 dark:hover:bg-slate-900/70 text-slate-700 dark:text-slate-350 text-xs font-bold transition-all duration-200 cursor-pointer"
             >
               <Eye className="w-4 h-4 text-cyan-500" />
               View Digital ID
@@ -754,34 +755,36 @@ export default function PublicVerification() {
         </div>
 
         {/* 🪪 SECTION 2. Digital Identity Card */}
-        <div ref={idSectionRef} className="w-full flex flex-col gap-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">
-              Official TVRS Digital ID
-            </h3>
-            
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="text-xs font-black text-amber-500 hover:underline cursor-pointer flex items-center gap-1"
-            >
-              <Eye className="w-3.5 h-3.5" />
-              View Full Screen
-            </button>
-          </div>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          <div ref={idSectionRef} className="lg:col-start-4 lg:col-span-6 flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">
+                Official TVRS Digital ID
+              </h3>
+              
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="text-xs font-black text-amber-500 hover:underline cursor-pointer flex items-center gap-1"
+              >
+                <Eye className="w-3.5 h-3.5" />
+                View Full Screen
+              </button>
+            </div>
 
-          <GlassCard className="p-2 py-6 flex flex-col items-center justify-center overflow-hidden" hoverEffect={false}>
-            <TVRSIdentityCard
-              photo={profile?.profile_image}
-              name={profile?.full_name}
-              tvrsId={identity?.trsv_member_id}
-              designation={designation}
-              constituency={profile?.constituency_name || 'Statewide Headquarter'}
-              district={profile?.district || 'Hyderabad'}
-              joinedDate={identity?.issued_at ? new Date(identity.issued_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '14 Jun 2023'}
-              verified={profile?.verified !== false}
-              qrValue={qrDataUrl}
-            />
-          </GlassCard>
+            <GlassCard className="p-2 py-6 flex flex-col items-center justify-center" hoverEffect={false}>
+              <TVRSIdentityCard
+                photo={profile?.profile_image}
+                name={profile?.full_name}
+                tvrsId={identity?.trsv_member_id}
+                designation={designation}
+                constituency={profile?.constituency_name || 'Statewide Headquarter'}
+                district={profile?.district || 'Hyderabad'}
+                joinedDate={identity?.issued_at ? new Date(identity.issued_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '14 Jun 2023'}
+                verified={profile?.verified !== false}
+                qrValue={qrDataUrl}
+              />
+            </GlassCard>
+          </div>
         </div>
 
         {/* ⚙️ SECTION 3. Account Information */}
@@ -791,7 +794,7 @@ export default function PublicVerification() {
           </h3>
 
           <GlassCard className="p-6" hoverEffect={false}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               
               <div className="flex items-start gap-3 border-b md:border-b-0 pb-4 md:pb-0 border-slate-100 dark:border-slate-850">
                 <Shield className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
@@ -892,18 +895,20 @@ export default function PublicVerification() {
             <X className="w-5 h-5" />
           </button>
 
-          <div className="relative w-full max-w-[420px] flex flex-col items-center gap-4 z-10">
-            <TVRSIdentityCard
-              photo={profile?.profile_image}
-              name={profile?.full_name}
-              tvrsId={identity?.trsv_member_id}
-              designation={designation}
-              constituency={profile?.constituency_name || 'Statewide Headquarter'}
-              district={profile?.district || 'Hyderabad'}
-              joinedDate={identity?.issued_at ? new Date(identity.issued_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '14 Jun 2023'}
-              verified={profile?.verified !== false}
-              qrValue={qrDataUrl}
-            />
+          <div className="relative bg-transparent max-w-lg w-full flex flex-col items-center justify-center z-10">
+            <div className="scale-110 md:scale-125 transition-transform duration-300">
+              <TVRSIdentityCard
+                photo={profile?.profile_image}
+                name={profile?.full_name}
+                tvrsId={identity?.trsv_member_id}
+                designation={designation}
+                constituency={profile?.constituency_name || 'Statewide Headquarter'}
+                district={profile?.district || 'Hyderabad'}
+                joinedDate={identity?.issued_at ? new Date(identity.issued_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '14 Jun 2023'}
+                verified={profile?.verified !== false}
+                qrValue={qrDataUrl}
+              />
+            </div>
           </div>
         </div>
       )}

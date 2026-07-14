@@ -208,7 +208,7 @@ router.get('/verify/:token_or_id', async (req, res) => {
     // Fetch user details
     const userQuery = await query(`
       SELECT u.id, u.full_name, u.email, u.role, u.profile_image, u.verified,
-             con.constituency_name, col.college_name
+             con.constituency_name, con.district, col.college_name
       FROM users u
       LEFT JOIN constituencies con ON u.constituency_id = con.id
       LEFT JOIN colleges col ON u.college_id = col.id
