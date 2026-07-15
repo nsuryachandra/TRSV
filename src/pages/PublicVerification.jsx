@@ -115,9 +115,10 @@ export default function PublicVerification() {
     const ctx = canvas.getContext('2d');
 
     const avatarUrl = profile?.profile_image || '';
-    const [avatarImg, qrImg] = await Promise.all([
+    const [avatarImg, qrImg, logoImg] = await Promise.all([
       avatarUrl ? loadImage(avatarUrl) : Promise.resolve(null),
       qrDataUrl ? loadImage(qrDataUrl) : Promise.resolve(null),
+      loadImage('/trsv.jpeg')
     ]);
 
     // Draw backdrop backing
@@ -300,26 +301,35 @@ export default function PublicVerification() {
     ctx.lineWidth = 4;
     ctx.stroke();
 
-    ctx.strokeStyle = '#0A2A54';
-    ctx.lineWidth = 6;
-    ctx.lineJoin = 'round';
-    ctx.beginPath();
-    ctx.moveTo(fX + 110, cY + 190 - 32);
-    ctx.lineTo(fX + 110 + 26, cY + 190 - 18);
-    ctx.lineTo(fX + 110 + 26, cY + 190 + 12);
-    ctx.quadraticCurveTo(fX + 110 + 26, cY + 190 + 36, fX + 110, cY + 190 + 44);
-    ctx.quadraticCurveTo(fX + 110 - 26, cY + 190 + 36, fX + 110 - 26, cY + 190 + 12);
-    ctx.lineTo(fX + 110 - 26, cY + 190 - 18);
-    ctx.closePath();
-    ctx.stroke();
+    if (logoImg) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(fX + 110, cY + 190, 60, 0, 2 * Math.PI);
+      ctx.clip();
+      ctx.drawImage(logoImg, fX + 110 - 60, cY + 190 - 60, 120, 120);
+      ctx.restore();
+    } else {
+      ctx.strokeStyle = '#0A2A54';
+      ctx.lineWidth = 6;
+      ctx.lineJoin = 'round';
+      ctx.beginPath();
+      ctx.moveTo(fX + 110, cY + 190 - 32);
+      ctx.lineTo(fX + 110 + 26, cY + 190 - 18);
+      ctx.lineTo(fX + 110 + 26, cY + 190 + 12);
+      ctx.quadraticCurveTo(fX + 110 + 26, cY + 190 + 36, fX + 110, cY + 190 + 44);
+      ctx.quadraticCurveTo(fX + 110 - 26, cY + 190 + 36, fX + 110 - 26, cY + 190 + 12);
+      ctx.lineTo(fX + 110 - 26, cY + 190 - 18);
+      ctx.closePath();
+      ctx.stroke();
 
-    ctx.strokeStyle = '#0A2A54';
-    ctx.lineWidth = 5;
-    ctx.beginPath();
-    ctx.moveTo(fX + 110 - 12, cY + 190 + 2);
-    ctx.lineTo(fX + 110 - 2, cY + 190 + 12);
-    ctx.lineTo(fX + 110 + 14, cY + 190 - 8);
-    ctx.stroke();
+      ctx.strokeStyle = '#0A2A54';
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.moveTo(fX + 110 - 12, cY + 190 + 2);
+      ctx.lineTo(fX + 110 - 2, cY + 190 + 12);
+      ctx.lineTo(fX + 110 + 14, cY + 190 - 8);
+      ctx.stroke();
+    }
 
     ctx.fillStyle = '#FFFFFF';
     ctx.font = "bold 34px 'Sora', sans-serif";
@@ -454,26 +464,35 @@ export default function PublicVerification() {
     ctx.arc(bX + 90, cY + 80, 42, 0, 2 * Math.PI);
     ctx.fill();
 
-    ctx.strokeStyle = '#0A2A54';
-    ctx.lineWidth = 4;
-    ctx.lineJoin = 'round';
-    ctx.beginPath();
-    ctx.moveTo(bX + 90, cY + 80 - 20);
-    ctx.lineTo(bX + 90 + 16, cY + 80 - 11);
-    ctx.lineTo(bX + 90 + 16, cY + 80 + 8);
-    ctx.quadraticCurveTo(bX + 90 + 16, cY + 80 + 22, bX + 90, cY + 80 + 28);
-    ctx.quadraticCurveTo(bX + 90 - 16, cY + 80 + 22, bX + 90 - 16, cY + 80 + 8);
-    ctx.lineTo(bX + 90 - 16, cY + 80 - 11);
-    ctx.closePath();
-    ctx.stroke();
+    if (logoImg) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(bX + 90, cY + 80, 38, 0, 2 * Math.PI);
+      ctx.clip();
+      ctx.drawImage(logoImg, bX + 90 - 38, cY + 80 - 38, 76, 76);
+      ctx.restore();
+    } else {
+      ctx.strokeStyle = '#0A2A54';
+      ctx.lineWidth = 4;
+      ctx.lineJoin = 'round';
+      ctx.beginPath();
+      ctx.moveTo(bX + 90, cY + 80 - 20);
+      ctx.lineTo(bX + 90 + 16, cY + 80 - 11);
+      ctx.lineTo(bX + 90 + 16, cY + 80 + 8);
+      ctx.quadraticCurveTo(bX + 90 + 16, cY + 80 + 22, bX + 90, cY + 80 + 28);
+      ctx.quadraticCurveTo(bX + 90 - 16, cY + 80 + 22, bX + 90 - 16, cY + 80 + 8);
+      ctx.lineTo(bX + 90 - 16, cY + 80 - 11);
+      ctx.closePath();
+      ctx.stroke();
 
-    ctx.strokeStyle = '#0A2A54';
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.moveTo(bX + 90 - 8, cY + 80 + 1);
-    ctx.lineTo(bX + 90 - 1, cY + 80 + 8);
-    ctx.lineTo(bX + 90 + 9, cY + 80 - 5);
-    ctx.stroke();
+      ctx.strokeStyle = '#0A2A54';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(bX + 90 - 8, cY + 80 + 1);
+      ctx.lineTo(bX + 90 - 1, cY + 80 + 8);
+      ctx.lineTo(bX + 90 + 9, cY + 80 - 5);
+      ctx.stroke();
+    }
 
     ctx.fillStyle = '#FFFFFF';
     ctx.font = "bold 28px 'Sora', sans-serif";
