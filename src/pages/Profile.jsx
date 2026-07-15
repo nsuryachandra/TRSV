@@ -308,7 +308,7 @@ function CardFront(props) {
 
       {/* Header */}
       <div
-        className="relative overflow-hidden px-6 pb-8 pt-6"
+        className="relative overflow-hidden px-6 pb-5 pt-8"
         style={{
           background: `linear-gradient(155deg, ${TOKENS.blue} 0%, ${TOKENS.blueLight} 100%)`,
         }}
@@ -345,7 +345,7 @@ function CardFront(props) {
       </div>
 
       {/* Photo + identity block – photo overlaps header */}
-      <div className="relative -mt-10 px-6">
+      <div className="relative -mt-5 px-6">
         <div className="flex items-end gap-4">
           <div className="relative shrink-0">
             <div
@@ -415,10 +415,10 @@ function CardFront(props) {
         </div>
       </div>
 
-      <div className="relative mt-5 h-px w-full" style={{ background: TOKENS.hairline }} />
+      <div className="relative mt-auto h-px w-full" style={{ background: TOKENS.hairline }} />
 
       {/* QR footer */}
-      <div className="relative mt-4 px-6 pb-5">
+      <div className="relative mt-4 px-6 pb-6">
         <div
           className="flex items-center gap-3 rounded-[14px] px-4 py-3"
           style={{
@@ -475,7 +475,7 @@ function CardBack(props) {
 
       {/* Header – matches front */}
       <div
-        className="relative overflow-hidden px-6 pb-6 pt-6 flex items-center justify-center gap-3 w-full"
+        className="relative overflow-hidden px-6 pb-5 pt-8 flex items-center justify-center gap-3 w-full"
         style={{ background: `linear-gradient(155deg, ${TOKENS.blue} 0%, ${TOKENS.blueLight} 100%)` }}
       >
         <GuillochePattern id="backHeaderPattern" color="#FFFFFF" opacity={0.055} />
