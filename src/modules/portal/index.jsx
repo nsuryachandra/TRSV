@@ -1,6 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import { Globe, Save, Image, Type, Flag, RefreshCw } from 'lucide-react';
 
+// Field component must be defined at module scope — NOT inside PortalPanel.
+// Defining it inside the parent causes React to treat it as a new component type
+// on every render, which unmounts and remounts the input, losing cursor focus.
+const Field = ({ label, id, type = 'text', placeholder, value, onChange, hint }) => (
+  <div className="space-y-1.5">
+    <label htmlFor={id} className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{label}</label>
+    {type === 'textarea' ? (
+      <textarea
+        id={id}
+        rows={3}
+        placeholder={placeholder}
+        value={value}
+        onChange={onChange}
+        className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-200 focus:border-cyan-500 outline-none resize-none"
+      />
+    ) : (
+      <input
+        id={id}
+        type={type}
+        placeholder={placeholder}
+        value={value}
+        onChange={onChange}
+        className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-200 focus:border-cyan-500 outline-none"
+      />
+    )}
+    {hint && <p className="text-[10px] text-slate-500">{hint}</p>}
+  </div>
+);
+
 const PortalPanel = () => {
   const [branding, setBranding] = useState({});
   const [saving, setSaving] = useState(false);
@@ -29,6 +58,7 @@ const PortalPanel = () => {
       })
       .catch(console.error)
       .finally(() => setLoading(false));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSave = async () => {
@@ -43,39 +73,15 @@ const PortalPanel = () => {
       if (data.success) {
         alert('Portal configuration saved successfully.');
         setBranding(form);
+      } else {
+        alert('Failed to save: ' + (data.message || 'Unknown error'));
       }
     } catch (err) {
-      alert('Failed to save configuration.');
+      alert('Network error — failed to save configuration.');
     } finally {
       setSaving(false);
     }
   };
-
-  const Field = ({ label, id, type = 'text', placeholder, value, onChange, hint }) => (
-    <div className="space-y-1.5">
-      <label htmlFor={id} className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{label}</label>
-      {type === 'textarea' ? (
-        <textarea
-          id={id}
-          rows={3}
-          placeholder={placeholder}
-          value={value}
-          onChange={onChange}
-          className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-200 focus:border-cyan-500 outline-none"
-        />
-      ) : (
-        <input
-          id={id}
-          type={type}
-          placeholder={placeholder}
-          value={value}
-          onChange={onChange}
-          className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-200 focus:border-cyan-500 outline-none"
-        />
-      )}
-      {hint && <p className="text-[10px] text-slate-500">{hint}</p>}
-    </div>
-  );
 
   return (
     <div className="space-y-6">
