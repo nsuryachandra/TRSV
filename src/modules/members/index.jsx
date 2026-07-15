@@ -215,9 +215,9 @@ const MembersPanel = () => {
                 placeholder="Search by name, email, member ID..."
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded-lg py-1.5 pl-10 pr-4 text-xs text-slate-200 focus:outline-none focus:border-cyan-500"
+                className="w-full bg-slate-100/50 dark:bg-slate-950 border border-slate-350 dark:border-slate-800 rounded-lg py-1.5 pl-10 pr-4 text-xs text-slate-800 dark:text-slate-200 placeholder-slate-450 dark:placeholder-slate-500 focus:outline-none focus:border-cyan-500"
               />
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500" />
             </div>
           </div>
 
@@ -360,7 +360,7 @@ const MembersPanel = () => {
             <div className="space-y-4 py-2">
               <div className="space-y-1">
                 <label className="text-[10px] uppercase font-bold text-slate-500">Target Constituency</label>
-                <div className="text-xs text-slate-200 font-bold bg-slate-950 p-2.5 rounded border border-slate-850">
+                <div className="text-xs text-slate-800 dark:text-slate-200 font-bold bg-slate-100 dark:bg-slate-950 p-2.5 rounded border border-slate-350 dark:border-slate-850">
                   {approvingApp.constituency_name}
                 </div>
               </div>
@@ -370,7 +370,7 @@ const MembersPanel = () => {
                 <select
                   value={selectedRole}
                   onChange={(e) => setSelectedRole(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-850 rounded-lg p-2.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-500"
+                  className="w-full bg-slate-100 dark:bg-slate-950 border border-slate-350 dark:border-slate-850 rounded-lg p-2.5 text-xs text-slate-850 dark:text-slate-200 focus:outline-none focus:border-cyan-500"
                 >
                   <option value="student">Regular Student Member (No Leadership Role)</option>
                   <option value="president">Constituency President</option>

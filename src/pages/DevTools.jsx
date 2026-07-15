@@ -55,7 +55,7 @@ const DevTools = () => {
   const ActiveComponent = activePanel?.component;
 
   return (
-    <div className="flex h-screen bg-slate-950 text-slate-200 overflow-hidden font-sans">
+    <div className="dark flex h-screen bg-slate-950 text-slate-200 overflow-hidden font-sans">
 
       {/* ─── Sidebar ─── */}
       <aside

@@ -289,11 +289,25 @@ router.post('/:id/status', async (req, res) => {
       WHERE user_id = $3
     `, [status, status === 'Revoked', id]);
 
+    if (status === 'Suspended' || status === 'Revoked') {
+      await query(`
+        UPDATE users
+        SET role = 'student', verified = FALSE
+        WHERE id = $1
+      `, [id]);
+    } else if (status === 'Verified' || status === 'Active') {
+      await query(`
+        UPDATE users
+        SET verified = TRUE
+        WHERE id = $1
+      `, [id]);
+    }
+
     await query(`
       UPDATE member_profile_metrics
       SET timeline = timeline || $1::jsonb
       WHERE user_id = $2
-    `, [JSON.stringify([{ date: new Date().toISOString().split('T')[0], event: `Membership status updated to: ${status}` }]), id]);
+    `, [JSON.stringify([{ date: new Date().toISOString().split('T')[0], event: `Membership status updated to: ${status}. Role set to student and admin benefits removed if suspended.` }]), id]);
 
     res.json({ success: true, message: `Member status updated to ${status}.` });
   } catch (err) {
