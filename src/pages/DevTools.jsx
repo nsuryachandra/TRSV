@@ -32,9 +32,9 @@ const DevTools = () => {
     [activeModule, activePanelId]
   );
 
-  // Guard: only supreme_admin can access
+  // Guard: only supreme_admin and dev can access
   useEffect(() => {
-    if (user && user.role !== 'supreme_admin') {
+    if (user && !['supreme_admin', 'dev'].includes(user?.role)) {
       navigate('/dashboard', { replace: true });
     }
   }, [user, navigate]);
@@ -141,7 +141,7 @@ const DevTools = () => {
             </div>
             <div className="overflow-hidden">
               <div className="text-[11px] font-bold text-slate-200 truncate">{user?.full_name}</div>
-              <div className="text-[9px] text-cyan-500 font-mono truncate">supreme_admin</div>
+              <div className="text-[9px] text-cyan-500 font-mono truncate">{user?.role}</div>
             </div>
           </div>
         </div>

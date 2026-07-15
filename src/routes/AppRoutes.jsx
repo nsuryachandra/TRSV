@@ -118,7 +118,7 @@ export default function AppRoutes() {
           } />
 
           <Route path="dev-tools" element={
-            <ProtectedRoute allowedRoles={['supreme_admin']}>
+            <ProtectedRoute allowedRoles={['supreme_admin', 'dev']}>
               <DevTools />
             </ProtectedRoute>
           } />

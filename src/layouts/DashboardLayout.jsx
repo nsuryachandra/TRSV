@@ -499,7 +499,7 @@ export default function DashboardLayout() {
           desc: 'Latest union announcements'
         },
         ...( ['supreme_admin', 'dev', 'state_president'].includes(userProfile?.role) ? [{ name: 'System Logs', path: '/dashboard/logs', icon: <Activity className="w-5 h-5" />, desc: 'Real-time security audit logs' }] : []),
-        ...( userProfile?.role === 'supreme_admin' ? [{ name: '⚙ Dev Tools', path: '/dashboard/dev-tools', icon: <Shield className="w-5 h-5" />, desc: 'Supreme Admin Control Panel' }] : [])
+        ...( ['supreme_admin', 'dev'].includes(userProfile?.role) ? [{ name: '⚙ Dev Tools', path: '/dashboard/dev-tools', icon: <Shield className="w-5 h-5" />, desc: 'Supreme Admin Control Panel' }] : [])
       ]
     },
     {

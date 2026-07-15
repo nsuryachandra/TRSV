@@ -295,7 +295,7 @@ export default function PublicVerification() {
 
     ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
     ctx.beginPath();
-    ctx.arc(fX + 250, cY + 190, 65, 0, 2 * Math.PI);
+    ctx.arc(fX + 250, cY + 160, 65, 0, 2 * Math.PI);
     ctx.fill();
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
     ctx.lineWidth = 4;
@@ -304,59 +304,59 @@ export default function PublicVerification() {
     if (logoImg) {
       ctx.save();
       ctx.beginPath();
-      ctx.arc(fX + 250, cY + 190, 60, 0, 2 * Math.PI);
+      ctx.arc(fX + 250, cY + 160, 60, 0, 2 * Math.PI);
       ctx.clip();
-      ctx.drawImage(logoImg, fX + 250 - 60, cY + 190 - 60, 120, 120);
+      ctx.drawImage(logoImg, fX + 250 - 60, cY + 160 - 60, 120, 120);
       ctx.restore();
     } else {
       ctx.strokeStyle = '#0A2A54';
       ctx.lineWidth = 6;
       ctx.lineJoin = 'round';
       ctx.beginPath();
-      ctx.moveTo(fX + 250, cY + 190 - 32);
-      ctx.lineTo(fX + 250 + 26, cY + 190 - 18);
-      ctx.lineTo(fX + 250 + 26, cY + 190 + 12);
-      ctx.quadraticCurveTo(fX + 250 + 26, cY + 190 + 36, fX + 250, cY + 190 + 44);
-      ctx.quadraticCurveTo(fX + 250 - 26, cY + 190 + 36, fX + 250 - 26, cY + 190 + 12);
-      ctx.lineTo(fX + 250 - 26, cY + 190 - 18);
+      ctx.moveTo(fX + 250, cY + 160 - 32);
+      ctx.lineTo(fX + 250 + 26, cY + 160 - 18);
+      ctx.lineTo(fX + 250 + 26, cY + 160 + 12);
+      ctx.quadraticCurveTo(fX + 250 + 26, cY + 160 + 36, fX + 250, cY + 160 + 44);
+      ctx.quadraticCurveTo(fX + 250 - 26, cY + 160 + 36, fX + 250 - 26, cY + 160 + 12);
+      ctx.lineTo(fX + 250 - 26, cY + 160 - 18);
       ctx.closePath();
       ctx.stroke();
 
       ctx.strokeStyle = '#0A2A54';
       ctx.lineWidth = 5;
       ctx.beginPath();
-      ctx.moveTo(fX + 250 - 12, cY + 190 + 2);
-      ctx.lineTo(fX + 250 - 2, cY + 190 + 12);
-      ctx.lineTo(fX + 250 + 14, cY + 190 - 8);
+      ctx.moveTo(fX + 250 - 12, cY + 160 + 2);
+      ctx.lineTo(fX + 250 - 2, cY + 160 + 12);
+      ctx.lineTo(fX + 250 + 14, cY + 160 - 8);
       ctx.stroke();
     }
 
     ctx.fillStyle = '#FFFFFF';
     ctx.font = "bold 34px 'Sora', sans-serif";
-    ctx.fillText('TELANGANA VIDYARTHI', fX + 350, cY + 165);
-    ctx.fillText('RAKSHANA SENA', fX + 350, cY + 215);
+    ctx.fillText('TELANGANA VIDYARTHI', fX + 350, cY + 135);
+    ctx.fillText('RAKSHANA SENA', fX + 350, cY + 185);
     ctx.fillStyle = '#F0A400';
     ctx.font = "bold 20px 'Sora', sans-serif";
-    ctx.fillText('OFFICIAL DIGITAL IDENTITY', fX + 350, cY + 260);
+    ctx.fillText('OFFICIAL DIGITAL IDENTITY', fX + 350, cY + 230);
 
-    drawRoundedRect(ctx, fX + 60, cY + 310, 240, 300, 24, '#EDF0F5', 'rgba(255, 255, 255, 1)', 8);
+    drawRoundedRect(ctx, fX + 60, cY + 340, 240, 300, 24, '#EDF0F5', 'rgba(255, 255, 255, 1)', 8);
     if (avatarImg) {
       ctx.save();
-      clipRoundedRect(ctx, fX + 60 + 4, cY + 310 + 4, 232, 292, 20);
-      ctx.drawImage(avatarImg, fX + 60 + 4, cY + 310 + 4, 232, 292);
+      clipRoundedRect(ctx, fX + 60 + 4, cY + 340 + 4, 232, 292, 20);
+      ctx.drawImage(avatarImg, fX + 60 + 4, cY + 340 + 4, 232, 292);
       ctx.restore();
     } else {
       ctx.fillStyle = '#5B6472';
       ctx.font = "bold 26px 'Sora', sans-serif";
       ctx.textAlign = 'center';
-      ctx.fillText('PHOTO', fX + 180, cY + 475);
+      ctx.fillText('PHOTO', fX + 180, cY + 505);
       ctx.textAlign = 'left';
     }
 
     if (profile?.verified !== false) {
       ctx.fillStyle = '#137A4B';
       ctx.beginPath();
-      ctx.arc(fX + 280, cY + 590, 32, 0, 2 * Math.PI);
+      ctx.arc(fX + 280, cY + 620, 32, 0, 2 * Math.PI);
       ctx.fill();
       ctx.strokeStyle = '#FFFFFF';
       ctx.lineWidth = 5;
@@ -365,9 +365,9 @@ export default function PublicVerification() {
       ctx.lineWidth = 5;
       ctx.lineCap = 'round';
       ctx.beginPath();
-      ctx.moveTo(fX + 280 - 12, cY + 590 + 2);
-      ctx.lineTo(fX + 280 - 2, cY + 590 + 12);
-      ctx.lineTo(fX + 280 + 14, cY + 590 - 8);
+      ctx.moveTo(fX + 280 - 12, cY + 620 + 2);
+      ctx.lineTo(fX + 280 - 2, cY + 620 + 12);
+      ctx.lineTo(fX + 280 + 14, cY + 620 - 8);
       ctx.stroke();
     }
 
