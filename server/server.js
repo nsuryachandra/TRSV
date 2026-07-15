@@ -848,6 +848,7 @@ httpServer.listen(PORT, async () => {
     await pool.query(`ALTER TABLE join_requests ADD COLUMN IF NOT EXISTS date_of_birth DATE`);
     await pool.query(`ALTER TABLE join_requests ADD COLUMN IF NOT EXISTS gender VARCHAR(50)`);
     await pool.query(`ALTER TABLE join_requests ALTER COLUMN college_name DROP NOT NULL`);
+    await pool.query(`ALTER TABLE join_requests ALTER COLUMN email DROP NOT NULL`);
     
     // Safely check if qr_verification_logs exists before trying to index it
     const qrTableExists = await pool.query(`

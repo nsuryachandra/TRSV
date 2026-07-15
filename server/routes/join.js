@@ -38,7 +38,7 @@ router.post('/', async (req, res) => {
       `INSERT INTO join_requests (full_name, email, phone, member_type, college_name, locality, district, constituency_id, reason, date_of_birth, gender)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
        RETURNING *`,
-      [fullName, email || null, phone, memberType, memberType === 'Student' ? collegeName : null, locality || null, district, parseInt(constituencyId), reason, dateOfBirth || null, gender || null]
+      [fullName, email || '', phone, memberType, memberType === 'Student' ? collegeName : null, locality || null, district, parseInt(constituencyId), reason, dateOfBirth || null, gender || null]
     );
 
     res.status(201).json({ 
