@@ -314,26 +314,38 @@ function CardFront(props) {
         }}
       >
         <GuillochePattern id="frontHeaderPattern" color="#FFFFFF" opacity={0.055} />
-        <div className="relative flex items-center gap-3">
-          <OrgMark logo={logo} />
-          <div className="min-w-0">
-            <div
-              className="text-[10.5px] font-bold leading-[1.35] text-white"
-              style={{
-                fontFamily: "Sora, sans-serif",
-                letterSpacing: "0.035em",
-              }}
-            >
-              TELANGANA VIDYARTHI
-              <br />
-              RAKSHANA SENA
+        <div className="relative flex items-center justify-between gap-3 w-full">
+          <div className="flex items-center gap-3">
+            <OrgMark logo={logo} />
+            <div className="min-w-0">
+              <div
+                className="text-[10.5px] font-bold leading-[1.35] text-white"
+                style={{
+                  fontFamily: "Sora, sans-serif",
+                  letterSpacing: "0.035em",
+                }}
+              >
+                TELANGANA VIDYARTHI
+                <br />
+                RAKSHANA SENA
+              </div>
+              <div
+                className="mt-[5px] text-[7.5px] font-semibold uppercase"
+                style={{ color: TOKENS.yellow, letterSpacing: "0.17em" }}
+              >
+                Official Digital Identity
+              </div>
             </div>
-            <div
-              className="mt-[5px] text-[7.5px] font-semibold uppercase"
-              style={{ color: TOKENS.yellow, letterSpacing: "0.17em" }}
-            >
-              Official Digital Identity
-            </div>
+          </div>
+
+          <div className="flex flex-col items-end shrink-0 select-none">
+            <span className="text-[6.5px] font-bold text-slate-300 uppercase tracking-widest leading-none">STATE COUNCIL</span>
+            {verified !== false && (
+              <div className="mt-1 px-1.5 py-0.5 rounded border border-emerald-500/35 bg-emerald-500/10 text-emerald-400 text-[6.5px] font-black tracking-wider uppercase flex items-center gap-1 leading-none">
+                <span className="w-1 h-1 rounded-full bg-emerald-400 animate-pulse" />
+                VERIFIED
+              </div>
+            )}
           </div>
         </div>
         <div
@@ -484,16 +496,22 @@ function CardBack(props) {
 
       {/* Header */}
       <div
-        className="relative flex items-center gap-2.5 px-6 py-4"
+        className="relative flex items-center justify-between gap-2.5 px-6 py-4 w-full"
         style={{ background: TOKENS.blue }}
       >
         <GuillochePattern id="backHeaderPattern" color="#FFFFFF" opacity={0.055} />
-        <OrgMark logo={logo} size={23} />
-        <div
-          className="relative text-[9.5px] font-bold text-white"
-          style={{ fontFamily: "Sora, sans-serif", letterSpacing: "0.055em" }}
-        >
-          TVRS OFFICIAL IDENTITY
+        <div className="flex items-center gap-2.5">
+          <OrgMark logo={logo} size={23} />
+          <div
+            className="relative text-[9.5px] font-bold text-white"
+            style={{ fontFamily: "Sora, sans-serif", letterSpacing: "0.055em" }}
+          >
+            TVRS OFFICIAL IDENTITY
+          </div>
+        </div>
+        <div className="relative flex items-center gap-1 text-[6.5px] font-bold text-slate-300 tracking-widest uppercase select-none">
+          <span className="w-1 h-1 rounded-full bg-emerald-450 animate-pulse" />
+          SECURE
         </div>
         <div
           className="absolute inset-x-0 bottom-0 h-[2px]"
@@ -1130,6 +1148,31 @@ export default function Profile() {
     ctx.font = "bold 20px 'Sora', sans-serif";
     ctx.fillText("OFFICIAL DIGITAL IDENTITY", fX + 210, cY + 260);
 
+    // Right-aligned header indicators to balance space
+    const rightX = fX + cW - 60;
+    ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
+    ctx.font = "bold 20px 'Sora', sans-serif";
+    ctx.textAlign = "right";
+    ctx.fillText("STATE COUNCIL", rightX, cY + 165);
+
+    if (userProfile?.verified !== false) {
+      const pillW = 140;
+      const pillH = 38;
+      const pillX = rightX - pillW;
+      const pillY = cY + 190;
+      drawRoundedRect(ctx, pillX, pillY, pillW, pillH, 19, "rgba(19, 122, 75, 0.09)", "rgba(19, 122, 75, 0.22)", 1);
+      
+      ctx.fillStyle = "#137A4B";
+      ctx.beginPath();
+      ctx.arc(pillX + 22, pillY + 19, 6, 0, 2 * Math.PI);
+      ctx.fill();
+      
+      ctx.font = "bold 16px 'Sora', sans-serif";
+      ctx.textAlign = "left";
+      ctx.fillText("VERIFIED", pillX + 38, pillY + 25);
+    }
+    ctx.textAlign = "left"; // Reset to default
+
     // Photo Box
     drawRoundedRect(ctx, fX + 60, cY + 310, 240, 300, 24, "#EDF0F5", "rgba(255, 255, 255, 1)", 8);
     if (avatarImg) {
@@ -1298,6 +1341,14 @@ export default function Profile() {
     ctx.fillStyle = "#FFFFFF";
     ctx.font = "bold 28px 'Sora', sans-serif";
     ctx.fillText("TVRS OFFICIAL IDENTITY", bX + 160, cY + 90);
+
+    // SECURE badge on back card header right aligned
+    const backRightX = bX + cW - 80;
+    ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
+    ctx.font = "bold 16px 'Sora', sans-serif";
+    ctx.textAlign = "right";
+    ctx.fillText("SECURE", backRightX, cY + 90);
+    ctx.textAlign = "left"; // Reset
 
     // Instructions Section
     ctx.fillStyle = "#5B6472";

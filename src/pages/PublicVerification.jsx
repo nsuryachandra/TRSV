@@ -339,6 +339,31 @@ export default function PublicVerification() {
     ctx.font = "bold 20px 'Sora', sans-serif";
     ctx.fillText('OFFICIAL DIGITAL IDENTITY', fX + 210, cY + 260);
 
+    // Right-aligned header indicators to balance space
+    const rightX = fX + cW - 60;
+    ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
+    ctx.font = "bold 20px 'Sora', sans-serif";
+    ctx.textAlign = "right";
+    ctx.fillText("STATE COUNCIL", rightX, cY + 165);
+
+    if (profile?.verified !== false) {
+      const pillW = 140;
+      const pillH = 38;
+      const pillX = rightX - pillW;
+      const pillY = cY + 190;
+      drawRoundedRect(ctx, pillX, pillY, pillW, pillH, 19, "rgba(19, 122, 75, 0.09)", "rgba(19, 122, 75, 0.22)", 1);
+      
+      ctx.fillStyle = "#137A4B";
+      ctx.beginPath();
+      ctx.arc(pillX + 22, pillY + 19, 6, 0, 2 * Math.PI);
+      ctx.fill();
+      
+      ctx.font = "bold 16px 'Sora', sans-serif";
+      ctx.textAlign = "left";
+      ctx.fillText("VERIFIED", pillX + 38, pillY + 25);
+    }
+    ctx.textAlign = "left"; // Reset to default
+
     drawRoundedRect(ctx, fX + 60, cY + 310, 240, 300, 24, '#EDF0F5', 'rgba(255, 255, 255, 1)', 8);
     if (avatarImg) {
       ctx.save();
@@ -497,6 +522,14 @@ export default function PublicVerification() {
     ctx.fillStyle = '#FFFFFF';
     ctx.font = "bold 28px 'Sora', sans-serif";
     ctx.fillText('TVRS OFFICIAL IDENTITY', bX + 160, cY + 90);
+
+    // SECURE badge on back card header right aligned
+    const backRightX = bX + cW - 80;
+    ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
+    ctx.font = "bold 16px 'Sora', sans-serif";
+    ctx.textAlign = "right";
+    ctx.fillText("SECURE", backRightX, cY + 90);
+    ctx.textAlign = "left"; // Reset
 
     ctx.fillStyle = '#5B6472';
     ctx.font = "bold 22px 'Sora', sans-serif";
