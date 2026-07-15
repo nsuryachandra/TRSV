@@ -2,8 +2,28 @@ import express from 'express';
 import { query } from '../config/db.js';
 import { requireRole } from './constituencies.js';
 import { getClientIP } from '../utils/ip.js';
+import { requireAuth } from '../middleware/auth.js';
 
 const router = express.Router();
+
+// 1a. Fetch Logged-in User's Active Application
+router.get('/my', requireAuth, async (req, res) => {
+  try {
+    const result = await query(
+      `SELECT jr.*, con.constituency_name, COALESCE(jr.district, con.district) AS district 
+       FROM join_requests jr
+       LEFT JOIN constituencies con ON jr.constituency_id = con.id
+       WHERE jr.email = $1
+       ORDER BY jr.created_at DESC
+       LIMIT 1`,
+      [req.user.email]
+    );
+    res.json({ success: true, request: result.rows[0] || null });
+  } catch (error) {
+    console.error('🚨 [Fetch My Join Request Error]:', error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
 
 // 1. Submit Join Request (Public endpoint)
 router.post('/', async (req, res) => {

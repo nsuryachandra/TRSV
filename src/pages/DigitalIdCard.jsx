@@ -8,11 +8,20 @@ import QRCode from 'qrcode';
 export default function DigitalIdCard() {
   const { userProfile } = useAuth();
   const isLeader = userProfile?.role !== 'student';
-  const roleDisplay = userProfile?.role === 'student'
-    ? 'STUDENT MEMBER'
-    : (userProfile?.role
-        ? userProfile.role.replace(/_/g, ' ').toUpperCase()
-        : 'UNION MEMBER');
+  const getDisplayRole = (role, constituencyName) => {
+    if (!role) return "UNION MEMBER";
+    if (role === "student") return "STUDENT MEMBER";
+    if (role === "supreme_admin") return "TVRS FOUNDER";
+    if (role === "dev") return "DEVELOPER";
+    
+    const roleLabel = role.replace(/_/g, " ").toUpperCase();
+    if (constituencyName && constituencyName !== "Statewide Headquarter") {
+      return `${constituencyName} ${roleLabel}`.toUpperCase();
+    }
+    return `STATE ${roleLabel}`.toUpperCase();
+  };
+
+  const roleDisplay = getDisplayRole(userProfile?.role, userProfile?.constituency_name);
 
   // Theme configuration objects for HTML rendering
   const cardThemeStyles = isLeader 

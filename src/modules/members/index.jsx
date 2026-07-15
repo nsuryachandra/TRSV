@@ -6,6 +6,8 @@ const MembersPanel = () => {
   const [applications, setApplications] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMember, setSelectedMember] = useState(null);
+  const [approvingApp, setApprovingApp] = useState(null);
+  const [selectedRole, setSelectedRole] = useState('student');
   const [timeline, setTimeline] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
@@ -38,16 +40,18 @@ const MembersPanel = () => {
     }
   };
 
-  const handleApprove = async (id) => {
+  const handleApprove = async (id, assignedRole) => {
     setActionLoading(true);
     try {
       const res = await fetch(`/api/modules/members/applications/${id}/approve`, {
         method: 'POST',
-        headers
+        headers,
+        body: JSON.stringify({ role: assignedRole })
       });
       const data = await res.json();
       if (data.success) {
-        alert('Application approved successfully! Member profile created.');
+        alert(data.message || 'Application approved successfully! Member profile created.');
+        setApprovingApp(null);
         fetchData();
       } else {
         alert(data.message || 'Approval failed.');
@@ -187,7 +191,7 @@ const MembersPanel = () => {
                     <XCircle className="w-3.5 h-3.5" /> Reject
                   </button>
                   <button 
-                    onClick={() => handleApprove(app.id)}
+                    onClick={() => { setApprovingApp(app); setSelectedRole('student'); }}
                     disabled={actionLoading}
                     className="flex items-center gap-1 px-2.5 py-1 bg-emerald-950/40 hover:bg-emerald-900/40 border border-emerald-800/40 rounded text-[10px] text-emerald-400 transition"
                   >
@@ -333,6 +337,66 @@ const MembersPanel = () => {
                 className="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs"
               >
                 Close Window
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Role Selection Modal */}
+      {approvingApp && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-55">
+          <div className="bg-slate-900 border border-slate-800 rounded-xl max-w-md w-full p-6 space-y-4 text-left">
+            <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+              <div>
+                <h3 className="font-bold text-slate-100">Assign Role & Approve</h3>
+                <p className="text-[10px] text-slate-400 font-semibold">Select leadership or student status for {approvingApp.full_name}</p>
+              </div>
+              <button onClick={() => setApprovingApp(null)} className="text-slate-400 hover:text-slate-200">
+                ✕
+              </button>
+            </div>
+            
+            <div className="space-y-4 py-2">
+              <div className="space-y-1">
+                <label className="text-[10px] uppercase font-bold text-slate-500">Target Constituency</label>
+                <div className="text-xs text-slate-200 font-bold bg-slate-950 p-2.5 rounded border border-slate-850">
+                  {approvingApp.constituency_name}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] uppercase font-bold text-slate-500">Assign Union Role</label>
+                <select
+                  value={selectedRole}
+                  onChange={(e) => setSelectedRole(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-850 rounded-lg p-2.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-500"
+                >
+                  <option value="student">Regular Student Member (No Leadership Role)</option>
+                  <option value="president">Constituency President</option>
+                  <option value="vice_president">Constituency Vice President</option>
+                  <option value="general_secretary">Constituency General Secretary</option>
+                  <option value="secretary">Constituency Secretary</option>
+                </select>
+                <p className="text-[10px] text-slate-400 italic">
+                  Selecting a leadership role grants access to scan digital IDs and moderate constituency logs.
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex justify-end gap-3 pt-3 border-t border-slate-800">
+              <button 
+                onClick={() => setApprovingApp(null)}
+                className="px-4 py-1.5 bg-slate-850 hover:bg-slate-800 border border-slate-800 text-slate-300 rounded-lg text-xs"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={() => handleApprove(approvingApp.id, selectedRole)}
+                disabled={actionLoading}
+                className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold rounded-lg text-xs"
+              >
+                {actionLoading ? 'Approving...' : 'Confirm & Approve'}
               </button>
             </div>
           </div>

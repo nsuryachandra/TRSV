@@ -817,9 +817,21 @@ export default function Profile() {
   const idSectionRef = useRef(null);
 
   const isLeader = userProfile?.role !== "student";
-  const designation = userProfile?.role
-    ? userProfile.role.replace(/_/g, " ").toUpperCase()
-    : "OFFICIAL";
+
+  const getDisplayRole = (role, constituencyName) => {
+    if (!role) return "MEMBER";
+    if (role === "student") return "STUDENT MEMBER";
+    if (role === "supreme_admin") return "TVRS FOUNDER";
+    if (role === "dev") return "DEVELOPER";
+    
+    const roleLabel = role.replace(/_/g, " ").toUpperCase();
+    if (constituencyName && constituencyName !== "Statewide Headquarter") {
+      return `${constituencyName} ${roleLabel}`.toUpperCase();
+    }
+    return `STATE ${roleLabel}`.toUpperCase();
+  };
+
+  const designation = getDisplayRole(userProfile?.role, userProfile?.constituency_name);
 
   const loadProfileAndIdentity = async () => {
     setLoading(true);

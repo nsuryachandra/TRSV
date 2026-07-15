@@ -48,6 +48,8 @@ export default function JoinTVRS() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [activeApplication, setActiveApplication] = useState(null);
+  const [checkingApp, setCheckingApp] = useState(true);
 
   const calculateAge = (dobString) => {
     if (!dobString) return '';
@@ -73,6 +75,33 @@ export default function JoinTVRS() {
       }));
     }
   }, [userProfile]);
+
+  // Check if user already submitted a join application
+  useEffect(() => {
+    const checkUserApplication = async () => {
+      try {
+        const token = localStorage.getItem('trsv_session_token');
+        if (!token) {
+          setCheckingApp(false);
+          return;
+        }
+        const response = await fetch('/api/join-tvrs/my', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        const data = await response.json();
+        if (data.success && data.request) {
+          setActiveApplication(data.request);
+        }
+      } catch (err) {
+        console.error('Error fetching user application:', err);
+      } finally {
+        setCheckingApp(false);
+      }
+    };
+    checkUserApplication();
+  }, [success]);
 
   // Load constituencies
   useEffect(() => {
@@ -173,37 +202,184 @@ export default function JoinTVRS() {
     }
   };
 
+  if (checkingApp) {
+    return (
+      <div className="w-full min-h-[70vh] flex flex-col items-center justify-center gap-3">
+        <div className="w-10 h-10 rounded-full border-2 border-t-amber-500 border-slate-200 dark:border-slate-800 animate-spin" />
+        <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 animate-pulse">
+          Syncing Application Coordinates...
+        </p>
+      </div>
+    );
+  }
+
+  if (activeApplication) {
+    const isPending = activeApplication.status === 'Pending';
+    const isApproved = activeApplication.status === 'Approved';
+    const isRejected = activeApplication.status === 'Rejected';
+
+    return (
+      <div className="w-full min-h-[80vh] flex flex-col items-center py-4 px-2 sm:py-8 sm:px-4">
+        <AnimatedSection direction="up" className="w-full max-w-2xl text-left">
+          <GlassCard hoverEffect={false} className="p-5 sm:p-10 relative overflow-hidden border border-slate-200/50 dark:border-slate-850 shadow-2xl rounded-3xl bg-white/40 dark:bg-slate-955/20">
+            {/* Cybernetic ambient backing light */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-amber-500/10 to-transparent blur-2xl pointer-events-none" />
+
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-8 border-b border-slate-200/40 dark:border-slate-850 pb-5">
+              <img 
+                src="/trsv.jpeg" 
+                alt="TVRS Logo" 
+                className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-cover border border-slate-200/50 dark:border-slate-800 shadow-md shrink-0" 
+              />
+              <div className="flex flex-col text-left">
+                <span className="text-[9px] font-black text-amber-600 dark:text-amber-400 tracking-widest uppercase block leading-none">
+                  MEMBERSHIP APPLICATION STATUS
+                </span>
+                <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-855 dark:text-white leading-tight mt-1">
+                  Application Tracking Node
+                </h1>
+                <p className="text-xs text-slate-450 dark:text-slate-400 leading-normal mt-0.5 font-medium">
+                  Track your registration status on the decentralized TVRS network.
+                </p>
+              </div>
+            </div>
+
+            {/* Application Info Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div className="bg-slate-950/50 border border-slate-850 p-4 rounded-xl space-y-1">
+                <span className="text-[10px] font-bold text-slate-500 uppercase block">Applicant Coordinates</span>
+                <strong className="text-sm font-bold text-slate-200 block">{activeApplication.full_name}</strong>
+                <span className="text-xs text-slate-400 block">{activeApplication.email}</span>
+                <span className="text-xs text-slate-400 block">{activeApplication.phone}</span>
+              </div>
+
+              <div className="bg-slate-950/50 border border-slate-850 p-4 rounded-xl space-y-1">
+                <span className="text-[10px] font-bold text-slate-500 uppercase block">Union Alignment</span>
+                <strong className="text-sm font-bold text-slate-200 block">{activeApplication.constituency_name}</strong>
+                <span className="text-xs text-slate-400 block">{activeApplication.district} District</span>
+                <span className="text-xs text-slate-400 block">{activeApplication.member_type}</span>
+              </div>
+            </div>
+
+            {/* Status Visual Tracker */}
+            <div className="bg-slate-950/40 border border-slate-900/60 rounded-2xl p-6 mb-8 space-y-6">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-400 uppercase">Application Lifecycle</span>
+                <span className={`text-xs font-extrabold px-3 py-1 rounded-full uppercase border ${
+                  isPending ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/25 animate-pulse' :
+                  isApproved ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/25' :
+                  'bg-rose-500/10 text-rose-400 border-rose-500/25'
+                }`}>
+                  {activeApplication.status}
+                </span>
+              </div>
+
+              {/* Graphical line representation */}
+              <div className="flex items-center justify-between relative px-2">
+                <div className="absolute top-1/2 left-0 right-0 h-1 bg-slate-800 -translate-y-1/2 z-0" />
+                <div className={`absolute top-1/2 left-0 h-1 bg-amber-500 -translate-y-1/2 z-0 transition-all duration-500 ${
+                  isApproved ? 'w-full' : isRejected ? 'w-full' : 'w-1/2'
+                }`} />
+
+                {/* Step 1: Submitted */}
+                <div className="z-10 flex flex-col items-center gap-1.5 bg-slate-900 p-2 rounded-xl">
+                  <div className="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-glow-emerald">
+                    <Check className="w-4 h-4" />
+                  </div>
+                  <span className="text-[10px] font-bold text-slate-350">Submitted</span>
+                </div>
+
+                {/* Step 2: Under Review */}
+                <div className="z-10 flex flex-col items-center gap-1.5 bg-slate-900 p-2 rounded-xl">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                    isPending ? 'bg-cyan-500 text-white animate-pulse shadow-glow-cyan' :
+                    (isApproved || isRejected) ? 'bg-emerald-500 text-white shadow-glow-emerald' : 'bg-slate-800 text-slate-500'
+                  }`}>
+                    {isPending ? <div className="w-2 h-2 rounded-full bg-white animate-ping" /> : <Check className="w-4 h-4" />}
+                  </div>
+                  <span className="text-[10px] font-bold text-slate-350">Under Review</span>
+                </div>
+
+                {/* Step 3: Decision */}
+                <div className="z-10 flex flex-col items-center gap-1.5 bg-slate-900 p-2 rounded-xl">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                    isApproved ? 'bg-emerald-500 text-white shadow-glow-emerald' :
+                    isRejected ? 'bg-rose-500 text-white shadow-glow-rose' : 'bg-slate-800 text-slate-500'
+                  }`}>
+                    {isApproved ? <Check className="w-4 h-4" /> : isRejected ? <div className="font-extrabold text-sm">✕</div> : <HelpCircle className="w-4 h-4" />}
+                  </div>
+                  <span className="text-[10px] font-bold text-slate-350">Decision</span>
+                </div>
+              </div>
+
+              {/* Status Message Text */}
+              <div className="p-4 bg-slate-950/80 border border-slate-900 rounded-xl text-xs leading-relaxed text-slate-300">
+                {isPending && "Your membership request has been registered and is currently being inspected by the regional constituency committee. Please wait for official authorization."}
+                {isApproved && "Congratulations! Your registration has been approved. You are now officially recognized as a TVRS representative. Please restart the app or refresh to sync your dashboard access."}
+                {isRejected && "Your application has been rejected by the regional committee. You can submit a new application below with updated coordinates if necessary."}
+              </div>
+            </div>
+
+            {/* Back to Dashboard and Re-Apply Buttons */}
+            <div className="flex gap-4">
+              <PremiumButton
+                onClick={() => navigate('/dashboard/student')}
+                variant="glow"
+                size="sm"
+                icon={<ArrowLeft className="w-4 h-4" />}
+              >
+                Back to Dashboard
+              </PremiumButton>
+
+              {isRejected && (
+                <button
+                  onClick={() => setActiveApplication(null)}
+                  className="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-[#071830] rounded-xl text-xs font-black transition-all cursor-pointer"
+                >
+                  Submit New Application
+                </button>
+              )}
+            </div>
+
+          </GlassCard>
+        </AnimatedSection>
+      </div>
+    );
+  }
+
   if (success) {
     return (
       <div className="w-full min-h-[70vh] flex flex-col items-center justify-center py-8 px-4 text-center">
         <AnimatedSection direction="up" className="w-full max-w-xl">
-          <GlassCard className="p-8 sm:p-12 border border-emerald-500/20 bg-emerald-500/5 shadow-2xl rounded-2xl flex flex-col items-center gap-6">
-            <div className="w-16 h-16 rounded-full bg-emerald-500/10 border-2 border-emerald-500/20 flex items-center justify-center text-emerald-500 shadow-glow-emerald animate-bounce">
-              <CheckCircle2 className="w-9 h-9" />
+          <GlassCard className="p-8 sm:p-12 border border-emerald-500/20 bg-emerald-500/5 shadow-2xl rounded-2xl">
+            <div className="flex flex-col items-center text-center justify-center gap-6 w-full h-full">
+              <div className="w-16 h-16 rounded-full bg-emerald-500/10 border-2 border-emerald-500/20 flex items-center justify-center text-emerald-500 shadow-glow-emerald animate-bounce">
+                <CheckCircle2 className="w-9 h-9" />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <h2 className="text-2xl font-black text-slate-800 dark:text-white uppercase tracking-tight">
+                  Application Submitted!
+                </h2>
+                <span className="text-[10px] text-emerald-500 font-extrabold uppercase tracking-widest">
+                  Ledger Logged Successfully
+                </span>
+              </div>
+
+              <p className="text-sm text-slate-550 dark:text-slate-450 leading-relaxed max-w-md">
+                Your application to join the <strong>Telangana Vidyarthi Rakshana Sena</strong> has been registered on our secure node. Our regional committee will inspect your profile details and contact you soon.
+              </p>
+
+              <PremiumButton
+                onClick={() => navigate('/dashboard/student')}
+                variant="glow"
+                size="sm"
+                icon={<ArrowLeft className="w-4 h-4" />}
+                className="mt-4"
+              >
+                Return to Dashboard
+              </PremiumButton>
             </div>
-
-            <div className="flex flex-col gap-1.5">
-              <h2 className="text-2xl font-black text-slate-800 dark:text-white uppercase tracking-tight">
-                Application Submitted!
-              </h2>
-              <span className="text-[10px] text-emerald-500 font-extrabold uppercase tracking-widest">
-                Ledger Logged Successfully
-              </span>
-            </div>
-
-            <p className="text-sm text-slate-550 dark:text-slate-450 leading-relaxed max-w-md">
-              Your application to join the <strong>Telangana Vidyarthi Rakshana Sena</strong> has been registered on our secure node. Our regional committee will inspect your profile details and contact you soon.
-            </p>
-
-            <PremiumButton
-              onClick={() => navigate('/dashboard/student')}
-              variant="glow"
-              size="sm"
-              icon={<ArrowLeft className="w-4 h-4" />}
-              className="mt-4"
-            >
-              Return to Dashboard
-            </PremiumButton>
           </GlassCard>
         </AnimatedSection>
       </div>

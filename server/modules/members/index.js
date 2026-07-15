@@ -121,6 +121,7 @@ router.delete('/:id', async (req, res) => {
 
 router.post('/applications/:id/approve', async (req, res) => {
   const { id } = req.params;
+  const { role } = req.body; // e.g. 'president', 'vice_president', 'general_secretary', 'secretary', 'student'
   try {
     const requestResult = await query('SELECT * FROM join_requests WHERE id = $1', [id]);
     if (requestResult.rows.length === 0) {
@@ -128,42 +129,79 @@ router.post('/applications/:id/approve', async (req, res) => {
     }
     const app = requestResult.rows[0];
 
-    const checkEmail = await query('SELECT * FROM users WHERE email = $1', [app.email]);
-    if (checkEmail.rows.length > 0) {
-      return res.status(400).json({ success: false, message: 'A member with this email is already registered.' });
-    }
+    const assignedRole = role || 'student';
 
     await query('UPDATE join_requests SET status = \'Approved\' WHERE id = $1', [id]);
 
-    const uid = 'tvrs-usr-' + crypto.randomBytes(6).toString('hex');
-    await query(`
-      INSERT INTO users (id, full_name, email, phone, role, constituency_id, verified)
-      VALUES ($1, $2, $3, $4, \'student\', $5, FALSE)
-    `, [uid, app.full_name, app.email, app.phone, app.constituency_id]);
+    const checkEmail = await query('SELECT * FROM users WHERE email = $1', [app.email]);
+    let uid;
+    
+    if (checkEmail.rows.length > 0) {
+      // User already exists, update their role and constituency!
+      uid = checkEmail.rows[0].id;
+      await query(`
+        UPDATE users
+        SET role = $1, constituency_id = $2, verified = TRUE
+        WHERE id = $3
+      `, [assignedRole, app.constituency_id, uid]);
+    } else {
+      // Create new user
+      uid = 'tvrs-usr-' + crypto.randomBytes(6).toString('hex');
+      await query(`
+        INSERT INTO users (id, full_name, email, phone, role, constituency_id, verified)
+        VALUES ($1, $2, $3, $4, $5, $6, TRUE)
+      `, [uid, app.full_name, app.email, app.phone, assignedRole, app.constituency_id]);
+    }
 
-    const trsv_member_id = 'TVRS-MEM-' + Math.floor(100000 + Math.random() * 900000);
-    const qr_token = 'qr_' + crypto.randomBytes(16).toString('hex');
-    await query(`
-      INSERT INTO member_identities (user_id, trsv_member_id, qr_token, verification_status)
-      VALUES ($1, $2, $3, \'Inactive\')
-    `, [uid, trsv_member_id, qr_token]);
+    // Check if member identity already exists
+    const checkIdentity = await query('SELECT * FROM member_identities WHERE user_id = $1', [uid]);
+    const trsv_member_id = checkIdentity.rows.length > 0 
+      ? checkIdentity.rows[0].trsv_member_id 
+      : 'TVRS-MEM-' + Math.floor(100000 + Math.random() * 900000);
+    const qr_token = checkIdentity.rows.length > 0 
+      ? checkIdentity.rows[0].qr_token 
+      : 'qr_' + crypto.randomBytes(16).toString('hex');
 
+    if (checkIdentity.rows.length > 0) {
+      await query(`
+        UPDATE member_identities
+        SET verification_status = 'Verified', active = TRUE
+        WHERE user_id = $1
+      `, [uid]);
+    } else {
+      await query(`
+        INSERT INTO member_identities (user_id, trsv_member_id, qr_token, verification_status, active)
+        VALUES ($1, $2, $3, 'Verified', TRUE)
+      `, [uid, trsv_member_id, qr_token]);
+    }
+
+    // Check if metrics already exist
+    const checkMetrics = await query('SELECT * FROM member_profile_metrics WHERE user_id = $1', [uid]);
     const defaultTimeline = JSON.stringify([
-      { date: new Date().toISOString().split('T')[0], event: 'Application approved by State Committee. Status: Pending Verification.' }
+      { date: new Date().toISOString().split('T')[0], event: `Application approved. Role assigned: ${assignedRole.replace(/_/g, ' ').toUpperCase()} for constituency.` }
     ]);
-    await query(`
-      INSERT INTO member_profile_metrics (user_id, issues_resolved, issues_pending, rating, timeline)
-      VALUES ($1, 0, 0, 5.00, $2::jsonb)
-    `, [uid, defaultTimeline]);
+    
+    if (checkMetrics.rows.length === 0) {
+      await query(`
+        INSERT INTO member_profile_metrics (user_id, issues_resolved, issues_pending, rating, timeline)
+        VALUES ($1, 0, 0, 5.00, $2::jsonb)
+      `, [uid, defaultTimeline]);
+    } else {
+      await query(`
+        UPDATE member_profile_metrics
+        SET timeline = timeline || $1::jsonb
+        WHERE user_id = $2
+      `, [defaultTimeline, uid]);
+    }
 
     await query(`
       INSERT INTO audit_logs (user_id, action_context, previous_state, new_state, ip_address)
       VALUES ($1, $2, $3, $4, $5)
-    `, [req.user.uid, 'APPROVE_APPLICATION', JSON.stringify(app), JSON.stringify({ uid, trsv_member_id, status: 'APPROVED (Pending Verification)' }), getClientIP(req)]);
+    `, [req.user.uid, 'APPROVE_APPLICATION', JSON.stringify(app), JSON.stringify({ uid, trsv_member_id, status: 'APPROVED' }), getClientIP(req)]);
 
     eventHub.publish('application.approved', { uid, email: app.email, full_name: app.full_name });
 
-    res.json({ success: true, message: 'Application approved. TVRS Member Profile and Inactive Digital ID generated successfully.', uid });
+    res.json({ success: true, message: `Application approved. Role '${assignedRole}' assigned and member verified successfully.`, uid });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
