@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { 
   Radio, 
   ShieldAlert, 
@@ -156,56 +156,76 @@ export default function CommandCenter() {
   const [healthLoading, setHealthLoading] = useState(false);
 
   // Fetch live operational feeds and analytics
-  useEffect(() => {
-    if (activeTab !== 'telemetry') return;
-    
-    const fetchTelemetry = async () => {
-      try {
-        const token = localStorage.getItem('trsv_session_token');
-        const headers = { 'Authorization': `Bearer ${token}` };
-        
-        const [feedRes, trendRes, catRes] = await Promise.all([
-          fetch('/api/transparency/activity'),
-          fetch('/api/analytics/trends', { headers }),
-          fetch('/api/analytics/categories', { headers })
-        ]);
-        
-        const feedData = await feedRes.json();
-        const trendData = await trendRes.json();
-        const catData = await catRes.json();
-        
-        if (feedData.success) {
-          // Map complaints to the format RealtimeActivityFeed expects
-          const mapped = feedData.activity.map(a => ({
-            event_type: a.category + '_Dispute',
-            event_message: `Ticket #${a.id} status updated to ${a.status} in ${a.constituency_name || 'State'}`,
-            severity: a.status === 'Resolved' ? 'success' : a.status === 'Under Investigation' ? 'warning' : 'info',
-            created_at: a.updated_at
-          }));
-          setLiveFeeds(mapped);
-        }
-        if (trendData.success) setTrends(trendData.data);
-        if (catData.success) setCategories(catData.data);
-        setConnectionDropped(false);
-      } catch (err) {
-        console.error('Failed telemetry fetch:', err);
-        setConnectionDropped(true);
+  const fetchTelemetry = useCallback(async () => {
+    try {
+      const token = localStorage.getItem('trsv_session_token');
+      const headers = { 'Authorization': `Bearer ${token}` };
+      
+      const [feedRes, trendRes, catRes] = await Promise.all([
+        fetch('/api/transparency/activity'),
+        fetch('/api/analytics/trends', { headers }),
+        fetch('/api/analytics/categories', { headers })
+      ]);
+      
+      const feedData = await feedRes.json();
+      const trendData = await trendRes.json();
+      const catData = await catRes.json();
+      
+      if (feedData.success) {
+        // Map complaints to the format RealtimeActivityFeed expects
+        const mapped = feedData.activity.map(a => ({
+          event_type: a.category + '_Dispute',
+          event_message: `Ticket #${a.id} status updated to ${a.status} in ${a.constituency_name || 'State'}`,
+          severity: a.status === 'Resolved' ? 'success' : a.status === 'Under Investigation' ? 'warning' : 'info',
+          created_at: a.updated_at
+        }));
+        setLiveFeeds(mapped);
+      }
+      if (trendData.success) setTrends(trendData.data);
+      if (catData.success) setCategories(catData.data);
+      setConnectionDropped(false);
+    } catch (err) {
+      console.error('Failed telemetry fetch:', err);
+    }
+  }, []);
+
+  const eventSourceRef = useRef(null);
+  const reconnectTimeoutRef = useRef(null);
+
+  const connectStream = useCallback(() => {
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close();
+    }
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+      reconnectTimeoutRef.current = null;
+    }
+
+    const token = localStorage.getItem('trsv_session_token');
+    const base = window.Capacitor ? 'https://trsv-union.onrender.com' : '';
+    const es = new EventSource(`${base}/api/realtime/stream?token=${token}`);
+    eventSourceRef.current = es;
+
+    es.onopen = () => {
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+        reconnectTimeoutRef.current = null;
+      }
+      setConnectionDropped(false);
+    };
+
+    es.onerror = () => {
+      // Debounce: wait 5s to see if browser reconnects automatically
+      if (!reconnectTimeoutRef.current) {
+        reconnectTimeoutRef.current = setTimeout(() => {
+          if (es.readyState !== EventSource.OPEN) {
+            setConnectionDropped(true);
+          }
+        }, 5000);
       }
     };
 
-    fetchTelemetry();
-    
-    // Connect to Enterprise Realtime SSE Stream
-    const token = localStorage.getItem('trsv_session_token');
-    const base = window.Capacitor ? 'https://trsv-union.onrender.com' : '';
-    const eventSource = new EventSource(`${base}/api/realtime/stream?token=${token}`);
-    eventSource.onopen = () => {
-      setConnectionDropped(false);
-    };
-    eventSource.onerror = () => {
-      setConnectionDropped(true);
-    };
-    eventSource.onmessage = (event) => {
+    es.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
         if (data.type === 'EMERGENCY_ACKNOWLEDGED' || data.type === 'NEW_COMPLAINT') {
@@ -216,11 +236,23 @@ export default function CommandCenter() {
         console.error('SSE Parse Error', e);
       }
     };
+  }, [fetchTelemetry]);
+
+  useEffect(() => {
+    if (activeTab !== 'telemetry') return;
+    
+    fetchTelemetry();
+    connectStream();
 
     return () => {
-      eventSource.close();
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close();
+      }
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+      }
     };
-  }, [activeTab]);
+  }, [activeTab, fetchTelemetry, connectStream]);
 
   // Poll node health for the Terminal Node Health card
   const fetchHealth = useCallback(async () => {
@@ -613,6 +645,7 @@ export default function CommandCenter() {
                     try {
                       await fetchHealth();
                       setConnectionDropped(false);
+                      connectStream();
                       loadData();
                     } catch (e) {
                       console.warn('Re-connect attempt failed');

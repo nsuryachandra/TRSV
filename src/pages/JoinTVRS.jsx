@@ -1,5 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { ShieldCheck, AlertTriangle, ArrowLeft, Send, CheckCircle2, User, Mail, Phone, MapPin, AlignLeft, HelpCircle } from 'lucide-react';
+import { 
+  ShieldCheck, 
+  AlertTriangle, 
+  ArrowLeft, 
+  Send, 
+  CheckCircle2, 
+  User, 
+  Mail, 
+  Phone, 
+  MapPin, 
+  AlignLeft, 
+  HelpCircle,
+  BookOpen,
+  Home,
+  Landmark,
+  Check,
+  Calendar
+} from 'lucide-react';
 import GlassCard from '../components/GlassCard';
 import AnimatedSection from '../components/AnimatedSection';
 import { useNavigate } from 'react-router-dom';
@@ -17,13 +34,32 @@ export default function JoinTVRS() {
     fullName: userProfile?.full_name || '',
     email: userProfile?.email || '',
     phone: userProfile?.phone || '',
-    constituencyId: userProfile?.constituency_id?.toString() || '',
-    reason: ''
+    memberType: 'Student', // 'Student' or 'Non-Student'
+    collegeName: '',
+    locality: '',
+    district: '',
+    constituencyId: '',
+    reason: '',
+    declaration: false,
+    dateOfBirth: '',
+    gender: ''
   });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+
+  const calculateAge = (dobString) => {
+    if (!dobString) return '';
+    const today = new Date();
+    const birthDate = new Date(dobString);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age >= 0 ? `${age} years` : '';
+  };
 
   // Sync profile details if available
   useEffect(() => {
@@ -46,10 +82,21 @@ export default function JoinTVRS() {
         const data = await response.json();
         if (data.success) {
           setConstituencies(data.constituencies);
-          // If no constituency is preselected, default to the first one
-          if (!formData.constituencyId && data.constituencies.length > 0) {
-            setFormData(prev => ({ ...prev, constituencyId: data.constituencies[0].id.toString() }));
+          
+          // Preselect constituency based on profile or fallback
+          let initialConstituencyId = formData.constituencyId || userProfile?.constituency_id?.toString() || '';
+          let matchedCon = data.constituencies.find(c => c.id.toString() === initialConstituencyId);
+          
+          if (!matchedCon && data.constituencies.length > 0) {
+            matchedCon = data.constituencies[0];
+            initialConstituencyId = matchedCon.id.toString();
           }
+          
+          setFormData(prev => ({
+            ...prev,
+            constituencyId: initialConstituencyId,
+            district: prev.district || matchedCon?.district || ''
+          }));
         }
       } catch (err) {
         console.error('Failed to load constituencies:', err);
@@ -58,17 +105,47 @@ export default function JoinTVRS() {
       }
     };
     fetchConstituencies();
-  }, []);
+  }, [userProfile]);
+
+  // Get unique districts list
+  const districts = [...new Set(constituencies.map(c => c.district))].filter(Boolean);
+
+  // Filter constituencies by currently selected district
+  const filteredConstituencies = constituencies.filter(c => c.district === formData.district);
+
+  const handleDistrictChange = (selectedDistrict) => {
+    const filtered = constituencies.filter(c => c.district === selectedDistrict);
+    setFormData(prev => ({
+      ...prev,
+      district: selectedDistrict,
+      constituencyId: filtered.length > 0 ? filtered[0].id.toString() : ''
+    }));
+  };
+
+  const handleMemberTypeChange = (type) => {
+    setFormData(prev => ({
+      ...prev,
+      memberType: type,
+      collegeName: type === 'Student' ? prev.collegeName : ''
+    }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
     if (!formData.fullName.trim()) return setError('Please enter your full name.');
-    if (!formData.email.trim()) return setError('Please enter your email.');
-    if (!formData.phone.trim()) return setError('Please enter your phone number.');
+    if (!formData.phone.trim()) return setError('Please enter your mobile number.');
+    if (!formData.memberType) return setError('Please select your member type.');
+    if (formData.memberType === 'Student' && !formData.collegeName.trim()) {
+      return setError('Please enter your college or institution name.');
+    }
+    if (!formData.district) return setError('Please select your district.');
     if (!formData.constituencyId) return setError('Please select your constituency.');
-    if (!formData.reason.trim()) return setError('Please provide a reason/motivation for joining.');
+    if (!formData.reason.trim()) return setError('Please provide the purpose for joining.');
+    if (!formData.declaration) {
+      return setError('You must confirm that the information provided is true and accurate.');
+    }
 
     setLoading(true);
 
@@ -112,8 +189,8 @@ export default function JoinTVRS() {
               </span>
             </div>
 
-            <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed max-w-md">
-              Your application to join the <strong>Telangana Vidyarthi Rakshana Sena</strong> has been registered on our secure node. Our regional committee will inspect your student profile and contact you soon.
+            <p className="text-sm text-slate-550 dark:text-slate-450 leading-relaxed max-w-md">
+              Your application to join the <strong>Telangana Vidyarthi Rakshana Sena</strong> has been registered on our secure node. Our regional committee will inspect your profile details and contact you soon.
             </p>
 
             <PremiumButton
@@ -132,22 +209,30 @@ export default function JoinTVRS() {
   }
 
   return (
-    <div className="w-full min-h-[80vh] flex flex-col items-center justify-center py-8 px-4">
+    <div className="w-full min-h-[80vh] flex flex-col items-center py-4 px-2 sm:py-8 sm:px-4">
       <AnimatedSection direction="up" className="w-full max-w-2xl text-left">
-        <GlassCard hoverEffect={false} className="p-6 sm:p-10 relative overflow-hidden border border-slate-200/50 dark:border-slate-850 shadow-2xl rounded-3xl bg-white/40 dark:bg-slate-950/20">
+        <GlassCard hoverEffect={false} className="p-5 sm:p-10 relative overflow-hidden border border-slate-200/50 dark:border-slate-850 shadow-2xl rounded-3xl bg-white/40 dark:bg-slate-950/20">
           {/* Cybernetic ambient backing light */}
           <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-cyan-400/10 to-transparent blur-2xl pointer-events-none" />
           
-          <div className="flex flex-col gap-2 mb-8 border-b border-slate-200/40 dark:border-slate-850 pb-5">
-            <span className="text-[10px] font-black text-cyan-600 dark:text-cyan-400 tracking-widest uppercase block">
-              RECRUITMENT TERMINAL
-            </span>
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-855 dark:text-white leading-tight">
-              Apply to Join TVRS
-            </h1>
-            <p className="text-xs text-slate-400 dark:text-slate-500 leading-relaxed mt-0.5">
-              Submit your credentials to stand as a digital coordinator node and represent student advocacy rights across educational zones.
-            </p>
+          {/* Official Branding Header Layout */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-8 border-b border-slate-200/40 dark:border-slate-850 pb-5">
+            <img 
+              src="/trsv.jpeg" 
+              alt="TVRS Logo" 
+              className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-cover border border-slate-200/50 dark:border-slate-800 shadow-md shrink-0" 
+            />
+            <div className="flex flex-col text-left">
+              <span className="text-[9px] font-black text-cyan-600 dark:text-cyan-400 tracking-widest uppercase block leading-none">
+                OFFICIAL REGISTRATION TERMINAL
+              </span>
+              <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-855 dark:text-white leading-tight mt-1">
+                Telangana Vidyarthi Rakshana Sena
+              </h1>
+              <p className="text-xs text-slate-450 dark:text-slate-400 leading-normal mt-0.5 font-medium">
+                Submit details below to stand as a digital coordinator node and represent student advocacy rights across educational zones.
+              </p>
+            </div>
           </div>
 
           {error && (
@@ -157,110 +242,349 @@ export default function JoinTVRS() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              {/* Full Name */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Full Name</label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Anand Rao"
-                    value={formData.fullName}
-                    onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                    className="peer w-full pl-11 pr-4 py-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-855 dark:text-slate-100 font-bold"
-                  />
-                  <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400 pointer-events-none z-10 animate-icon-bounce-centered" strokeWidth={2.2} />
+          <form onSubmit={handleSubmit} className="flex flex-col gap-8">
+            
+            {/* 👤 SECTION 1. Personal Information */}
+            <div className="flex flex-col gap-5">
+              <h3 className="text-xs font-black uppercase tracking-widest text-cyan-600 dark:text-cyan-400 border-b border-slate-200/30 dark:border-slate-850 pb-2">
+                Personal Information
+              </h3>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                {/* Full Name */}
+                <div className="flex flex-col gap-1.5 text-left">
+                  <label className="text-[10px] font-black text-slate-450 dark:text-slate-500 uppercase tracking-wider">
+                    Full Name <span className="text-rose-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Anand Rao"
+                      value={formData.fullName}
+                      onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                      className="peer w-full pl-11 pr-4 py-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-855 dark:text-slate-100 font-bold"
+                    />
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center text-cyan-600 dark:text-cyan-400 pointer-events-none z-10 transition-transform duration-200 peer-focus:scale-110 peer-focus:text-sky-500">
+                      <User size={18} strokeWidth={2.2} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Mobile Number */}
+                <div className="flex flex-col gap-1.5 text-left">
+                  <label className="text-[10px] font-black text-slate-450 dark:text-slate-500 uppercase tracking-wider">
+                    Mobile Number <span className="text-rose-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. +91 9876543210"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      className="peer w-full pl-11 pr-4 py-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-855 dark:text-slate-100 font-bold"
+                    />
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center text-cyan-600 dark:text-cyan-400 pointer-events-none z-10 transition-transform duration-200 peer-focus:scale-110 peer-focus:text-sky-500">
+                      <Phone size={18} strokeWidth={2.2} />
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {/* Email */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Email Address</label>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                {/* Date of Birth */}
+                <div className="flex flex-col gap-1.5 text-left">
+                  <label className="text-[10px] font-black text-slate-450 dark:text-slate-500 uppercase tracking-wider">
+                    Date of Birth <span className="text-slate-450 font-bold text-[9px]">(Optional)</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="date"
+                      value={formData.dateOfBirth}
+                      onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
+                      className="peer w-full pl-11 pr-4 py-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-855 dark:text-slate-100 font-bold cursor-pointer"
+                    />
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center text-cyan-600 dark:text-cyan-400 pointer-events-none z-10 transition-transform duration-200 peer-focus:scale-110 peer-focus:text-sky-500">
+                      <Calendar size={18} strokeWidth={2.2} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Calculated Age */}
+                <div className="flex flex-col gap-1.5 text-left">
+                  <label className="text-[10px] font-black text-slate-450 dark:text-slate-500 uppercase tracking-wider">
+                    Calculated Age
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      readOnly
+                      disabled
+                      placeholder="—"
+                      value={calculateAge(formData.dateOfBirth)}
+                      className="w-full pl-11 pr-4 py-3 rounded-xl border bg-slate-100/50 dark:bg-slate-900/10 border-slate-200/40 dark:border-slate-850 text-sm text-slate-500 dark:text-slate-400 font-bold select-none cursor-not-allowed"
+                    />
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center text-slate-400 pointer-events-none z-10">
+                      <User size={18} strokeWidth={2.2} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Gender */}
+                <div className="flex flex-col gap-1.5 text-left">
+                  <label className="text-[10px] font-black text-slate-450 dark:text-slate-500 uppercase tracking-wider">
+                    Gender <span className="text-slate-450 font-bold text-[9px]">(Optional)</span>
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={formData.gender}
+                      onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+                      className="peer w-full pl-11 pr-10 py-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-855 dark:text-slate-100 font-bold cursor-pointer appearance-none"
+                    >
+                      <option value="">Select Gender</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Other">Other</option>
+                    </select>
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center text-cyan-600 dark:text-cyan-400 pointer-events-none z-10 transition-transform duration-200 peer-focus:scale-110 peer-focus:text-sky-500">
+                      <User size={18} strokeWidth={2.2} />
+                    </div>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none z-10 border-l-4 border-r-4 border-t-4 border-transparent border-t-slate-500 dark:border-t-slate-400" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Email (Optional) */}
+              <div className="flex flex-col gap-1.5 text-left">
+                <label className="text-[10px] font-black text-slate-450 dark:text-slate-500 uppercase tracking-wider">
+                  Email Address <span className="text-slate-450 font-bold text-[9px]">(Optional)</span>
+                </label>
                 <div className="relative">
                   <input
                     type="email"
-                    required
                     placeholder="e.g. anand@email.com"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     className="peer w-full pl-11 pr-4 py-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-855 dark:text-slate-100 font-bold"
                   />
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400 pointer-events-none z-10 animate-icon-bounce-centered" strokeWidth={2.2} />
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center text-cyan-600 dark:text-cyan-400 pointer-events-none z-10 transition-transform duration-200 peer-focus:scale-110 peer-focus:text-sky-500">
+                    <Mail size={18} strokeWidth={2.2} />
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              {/* Phone */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Phone Number</label>
+            {/* 🪪 SECTION 2. Member Information */}
+            <div className="flex flex-col gap-5">
+              <h3 className="text-xs font-black uppercase tracking-widest text-cyan-600 dark:text-cyan-400 border-b border-slate-200/30 dark:border-slate-850 pb-2">
+                Member Information
+              </h3>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                {/* Member Type */}
+                <div className="flex flex-col gap-1.5 text-left">
+                  <label className="text-[10px] font-black text-slate-450 dark:text-slate-500 uppercase tracking-wider">
+                    Member Type <span className="text-rose-500">*</span>
+                  </label>
+                  <div className="grid grid-cols-2 gap-3 h-[46px]">
+                    <button
+                      type="button"
+                      onClick={() => handleMemberTypeChange('Student')}
+                      className={`flex items-center justify-center gap-2 rounded-xl border text-xs font-bold transition-all duration-200 cursor-pointer ${
+                        formData.memberType === 'Student'
+                          ? 'bg-cyan-500/10 border-cyan-500/50 text-cyan-600 dark:text-cyan-400 shadow-sm'
+                          : 'border-slate-200/60 dark:border-slate-800 bg-white/20 dark:bg-slate-900/20 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900/50'
+                      }`}
+                    >
+                      <User size={14} />
+                      Student
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleMemberTypeChange('Non-Student')}
+                      className={`flex items-center justify-center gap-2 rounded-xl border text-xs font-bold transition-all duration-200 cursor-pointer ${
+                        formData.memberType === 'Non-Student'
+                          ? 'bg-cyan-500/10 border-cyan-500/50 text-cyan-600 dark:text-cyan-400 shadow-sm'
+                          : 'border-slate-200/60 dark:border-slate-800 bg-white/20 dark:bg-slate-900/20 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900/50'
+                      }`}
+                    >
+                      <ShieldCheck size={14} />
+                      Non-Student
+                    </button>
+                  </div>
+                </div>
+
+                {/* College / Institution (Only if Student) */}
+                {formData.memberType === 'Student' && (
+                  <div className="flex flex-col gap-1.5 text-left animate-fadeIn">
+                    <label className="text-[10px] font-black text-slate-450 dark:text-slate-500 uppercase tracking-wider">
+                      College / Institution <span className="text-rose-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. JNTU Hyderabad"
+                        value={formData.collegeName}
+                        onChange={(e) => setFormData({ ...formData, collegeName: e.target.value })}
+                        className="peer w-full pl-11 pr-4 py-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-855 dark:text-slate-100 font-bold"
+                      />
+                      <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center text-cyan-600 dark:text-cyan-400 pointer-events-none z-10 transition-transform duration-200 peer-focus:scale-110 peer-focus:text-sky-500">
+                        <BookOpen size={18} strokeWidth={2.2} />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Locality */}
+              <div className="flex flex-col gap-1.5 text-left">
+                <label className="text-[10px] font-black text-slate-450 dark:text-slate-500 uppercase tracking-wider">
+                  Locality <span className="text-slate-400 font-bold text-[9px]">(your address)</span>
+                </label>
                 <div className="relative">
                   <input
                     type="text"
-                    required
-                    placeholder="e.g. +91 9876543210"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    placeholder="e.g. Kukatpally Phase 3, Hyderabad"
+                    value={formData.locality}
+                    onChange={(e) => setFormData({ ...formData, locality: e.target.value })}
                     className="peer w-full pl-11 pr-4 py-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-855 dark:text-slate-100 font-bold"
                   />
-                  <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400 pointer-events-none z-10 animate-icon-bounce-centered" strokeWidth={2.2} />
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center text-cyan-600 dark:text-cyan-400 pointer-events-none z-10 transition-transform duration-200 peer-focus:scale-110 peer-focus:text-sky-500">
+                    <Home size={18} strokeWidth={2.2} />
+                  </div>
                 </div>
               </div>
 
-              {/* Constituency */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Constituency</label>
-                <div className="relative">
-                  <select
-                    value={formData.constituencyId}
-                    onChange={(e) => setFormData({ ...formData, constituencyId: e.target.value })}
-                    className="peer w-full pl-11 pr-4 py-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-855 dark:text-slate-100 font-bold cursor-pointer"
-                  >
-                    {loadingConstituencies ? (
-                      <option value="">Syncing Constituencies...</option>
-                    ) : (
-                      constituencies.map((con) => (
-                        <option key={con.id} value={con.id}>
-                          {con.constituency_name === 'Upcoming Area' || con.constituency_name === 'Upcoming Area Node'
-                            ? 'Not Listed (Send to All State Leaders)'
-                            : con.constituency_name}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                {/* District */}
+                <div className="flex flex-col gap-1.5 text-left">
+                  <label className="text-[10px] font-black text-slate-450 dark:text-slate-500 uppercase tracking-wider">
+                    District <span className="text-rose-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={formData.district}
+                      onChange={(e) => handleDistrictChange(e.target.value)}
+                      className="peer w-full pl-11 pr-10 py-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-855 dark:text-slate-100 font-bold cursor-pointer appearance-none"
+                    >
+                      <option value="">Select District</option>
+                      {districts.map((d) => (
+                        <option key={d} value={d}>
+                          {d}
                         </option>
-                      ))
-                    )}
-                  </select>
-                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400 pointer-events-none z-10 animate-icon-bounce-centered" strokeWidth={2.2} />
+                      ))}
+                    </select>
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center text-cyan-600 dark:text-cyan-400 pointer-events-none z-10 transition-transform duration-200 peer-focus:scale-110 peer-focus:text-sky-500">
+                      <Landmark size={18} strokeWidth={2.2} />
+                    </div>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none z-10 border-l-4 border-r-4 border-t-4 border-transparent border-t-slate-500 dark:border-t-slate-400" />
+                  </div>
+                </div>
+
+                {/* Constituency */}
+                <div className="flex flex-col gap-1.5 text-left">
+                  <label className="text-[10px] font-black text-slate-450 dark:text-slate-500 uppercase tracking-wider">
+                    Constituency <span className="text-rose-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={formData.constituencyId}
+                      onChange={(e) => setFormData({ ...formData, constituencyId: e.target.value })}
+                      disabled={!formData.district || loadingConstituencies}
+                      className="peer w-full pl-11 pr-10 py-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-855 dark:text-slate-100 font-bold cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed appearance-none"
+                    >
+                      {loadingConstituencies ? (
+                        <option value="">Syncing Constituencies...</option>
+                      ) : !formData.district ? (
+                        <option value="">Select District First</option>
+                      ) : filteredConstituencies.length === 0 ? (
+                        <option value="">No constituency available</option>
+                      ) : (
+                        filteredConstituencies.map((con) => (
+                          <option key={con.id} value={con.id}>
+                            {con.constituency_name === 'Upcoming Area' || con.constituency_name === 'Upcoming Area Node'
+                              ? 'Not Listed (Send to All State Leaders)'
+                              : con.constituency_name}
+                          </option>
+                        ))
+                      )}
+                    </select>
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center text-cyan-600 dark:text-cyan-400 pointer-events-none z-10 transition-transform duration-200 peer-focus:scale-110 peer-focus:text-sky-500">
+                      <MapPin size={18} strokeWidth={2.2} />
+                    </div>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none z-10 border-l-4 border-r-4 border-t-4 border-transparent border-t-slate-500 dark:border-t-slate-400" />
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Constituency Finder Help Box */}
-            <div className="p-4 rounded-xl border border-slate-200/60 dark:border-slate-800 bg-slate-500/5 text-left flex flex-col gap-2">
-              <div className="flex items-center gap-2 text-cyan-500">
-                <HelpCircle className="w-4 h-4 text-cyan-500" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                  Constituency Finder Helper
-                </span>
+            {/* 📝 SECTION 3. Additional Information */}
+            <div className="flex flex-col gap-5">
+              <h3 className="text-xs font-black uppercase tracking-widest text-cyan-600 dark:text-cyan-400 border-b border-slate-200/30 dark:border-slate-850 pb-2">
+                Additional Information
+              </h3>
+
+              {formData.district && (
+                <div className="p-4 rounded-xl border border-slate-200/60 dark:border-slate-800 bg-slate-500/5 text-left flex flex-col gap-2 animate-fadeIn">
+                  <div className="flex items-center gap-2 text-cyan-500">
+                    <HelpCircle size={15} className="text-cyan-500" />
+                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                      Constituency Finder Helper
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-550 dark:text-slate-400 leading-relaxed font-semibold">
+                    To find your constituency, search Google for your college/school address pincode followed by <span className="font-mono text-cyan-600 dark:text-cyan-400">"assembly constituency"</span>. Match it with the dropdown select list. If it is not listed, select <strong className="text-amber-500">"Not Listed (Send to All State Leaders)"</strong>.
+                  </p>
+                </div>
+              )}
+
+              {/* Purpose */}
+              <div className="flex flex-col gap-1.5 text-left">
+                <label className="text-[10px] font-black text-slate-450 dark:text-slate-500 uppercase tracking-wider">
+                  Purpose for joining tvrs? <span className="text-rose-500">*</span>
+                </label>
+                <div className="relative">
+                  <textarea
+                    required
+                    rows={4}
+                    placeholder="Tell us about your campus, advocacy ideas, or how you want to support student welfare..."
+                    value={formData.reason}
+                    onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
+                    className="peer w-full pl-11 pr-4 py-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-855 dark:text-slate-100 font-bold leading-relaxed resize-none"
+                  />
+                  <div className="absolute left-4 top-4 flex items-center justify-center text-cyan-600 dark:text-cyan-400 pointer-events-none z-10 transition-transform duration-200 peer-focus:scale-110 peer-focus:text-sky-500">
+                    <AlignLeft size={18} strokeWidth={2.2} />
+                  </div>
+                </div>
               </div>
-              <p className="text-xs text-slate-550 dark:text-slate-400 leading-relaxed font-semibold">
-                To find your constituency, search Google for your college/school address pincode followed by <span className="font-mono text-cyan-600 dark:text-cyan-400">"assembly constituency"</span> (e.g. search: <span className="font-mono text-cyan-600 dark:text-cyan-400">"500001 assembly constituency"</span>). Match it with the dropdown select list. If it is not listed, select <strong className="text-amber-500">"Not Listed (Send to All State Leaders)"</strong>.
-              </p>
             </div>
 
-            {/* Motivation / Reason */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Statement of Purpose / Why do you want to join?</label>
-              <div className="relative">
-                <textarea
-                  required
-                  rows={4}
-                  placeholder="Tell us about your campus, advocacy ideas, or how you want to support student welfare..."
-                  value={formData.reason}
-                  onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
-                  className="peer w-full pl-11 pr-4 py-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-855 dark:text-slate-100 font-bold leading-relaxed resize-none"
-                />
-                <AlignLeft className="absolute left-4 top-4.5 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400 pointer-events-none z-10 animate-icon-bounce-static" strokeWidth={2.2} />
+            {/* 📋 SECTION 4. Declaration */}
+            <div className="flex flex-col gap-5">
+              <h3 className="text-xs font-black uppercase tracking-widest text-cyan-600 dark:text-cyan-400 border-b border-slate-200/30 dark:border-slate-850 pb-2">
+                Declaration
+              </h3>
+
+              <div className="flex items-start gap-3 text-left">
+                <label className="relative flex items-center justify-center w-5 h-5 rounded border border-slate-200/60 dark:border-slate-800 bg-white/40 dark:bg-slate-900/40 cursor-pointer shrink-0 mt-0.5 select-none transition-all duration-200 hover:border-cyan-400">
+                  <input
+                    type="checkbox"
+                    checked={formData.declaration}
+                    onChange={(e) => setFormData({ ...formData, declaration: e.target.checked })}
+                    className="sr-only peer"
+                  />
+                  <div className="absolute inset-0 rounded flex items-center justify-center bg-cyan-500 text-white opacity-0 peer-checked:opacity-100 transition-opacity duration-200">
+                    <Check size={14} strokeWidth={3} />
+                  </div>
+                </label>
+                <span 
+                  className="text-xs text-slate-600 dark:text-slate-350 font-semibold select-none cursor-pointer" 
+                  onClick={() => setFormData(prev => ({ ...prev, declaration: !prev.declaration }))}
+                >
+                  I confirm that the information provided is true and accurate. <span className="text-rose-500">*</span>
+                </span>
               </div>
             </div>
 
@@ -269,9 +593,9 @@ export default function JoinTVRS() {
               <button
                 type="button"
                 onClick={() => navigate(-1)}
-                className="inline-flex items-center gap-1.5 text-xs font-black text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
+                className="inline-flex items-center gap-1.5 text-xs font-black text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 transition-colors cursor-pointer"
               >
-                <ArrowLeft className="w-4 h-4 text-slate-550 dark:text-slate-400" strokeWidth={2.2} /> Cancel Application
+                <ArrowLeft size={16} className="text-slate-550 dark:text-slate-400" strokeWidth={2.2} /> Cancel Application
               </button>
               
               <PremiumButton

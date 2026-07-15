@@ -27,9 +27,19 @@ router.get('/stream', requireAuth, (req, res) => {
 
   console.log(`📡 [Realtime] New Command Node Connected: ${clientId} (Total: ${clients.length})`);
 
+  // Periodic heartbeat timer to prevent proxy timeout
+  const heartbeatInterval = setInterval(() => {
+    try {
+      res.write('data: {"type": "HEARTBEAT"}\n\n');
+    } catch (err) {
+      console.error(`[Realtime] Failed writing heartbeat to client ${clientId}:`, err.message);
+    }
+  }, 15000);
+
   // Handle client disconnect
   req.on('close', () => {
     console.log(`📡 [Realtime] Command Node Disconnected: ${clientId}`);
+    clearInterval(heartbeatInterval);
     clients = clients.filter(client => client.id !== clientId);
   });
 });

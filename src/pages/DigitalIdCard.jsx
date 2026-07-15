@@ -588,11 +588,12 @@ export default function DigitalIdCard() {
                 {/* ID Header */}
                 <div className="flex items-start justify-between z-10 w-full border-b border-white/10 pb-1.5 sm:pb-2">
                   <div className="flex items-center gap-1.5 sm:gap-2">
-                    {/* Stylized Gold Shield Logo Crest */}
-                    <svg className={`w-6 h-6 sm:w-8 sm:h-8 ${cardThemeStyles.textGold} shrink-0`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill={isLeader ? "rgba(251, 191, 36, 0.1)" : "rgba(14, 165, 233, 0.1)"} strokeLinecap="round" strokeLinejoin="round"/>
-                      <path d="M12 8v8M9 11h6" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
+                    {/* TVRS Logo in header of ID Card */}
+                    <img 
+                      src="/trsv.jpeg" 
+                      alt="TVRS Logo" 
+                      className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg object-cover border border-white/10 shrink-0" 
+                    />
                     <div className="flex flex-col text-left">
                       <span className="text-[7.5px] xs:text-[8.5px] sm:text-[10px] font-black tracking-[0.12em] text-white uppercase font-sans">TELANGANA RAKSHANA SENA</span>
                       <span className={`text-[5.5px] xs:text-[6px] sm:text-[7px] font-extrabold ${cardThemeStyles.textGold} uppercase tracking-[0.16em]`}>VIDYARTHI VIBHAGAM (TVRS)</span>

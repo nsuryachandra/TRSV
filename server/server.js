@@ -838,6 +838,12 @@ httpServer.listen(PORT, async () => {
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_chat_messages_channel_id ON chat_messages(channel_id)`);
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_chat_messages_sender_id ON chat_messages(sender_id)`);
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_join_requests_constituency_id ON join_requests(constituency_id)`);
+    await pool.query(`ALTER TABLE join_requests ADD COLUMN IF NOT EXISTS member_type VARCHAR(50) DEFAULT 'Student'`);
+    await pool.query(`ALTER TABLE join_requests ADD COLUMN IF NOT EXISTS locality VARCHAR(255)`);
+    await pool.query(`ALTER TABLE join_requests ADD COLUMN IF NOT EXISTS district VARCHAR(255)`);
+    await pool.query(`ALTER TABLE join_requests ADD COLUMN IF NOT EXISTS date_of_birth DATE`);
+    await pool.query(`ALTER TABLE join_requests ADD COLUMN IF NOT EXISTS gender VARCHAR(50)`);
+    await pool.query(`ALTER TABLE join_requests ALTER COLUMN college_name DROP NOT NULL`);
     
     // Safely check if qr_verification_logs exists before trying to index it
     const qrTableExists = await pool.query(`

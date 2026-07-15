@@ -774,7 +774,7 @@ export default function PublicVerification() {
               </button>
             </div>
 
-            <GlassCard className="p-2 py-6 flex flex-col items-center justify-center" hoverEffect={false}>
+            <GlassCard className="p-2 py-6 flex flex-col items-center justify-center !overflow-visible" hoverEffect={false}>
               <TVRSIdentityCard
                 photo={profile?.profile_image}
                 name={profile?.full_name}
@@ -797,10 +797,8 @@ export default function PublicVerification() {
           </h3>
 
           <GlassCard className="p-6" hoverEffect={false}>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               
-
-
               <div className="flex items-start gap-3 border-b md:border-b-0 pb-4 md:pb-0 border-slate-100 dark:border-slate-850">
                 <Landmark className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
                 <div className="flex flex-col">
@@ -837,7 +835,7 @@ export default function PublicVerification() {
                 </div>
               </div>
 
-              <div className="flex items-start gap-3 border-b md:border-b-0 pb-4 md:pb-0 border-slate-100 dark:border-slate-850">
+              <div className="flex items-start gap-3">
                 <Award className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
                 <div className="flex flex-col">
                   <span className="text-[10px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-widest leading-none">
@@ -845,18 +843,6 @@ export default function PublicVerification() {
                   </span>
                   <span className="mt-2 text-sm font-bold text-slate-800 dark:text-white">
                     {identity?.issued_at ? new Date(identity.issued_at).getFullYear() : '2023'}
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <Activity className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
-                <div className="flex flex-col">
-                  <span className="text-[10px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-widest leading-none">
-                    Last Cryptographic Verification
-                  </span>
-                  <span className="mt-2 text-sm font-bold text-slate-800 dark:text-white font-mono">
-                    {new Date().toLocaleString('en-IN', { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true })}
                   </span>
                 </div>
               </div>

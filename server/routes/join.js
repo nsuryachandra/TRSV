@@ -7,18 +7,18 @@ const router = express.Router();
 
 // 1. Submit Join Request (Public endpoint)
 router.post('/', async (req, res) => {
-  const { fullName, email, phone, constituencyId, reason } = req.body;
+  const { fullName, email, phone, memberType, collegeName, locality, district, constituencyId, reason, dateOfBirth, gender } = req.body;
 
-  if (!fullName || !email || !phone || !constituencyId || !reason) {
-    return res.status(400).json({ success: false, message: 'All application fields are required.' });
+  if (!fullName || !phone || !memberType || !district || !constituencyId || !reason) {
+    return res.status(400).json({ success: false, message: 'All required application fields are required.' });
   }
 
   try {
     const result = await query(
-      `INSERT INTO join_requests (full_name, email, phone, college_name, constituency_id, reason)
-       VALUES ($1, $2, $3, $4, $5, $6)
+      `INSERT INTO join_requests (full_name, email, phone, member_type, college_name, locality, district, constituency_id, reason, date_of_birth, gender)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
        RETURNING *`,
-      [fullName, email, phone, null, parseInt(constituencyId), reason]
+      [fullName, email || null, phone, memberType, memberType === 'Student' ? collegeName : null, locality || null, district, parseInt(constituencyId), reason, dateOfBirth || null, gender || null]
     );
 
     res.status(201).json({ 
@@ -29,7 +29,7 @@ router.post('/', async (req, res) => {
 
     await query(
       'INSERT INTO realtime_activity_logs (user_id, activity_type, details, ip_address) VALUES ($1, $2, $3, $4)',
-      [null, 'SUBMIT_JOIN_REQUEST', `Public application submitted by ${fullName} (${email}) to join TRSV`, getClientIP(req)]
+      [null, 'SUBMIT_JOIN_REQUEST', `Public application submitted by ${fullName} to join TRSV`, getClientIP(req)]
     );
   } catch (error) {
     console.error('🚨 [Join Request Submit Error]:', error.message);
@@ -47,14 +47,14 @@ router.get('/', requireRole(['supreme_admin', 'president', 'state_president', 'v
 
     if (isStatewide) {
       result = await query(
-        `SELECT jr.*, con.constituency_name, con.district 
+        `SELECT jr.*, con.constituency_name, COALESCE(jr.district, con.district) AS district 
          FROM join_requests jr
          LEFT JOIN constituencies con ON jr.constituency_id = con.id
          ORDER BY jr.created_at DESC`
       );
     } else {
       result = await query(
-        `SELECT jr.*, con.constituency_name, con.district 
+        `SELECT jr.*, con.constituency_name, COALESCE(jr.district, con.district) AS district 
          FROM join_requests jr
          LEFT JOIN constituencies con ON jr.constituency_id = con.id
          WHERE jr.constituency_id = $1

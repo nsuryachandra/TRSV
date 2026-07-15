@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Shield, Users, Radio, CheckCircle, AlertTriangle, Play, ChevronRight, Phone, RefreshCw, X, Check } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useSearchParams } from 'react-router-dom';
@@ -152,20 +152,43 @@ export default function LeaderDashboard() {
     }
   };
 
-  useEffect(() => {
-    fetchDashboardData();
+  const eventSourceRef = useRef(null);
+  const reconnectTimeoutRef = useRef(null);
 
-    // Wire up to Enterprise SSE stream
+  const connectStream = useCallback(() => {
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close();
+    }
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+      reconnectTimeoutRef.current = null;
+    }
+
     const token = localStorage.getItem('trsv_session_token');
     const base = window.Capacitor ? 'https://tvrs-union.onrender.com' : '';
-    const eventSource = new EventSource(`${base}/api/realtime/stream?token=${token}`);
-    eventSource.onopen = () => {
+    const es = new EventSource(`${base}/api/realtime/stream?token=${token}`);
+    eventSourceRef.current = es;
+
+    es.onopen = () => {
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+        reconnectTimeoutRef.current = null;
+      }
       setConnectionDropped(false);
     };
-    eventSource.onerror = () => {
-      setConnectionDropped(true);
+
+    es.onerror = () => {
+      // Debounce: wait 5s to see if browser reconnects automatically
+      if (!reconnectTimeoutRef.current) {
+        reconnectTimeoutRef.current = setTimeout(() => {
+          if (es.readyState !== EventSource.OPEN) {
+            setConnectionDropped(true);
+          }
+        }, 5000);
+      }
     };
-    eventSource.onmessage = (event) => {
+
+    es.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
         if (data.type === 'NEW_COMPLAINT' || data.type === 'EMERGENCY_ACKNOWLEDGED') {
@@ -175,11 +198,21 @@ export default function LeaderDashboard() {
         console.error('SSE Error:', err);
       }
     };
+  }, []);
+
+  useEffect(() => {
+    fetchDashboardData();
+    connectStream();
 
     return () => {
-      eventSource.close();
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close();
+      }
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+      }
     };
-  }, []);
+  }, [connectStream]);
 
 
 
@@ -524,6 +557,7 @@ export default function LeaderDashboard() {
           try {
             await fetch('/api/health');
             setConnectionDropped(false);
+            connectStream();
             fetchDashboardData();
           } catch (e) {
             console.warn('Re-connect attempt failed');

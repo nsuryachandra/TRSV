@@ -273,7 +273,7 @@ function Field({ icon: Icon, label, value }) {
           {label}
         </div>
         <div
-          className="mt-[5px] truncate text-[12.5px] font-semibold leading-none"
+          className="mt-[5px] text-[12px] font-semibold leading-tight break-words"
           style={{ color: TOKENS.ink, fontFamily: "Inter, sans-serif" }}
         >
           {value || "\u2014"}
@@ -721,10 +721,13 @@ export function TVRSIdentityCard({
 
         .tvrs-scene {
           perspective: 1600px;
+          will-change: transform;
+          transform: translate3d(0, 0, 0);
         }
         .tvrs-flip {
           transform-style: preserve-3d;
           transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+          will-change: transform;
         }
         .tvrs-flip.is-flipped {
           transform: rotateY(180deg);
@@ -732,6 +735,8 @@ export function TVRSIdentityCard({
         .tvrs-face {
           backface-visibility: hidden;
           -webkit-backface-visibility: hidden;
+          will-change: transform;
+          transform: translate3d(0, 0, 0);
         }
         .tvrs-face-back {
           transform: rotateY(180deg);
@@ -757,32 +762,34 @@ export function TVRSIdentityCard({
         }
       `}</style>
 
-      <div className="tvrs-scene w-[340px] shrink-0 origin-center scale-[0.8] min-[360px]:scale-[0.85] min-[400px]:scale-[0.95] min-[440px]:scale-100 transition-transform duration-300 my-[-30px] min-[360px]:my-[-20px] min-[400px]:my-[-10px] min-[440px]:my-0">
-        <div
-          className="tvrs-card-shell relative aspect-[54/86] w-full cursor-pointer rounded-[22px] shadow-[0_18px_38px_-16px_rgba(10,42,84,0.28)] ring-1 ring-[rgba(10,42,84,0.08)]"
-          onClick={() => setFlipped((f) => !f)}
-          role="button"
-          tabIndex={0}
-          aria-label="Flip identity card"
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") setFlipped((f) => !f);
-          }}
-        >
-          <div className={`tvrs-flip relative h-full w-full ${flipped ? "is-flipped" : ""}`}>
-            <div className="tvrs-face absolute inset-0 overflow-hidden rounded-[22px]">
-              <CardFront {...data} qrCodeDataUrl={qrCodeDataUrl} />
-              <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[22px]">
-                <div
-                  className="tvrs-shine absolute -top-1/2 left-0 h-[220%] w-1/4"
-                  style={{
-                    background:
-                      "linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent)",
-                  }}
-                />
+      <div className="w-[272px] min-[360px]:w-[289px] min-[400px]:w-[323px] min-[440px]:w-[340px] transition-all duration-300 flex items-center justify-center overflow-visible">
+        <div className="tvrs-scene w-[340px] shrink-0 origin-center scale-[0.8] min-[360px]:scale-[0.85] min-[400px]:scale-[0.95] min-[440px]:scale-100 transition-transform duration-300 my-[-30px] min-[360px]:my-[-20px] min-[400px]:my-[-10px] min-[440px]:my-0">
+          <div
+            className="tvrs-card-shell relative aspect-[54/86] w-full cursor-pointer rounded-[22px] shadow-[0_18px_38px_-16px_rgba(10,42,84,0.28)] ring-1 ring-[rgba(10,42,84,0.08)]"
+            onClick={() => setFlipped((f) => !f)}
+            role="button"
+            tabIndex={0}
+            aria-label="Flip identity card"
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") setFlipped((f) => !f);
+            }}
+          >
+            <div className={`tvrs-flip relative h-full w-full ${flipped ? "is-flipped" : ""}`}>
+              <div className="tvrs-face absolute inset-0 overflow-hidden rounded-[22px]">
+                <CardFront {...data} qrCodeDataUrl={qrCodeDataUrl} />
+                <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[22px]">
+                  <div
+                    className="tvrs-shine absolute -top-1/2 left-0 h-[220%] w-1/4"
+                    style={{
+                      background:
+                        "linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent)",
+                    }}
+                  />
+                </div>
               </div>
-            </div>
-            <div className="tvrs-face tvrs-face-back absolute inset-0 overflow-hidden rounded-[22px]">
-              <CardBack {...data} qrCodeDataUrl={qrCodeDataUrl} />
+              <div className="tvrs-face tvrs-face-back absolute inset-0 overflow-hidden rounded-[22px]">
+                <CardBack {...data} qrCodeDataUrl={qrCodeDataUrl} />
+              </div>
             </div>
           </div>
         </div>
@@ -1651,7 +1658,7 @@ export default function Profile() {
             </button>
           </div>
 
-          <GlassCard className="p-2 py-6 flex flex-col items-center justify-center" hoverEffect={false}>
+          <GlassCard className="p-2 py-6 flex flex-col items-center justify-center !overflow-visible" hoverEffect={false}>
             <TVRSIdentityCard
               photo={userProfile?.profile_image}
               name={userProfile?.full_name}
