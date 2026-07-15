@@ -328,6 +328,153 @@ router.get('/:id/timeline', async (req, res) => {
   }
 });
 
+// Leaders management endpoints
+router.get('/leaders/list', async (req, res) => {
+  try {
+    const result = await query(`
+      SELECT u.id, u.full_name, u.email, u.role, u.constituency_id, con.constituency_name, mi.trsv_member_id
+      FROM users u
+      LEFT JOIN constituencies con ON u.constituency_id = con.id
+      LEFT JOIN member_identities mi ON u.id = mi.user_id
+      WHERE u.role IN ('president', 'vice_president', 'general_secretary', 'secretary')
+      ORDER BY u.full_name ASC
+    `);
+    res.json({ success: true, leaders: result.rows });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+router.post('/leaders/assign', async (req, res) => {
+  const { username, role, constituency_id } = req.body;
+  if (!username || !role) {
+    return res.status(400).json({ success: false, message: 'Username and role are required.' });
+  }
+
+  try {
+    // Find user by student username format
+    const searchEmail = `${username.trim()}@trsv.student`;
+    const userResult = await query('SELECT * FROM users WHERE email = $1 OR email = $2', [searchEmail, username.trim()]);
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ success: false, message: `Student with username "${username}" not found.` });
+    }
+
+    const user = userResult.rows[0];
+    const uid = user.id;
+
+    // Retrieve constituency details
+    let conName = 'STATE';
+    if (constituency_id) {
+      const conRes = await query('SELECT constituency_name FROM constituencies WHERE id = $1', [constituency_id]);
+      if (conRes.rows.length > 0) {
+        conName = conRes.rows[0].constituency_name;
+      }
+    }
+    const conCode = conName.toUpperCase().replace(/[^A-Z0-9]/g, '');
+
+    // Update user role, constituency and verification status
+    await query(`
+      UPDATE users
+      SET role = $1, constituency_id = $2, verified = TRUE, updated_at = NOW()
+      WHERE id = $3
+    `, [role, constituency_id || null, uid]);
+
+    // Update or insert member identity
+    const checkIdentity = await query('SELECT * FROM member_identities WHERE user_id = $1', [uid]);
+    const trsv_member_id = checkIdentity.rows.length > 0
+      ? checkIdentity.rows[0].trsv_member_id
+      : `TVRS-${conCode}-${Math.floor(100000 + Math.random() * 900000)}`;
+    const qr_token = checkIdentity.rows.length > 0
+      ? checkIdentity.rows[0].qr_token
+      : 'qr_' + crypto.randomBytes(16).toString('hex');
+
+    if (checkIdentity.rows.length > 0) {
+      await query(`
+        UPDATE member_identities
+        SET verification_status = 'Verified', active = TRUE, trsv_member_id = $2
+        WHERE user_id = $1
+      `, [uid, trsv_member_id]);
+    } else {
+      await query(`
+        INSERT INTO member_identities (user_id, trsv_member_id, qr_token, verification_status, active)
+        VALUES ($1, $2, $3, 'Verified', TRUE)
+      `, [uid, trsv_member_id, qr_token]);
+    }
+
+    // Update or insert metrics and timeline
+    const checkMetrics = await query('SELECT * FROM member_profile_metrics WHERE user_id = $1', [uid]);
+    const defaultTimeline = JSON.stringify([
+      { date: new Date().toISOString().split('T')[0], event: `Assigned as ${role.replace(/_/g, ' ').toUpperCase()} for constituency directly via DevTools.` }
+    ]);
+
+    if (checkMetrics.rows.length === 0) {
+      await query(`
+        INSERT INTO member_profile_metrics (user_id, issues_resolved, issues_pending, rating, timeline)
+        VALUES ($1, 0, 0, 5.00, $2::jsonb)
+      `, [uid, defaultTimeline]);
+    } else {
+      await query(`
+        UPDATE member_profile_metrics
+        SET timeline = timeline || $1::jsonb
+        WHERE user_id = $2
+      `, [defaultTimeline, uid]);
+    }
+
+    // Log audit event
+    await query(`
+      INSERT INTO audit_logs (user_id, action_context, previous_state, new_state, ip_address)
+      VALUES ($1, $2, $3, $4, $5)
+    `, [req.user.uid, 'ASSIGN_LEADER', JSON.stringify(user), JSON.stringify({ role, constituency_id, verified: true }), getClientIP(req)]);
+
+    res.json({ success: true, message: `Successfully assigned ${user.full_name} as ${role.replace(/_/g, ' ').toUpperCase()}.` });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+router.post('/leaders/:id/remove', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const userResult = await query('SELECT * FROM users WHERE id = $1', [id]);
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    const user = userResult.rows[0];
+
+    // Reset user table fields
+    await query(`
+      UPDATE users
+      SET role = 'student', verified = FALSE, updated_at = NOW()
+      WHERE id = $1
+    `, [id]);
+
+    // Update member identity status
+    await query(`
+      UPDATE member_identities
+      SET verification_status = 'Revoked', active = FALSE
+      WHERE user_id = $1
+    `, [id]);
+
+    // Log event in timeline
+    await query(`
+      UPDATE member_profile_metrics
+      SET timeline = timeline || $1::jsonb
+      WHERE user_id = $2
+    `, [JSON.stringify([{ date: new Date().toISOString().split('T')[0], event: `Leadership role revoked and membership suspended via DevTools.` }]), id]);
+
+    // Add audit log
+    await query(`
+      INSERT INTO audit_logs (user_id, action_context, previous_state, new_state, ip_address)
+      VALUES ($1, $2, $3, $4, $5)
+    `, [req.user.uid, 'REVOKE_LEADER', JSON.stringify(user), JSON.stringify({ role: 'student', verified: false }), getClientIP(req)]);
+
+    res.json({ success: true, message: `Successfully revoked leadership role for ${user.full_name}.` });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 export default {
   id: 'members',
   name: 'Member Management',

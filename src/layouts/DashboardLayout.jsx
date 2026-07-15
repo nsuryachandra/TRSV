@@ -44,8 +44,23 @@ export default function DashboardLayout() {
     logout,
     checkBiometricsAvailable,
     enableBiometricLogin,
-    disableBiometricLogin
-  , applyExternalToken } = useAuth();
+    disableBiometricLogin,
+    applyExternalToken,
+    refreshProfile
+  } = useAuth();
+
+  // Periodically sync user profile from database to dynamically react to promotions/suspensions
+  useEffect(() => {
+    if (!userProfile) return;
+    const interval = setInterval(async () => {
+      try {
+        await refreshProfile();
+      } catch (err) {
+        console.warn('Periodic profile refresh failed:', err);
+      }
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [refreshProfile, userProfile]);
 
   // Biometrics States
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
