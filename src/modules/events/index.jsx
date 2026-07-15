@@ -10,7 +10,7 @@ const EventsPanel = () => {
   const [capacity, setCapacity] = useState('100');
   const [loading, setLoading] = useState(true);
 
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('trsv_session_token');
   const headers = {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`
@@ -207,3 +207,4 @@ export default {
     { query: 'Review campaign check-ins', action: 'scheduler' }
   ]
 };
+

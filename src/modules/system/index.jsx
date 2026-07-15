@@ -10,7 +10,7 @@ const SystemPanel = () => {
   const [restoreFile, setRestoreFile] = useState(null);
   const [restoring, setRestoring] = useState(false);
 
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('trsv_session_token');
   const headers = { 'Authorization': `Bearer ${token}` };
 
   const fetchHealth = async () => {
@@ -266,3 +266,4 @@ export default {
     { query: 'Restore backup snapshot', action: 'console' }
   ]
 };
+

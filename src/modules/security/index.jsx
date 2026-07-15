@@ -41,7 +41,7 @@ const SecurityPanel = () => {
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('trsv_session_token');
   const headers = { 'Authorization': `Bearer ${token}` };
 
   const fetchLogs = async () => {
@@ -171,3 +171,4 @@ export default {
     { query: 'Security event monitoring', action: 'logs' }
   ]
 };
+

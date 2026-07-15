@@ -46,7 +46,7 @@ const ChartContainer = ({ children, fallbackLabel = "No Telemetry Data Available
   }
 
   return (
-    <div className="w-full h-full min-w-0 overflow-hidden relative">
+    <div className="w-full h-full min-w-0 min-h-[180px] overflow-hidden relative">
       {children}
     </div>
   );

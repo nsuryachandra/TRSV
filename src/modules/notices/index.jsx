@@ -10,7 +10,7 @@ const NoticesPanel = () => {
   const [status, setStatus] = useState('Active');
   const [loading, setLoading] = useState(true);
 
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('trsv_session_token');
   const headers = {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`
@@ -205,3 +205,4 @@ export default {
     { query: 'Schedule bulletin board messages', action: 'notices' }
   ]
 };
+

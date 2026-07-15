@@ -15,7 +15,7 @@ const PortalPanel = () => {
     hero_text: ''
   });
 
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('trsv_session_token');
   const headers = { 'Authorization': `Bearer ${token}` };
 
   useEffect(() => {
@@ -232,3 +232,4 @@ export default {
     { query: 'Configure portal appearance', action: 'branding' }
   ]
 };
+
