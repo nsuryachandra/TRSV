@@ -513,7 +513,7 @@ export default function Contact() {
                         onChange={(e) => setComplainantName(e.target.value)}
                         className="peer w-full pl-11 pr-4 py-3.5 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-805 dark:text-slate-100 font-bold"
                       />
-                      <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400 pointer-events-none z-10 animate-icon-bounce-centered" strokeWidth={2.2} />
+                      <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400 pointer-events-none z-10" strokeWidth={2.2} />
                     </div>
                   </div>
 
@@ -536,7 +536,7 @@ export default function Contact() {
                           </option>
                         ))}
                       </select>
-                      <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400 pointer-events-none z-10 animate-icon-bounce-centered" strokeWidth={2.2} />
+                      <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400 pointer-events-none z-10" strokeWidth={2.2} />
                     </div>
                   </div>
 
@@ -564,7 +564,7 @@ export default function Contact() {
                         <option value="Abuse">Physical or verbal abuse</option>
                         <option value="Other">Other complaints</option>
                       </select>
-                      <FileText className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400 pointer-events-none z-10 animate-icon-bounce-centered" strokeWidth={2.2} />
+                      <FileText className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400 pointer-events-none z-10" strokeWidth={2.2} />
                     </div>
                   </div>
 
@@ -585,7 +585,7 @@ export default function Contact() {
                         <option value="High">High - Priority response board</option>
                         <option value="Critical">Critical - Immediate security check</option>
                       </select>
-                      <AlertTriangle className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400 pointer-events-none z-10 animate-icon-bounce-centered" strokeWidth={2.2} />
+                      <AlertTriangle className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400 pointer-events-none z-10" strokeWidth={2.2} />
                     </div>
                   </div>
 
@@ -607,7 +607,7 @@ export default function Contact() {
                       onChange={(e) => setCollegeSchoolAddress(e.target.value)}
                       className="peer w-full pl-11 pr-4 py-3.5 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-805 dark:text-slate-100 font-bold"
                     />
-                    <Building className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400 pointer-events-none z-10 animate-icon-bounce-centered" strokeWidth={2.2} />
+                    <Building className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400 pointer-events-none z-10" strokeWidth={2.2} />
                   </div>
                 </div>
 
@@ -625,7 +625,7 @@ export default function Contact() {
                       onChange={(e) => setDescription(e.target.value)}
                       className="peer w-full pl-11 pr-4 py-3.5 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-805 dark:text-slate-100 font-bold"
                     />
-                    <AlignLeft className="absolute left-4 top-4.5 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400 pointer-events-none z-10 animate-icon-bounce-static" strokeWidth={2.2} />
+                    <AlignLeft className="absolute left-4 top-4.5 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400 pointer-events-none z-10" strokeWidth={2.2} />
                   </div>
                 </div>
 
