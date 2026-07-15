@@ -142,6 +142,8 @@ export default function JoinTVRS() {
     }
     if (!formData.district) return setError('Please select your district.');
     if (!formData.constituencyId) return setError('Please select your constituency.');
+    if (!formData.dateOfBirth) return setError('Please enter your date of birth.');
+    if (!formData.gender) return setError('Please select your gender.');
     if (!formData.reason.trim()) return setError('Please provide the purpose for joining.');
     if (!formData.declaration) {
       return setError('You must confirm that the information provided is true and accurate.');
@@ -296,11 +298,12 @@ export default function JoinTVRS() {
                 {/* Date of Birth */}
                 <div className="flex flex-col gap-1.5 text-left">
                   <label className="text-[10px] font-black text-slate-450 dark:text-slate-500 uppercase tracking-wider">
-                    Date of Birth <span className="text-slate-450 font-bold text-[9px]">(Optional)</span>
+                    Date of Birth <span className="text-rose-500">*</span>
                   </label>
                   <div className="relative">
                     <input
                       type="date"
+                      required
                       value={formData.dateOfBirth}
                       onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
                       className="peer w-full pl-11 pr-4 py-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-855 dark:text-slate-100 font-bold cursor-pointer"
@@ -334,11 +337,12 @@ export default function JoinTVRS() {
                 {/* Gender */}
                 <div className="flex flex-col gap-1.5 text-left">
                   <label className="text-[10px] font-black text-slate-450 dark:text-slate-500 uppercase tracking-wider">
-                    Gender <span className="text-slate-450 font-bold text-[9px]">(Optional)</span>
+                    Gender <span className="text-rose-500">*</span>
                   </label>
                   <div className="relative">
                     <select
                       value={formData.gender}
+                      required
                       onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
                       className="peer w-full pl-11 pr-10 py-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-855 dark:text-slate-100 font-bold cursor-pointer appearance-none"
                     >

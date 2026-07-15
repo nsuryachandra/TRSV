@@ -9,7 +9,7 @@ const router = express.Router();
 router.post('/', async (req, res) => {
   const { fullName, email, phone, memberType, collegeName, locality, district, constituencyId, reason, dateOfBirth, gender } = req.body;
 
-  if (!fullName || !phone || !memberType || !district || !constituencyId || !reason) {
+  if (!fullName || !phone || !memberType || !district || !constituencyId || !reason || !dateOfBirth || !gender) {
     return res.status(400).json({ success: false, message: 'All required application fields are required.' });
   }
 
