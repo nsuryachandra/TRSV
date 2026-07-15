@@ -69,7 +69,7 @@ export default function HubChat({ user, chatMode = 'admin' }) {
     }
   }, [isDevOrSupreme, user.role]);
 
-  // 3. Configure socket connection
+  // 3. Configure socket connection — create ONCE per user session, not per channel
   useEffect(() => {
     const socketUrl = window.Capacitor
       ? 'https://trsv-union.onrender.com'
@@ -77,27 +77,37 @@ export default function HubChat({ user, chatMode = 'admin' }) {
     
     const token = localStorage.getItem('trsv_session_token') || localStorage.getItem('token') || sessionStorage.getItem('token');
 
-    // Connect socket
-    socketRef.current = io(socketUrl, {
-      transports: ['websocket'],
-      upgrade: false,
+    // Connect socket ONCE — channel switching is handled by emit, not reconnect
+    const socket = io(socketUrl, {
+      transports: ['websocket', 'polling'], // Allow polling as fallback
+      upgrade: true,
       auth: { token },
-      withCredentials: true
+      withCredentials: true,
+      reconnection: true,
+      reconnectionAttempts: 10,
+      reconnectionDelay: 2000,
+      timeout: 20000,
     });
+    socketRef.current = socket;
 
-    socketRef.current.on('connect', () => {
+    socket.on('connect', () => {
       setSocketConnected(true);
       console.log('🔌 [Socket.io] Connected successfully');
-      // Join initial room
-      socketRef.current.emit('join_channel', currentChannel);
+      // Join the current channel after (re)connect
+      socket.emit('join_channel', currentChannel);
     });
 
-    socketRef.current.on('disconnect', () => {
+    socket.on('disconnect', (reason) => {
       setSocketConnected(false);
+      console.warn('[Socket.io] Disconnected:', reason);
+    });
+
+    socket.on('connect_error', (err) => {
+      console.warn('[Socket.io] Connection error:', err.message);
     });
 
     // Accept refreshed tokens emitted by the server and apply to session
-    socketRef.current.on('token_refreshed', ({ token: refreshed }) => {
+    socket.on('token_refreshed', ({ token: refreshed }) => {
       console.log('🔁 [HubChat Socket] Received refreshed token.');
       try {
         if (typeof applyExternalToken === 'function') applyExternalToken(refreshed);
@@ -108,26 +118,22 @@ export default function HubChat({ user, chatMode = 'admin' }) {
     });
 
     // Message listener
-    socketRef.current.on('new_message', (msg) => {
-      if (msg.channel_id === currentChannel) {
-        setMessages(prev => {
-          // Prevent duplicates
-          if (prev.some(p => p.id === msg.id)) return prev;
-          return [...prev, msg];
-        });
-      }
+    socket.on('new_message', (msg) => {
+      // Use a ref-based channel check so we don't need currentChannel in deps
+      setMessages(prev => {
+        if (prev.some(p => p.id === msg.id)) return prev;
+        return [...prev, msg];
+      });
     });
 
     // Message edited listener
-    socketRef.current.on('message_edited', (editedMsg) => {
-      if (editedMsg.channel_id === currentChannel) {
-        setMessages(prev => prev.map(m => m.id === editedMsg.id ? { ...m, message_text: editedMsg.message_text, is_edited: true } : m));
-      }
+    socket.on('message_edited', (editedMsg) => {
+      setMessages(prev => prev.map(m => m.id === editedMsg.id ? { ...m, message_text: editedMsg.message_text, is_edited: true } : m));
     });
 
     // Typing listeners
-    socketRef.current.on('typing_start', (data) => {
-      if (data.channel_id === currentChannel && data.sender_id !== user.id) {
+    socket.on('typing_start', (data) => {
+      if (data.sender_id !== user.id) {
         setTypingUsers(prev => ({
           ...prev,
           [data.sender_id]: { name: data.sender_name, role: data.sender_role }
@@ -135,7 +141,7 @@ export default function HubChat({ user, chatMode = 'admin' }) {
       }
     });
 
-    socketRef.current.on('typing_stop', (data) => {
+    socket.on('typing_stop', (data) => {
       setTypingUsers(prev => {
         const copy = { ...prev };
         delete copy[data.sender_id];
@@ -144,26 +150,31 @@ export default function HubChat({ user, chatMode = 'admin' }) {
     });
 
     return () => {
-      if (socketRef.current) {
-        socketRef.current.disconnect();
-      }
+      socket.disconnect();
     };
-  }, [currentChannel, user.id]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user.id]); // Only reconnect when the logged-in user changes
 
   // 4. Load historical messages on channel switch
   useEffect(() => {
     const token = localStorage.getItem('trsv_session_token') || localStorage.getItem('token') || sessionStorage.getItem('token');
     if (!token || !user.id) return;
 
+    setMessages([]); // Clear messages when switching channel
     fetch(`/api/chat/history/${currentChannel}`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
     })
       .then(res => {
-        if (res.status === 401 || res.status === 403) {
+        if (res.status === 401) {
+          // Only logout on explicit token expiry (401)
           logout();
           throw new Error('Session expired');
+        }
+        if (res.status === 403) {
+          // Access denied — don't logout, just skip loading history
+          throw new Error(`Access denied for channel: ${currentChannel}`);
         }
         return res.json();
       })
@@ -174,12 +185,12 @@ export default function HubChat({ user, chatMode = 'admin' }) {
           console.error('Failed to load chat history:', data.message);
         }
       })
-      .catch(err => console.error('Error fetching chat history:', err));
+      .catch(err => console.warn('Chat history fetch:', err.message));
 
     // Clear typing users for new channel
     setTypingUsers({});
 
-    // Emit join event if socket is ready
+    // Emit join event if socket is already connected
     if (socketRef.current && socketRef.current.connected) {
       socketRef.current.emit('join_channel', currentChannel);
     }

@@ -73,18 +73,17 @@ router.get('/history/:channel_id', authenticateChatUser, async (req, res) => {
   const user = req.user;
 
   // Authorization Check:
-  // - Students can ONLY access their own Social Sector Lounge: 'Social-Sector-[TheirHubName]'
-  // - 'dev' and 'supreme_admin' roles have access to ALL channels
-  // - Leaders can access all Social Sector Lounges
-  // - Leaders can access 'GH-Global' and their constituency-specific admin channels
+  // Full access roles (state-level leadership + devs)
+  const FULL_ACCESS_ROLES = ['dev', 'supreme_admin', 'president', 'state_president', 'vice_president', 'general_secretary', 'president_of_state'];
   let isAuthorized = false;
 
-  if (user.role === 'dev' || user.role === 'supreme_admin') {
+  if (FULL_ACCESS_ROLES.includes(user.role)) {
+    // State-level and devs can access all channels
     isAuthorized = true;
   } else if (user.role === 'student') {
     isAuthorized = channel_id === `Social-Sector-${user.hub_name}`;
   } else {
-    // Leader roles
+    // Constituency-level leaders (secretary, etc.)
     if (channel_id.startsWith('Social-Sector-')) {
       isAuthorized = true;
     } else if (channel_id === 'GH-Global') {
