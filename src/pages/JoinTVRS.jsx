@@ -233,6 +233,43 @@ export default function JoinTVRS() {
     );
   }
 
+  const isGuest = userProfile?.email?.endsWith('@trsv.guest');
+
+  if (isGuest) {
+    return (
+      <div className="w-full min-h-[80vh] flex flex-col items-center justify-center py-4 px-2 sm:py-8 sm:px-4">
+        <AnimatedSection direction="up" className="w-full max-w-md text-center">
+          <GlassCard hoverEffect={false} className="p-8 sm:p-10 relative overflow-hidden border border-rose-500/20 dark:border-rose-500/10 shadow-2xl rounded-3xl bg-white/40 dark:bg-slate-955/20 flex flex-col items-center">
+            {/* Ambient background light */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-rose-500/10 to-transparent blur-2xl pointer-events-none" />
+
+            <div className="w-16 h-16 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center mb-6 shadow-[0_0_20px_rgba(244,63,94,0.15)] animate-bounce">
+              <AlertTriangle className="w-8 h-8 text-rose-500 dark:text-rose-450" />
+            </div>
+
+            <span className="text-[10px] font-black text-rose-600 dark:text-rose-400 tracking-widest uppercase block mb-2">
+              Access Restricted
+            </span>
+            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-855 dark:text-white leading-tight mb-4">
+              Guest Logins can't join TVRS
+            </h1>
+            <p className="text-sm text-slate-550 dark:text-slate-400 leading-relaxed mb-6 font-medium">
+              You are currently logged in with a guest session. Please register or log in using a verified student account to apply for membership.
+            </p>
+
+            <PremiumButton
+              variant="glow"
+              onClick={() => navigate('/dashboard')}
+              className="w-full max-w-[200px]"
+            >
+              Back to Dashboard
+            </PremiumButton>
+          </GlassCard>
+        </AnimatedSection>
+      </div>
+    );
+  }
+
   if (activeApplication) {
     const isPending = activeApplication.status === 'Pending';
     const isApproved = activeApplication.status === 'Approved';
