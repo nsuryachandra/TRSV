@@ -47,6 +47,7 @@ const LeaderDashboard = lazy(() => import('../pages/LeaderDashboard'));
 const CommandCenter = lazy(() => import('../pages/CommandCenter'));
 const EmergencyCommand = lazy(() => import('../pages/EmergencyCommand'));
 const JoinTVRS = lazy(() => import('../pages/JoinTVRS'));
+const DevTools = lazy(() => import('../pages/DevTools'));
 
 // Futuristic Holographic Loading Spinner
 function PageLoader() {
@@ -113,6 +114,12 @@ export default function AppRoutes() {
           <Route path="command/identities" element={
             <ProtectedRoute allowedRoles={['supreme_admin']}>
               <IdManagement />
+            </ProtectedRoute>
+          } />
+
+          <Route path="dev-tools" element={
+            <ProtectedRoute allowedRoles={['supreme_admin']}>
+              <DevTools />
             </ProtectedRoute>
           } />
           

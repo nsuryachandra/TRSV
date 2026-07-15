@@ -1,160 +1,219 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Search, Command, FileText, MapPin, Radio, X } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { Search, Command, ArrowRight, Users, FileText, Megaphone, Calendar, Network, ShieldAlert, Server, Globe, Home, MessageSquare, Bell, Map, ClipboardList, CreditCard, Zap, ChevronRight } from 'lucide-react';
+import devModules from '../modules/index.js';
 
-export default function CommandPalette() {
-  const [isOpen, setIsOpen] = useState(false);
+// Icon resolver
+const iconMap = {
+  Users, FileText, Megaphone, Calendar, Network, ShieldAlert, Server, Globe,
+  Home, MessageSquare, Bell, Map, ClipboardList, CreditCard, Zap
+};
+
+const getIcon = (name) => iconMap[name] || Command;
+
+// Static navigation commands (all roles can see navigation-level items)
+const STATIC_COMMANDS = [
+  { id: 'nav-home', group: 'Navigation', icon: 'Home', label: 'Go to Dashboard', path: '/dashboard', roles: ['all'] },
+  { id: 'nav-complaints', group: 'Navigation', icon: 'ClipboardList', label: 'View Complaints', path: '/complaints', roles: ['all'] },
+  { id: 'nav-id', group: 'Navigation', icon: 'CreditCard', label: 'My Digital ID Card', path: '/my-id', roles: ['all'] },
+  { id: 'nav-announcements', group: 'Navigation', icon: 'Megaphone', label: 'Announcements Board', path: '/announcements', roles: ['all'] },
+  { id: 'nav-districts', group: 'Navigation', icon: 'Map', label: 'Districts Directory', path: '/districts', roles: ['all'] },
+  { id: 'nav-emergency', group: 'Navigation', icon: 'Zap', label: 'Emergency Command Center', path: '/emergency', roles: ['supreme_admin', 'dev', 'state_president', 'president', 'vice_president'] },
+  { id: 'nav-devtools', group: 'Navigation', icon: 'Server', label: 'Open Dev Tools', path: '/dev-tools', roles: ['supreme_admin'] },
+];
+
+const CommandPalette = ({ isOpen, onClose, user }) => {
+  const navigate = useNavigate();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
   const inputRef = useRef(null);
-  const navigate = useNavigate();
-  const { userProfile } = useAuth();
 
-  // Keyboard binding for Ctrl+K / Cmd+K
+  // Build full command index from static + dynamic modules
+  const buildCommandIndex = useCallback(() => {
+    const cmds = [];
+
+    // 1. Static nav commands (filtered by role)
+    STATIC_COMMANDS.forEach(cmd => {
+      const allowed = cmd.roles.includes('all') || (user?.role && cmd.roles.includes(user.role));
+      if (allowed) {
+        cmds.push({
+          id: cmd.id,
+          group: cmd.group,
+          icon: cmd.icon,
+          label: cmd.label,
+          action: () => { navigate(cmd.path); onClose(); }
+        });
+      }
+    });
+
+    // 2. Dynamic Dev Tools module commands (supreme_admin only)
+    if (user?.role === 'supreme_admin') {
+      devModules.forEach(mod => {
+        const Icon = getIcon(mod.icon);
+        // Panel commands
+        mod.panels?.forEach(panel => {
+          cmds.push({
+            id: `devtools-${mod.id}-${panel.id}`,
+            group: `Dev Tools › ${mod.name}`,
+            icon: mod.icon,
+            label: panel.name,
+            action: () => {
+              navigate(`/dev-tools?module=${mod.id}&panel=${panel.id}`);
+              onClose();
+            }
+          });
+        });
+        // Search index commands
+        mod.searchIndex?.forEach((si, idx) => {
+          cmds.push({
+            id: `search-${mod.id}-${idx}`,
+            group: `Dev Tools › ${mod.name}`,
+            icon: mod.icon,
+            label: si.query,
+            action: () => {
+              navigate(`/dev-tools?module=${mod.id}&panel=${si.action}`);
+              onClose();
+            }
+          });
+        });
+      });
+    }
+
+    return cmds;
+  }, [user, navigate, onClose]);
+
   useEffect(() => {
-    const handleKeyDown = (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-        e.preventDefault();
-        setIsOpen(prev => !prev);
-      }
-      if (e.key === 'Escape' && isOpen) {
-        setIsOpen(false);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    if (!isOpen) return;
+    setTimeout(() => inputRef.current?.focus(), 50);
+    setQuery('');
+    setActiveIndex(0);
   }, [isOpen]);
 
-  // Focus input when opened
   useEffect(() => {
-    if (isOpen) {
-      setTimeout(() => inputRef.current?.focus(), 100);
-      document.body.style.overflow = 'hidden';
+    if (!isOpen) return;
+    const allCommands = buildCommandIndex();
+    if (!query.trim()) {
+      setResults(allCommands.slice(0, 12));
     } else {
-      setQuery('');
-      setResults([]);
-      document.body.style.overflow = 'unset';
+      const q = query.toLowerCase();
+      const filtered = allCommands
+        .filter(cmd =>
+          cmd.label.toLowerCase().includes(q) ||
+          cmd.group.toLowerCase().includes(q)
+        )
+        .slice(0, 14);
+      setResults(filtered);
     }
-  }, [isOpen]);
+    setActiveIndex(0);
+  }, [query, isOpen, buildCommandIndex]);
 
-  // Debounced search
-  useEffect(() => {
-    if (query.length < 2) {
-      setResults([]);
-      return;
-    }
-
-    const fetchResults = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
-        const data = await res.json();
-        if (data.success) {
-          setResults(data.results);
-        }
-      } catch (err) {
-        console.error('Omnisearch failed', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const debounceId = setTimeout(fetchResults, 300);
-    return () => clearTimeout(debounceId);
-  }, [query]);
-
-  const handleSelect = (item) => {
-    setIsOpen(false);
-    // Depending on the result type, navigate to the correct module
-    if (item.type === 'complaint') {
-      if (userProfile?.role === 'student') {
-        navigate(`/dashboard/student?open_ticket_id=${item.id}`);
-      } else if (userProfile?.role === 'supreme_admin' || userProfile?.role === 'dev') {
-        navigate(`/dashboard/command?open_ticket_id=${item.id}`);
-      } else {
-        navigate(`/dashboard/leader?open_ticket_id=${item.id}`);
-      }
-    } else if (item.type === 'announcement') {
-      navigate('/dashboard/announcements');
-    } else if (item.type === 'region') {
-      if (userProfile?.role === 'supreme_admin' || userProfile?.role === 'dev') {
-        navigate(`/dashboard/command?open_region_id=${item.id}`);
-      } else {
-        navigate(`/dashboard/districts?region_id=${item.id}`);
-      }
+  const handleKeyDown = (e) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActiveIndex(i => Math.min(i + 1, results.length - 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActiveIndex(i => Math.max(i - 1, 0));
+    } else if (e.key === 'Enter' && results[activeIndex]) {
+      results[activeIndex].action();
+    } else if (e.key === 'Escape') {
+      onClose();
     }
   };
+
+  // Group results by group label
+  const grouped = results.reduce((acc, cmd) => {
+    if (!acc[cmd.group]) acc[cmd.group] = [];
+    acc[cmd.group].push(cmd);
+    return acc;
+  }, {});
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-start justify-center pt-[10vh] sm:pt-[20vh] px-4 animate-fadeIn">
+    <div
+      className="fixed inset-0 z-[100] flex items-start justify-center pt-[15vh] px-4"
+      onClick={onClose}
+    >
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setIsOpen(false)} />
-      
-      {/* Palette Modal */}
-      <div className="relative w-full max-w-2xl bg-white/95 dark:bg-slate-900/95 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-premium-dark overflow-hidden flex flex-col animate-scaleUp">
-        
-        {/* Search Input Area */}
-        <div className="flex items-center gap-3 px-4 py-4 border-b border-slate-200 dark:border-slate-800">
-          <Search className="w-5 h-5 text-slate-400 shrink-0" />
-          <input
-            ref={inputRef}
-            type="text"
-            placeholder="Search complaints, regions, broadcasts..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="flex-1 bg-transparent border-none outline-none text-slate-800 dark:text-white placeholder:text-slate-500 font-medium text-lg"
-          />
-          {loading && <div className="w-4 h-4 border-2 border-t-cyan-500 border-r-transparent rounded-full animate-spin shrink-0" />}
-          <div className="flex items-center gap-1 shrink-0 ml-2">
-            <kbd className="hidden sm:inline-flex items-center justify-center px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-[10px] font-bold text-slate-500 uppercase tracking-widest border border-slate-200 dark:border-slate-700">ESC</kbd>
-            <button onClick={() => setIsOpen(false)} className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg sm:hidden">
-              <X className="w-4 h-4 text-slate-500" />
-            </button>
+      <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-md" />
+
+      {/* Palette modal */}
+      <div
+        className="relative w-full max-w-xl"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl shadow-black/60 overflow-hidden">
+          
+          {/* Search input */}
+          <div className="flex items-center gap-3 px-4 py-3.5 border-b border-slate-800">
+            <Search className="w-4 h-4 text-slate-400 flex-shrink-0" />
+            <input
+              ref={inputRef}
+              type="text"
+              placeholder="Search commands, pages, and tools..."
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              onKeyDown={handleKeyDown}
+              className="flex-1 bg-transparent text-slate-200 text-sm placeholder-slate-500 focus:outline-none"
+            />
+            <kbd className="text-[10px] bg-slate-800 border border-slate-700 text-slate-400 px-2 py-0.5 rounded font-mono">ESC</kbd>
+          </div>
+
+          {/* Results */}
+          <div className="max-h-[380px] overflow-y-auto">
+            {results.length > 0 ? (
+              Object.entries(grouped).map(([group, cmds]) => (
+                <div key={group}>
+                  <div className="px-4 py-2 text-[10px] uppercase font-bold tracking-widest text-slate-500 bg-slate-950/40">
+                    {group}
+                  </div>
+                  {cmds.map((cmd) => {
+                    const Icon = getIcon(cmd.icon);
+                    const globalIdx = results.indexOf(cmd);
+                    const isActive = globalIdx === activeIndex;
+                    return (
+                      <button
+                        key={cmd.id}
+                        onClick={cmd.action}
+                        onMouseEnter={() => setActiveIndex(globalIdx)}
+                        className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors ${
+                          isActive ? 'bg-cyan-950/40 border-l-2 border-cyan-500' : 'border-l-2 border-transparent hover:bg-slate-800/40'
+                        }`}
+                      >
+                        <div className={`p-1.5 rounded-lg ${isActive ? 'bg-cyan-900/40 text-cyan-400' : 'bg-slate-800 text-slate-400'}`}>
+                          <Icon className="w-3.5 h-3.5" />
+                        </div>
+                        <span className={`text-sm flex-1 ${isActive ? 'text-slate-100' : 'text-slate-300'}`}>
+                          {cmd.label}
+                        </span>
+                        <ChevronRight className={`w-3.5 h-3.5 transition-opacity ${isActive ? 'text-cyan-400 opacity-100' : 'text-slate-600 opacity-0'}`} />
+                      </button>
+                    );
+                  })}
+                </div>
+              ))
+            ) : (
+              <div className="py-10 text-center text-sm text-slate-500">
+                No commands found for "<span className="text-slate-400">{query}</span>"
+              </div>
+            )}
+          </div>
+
+          {/* Footer hint */}
+          <div className="px-4 py-2.5 border-t border-slate-800 bg-slate-950/50 flex items-center gap-5 text-[10px] text-slate-500">
+            <span className="flex items-center gap-1"><kbd className="bg-slate-800 border border-slate-700 px-1.5 rounded font-mono">↑↓</kbd> Navigate</span>
+            <span className="flex items-center gap-1"><kbd className="bg-slate-800 border border-slate-700 px-1.5 rounded font-mono">↵</kbd> Execute</span>
+            <span className="flex items-center gap-1"><kbd className="bg-slate-800 border border-slate-700 px-1.5 rounded font-mono">ESC</kbd> Dismiss</span>
+            <span className="ml-auto flex items-center gap-1">
+              <Command className="w-3 h-3" /> TVRS Command Hub
+            </span>
           </div>
         </div>
-
-        {/* Results Area */}
-        <div className="flex-1 max-h-[60vh] overflow-y-auto custom-sidebar-scrollbar flex flex-col p-2 gap-1">
-          {query.length < 2 && results.length === 0 && (
-            <div className="p-8 text-center flex flex-col items-center justify-center gap-3 text-slate-400">
-              <Command className="w-8 h-8 opacity-50" />
-              <p className="text-sm font-medium">Type at least 2 characters to engage global search.</p>
-            </div>
-          )}
-
-          {query.length >= 2 && results.length === 0 && !loading && (
-            <div className="p-8 text-center text-slate-400 text-sm font-medium">
-              No entities found matching "{query}"
-            </div>
-          )}
-
-          {results.map((item, i) => (
-            <button
-              key={`${item.type}-${item.id}-${i}`}
-              onClick={() => handleSelect(item)}
-              className="w-full flex items-center gap-4 p-3 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors text-left group"
-            >
-              <div className="p-2 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-500 shrink-0 group-hover:bg-cyan-500 group-hover:text-white transition-colors">
-                {item.type === 'complaint' ? <FileText className="w-5 h-5" /> : 
-                 item.type === 'region' ? <MapPin className="w-5 h-5" /> : 
-                 <Radio className="w-5 h-5" />}
-              </div>
-              <div className="flex flex-col flex-1 min-w-0">
-                <span className="text-sm font-bold text-slate-800 dark:text-white truncate">{item.primary_text}</span>
-                <span className="text-[11px] text-slate-500 truncate">{item.secondary_text}</span>
-              </div>
-              <span className="shrink-0 px-2 py-1 rounded bg-slate-200 dark:bg-slate-800 text-[9px] font-black uppercase tracking-wider text-slate-500 border border-slate-300/50 dark:border-slate-700">
-                {item.tag || item.type}
-              </span>
-            </button>
-          ))}
-        </div>
-        
       </div>
     </div>
   );
-}
+};
+
+export default CommandPalette;

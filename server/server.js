@@ -53,6 +53,7 @@ import identityRouter from './routes/identity.js';
 import chatRouter from './routes/chat.js';
 import notificationsRouter from './routes/notifications.js';
 import joinRouter from './routes/join.js';
+import { loadModules } from './services/moduleLoader.js';
 
 
 // Startup Environment Validation
@@ -192,6 +193,9 @@ app.use('/api/identity', identityRouter);
 app.use('/api/chat', chatRouter);
 app.use('/api/notifications', notificationsRouter);
 app.use('/api/join-tvrs', joinRouter);
+
+// Register Dynamic plugin-based modules
+await loadModules(app);
 
 // Health Check Endpoint
 app.get('/api/health', async (req, res) => {

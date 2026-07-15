@@ -32,6 +32,7 @@ import { LocalNotifications } from '@capacitor/local-notifications';
 import { App } from '@capacitor/app';
 import { PushNotifications } from '@capacitor/push-notifications';
 import { io } from 'socket.io-client';
+import CommandPalette from '../components/CommandPalette';
 
 export default function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -54,6 +55,7 @@ export default function DashboardLayout() {
   const [biometricError, setBiometricError] = useState('');
   const [promptPasswordOpen, setPromptPasswordOpen] = useState(false);
   const [confirmPasswordVal, setConfirmPasswordVal] = useState('');
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
 
   useEffect(() => {
     if (window.Capacitor) {
@@ -67,6 +69,18 @@ export default function DashboardLayout() {
       initBiometrics();
     }
   }, [checkBiometricsAvailable]);
+
+  // Ctrl+K / Cmd+K shortcut to toggle Command Palette
+  useEffect(() => {
+    const handleKeydown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setCommandPaletteOpen(open => !open);
+      }
+    };
+    window.addEventListener('keydown', handleKeydown);
+    return () => window.removeEventListener('keydown', handleKeydown);
+  }, []);
 
   const handleAvatarClick = () => {
     if (userProfile?.role !== 'student') {
@@ -484,12 +498,8 @@ export default function DashboardLayout() {
           icon: <Bell className="w-5 h-5" />,
           desc: 'Latest union announcements'
         },
-        ...( ['supreme_admin', 'dev', 'state_president'].includes(userProfile?.role) ? [{
-          name: 'System Logs',
-          path: '/dashboard/logs',
-          icon: <Activity className="w-5 h-5" />,
-          desc: 'Real-time security audit logs'
-        }] : [])
+        ...( ['supreme_admin', 'dev', 'state_president'].includes(userProfile?.role) ? [{ name: 'System Logs', path: '/dashboard/logs', icon: <Activity className="w-5 h-5" />, desc: 'Real-time security audit logs' }] : []),
+        ...( userProfile?.role === 'supreme_admin' ? [{ name: '⚙ Dev Tools', path: '/dashboard/dev-tools', icon: <Shield className="w-5 h-5" />, desc: 'Supreme Admin Control Panel' }] : [])
       ]
     },
     {
@@ -543,6 +553,13 @@ export default function DashboardLayout() {
   return (
     <div className="h-screen flex bg-trsv-bg-light dark:bg-trsv-bg-dark transition-colors duration-500 overflow-hidden relative font-sans select-none">
       
+      {/* Global Command Palette — Ctrl+K / Cmd+K */}
+      <CommandPalette
+        isOpen={commandPaletteOpen}
+        onClose={() => setCommandPaletteOpen(false)}
+        user={userProfile}
+      />
+
       {/* Background canvas particles */}
       <FloatingParticles />
 
