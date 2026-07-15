@@ -570,6 +570,7 @@ select {
 
 /* Center-aligned absolute icons (top-1/2 -translate-y-1/2) */
 .animate-icon-bounce-centered {
+  transform: translateY(-50%) scale(1);
   transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.25s ease, filter 0.25s ease;
 }
 .peer:focus ~ .animate-icon-bounce-centered {
@@ -580,6 +581,7 @@ select {
 
 /* Static/Flex/Top-aligned absolute icons */
 .animate-icon-bounce-static {
+  transform: scale(1);
   transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.25s ease, filter 0.25s ease;
 }
 .peer:focus ~ .animate-icon-bounce-static {

@@ -499,7 +499,6 @@ export default function StudentDashboard() {
                   College / School Name
                 </label>
                 <div className="relative">
-                  <Building className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400" strokeWidth={2.2} />
                   <input
                     type="text"
                     placeholder="e.g. Aurora Technological Uppal"
@@ -508,8 +507,9 @@ export default function StudentDashboard() {
                       setCollegeSearch(e.target.value);
                       setSaveSuccess('');
                     }}
-                    className="w-full pl-11 pr-4 py-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-800 dark:text-slate-100 shadow-sm"
+                    className="peer w-full pl-11 pr-4 py-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-800 dark:text-slate-100 shadow-sm"
                   />
+                  <Building className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400 pointer-events-none z-10 animate-icon-bounce-centered" strokeWidth={2.2} />
                 </div>
               </div>
 
@@ -519,11 +519,10 @@ export default function StudentDashboard() {
                   Assembly Constituency
                 </label>
                 <div className="relative">
-                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400" strokeWidth={2.2} />
                   <select
                     value={selectedConstituencyId}
                     onChange={(e) => setSelectedConstituencyId(e.target.value)}
-                    className="w-full pl-11 pr-4 py-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-850 dark:text-slate-100"
+                    className="peer w-full pl-11 pr-4 py-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-850 dark:text-slate-100"
                   >
                     {constituencies.map(con => (
                       <option key={con.id} value={con.id}>
@@ -533,6 +532,7 @@ export default function StudentDashboard() {
                       </option>
                     ))}
                   </select>
+                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400 pointer-events-none z-10 animate-icon-bounce-centered" strokeWidth={2.2} />
                 </div>
               </div>
             </div>
