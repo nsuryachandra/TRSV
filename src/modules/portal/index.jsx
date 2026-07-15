@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Globe, Save, Image, Type, Flag, RefreshCw } from 'lucide-react';
+import { Globe, Save, Image, Type, Flag, RefreshCw, RotateCcw } from 'lucide-react';
+
+const PORTAL_DEFAULTS = {
+  site_title: 'Telangana Vidyarthi Rakshana Sena',
+  tagline: 'Protecting Student Rights Across Telangana',
+  hero_text: 'Welcome to the official leadership operating system of Telangana Vidyarthi Rakshana Sena (TVRS). We stand united to protect student rights across the state.',
+  footer_text: '© 2026 Telangana Vidyarthi Rakshana Sena. All rights reserved.',
+  alert_banner: 'Statewide Membership Registration Drive is now open! Pin your campus and verify your Digital ID card.',
+  logo_url: '/trsvlogo.jpeg',
+  primary_color: '#0ea5e9'
+};
 
 // Field component must be defined at module scope — NOT inside PortalPanel.
 // Defining it inside the parent causes React to treat it as a new component type
@@ -169,14 +179,28 @@ const PortalPanel = () => {
             </div>
           </div>
 
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold rounded-lg text-xs transition disabled:opacity-50"
-          >
-            <Save className="w-4 h-4" />
-            {saving ? 'Saving...' : 'Save Portal Configuration'}
-          </button>
+          <div className="flex items-center gap-3 flex-wrap">
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold rounded-lg text-xs transition disabled:opacity-50"
+            >
+              <Save className="w-4 h-4" />
+              {saving ? 'Saving...' : 'Save Portal Configuration'}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                if (confirm('Reset all portal configuration fields to factory defaults? This does not save — you must click Save after.')) {
+                  setForm(PORTAL_DEFAULTS);
+                }
+              }}
+              className="flex items-center gap-2 px-4 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white font-bold rounded-lg text-xs transition"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              Reset to Default
+            </button>
+          </div>
         </div>
 
         {/* Live Preview */}

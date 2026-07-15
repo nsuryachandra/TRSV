@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Megaphone, Plus, Calendar, Trash2, Globe, Archive } from 'lucide-react';
+import { Megaphone, Plus, Calendar, Trash2, Globe, Archive, RotateCcw } from 'lucide-react';
+
+const NOTICE_DEFAULTS = {
+  title: 'Mandatory Leadership Council Summit — Attendance Notice',
+  content: 'All district presidents, college representatives, and core committee members are required to attend the virtual leadership summit. Agenda: academic fee regulation representation, regional hub activation status, and student welfare updates. Attendance is compulsory.',
+  targetAudience: 'leaders',
+  priority: 'High'
+};
 
 const NoticesPanel = () => {
   const [notices, setNotices] = useState([]);
@@ -146,6 +153,19 @@ const NoticesPanel = () => {
             className="w-full py-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold rounded-lg text-xs transition"
           >
             Post Announcement
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setTitle(NOTICE_DEFAULTS.title);
+              setContent(NOTICE_DEFAULTS.content);
+              setTargetAudience(NOTICE_DEFAULTS.targetAudience);
+              setPriority(NOTICE_DEFAULTS.priority);
+            }}
+            className="w-full py-2 flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white font-bold rounded-lg text-xs transition"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            Fill Defaults
           </button>
         </form>
 

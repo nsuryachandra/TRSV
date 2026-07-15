@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, Plus, Search, Calendar, Download, Eye, Award, CheckCircle, FileCheck, Landmark } from 'lucide-react';
+import { FileText, Plus, Search, Calendar, Download, Eye, Award, CheckCircle, FileCheck, Landmark, RotateCcw } from 'lucide-react';
+
+const DOCUMENT_DEFAULTS = {
+  docType: 'Appointment',
+  recipientName: 'Ch. Karthik Yadav',
+  content: 'By order of the TVRS State Executive Council, you are hereby appointed as the District General Secretary for Hyderabad constituency. You are authorised to oversee and coordinate all student representation activities in your designated area with immediate effect. You shall report directly to the State President on all matters of governance and student welfare.'
+};
 
 const DocumentsPanel = () => {
   const [documents, setDocuments] = useState([]);
@@ -139,7 +145,19 @@ const DocumentsPanel = () => {
             disabled={actionLoading}
             className="w-full py-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold rounded-lg text-xs transition"
           >
-            Generate & Sign Document
+            Generate &amp; Sign Document
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setDocType(DOCUMENT_DEFAULTS.docType);
+              setRecipientName(DOCUMENT_DEFAULTS.recipientName);
+              setContent(DOCUMENT_DEFAULTS.content);
+            }}
+            className="w-full py-2 flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white font-bold rounded-lg text-xs transition"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            Fill Defaults
           </button>
         </form>
 

@@ -568,7 +568,7 @@ function CardBack(props) {
             className="text-[7.5px] font-bold uppercase"
             style={{ color: TOKENS.blue, letterSpacing: "0.08em" }}
           >
-            General Secretary
+            Chief of TRS
           </div>
           <div
             className="text-[7px] uppercase"
@@ -1334,9 +1334,11 @@ export default function Profile() {
     ctx.fillStyle = "#141922";
     ctx.font = "bold 24px 'Sora', sans-serif";
     ctx.fillText("Kavitha Garu", bX + 80, cY + 830);
+
     ctx.fillStyle = "#0A2A54";
     ctx.font = "bold 18px 'Sora', sans-serif";
-    ctx.fillText("General Secretary", bX + 80, cY + 865);
+    ctx.fillText("Chief of TRS", bX + 80, cY + 865);
+
     ctx.fillStyle = "#5B6472";
     ctx.font = "14px 'Sora', sans-serif";
     ctx.fillText("Authorized Signatory", bX + 80, cY + 895);

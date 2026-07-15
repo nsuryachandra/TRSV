@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Network, Plus, ShieldCheck, MapPin, Landmark, School } from 'lucide-react';
+import { Network, Plus, ShieldCheck, MapPin, Landmark, School, RotateCcw } from 'lucide-react';
+
+const ORG_DEFAULTS = {
+  constituency: { name: 'Jubilee Hills', district: 'Hyderabad' },
+  college: { name: 'Chaitanya Bharathi Institute of Technology (CBIT)' }
+};
 
 const OrgPanel = () => {
   const [districts, setDistricts] = useState([]);
@@ -133,6 +138,14 @@ const OrgPanel = () => {
             >
               Add Constituency
             </button>
+            <button
+              type="button"
+              onClick={() => { setConName(ORG_DEFAULTS.constituency.name); setConDistrict(ORG_DEFAULTS.constituency.district); }}
+              className="w-full py-2 flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-400 hover:text-white font-bold rounded-lg text-xs transition"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              Fill Defaults
+            </button>
           </form>
 
           {/* Add College Form */}
@@ -173,6 +186,14 @@ const OrgPanel = () => {
               className="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-lg text-xs transition border border-slate-750"
             >
               Register College
+            </button>
+            <button
+              type="button"
+              onClick={() => setColName(ORG_DEFAULTS.college.name)}
+              className="w-full py-2 flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-400 hover:text-white font-bold rounded-lg text-xs transition"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              Fill Defaults
             </button>
           </form>
         </div>

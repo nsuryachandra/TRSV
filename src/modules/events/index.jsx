@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Plus, MapPin, Users, CheckSquare, Trash2 } from 'lucide-react';
+import { Calendar, Plus, MapPin, Users, CheckSquare, Trash2, RotateCcw } from 'lucide-react';
+
+const EVENT_DEFAULTS = {
+  title: 'Anti-Ragging & Student Rights Awareness Campaign',
+  description: 'A state-level awareness campaign to educate students on their academic rights, anti-ragging protections, and leadership opportunities within the TVRS network.',
+  location: 'JNTUH Auditorium, Kukatpally, Hyderabad',
+  eventDate: '2026-08-15T10:00',
+  capacity: '250'
+};
 
 const EventsPanel = () => {
   const [events, setEvents] = useState([]);
@@ -156,6 +164,20 @@ const EventsPanel = () => {
             className="w-full py-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold rounded-lg text-xs transition"
           >
             Create Event Listing
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setTitle(EVENT_DEFAULTS.title);
+              setDescription(EVENT_DEFAULTS.description);
+              setLocation(EVENT_DEFAULTS.location);
+              setEventDate(EVENT_DEFAULTS.eventDate);
+              setCapacity(EVENT_DEFAULTS.capacity);
+            }}
+            className="w-full py-2 flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white font-bold rounded-lg text-xs transition"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            Fill Defaults
           </button>
         </form>
 
