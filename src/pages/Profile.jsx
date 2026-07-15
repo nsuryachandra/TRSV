@@ -314,38 +314,26 @@ function CardFront(props) {
         }}
       >
         <GuillochePattern id="frontHeaderPattern" color="#FFFFFF" opacity={0.055} />
-        <div className="relative flex items-center justify-between gap-3 w-full">
-          <div className="flex items-center gap-3">
-            <OrgMark logo={logo} />
-            <div className="min-w-0">
-              <div
-                className="text-[10.5px] font-bold leading-[1.35] text-white"
-                style={{
-                  fontFamily: "Sora, sans-serif",
-                  letterSpacing: "0.035em",
-                }}
-              >
-                TELANGANA VIDYARTHI
-                <br />
-                RAKSHANA SENA
-              </div>
-              <div
-                className="mt-[5px] text-[7.5px] font-semibold uppercase"
-                style={{ color: TOKENS.yellow, letterSpacing: "0.17em" }}
-              >
-                Official Digital Identity
-              </div>
+        <div className="relative flex items-center justify-center gap-3.5 w-full">
+          <OrgMark logo={logo} />
+          <div className="text-left">
+            <div
+              className="text-[10.5px] font-bold leading-[1.35] text-white"
+              style={{
+                fontFamily: "Sora, sans-serif",
+                letterSpacing: "0.035em",
+              }}
+            >
+              TELANGANA VIDYARTHI
+              <br />
+              RAKSHANA SENA
             </div>
-          </div>
-
-          <div className="flex flex-col items-end shrink-0 select-none">
-            <span className="text-[6.5px] font-bold text-slate-300 uppercase tracking-widest leading-none">STATE COUNCIL</span>
-            {verified !== false && (
-              <div className="mt-1 px-1.5 py-0.5 rounded border border-emerald-500/35 bg-emerald-500/10 text-emerald-400 text-[6.5px] font-black tracking-wider uppercase flex items-center gap-1 leading-none">
-                <span className="w-1 h-1 rounded-full bg-emerald-400 animate-pulse" />
-                VERIFIED
-              </div>
-            )}
+            <div
+              className="mt-[5px] text-[7.5px] font-semibold uppercase"
+              style={{ color: TOKENS.yellow, letterSpacing: "0.17em" }}
+            >
+              Official Digital Identity
+            </div>
           </div>
         </div>
         <div
@@ -496,22 +484,16 @@ function CardBack(props) {
 
       {/* Header */}
       <div
-        className="relative flex items-center justify-between gap-2.5 px-6 py-4 w-full"
+        className="relative flex items-center justify-center gap-2.5 px-6 py-4 w-full"
         style={{ background: TOKENS.blue }}
       >
         <GuillochePattern id="backHeaderPattern" color="#FFFFFF" opacity={0.055} />
-        <div className="flex items-center gap-2.5">
-          <OrgMark logo={logo} size={23} />
-          <div
-            className="relative text-[9.5px] font-bold text-white"
-            style={{ fontFamily: "Sora, sans-serif", letterSpacing: "0.055em" }}
-          >
-            TVRS OFFICIAL IDENTITY
-          </div>
-        </div>
-        <div className="relative flex items-center gap-1 text-[6.5px] font-bold text-slate-300 tracking-widest uppercase select-none">
-          <span className="w-1 h-1 rounded-full bg-emerald-450 animate-pulse" />
-          SECURE
+        <OrgMark logo={logo} size={23} />
+        <div
+          className="relative text-[9.5px] font-bold text-white"
+          style={{ fontFamily: "Sora, sans-serif", letterSpacing: "0.055em" }}
+        >
+          TVRS OFFICIAL IDENTITY
         </div>
         <div
           className="absolute inset-x-0 bottom-0 h-[2px]"
@@ -1103,7 +1085,7 @@ export default function Profile() {
     // Header Logo Circle
     ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
     ctx.beginPath();
-    ctx.arc(fX + 110, cY + 190, 65, 0, 2 * Math.PI);
+    ctx.arc(fX + 250, cY + 190, 65, 0, 2 * Math.PI);
     ctx.fill();
     ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
     ctx.lineWidth = 4;
@@ -1112,66 +1094,41 @@ export default function Profile() {
     if (logoImg) {
       ctx.save();
       ctx.beginPath();
-      ctx.arc(fX + 110, cY + 190, 60, 0, 2 * Math.PI);
+      ctx.arc(fX + 250, cY + 190, 60, 0, 2 * Math.PI);
       ctx.clip();
-      ctx.drawImage(logoImg, fX + 110 - 60, cY + 190 - 60, 120, 120);
+      ctx.drawImage(logoImg, fX + 250 - 60, cY + 190 - 60, 120, 120);
       ctx.restore();
     } else {
       ctx.strokeStyle = "#0A2A54";
       ctx.lineWidth = 6;
       ctx.lineJoin = "round";
       ctx.beginPath();
-      ctx.moveTo(fX + 110, cY + 190 - 32);
-      ctx.lineTo(fX + 110 + 26, cY + 190 - 18);
-      ctx.lineTo(fX + 110 + 26, cY + 190 + 12);
-      ctx.quadraticCurveTo(fX + 110 + 26, cY + 190 + 36, fX + 110, cY + 190 + 44);
-      ctx.quadraticCurveTo(fX + 110 - 26, cY + 190 + 36, fX + 110 - 26, cY + 190 + 12);
-      ctx.lineTo(fX + 110 - 26, cY + 190 - 18);
+      ctx.moveTo(fX + 250, cY + 190 - 32);
+      ctx.lineTo(fX + 250 + 26, cY + 190 - 18);
+      ctx.lineTo(fX + 250 + 26, cY + 190 + 12);
+      ctx.quadraticCurveTo(fX + 250 + 26, cY + 190 + 36, fX + 250, cY + 190 + 44);
+      ctx.quadraticCurveTo(fX + 250 - 26, cY + 190 + 36, fX + 250 - 26, cY + 190 + 12);
+      ctx.lineTo(fX + 250 - 26, cY + 190 - 18);
       ctx.closePath();
       ctx.stroke();
 
       ctx.strokeStyle = "#0A2A54";
       ctx.lineWidth = 5;
       ctx.beginPath();
-      ctx.moveTo(fX + 110 - 12, cY + 190 + 2);
-      ctx.lineTo(fX + 110 - 2, cY + 190 + 12);
-      ctx.lineTo(fX + 110 + 14, cY + 190 - 8);
+      ctx.moveTo(fX + 250 - 12, cY + 190 + 2);
+      ctx.lineTo(fX + 250 - 2, cY + 190 + 12);
+      ctx.lineTo(fX + 250 + 14, cY + 190 - 8);
       ctx.stroke();
     }
 
     // Header text
     ctx.fillStyle = "#FFFFFF";
     ctx.font = "bold 34px 'Sora', sans-serif";
-    ctx.fillText("TELANGANA VIDYARTHI", fX + 210, cY + 165);
-    ctx.fillText("RAKSHANA SENA", fX + 210, cY + 215);
+    ctx.fillText("TELANGANA VIDYARTHI", fX + 350, cY + 165);
+    ctx.fillText("RAKSHANA SENA", fX + 350, cY + 215);
     ctx.fillStyle = "#F0A400";
     ctx.font = "bold 20px 'Sora', sans-serif";
-    ctx.fillText("OFFICIAL DIGITAL IDENTITY", fX + 210, cY + 260);
-
-    // Right-aligned header indicators to balance space
-    const rightX = fX + cW - 60;
-    ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
-    ctx.font = "bold 20px 'Sora', sans-serif";
-    ctx.textAlign = "right";
-    ctx.fillText("STATE COUNCIL", rightX, cY + 165);
-
-    if (userProfile?.verified !== false) {
-      const pillW = 140;
-      const pillH = 38;
-      const pillX = rightX - pillW;
-      const pillY = cY + 190;
-      drawRoundedRect(ctx, pillX, pillY, pillW, pillH, 19, "rgba(19, 122, 75, 0.09)", "rgba(19, 122, 75, 0.22)", 1);
-      
-      ctx.fillStyle = "#137A4B";
-      ctx.beginPath();
-      ctx.arc(pillX + 22, pillY + 19, 6, 0, 2 * Math.PI);
-      ctx.fill();
-      
-      ctx.font = "bold 16px 'Sora', sans-serif";
-      ctx.textAlign = "left";
-      ctx.fillText("VERIFIED", pillX + 38, pillY + 25);
-    }
-    ctx.textAlign = "left"; // Reset to default
+    ctx.fillText("OFFICIAL DIGITAL IDENTITY", fX + 350, cY + 260);
 
     // Photo Box
     drawRoundedRect(ctx, fX + 60, cY + 310, 240, 300, 24, "#EDF0F5", "rgba(255, 255, 255, 1)", 8);
@@ -1304,51 +1261,43 @@ export default function Profile() {
     // Header Logo Circle
     ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
     ctx.beginPath();
-    ctx.arc(bX + 90, cY + 80, 42, 0, 2 * Math.PI);
+    ctx.arc(bX + 330, cY + 80, 42, 0, 2 * Math.PI);
     ctx.fill();
 
     if (logoImg) {
       ctx.save();
       ctx.beginPath();
-      ctx.arc(bX + 90, cY + 80, 38, 0, 2 * Math.PI);
+      ctx.arc(bX + 330, cY + 80, 38, 0, 2 * Math.PI);
       ctx.clip();
-      ctx.drawImage(logoImg, bX + 90 - 38, cY + 80 - 38, 76, 76);
+      ctx.drawImage(logoImg, bX + 330 - 38, cY + 80 - 38, 76, 76);
       ctx.restore();
     } else {
       ctx.strokeStyle = "#0A2A54";
       ctx.lineWidth = 4;
       ctx.lineJoin = "round";
       ctx.beginPath();
-      ctx.moveTo(bX + 90, cY + 80 - 20);
-      ctx.lineTo(bX + 90 + 16, cY + 80 - 11);
-      ctx.lineTo(bX + 90 + 16, cY + 80 + 8);
-      ctx.quadraticCurveTo(bX + 90 + 16, cY + 80 + 22, bX + 90, cY + 80 + 28);
-      ctx.quadraticCurveTo(bX + 90 - 16, cY + 80 + 22, bX + 90 - 16, cY + 80 + 8);
-      ctx.lineTo(bX + 90 - 16, cY + 80 - 11);
+      ctx.moveTo(bX + 330, cY + 80 - 20);
+      ctx.lineTo(bX + 330 + 16, cY + 80 - 11);
+      ctx.lineTo(bX + 330 + 16, cY + 80 + 8);
+      ctx.quadraticCurveTo(bX + 330 + 16, cY + 80 + 22, bX + 330, cY + 80 + 28);
+      ctx.quadraticCurveTo(bX + 330 - 16, cY + 80 + 22, bX + 330 - 16, cY + 80 + 8);
+      ctx.lineTo(bX + 330 - 16, cY + 80 - 11);
       ctx.closePath();
       ctx.stroke();
 
       ctx.strokeStyle = "#0A2A54";
       ctx.lineWidth = 3;
       ctx.beginPath();
-      ctx.moveTo(bX + 90 - 8, cY + 80 + 1);
-      ctx.lineTo(bX + 90 - 1, cY + 80 + 8);
-      ctx.lineTo(bX + 90 + 9, cY + 80 - 5);
+      ctx.moveTo(bX + 330 - 8, cY + 80 + 1);
+      ctx.lineTo(bX + 330 - 1, cY + 80 + 8);
+      ctx.lineTo(bX + 330 + 9, cY + 80 - 5);
       ctx.stroke();
     }
 
     // Header text
     ctx.fillStyle = "#FFFFFF";
     ctx.font = "bold 28px 'Sora', sans-serif";
-    ctx.fillText("TVRS OFFICIAL IDENTITY", bX + 160, cY + 90);
-
-    // SECURE badge on back card header right aligned
-    const backRightX = bX + cW - 80;
-    ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
-    ctx.font = "bold 16px 'Sora', sans-serif";
-    ctx.textAlign = "right";
-    ctx.fillText("SECURE", backRightX, cY + 90);
-    ctx.textAlign = "left"; // Reset
+    ctx.fillText("TVRS OFFICIAL IDENTITY", bX + 390, cY + 90);
 
     // Instructions Section
     ctx.fillStyle = "#5B6472";
