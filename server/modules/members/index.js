@@ -133,17 +133,29 @@ router.post('/applications/:id/approve', async (req, res) => {
 
     await query('UPDATE join_requests SET status = \'Approved\' WHERE id = $1', [id]);
 
-    const checkEmail = await query('SELECT * FROM users WHERE email = $1', [app.email]);
+    let checkUser = null;
+    if (app.user_id) {
+      const checkUserRes = await query('SELECT * FROM users WHERE id = $1', [app.user_id]);
+      if (checkUserRes.rows.length > 0) checkUser = checkUserRes.rows[0];
+    }
+    if (!checkUser && app.email) {
+      const checkEmailRes = await query('SELECT * FROM users WHERE email = $1', [app.email]);
+      if (checkEmailRes.rows.length > 0) checkUser = checkEmailRes.rows[0];
+    }
+
     let uid;
     
-    if (checkEmail.rows.length > 0) {
-      // User already exists, update their role and constituency!
-      uid = checkEmail.rows[0].id;
+    if (checkUser) {
+      // User already exists, update their role, constituency and other details!
+      uid = checkUser.id;
       await query(`
         UPDATE users
-        SET role = $1, constituency_id = $2, verified = TRUE
-        WHERE id = $3
-      `, [assignedRole, app.constituency_id, uid]);
+        SET role = $1, constituency_id = $2, verified = TRUE,
+            full_name = COALESCE(NULLIF($3, ''), full_name),
+            email = COALESCE(NULLIF($4, ''), email),
+            phone = COALESCE(NULLIF($5, ''), phone)
+        WHERE id = $6
+      `, [assignedRole, app.constituency_id, app.full_name, app.email, app.phone, uid]);
     } else {
       // Create new user
       uid = 'tvrs-usr-' + crypto.randomBytes(6).toString('hex');
@@ -155,9 +167,19 @@ router.post('/applications/:id/approve', async (req, res) => {
 
     // Check if member identity already exists
     const checkIdentity = await query('SELECT * FROM member_identities WHERE user_id = $1', [uid]);
+    
+    let conName = 'STATE';
+    if (app.constituency_id) {
+      const conRes = await query('SELECT constituency_name FROM constituencies WHERE id = $1', [app.constituency_id]);
+      if (conRes.rows.length > 0) {
+        conName = conRes.rows[0].constituency_name;
+      }
+    }
+    const conCode = conName.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    
     const trsv_member_id = checkIdentity.rows.length > 0 
       ? checkIdentity.rows[0].trsv_member_id 
-      : 'TVRS-MEM-' + Math.floor(100000 + Math.random() * 900000);
+      : `TVRS-${conCode}-${Math.floor(100000 + Math.random() * 900000)}`;
     const qr_token = checkIdentity.rows.length > 0 
       ? checkIdentity.rows[0].qr_token 
       : 'qr_' + crypto.randomBytes(16).toString('hex');

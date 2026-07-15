@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Users } from 'lucide-react';
 import GlassCard from '../components/GlassCard';
 import AnimatedSection from '../components/AnimatedSection';
@@ -188,6 +188,78 @@ const CinematicCard = ({ lead, accentColor = 'cyan' }) => {
 };
 
 export default function Team() {
+  const [leaders, setLeaders] = useState(LEADERS);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchLeaders = async () => {
+      try {
+        const token = localStorage.getItem('trsv_session_token');
+        const response = await fetch('/api/join-tvrs/leaders', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        const data = await response.json();
+        if (data.success && data.leaders) {
+          // Map DB columns to what CinematicCard expects
+          const mappedLeaders = data.leaders.map(lead => {
+            // Resolve accent colors based on role
+            let accentColor = 'emerald';
+            if (lead.role === 'supreme_admin') accentColor = 'cyan';
+            else if (lead.role === 'state_president') accentColor = 'emerald';
+            else if (lead.role === 'vice_president') accentColor = 'emerald';
+            else if (lead.role === 'general_secretary') accentColor = 'violet';
+            else if (lead.role === 'secretary') accentColor = 'violet';
+            else if (lead.role === 'president') accentColor = 'violet';
+
+            // Check if the user is SuryaChandra
+            if (lead.id === 'suryachandra' || lead.full_name.toLowerCase().includes('suryachandra')) {
+              accentColor = 'amber';
+            }
+
+            // Map description fallback
+            let roleLabel = lead.role.replace('_', ' ').toUpperCase();
+            if (lead.role === 'state_president') roleLabel = 'State President';
+            if (lead.role === 'supreme_admin') roleLabel = 'Founder';
+
+            return {
+              id: lead.id,
+              full_name: lead.full_name,
+              role: roleLabel,
+              profile_image: lead.profile_image,
+              accentColor,
+              description: lead.id === 'suryachandra'
+                ? 'Digital Architect of TVRS - designs, implements, and maintains the portal, database infrastructure, and student safety telemetry systems.'
+                : `${roleLabel} of TVRS union. Serving the student community and strengthening organizational coordination in the ${lead.constituency_name || lead.district || 'State'} region.`
+            };
+          });
+
+          // Merge with static details if available
+          const merged = mappedLeaders.map(m => {
+            const staticLead = LEADERS.find(s => s.id === m.id || s.full_name.toLowerCase() === m.full_name.toLowerCase());
+            if (staticLead) {
+              return {
+                ...m,
+                description: staticLead.description || m.description,
+                profile_image: staticLead.profile_image || m.profile_image
+              };
+            }
+            return m;
+          });
+
+          setLeaders(merged);
+        }
+      } catch (err) {
+        console.error('Error fetching leaders:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLeaders();
+  }, []);
+
   return (
     <div className="w-full flex flex-col gap-16 py-4">
       {/* Header */}
@@ -205,15 +277,21 @@ export default function Team() {
 
       <div className="flex flex-col gap-16 text-left animate-fadeIn">
         <AnimatedSection direction="up" delay={0.05} className="flex flex-col gap-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {LEADERS.map(lead => (
-              <CinematicCard
-                key={lead.id}
-                lead={lead}
-                accentColor={lead.accentColor}
-              />
-            ))}
-          </div>
+          {loading && leaders.length === 0 ? (
+            <div className="w-full py-12 flex justify-center">
+              <div className="w-8 h-8 rounded-full border-2 border-t-amber-500 border-slate-200 dark:border-slate-800 animate-spin" />
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {leaders.map(lead => (
+                <CinematicCard
+                  key={lead.id}
+                  lead={lead}
+                  accentColor={lead.accentColor}
+                />
+              ))}
+            </div>
+          )}
         </AnimatedSection>
       </div>
     </div>

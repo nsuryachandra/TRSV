@@ -25,7 +25,7 @@ import { useAuth } from '../context/AuthContext';
 
 export default function JoinTVRS() {
   const navigate = useNavigate();
-  const { userProfile } = useAuth();
+  const { userProfile, refreshProfile } = useAuth();
   
   const [constituencies, setConstituencies] = useState([]);
   const [loadingConstituencies, setLoadingConstituencies] = useState(true);
@@ -78,6 +78,8 @@ export default function JoinTVRS() {
 
   // Check if user already submitted a join application
   useEffect(() => {
+    let intervalId;
+
     const checkUserApplication = async () => {
       try {
         const token = localStorage.getItem('trsv_session_token');
@@ -93,6 +95,10 @@ export default function JoinTVRS() {
         const data = await response.json();
         if (data.success && data.request) {
           setActiveApplication(data.request);
+          if (data.request.status === 'Approved') {
+            await refreshProfile();
+            navigate('/dashboard', { replace: true });
+          }
         }
       } catch (err) {
         console.error('Error fetching user application:', err);
@@ -100,8 +106,16 @@ export default function JoinTVRS() {
         setCheckingApp(false);
       }
     };
+
     checkUserApplication();
-  }, [success]);
+
+    // Poll status every 5 seconds to automatically activate dashboard once approved
+    intervalId = setInterval(checkUserApplication, 5000);
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [success, refreshProfile, navigate]);
 
   // Load constituencies
   useEffect(() => {
@@ -181,11 +195,17 @@ export default function JoinTVRS() {
     setLoading(true);
 
     try {
+      const headers = {
+        'Content-Type': 'application/json'
+      };
+      const token = localStorage.getItem('trsv_session_token');
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const response = await fetch('/api/join-tvrs', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers,
         body: JSON.stringify(formData)
       });
       const data = await response.json();
@@ -246,29 +266,29 @@ export default function JoinTVRS() {
 
             {/* Application Info Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              <div className="bg-slate-950/50 border border-slate-850 p-4 rounded-xl space-y-1">
-                <span className="text-[10px] font-bold text-slate-500 uppercase block">Applicant Coordinates</span>
-                <strong className="text-sm font-bold text-slate-200 block">{activeApplication.full_name}</strong>
-                <span className="text-xs text-slate-400 block">{activeApplication.email}</span>
-                <span className="text-xs text-slate-400 block">{activeApplication.phone}</span>
+              <div className="bg-slate-100/60 dark:bg-slate-955/50 border border-slate-200 dark:border-slate-850 p-4 rounded-xl space-y-1">
+                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase block">Applicant Coordinates</span>
+                <strong className="text-sm font-bold text-slate-800 dark:text-slate-200 block">{activeApplication.full_name}</strong>
+                <span className="text-xs text-slate-600 dark:text-slate-400 block">{activeApplication.email}</span>
+                <span className="text-xs text-slate-600 dark:text-slate-400 block">{activeApplication.phone}</span>
               </div>
 
-              <div className="bg-slate-950/50 border border-slate-850 p-4 rounded-xl space-y-1">
-                <span className="text-[10px] font-bold text-slate-500 uppercase block">Union Alignment</span>
-                <strong className="text-sm font-bold text-slate-200 block">{activeApplication.constituency_name}</strong>
-                <span className="text-xs text-slate-400 block">{activeApplication.district} District</span>
-                <span className="text-xs text-slate-400 block">{activeApplication.member_type}</span>
+              <div className="bg-slate-100/60 dark:bg-slate-955/50 border border-slate-200 dark:border-slate-850 p-4 rounded-xl space-y-1">
+                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase block">Union Alignment</span>
+                <strong className="text-sm font-bold text-slate-800 dark:text-slate-200 block">{activeApplication.constituency_name}</strong>
+                <span className="text-xs text-slate-600 dark:text-slate-400 block">{activeApplication.district} District</span>
+                <span className="text-xs text-slate-600 dark:text-slate-400 block">{activeApplication.member_type}</span>
               </div>
             </div>
 
             {/* Status Visual Tracker */}
-            <div className="bg-slate-950/40 border border-slate-900/60 rounded-2xl p-6 mb-8 space-y-6">
+            <div className="bg-slate-50/60 dark:bg-slate-955/40 border border-slate-200/80 dark:border-slate-900/60 rounded-2xl p-6 mb-8 space-y-6">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-400 uppercase">Application Lifecycle</span>
+                <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Application Lifecycle</span>
                 <span className={`text-xs font-extrabold px-3 py-1 rounded-full uppercase border ${
-                  isPending ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/25 animate-pulse' :
-                  isApproved ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/25' :
-                  'bg-rose-500/10 text-rose-400 border-rose-500/25'
+                  isPending ? 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/25 animate-pulse' :
+                  isApproved ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25' :
+                  'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/25'
                 }`}>
                   {activeApplication.status}
                 </span>
@@ -276,44 +296,51 @@ export default function JoinTVRS() {
 
               {/* Graphical line representation */}
               <div className="flex items-center justify-between relative px-2">
-                <div className="absolute top-1/2 left-0 right-0 h-1 bg-slate-800 -translate-y-1/2 z-0" />
-                <div className={`absolute top-1/2 left-0 h-1 bg-amber-500 -translate-y-1/2 z-0 transition-all duration-500 ${
-                  isApproved ? 'w-full' : isRejected ? 'w-full' : 'w-1/2'
+                <div className="absolute top-1/2 left-0 right-0 h-1 bg-slate-200 dark:bg-slate-800 -translate-y-1/2 z-0" />
+                
+                {/* Left Half Line: Submitted -> Under Review */}
+                <div className={`absolute top-1/2 left-0 w-1/2 h-1 -translate-y-1/2 z-0 transition-all duration-500 ${
+                  (isPending || isApproved || isRejected) ? 'bg-amber-500' : 'bg-slate-200 dark:bg-slate-800'
+                }`} />
+
+                {/* Right Half Line: Under Review -> Decision */}
+                <div className={`absolute top-1/2 left-1/2 w-1/2 h-1 -translate-y-1/2 z-0 transition-all duration-500 ${
+                  isApproved ? 'bg-emerald-500' : isRejected ? 'bg-rose-500' : 'bg-slate-200 dark:bg-slate-800'
                 }`} />
 
                 {/* Step 1: Submitted */}
-                <div className="z-10 flex flex-col items-center gap-1.5 bg-slate-900 p-2 rounded-xl">
+                <div className="z-10 flex flex-col items-center gap-1.5 bg-slate-100 dark:bg-slate-900 p-2 rounded-xl border border-slate-200 dark:border-slate-800/40">
                   <div className="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-glow-emerald">
                     <Check className="w-4 h-4" />
                   </div>
-                  <span className="text-[10px] font-bold text-slate-350">Submitted</span>
+                  <span className="text-[10px] font-bold text-slate-700 dark:text-slate-350">Submitted</span>
                 </div>
 
                 {/* Step 2: Under Review */}
-                <div className="z-10 flex flex-col items-center gap-1.5 bg-slate-900 p-2 rounded-xl">
+                <div className="z-10 flex flex-col items-center gap-1.5 bg-slate-100 dark:bg-slate-900 p-2 rounded-xl border border-slate-200 dark:border-slate-800/40">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
                     isPending ? 'bg-cyan-500 text-white animate-pulse shadow-glow-cyan' :
-                    (isApproved || isRejected) ? 'bg-emerald-500 text-white shadow-glow-emerald' : 'bg-slate-800 text-slate-500'
+                    (isApproved || isRejected) ? 'bg-emerald-500 text-white shadow-glow-emerald' : 'bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
                   }`}>
                     {isPending ? <div className="w-2 h-2 rounded-full bg-white animate-ping" /> : <Check className="w-4 h-4" />}
                   </div>
-                  <span className="text-[10px] font-bold text-slate-350">Under Review</span>
+                  <span className="text-[10px] font-bold text-slate-700 dark:text-slate-350">Under Review</span>
                 </div>
 
                 {/* Step 3: Decision */}
-                <div className="z-10 flex flex-col items-center gap-1.5 bg-slate-900 p-2 rounded-xl">
+                <div className="z-10 flex flex-col items-center gap-1.5 bg-slate-100 dark:bg-slate-900 p-2 rounded-xl border border-slate-200 dark:border-slate-800/40">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
                     isApproved ? 'bg-emerald-500 text-white shadow-glow-emerald' :
-                    isRejected ? 'bg-rose-500 text-white shadow-glow-rose' : 'bg-slate-800 text-slate-500'
+                    isRejected ? 'bg-rose-500 text-white shadow-glow-rose' : 'bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
                   }`}>
                     {isApproved ? <Check className="w-4 h-4" /> : isRejected ? <div className="font-extrabold text-sm">✕</div> : <HelpCircle className="w-4 h-4" />}
                   </div>
-                  <span className="text-[10px] font-bold text-slate-350">Decision</span>
+                  <span className="text-[10px] font-bold text-slate-700 dark:text-slate-350">Decision</span>
                 </div>
               </div>
 
               {/* Status Message Text */}
-              <div className="p-4 bg-slate-950/80 border border-slate-900 rounded-xl text-xs leading-relaxed text-slate-300">
+              <div className="p-4 bg-slate-100/80 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-900 rounded-xl text-xs leading-relaxed text-slate-700 dark:text-slate-300">
                 {isPending && "Your membership request has been registered and is currently being inspected by the regional constituency committee. Please wait for official authorization."}
                 {isApproved && "Congratulations! Your registration has been approved. You are now officially recognized as a TVRS representative. Please restart the app or refresh to sync your dashboard access."}
                 {isRejected && "Your application has been rejected by the regional committee. You can submit a new application below with updated coordinates if necessary."}
