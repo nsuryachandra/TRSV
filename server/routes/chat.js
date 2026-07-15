@@ -72,41 +72,69 @@ router.get('/history/:channel_id', authenticateChatUser, async (req, res) => {
   const { channel_id } = req.params;
   const user = req.user;
 
-  // Authorization Check:
-  // Full access roles (state-level leadership + devs)
-  const FULL_ACCESS_ROLES = ['dev', 'supreme_admin', 'president', 'state_president', 'vice_president', 'general_secretary', 'president_of_state'];
+  /**
+   * Chat Channel Authorization — 3-Tier Rules
+   *
+   * TIER 1 – Full Access (state leaders + devs): any channel, no restriction.
+   * TIER 2 – Students: only their own Social-Sector-[hub] channel.
+   * TIER 3 – Constituency-level leaders (secretary etc.):
+   *   • All Social-Sector channels → open.
+   *   • GH-Global → open.
+   *   • GH-Constituency-X where X == their constituency → open.
+   *   • GH-Constituency-X where X is a CHILD of their area → open.
+   *     (e.g. GH admin can see Jubilee Hills, Banjara Hills, etc.)
+   *   • GH-Constituency-X where X == their PARENT area → open.
+   *     (e.g. Jubilee Hills member can peek at GH parent channel.)
+   */
+  const FULL_ACCESS_ROLES = [
+    'dev', 'supreme_admin', 'president', 'state_president',
+    'vice_president', 'general_secretary', 'president_of_state'
+  ];
   let isAuthorized = false;
 
   if (FULL_ACCESS_ROLES.includes(user.role)) {
-    // State-level and devs can access all channels
+    // Tier 1 — unrestricted access to every channel
     isAuthorized = true;
+
   } else if (user.role === 'student') {
+    // Tier 2 — students locked to their own Social Sector only
     isAuthorized = channel_id === `Social-Sector-${user.hub_name}`;
+
   } else {
-    // Constituency-level leaders (secretary, etc.)
+    // Tier 3 — constituency-level leaders
     if (channel_id.startsWith('Social-Sector-')) {
-      isAuthorized = true;
+      isAuthorized = true; // All social lounges open to leaders
+
     } else if (channel_id === 'GH-Global') {
-      isAuthorized = true;
+      isAuthorized = true; // Global lounge open to all leaders
+
     } else if (channel_id.startsWith('GH-Constituency-')) {
-      const constituencyName = channel_id.replace('GH-Constituency-', '');
-      if (
-        user.constituency_name && 
-        (user.constituency_name.toLowerCase() === constituencyName.toLowerCase() ||
-         user.parent_name && user.parent_name.toLowerCase() === constituencyName.toLowerCase())
-      ) {
+      const requestedArea = channel_id.replace('GH-Constituency-', '').toLowerCase();
+      const userArea      = (user.constituency_name || '').toLowerCase();
+      const userParent    = (user.parent_name || '').toLowerCase();
+
+      if (userArea && userArea === requestedArea) {
+        // Rule A: Their own constituency channel
         isAuthorized = true;
-      } else {
+
+      } else if (userParent && userParent === requestedArea) {
+        // Rule B: The channel belongs to their parent constituency
+        isAuthorized = true;
+
+      } else if (userArea) {
         try {
-          const hierarchyCheck = await query(`
-            SELECT 1 
+          // Rule C: The requested channel is a CHILD of the user's constituency.
+          //         (e.g. user is from GH → can access Jubilee Hills, Banjara Hills, etc.)
+          const childCheck = await query(`
+            SELECT 1
             FROM constituencies child
             JOIN constituencies parent ON child.parent_id = parent.id
-            WHERE LOWER(child.constituency_name) = LOWER($1)
-              AND LOWER(parent.constituency_name) = LOWER($2)
-          `, [constituencyName, user.constituency_name]);
-          
-          if (hierarchyCheck.rows.length > 0) {
+            WHERE LOWER(child.constituency_name) = $1
+              AND LOWER(parent.constituency_name) = $2
+            LIMIT 1
+          `, [requestedArea, userArea]);
+
+          if (childCheck.rows.length > 0) {
             isAuthorized = true;
           }
         } catch (err) {
