@@ -186,7 +186,7 @@ function MicroWatermark({ text = "TVRS \u2022 AUTHENTIC \u2022" }) {
   return (
     <div
       className="pointer-events-none absolute inset-0 overflow-hidden select-none"
-      style={{ opacity: 0.022 }}
+      style={{ opacity: 0.013 }}
       aria-hidden="true"
     >
       <div
@@ -211,11 +211,11 @@ function MicroWatermark({ text = "TVRS \u2022 AUTHENTIC \u2022" }) {
 /*  Shared bits                                                       */
 /* ------------------------------------------------------------------ */
 
-function OrgMark({ logo, size = 34 }) {
+function OrgMark({ logo, size = 38 }) {
   const finalLogo = logo || "/trsv.jpeg";
   return (
     <div
-      className="flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-white/95 ring-1 ring-white/40"
+      className="flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-white/95 ring-[1.5px] ring-white/50 shadow-[0_2px_8px_rgba(0,0,0,0.15)]"
       style={{ width: size, height: size }}
     >
       <img src={finalLogo} alt="TVRS logo" className="h-full w-full object-cover" />
@@ -226,17 +226,17 @@ function OrgMark({ logo, size = 34 }) {
 function VerifiedChip() {
   return (
     <div
-      className="inline-flex items-center gap-1 rounded-full py-[3px] pl-1.5 pr-2 animate-pulse"
+      className="inline-flex items-center gap-0.5 rounded-full py-[2px] pl-1 pr-1.5"
       style={{
         background: "rgba(19,122,75,0.09)",
         border: `1px solid rgba(19,122,75,0.22)`,
       }}
     >
       <span
-        className="flex h-[13px] w-[13px] items-center justify-center rounded-full"
+        className="flex h-[11px] w-[11px] items-center justify-center rounded-full"
         style={{ background: TOKENS.verified }}
       >
-        <svg width="8" height="8" viewBox="0 0 24 24" fill="none">
+        <svg width="7" height="7" viewBox="0 0 24 24" fill="none">
           <path
             d="M5 13l4 4L19 7"
             stroke="#fff"
@@ -247,8 +247,8 @@ function VerifiedChip() {
         </svg>
       </span>
       <span
-        className="text-[7.5px] font-bold uppercase"
-        style={{ color: TOKENS.verified, letterSpacing: "0.09em" }}
+        className="text-[7px] font-bold uppercase"
+        style={{ color: TOKENS.verified, letterSpacing: "0.08em" }}
       >
         Verified
       </span>
@@ -308,17 +308,17 @@ function CardFront(props) {
 
       {/* Header */}
       <div
-        className="relative overflow-hidden px-6 pb-9 pt-5"
+        className="relative overflow-hidden px-6 pb-8 pt-4"
         style={{
           background: `linear-gradient(155deg, ${TOKENS.blue} 0%, ${TOKENS.blueLight} 100%)`,
         }}
       >
         <GuillochePattern id="frontHeaderPattern" color="#FFFFFF" opacity={0.055} />
-        <div className="relative flex items-center justify-center gap-3.5 w-full">
+        <div className="relative flex items-center justify-center gap-3 w-full">
           <OrgMark logo={logo} />
           <div className="text-left">
             <div
-              className="text-[10.5px] font-bold leading-[1.35] text-white"
+              className="text-[11px] font-bold leading-[1.3] text-white"
               style={{
                 fontFamily: "Sora, sans-serif",
                 letterSpacing: "0.035em",
@@ -329,7 +329,7 @@ function CardFront(props) {
               RAKSHANA SENA
             </div>
             <div
-              className="mt-[5px] text-[7.5px] font-semibold uppercase"
+              className="mt-1 text-[7.5px] font-semibold uppercase"
               style={{ color: TOKENS.yellow, letterSpacing: "0.17em" }}
             >
               Official Digital Identity
@@ -337,19 +337,19 @@ function CardFront(props) {
           </div>
         </div>
         <div
-          className="absolute inset-x-0 bottom-0 h-[3px]"
+          className="absolute inset-x-0 bottom-0 h-[2.5px]"
           style={{
             background: `linear-gradient(90deg, ${TOKENS.yellowDeep}, ${TOKENS.yellow} 45%, ${TOKENS.yellowDeep})`,
           }}
         />
       </div>
 
-      {/* Photo + identity block */}
-      <div className="relative -mt-9 px-6">
+      {/* Photo + identity block – photo overlaps header */}
+      <div className="relative -mt-10 px-6">
         <div className="flex items-end gap-4">
           <div className="relative shrink-0">
             <div
-              className="h-[104px] w-[86px] overflow-hidden rounded-[11px] bg-white shadow-[0_6px_18px_rgba(10,42,84,0.24)] ring-2 ring-white"
+              className="h-[110px] w-[90px] overflow-hidden rounded-[12px] bg-white shadow-[0_8px_22px_rgba(10,42,84,0.28)] ring-[2.5px] ring-white"
             >
               {photo ? (
                 <img src={photo} alt={name} className="h-full w-full object-cover" />
@@ -364,17 +364,17 @@ function CardFront(props) {
             </div>
             {verified && (
               <div
-                className="absolute -bottom-1.5 -right-1.5 flex h-[22px] w-[22px] items-center justify-center rounded-full ring-[2.5px] ring-white"
+                className="absolute -bottom-1 -right-1.5 flex h-[20px] w-[20px] items-center justify-center rounded-full ring-2 ring-white"
                 style={{ background: TOKENS.verified }}
               >
-                <BadgeCheck size={13} color="#fff" strokeWidth={2.6} />
+                <BadgeCheck size={12} color="#fff" strokeWidth={2.6} />
               </div>
             )}
           </div>
 
-          <div className="min-w-0 flex-1 pb-1.5">
+          <div className="min-w-0 flex-1 pb-2">
             <div
-              className="truncate text-[18.5px] font-bold leading-[1.15]"
+              className="truncate text-[20px] font-bold leading-[1.15]"
               style={{
                 color: TOKENS.ink,
                 fontFamily: "Sora, sans-serif",
@@ -384,7 +384,7 @@ function CardFront(props) {
               {name || "Member Name"}
             </div>
             {verified && (
-              <div className="mt-2 flex flex-wrap items-center gap-1.5">
+              <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
                 <VerifiedChip />
               </div>
             )}
@@ -393,7 +393,7 @@ function CardFront(props) {
       </div>
 
       {/* Data grid */}
-      <div className="relative mt-5 px-6">
+      <div className="relative mt-4 px-6">
         <div
           className="rounded-[4px] px-3 py-[7px] text-[9.5px] font-semibold"
           style={{
@@ -408,7 +408,7 @@ function CardFront(props) {
           ID&nbsp; {tvrsId || "TVRS-000000"}
         </div>
 
-        <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-4">
+        <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-5">
           <Field icon={Landmark} label="Constituency" value={constituency} />
           <Field icon={Shield} label="Post" value={designation} />
           <Field icon={CalendarDays} label="Joined" value={joinedDate} />
@@ -420,13 +420,20 @@ function CardFront(props) {
       {/* QR footer */}
       <div className="relative mt-4 px-6 pb-5">
         <div
-          className="flex items-center justify-between gap-3 rounded-[14px] px-4 py-3"
+          className="flex items-center gap-3 rounded-[14px] px-4 py-3"
           style={{
             background: "rgba(10,42,84,0.025)",
             border: `1px solid ${TOKENS.hairlineSoft}`,
           }}
         >
-          <div className="min-w-0">
+          <div className="shrink-0 rounded-[10px] bg-white p-1.5 shadow-[0_2px_10px_rgba(10,42,84,0.12)] ring-1 ring-[rgba(10,42,84,0.08)] flex items-center justify-center overflow-hidden" style={{ width: 100, height: 100 }}>
+            {qrCodeDataUrl ? (
+              <img src={qrCodeDataUrl} alt="QR Code" className="w-full h-full object-contain" />
+            ) : (
+              <VerificationGlyph value={qrValue || tvrsId} size={84} />
+            )}
+          </div>
+          <div className="min-w-0 flex-1">
             <div
               className="text-[8.5px] font-bold uppercase"
               style={{ color: TOKENS.blue, letterSpacing: "0.1em" }}
@@ -440,27 +447,11 @@ function CardFront(props) {
               Scan to Verify
             </div>
             <div
-              className="mt-[6px] max-w-[128px] truncate text-[7.5px]"
+              className="mt-[6px] text-[7px] break-all leading-snug"
               style={{ color: TOKENS.slate, fontFamily: "'JetBrains Mono', monospace" }}
             >
-              {qrValue || "trsv-union.onrender.com"}
+              trsv-union.onrender.com
             </div>
-            <div className="mt-2 flex items-center gap-1">
-              <ScanLine size={11} color={TOKENS.blue} />
-              <span
-                className="text-[7px] font-semibold"
-                style={{ color: TOKENS.blue, letterSpacing: "0.04em" }}
-              >
-                TVRS OFFICIAL SCANNER
-              </span>
-            </div>
-          </div>
-          <div className="shrink-0 rounded-[10px] bg-white p-1.5 shadow-[0_2px_10px_rgba(10,42,84,0.12)] ring-1 ring-[rgba(10,42,84,0.08)] flex items-center justify-center overflow-hidden" style={{ width: 93, height: 93 }}>
-            {qrCodeDataUrl ? (
-              <img src={qrCodeDataUrl} alt="QR Code" className="w-full h-full object-contain" />
-            ) : (
-              <VerificationGlyph value={qrValue || tvrsId} size={77} />
-            )}
           </div>
         </div>
       </div>
@@ -482,21 +473,31 @@ function CardBack(props) {
     >
       <MicroWatermark />
 
-      {/* Header */}
+      {/* Header – matches front */}
       <div
-        className="relative flex items-center justify-center gap-2.5 px-6 py-4 w-full"
-        style={{ background: TOKENS.blue }}
+        className="relative overflow-hidden px-6 pb-4 pt-4 flex items-center justify-center gap-3 w-full"
+        style={{ background: `linear-gradient(155deg, ${TOKENS.blue} 0%, ${TOKENS.blueLight} 100%)` }}
       >
         <GuillochePattern id="backHeaderPattern" color="#FFFFFF" opacity={0.055} />
-        <OrgMark logo={logo} size={23} />
-        <div
-          className="relative text-[9.5px] font-bold text-white"
-          style={{ fontFamily: "Sora, sans-serif", letterSpacing: "0.055em" }}
-        >
-          TVRS OFFICIAL IDENTITY
+        <OrgMark logo={logo} size={34} />
+        <div className="text-left relative">
+          <div
+            className="text-[11px] font-bold leading-[1.3] text-white"
+            style={{ fontFamily: "Sora, sans-serif", letterSpacing: "0.035em" }}
+          >
+            TELANGANA VIDYARTHI
+            <br />
+            RAKSHANA SENA
+          </div>
+          <div
+            className="mt-1 text-[7.5px] font-semibold uppercase"
+            style={{ color: TOKENS.yellow, letterSpacing: "0.17em" }}
+          >
+            Official Digital Identity
+          </div>
         </div>
         <div
-          className="absolute inset-x-0 bottom-0 h-[2px]"
+          className="absolute inset-x-0 bottom-0 h-[2.5px]"
           style={{
             background: `linear-gradient(90deg, ${TOKENS.yellowDeep}, ${TOKENS.yellow} 45%, ${TOKENS.yellowDeep})`,
           }}
@@ -504,25 +505,23 @@ function CardBack(props) {
       </div>
 
       {/* Instructions */}
-      <div className="relative px-6 pt-5">
+      <div className="relative px-6 pt-4">
         <div
           className="text-[8px] font-bold uppercase"
           style={{ color: TOKENS.slate, letterSpacing: "0.11em" }}
         >
-          Official Verification Instructions
+          Verification Instructions
         </div>
         <p
-          className="mt-2 text-[9.5px] leading-[1.55]"
+          className="mt-1.5 text-[9px] leading-[1.5]"
           style={{ color: TOKENS.ink, fontFamily: "Inter, sans-serif" }}
         >
-          This digital identity can be verified through the official TVRS
-          Verification Portal by scanning the QR code using any smartphone
-          camera or the official TVRS Scanner application.
+          Verify this identity via the TVRS Portal by scanning the QR code with any smartphone camera.
         </p>
-        <div className="mt-2.5 flex items-center gap-1.5">
-          <Globe size={11} color={TOKENS.blue} />
+        <div className="mt-2 flex items-center gap-1.5">
+          <Globe size={10} color={TOKENS.blue} />
           <span
-            className="text-[9px] font-semibold"
+            className="text-[8.5px] font-semibold"
             style={{ color: TOKENS.blue, fontFamily: "'JetBrains Mono', monospace" }}
           >
             trsv-union.onrender.com
@@ -533,21 +532,21 @@ function CardBack(props) {
       <div className="relative mx-6 mt-5 h-px" style={{ background: TOKENS.hairline }} />
 
       {/* Signature + seal */}
-      <div className="relative mt-5 flex items-center justify-between px-6">
+      <div className="relative mt-4 flex items-center justify-between gap-4 px-6">
         <div className="flex-1">
           <div
-            className="flex h-11 items-end justify-start border-b"
+            className="flex h-10 items-end justify-start border-b"
             style={{ borderColor: TOKENS.hairline }}
           >
             {signatureImage ? (
               <img
                 src={signatureImage}
                 alt="Signature"
-                className="h-9 object-contain object-left"
+                className="h-8 object-contain object-left"
               />
             ) : (
               <span
-                className="pb-1 text-[13px]"
+                className="pb-1 text-[12px]"
                 style={{
                   color: "#9CA5B4",
                   fontFamily: "'Sora', sans-serif",
@@ -555,33 +554,33 @@ function CardBack(props) {
                   fontWeight: 600,
                 }}
               >
-                Signature on file
+                Authorized Signatory
               </span>
             )}
           </div>
           <div
-            className="mt-2 text-[9.5px] font-bold"
+            className="mt-1.5 text-[9px] font-bold"
             style={{ color: TOKENS.ink, fontFamily: "Sora, sans-serif" }}
           >
             Kavitha Garu
           </div>
           <div
-            className="text-[8px] font-bold uppercase"
+            className="text-[7.5px] font-bold uppercase"
             style={{ color: TOKENS.blue, letterSpacing: "0.08em" }}
           >
             General Secretary
           </div>
           <div
-            className="text-[7.5px] uppercase"
+            className="text-[7px] uppercase"
             style={{ color: TOKENS.slate, letterSpacing: "0.08em" }}
           >
             Authorized Signatory
           </div>
         </div>
 
-        <div className="ml-4 flex h-16 w-16 shrink-0 items-center justify-center">
+        <div className="flex h-14 w-14 shrink-0 items-center justify-center">
           {organizationSeal ? (
-            <img src={organizationSeal} alt="Organization seal" className="h-16 w-16 object-contain opacity-90" />
+            <img src={organizationSeal} alt="Organization seal" className="h-14 w-14 object-contain opacity-60" />
           ) : (
             <SealPlaceholder />
           )}
@@ -591,7 +590,7 @@ function CardBack(props) {
       <div className="relative mx-6 mt-6 h-px" style={{ background: TOKENS.hairline }} />
 
       {/* Bottom strip */}
-      <div className="relative mt-auto flex items-center justify-between px-6 py-5">
+      <div className="relative mt-auto flex items-center justify-between px-6 py-4">
         <div>
           <div
             className="text-[7px] font-bold uppercase"
@@ -606,18 +605,17 @@ function CardBack(props) {
             {tvrsId || "TVRS-000000"}
           </div>
           <p
-            className="mt-2.5 max-w-[178px] text-[6.5px] leading-[1.45]"
+            className="mt-2 max-w-[178px] text-[6.5px] leading-[1.45]"
             style={{ color: TOKENS.slate }}
           >
-            This card remains the property of TVRS and must be surrendered
-            upon request or termination of membership.
+            Property of TVRS. Must be surrendered upon request or membership termination.
           </p>
         </div>
-        <div className="rounded-[9px] bg-white p-1 shadow-[0_2px_8px_rgba(10,42,84,0.1)] ring-1 ring-[rgba(10,42,84,0.08)] flex items-center justify-center overflow-hidden" style={{ width: 56, height: 56 }}>
+        <div className="rounded-[9px] bg-white p-1.5 shadow-[0_2px_8px_rgba(10,42,84,0.1)] ring-1 ring-[rgba(10,42,84,0.08)] flex items-center justify-center overflow-hidden" style={{ width: 72, height: 72 }}>
           {qrCodeDataUrl ? (
             <img src={qrCodeDataUrl} alt="QR Code" className="w-full h-full object-contain" />
           ) : (
-            <VerificationGlyph value={qrValue || tvrsId} size={48} />
+            <VerificationGlyph value={qrValue || tvrsId} size={60} />
           )}
         </div>
       </div>
@@ -628,13 +626,13 @@ function CardBack(props) {
 function SealPlaceholder() {
   const rId = "sealTextPath";
   return (
-    <svg viewBox="0 0 100 100" className="h-full w-full opacity-80">
+    <svg viewBox="0 0 100 100" className="h-full w-full opacity-45">
       <defs>
         <path id={rId} d="M 50 50 m -38 0 a 38 38 0 1 1 76 0 a 38 38 0 1 1 -76 0" />
       </defs>
-      <circle cx="50" cy="50" r="46" fill="none" stroke={TOKENS.blue} strokeWidth="1" strokeDasharray="2 2.2" opacity="0.5" />
-      <circle cx="50" cy="50" r="38" fill="none" stroke={TOKENS.blue} strokeWidth="1.1" opacity="0.7" />
-      <text fontSize="7.4" fontWeight="700" fill={TOKENS.blue} letterSpacing="2" opacity="0.75">
+      <circle cx="50" cy="50" r="46" fill="none" stroke={TOKENS.blue} strokeWidth="1" strokeDasharray="2 2.2" opacity="0.4" />
+      <circle cx="50" cy="50" r="38" fill="none" stroke={TOKENS.blue} strokeWidth="1.1" opacity="0.5" />
+      <text fontSize="7.4" fontWeight="700" fill={TOKENS.blue} letterSpacing="2" opacity="0.6">
         <textPath href={`#${rId}`} startOffset="2%">
           TVRS &#8226; OFFICIAL SEAL &#8226; TELANGANA &#8226;
         </textPath>
