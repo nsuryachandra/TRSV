@@ -60,7 +60,7 @@ const authenticateChatUser = async (req, res, next) => {
       console.warn('⚠️ [Chat Auth Grace Refresh] Internal check failed:', innerErr.message);
     }
 
-    return res.status(403).json({ success: false, message: 'Invalid or expired token.' });
+    return res.status(401).json({ success: false, message: 'Invalid or expired token.' });
   }
 };
 

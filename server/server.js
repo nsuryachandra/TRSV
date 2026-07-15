@@ -94,7 +94,7 @@ const corsOriginHandler = (origin, callback) => {
   if (
     allowedOrigins.indexOf(origin) !== -1 ||
     origin.startsWith('http://localhost:') ||
-    origin.includes('tvrs-union.onrender.com') ||
+    origin.includes('trsv-union.onrender.com') ||
     origin.includes('onrender.com')
   ) {
     return callback(null, true);

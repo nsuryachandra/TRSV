@@ -165,7 +165,7 @@ export default function LeaderDashboard() {
     }
 
     const token = localStorage.getItem('trsv_session_token');
-    const base = window.Capacitor ? 'https://tvrs-union.onrender.com' : '';
+    const base = window.Capacitor ? 'https://trsv-union.onrender.com' : '';
     const es = new EventSource(`${base}/api/realtime/stream?token=${token}`);
     eventSourceRef.current = es;
 
