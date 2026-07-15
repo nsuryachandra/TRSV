@@ -1,4 +1,5 @@
 import express from 'express';
+import crypto from 'crypto';
 import { query } from '../config/db.js';
 import { requireRole } from './constituencies.js';
 import { getClientIP } from '../utils/ip.js';
@@ -92,8 +93,8 @@ router.get('/', requireRole(['supreme_admin', 'president', 'state_president', 'v
 // 3. Update Join Request Status (Accessible to Admins and Regional Leaders)
 router.patch('/:id', requireRole(['supreme_admin', 'president', 'state_president', 'vice_president', 'general_secretary', 'secretary', 'dev']), async (req, res) => {
   const { id } = req.params;
-  const { status } = req.body;
-  const { role, constituency_id } = req.user;
+  const { status, role: assignedRole } = req.body;
+  const { role: callerRole, constituency_id } = req.user;
 
   if (!['Pending', 'Approved', 'Rejected'].includes(status)) {
     return res.status(400).json({ success: false, message: 'Invalid status update value.' });
@@ -106,7 +107,7 @@ router.patch('/:id', requireRole(['supreme_admin', 'president', 'state_president
     }
 
     const request = check.rows[0];
-    const isStatewide = role === 'supreme_admin' || role === 'dev' || !constituency_id;
+    const isStatewide = callerRole === 'supreme_admin' || callerRole === 'dev' || !constituency_id;
 
     // Security check: Regional leaders can only moderate requests within their constituency
     if (!isStatewide && request.constituency_id !== constituency_id) {
@@ -121,13 +122,74 @@ router.patch('/:id', requireRole(['supreme_admin', 'president', 'state_president
       [status, id]
     );
 
+    // If approving, create/update user profile, member identity, and metrics
+    if (status === 'Approved') {
+      const finalRole = assignedRole || 'student';
+      let uid;
+
+      const checkEmail = await query('SELECT * FROM users WHERE email = $1', [request.email]);
+
+      if (checkEmail.rows.length > 0) {
+        uid = checkEmail.rows[0].id;
+        await query(
+          'UPDATE users SET role = $1, constituency_id = $2, verified = TRUE WHERE id = $3',
+          [finalRole, request.constituency_id, uid]
+        );
+      } else {
+        uid = 'tvrs-usr-' + crypto.randomBytes(6).toString('hex');
+        await query(
+          'INSERT INTO users (id, full_name, email, phone, role, constituency_id, verified) VALUES ($1, $2, $3, $4, $5, $6, TRUE)',
+          [uid, request.full_name, request.email || '', request.phone, finalRole, request.constituency_id]
+        );
+      }
+
+      // Create or activate member identity (scanner ID)
+      const checkIdentity = await query('SELECT * FROM member_identities WHERE user_id = $1', [uid]);
+      const trsv_member_id = checkIdentity.rows.length > 0
+        ? checkIdentity.rows[0].trsv_member_id
+        : 'TVRS-MEM-' + Math.floor(100000 + Math.random() * 900000);
+      const qr_token = checkIdentity.rows.length > 0
+        ? checkIdentity.rows[0].qr_token
+        : 'qr_' + crypto.randomBytes(16).toString('hex');
+
+      if (checkIdentity.rows.length > 0) {
+        await query(
+          "UPDATE member_identities SET verification_status = 'Verified', active = TRUE WHERE user_id = $1",
+          [uid]
+        );
+      } else {
+        await query(
+          "INSERT INTO member_identities (user_id, trsv_member_id, qr_token, verification_status, active) VALUES ($1, $2, $3, 'Verified', TRUE)",
+          [uid, trsv_member_id, qr_token]
+        );
+      }
+
+      // Create or update member profile metrics with timeline
+      const checkMetrics = await query('SELECT * FROM member_profile_metrics WHERE user_id = $1', [uid]);
+      const defaultTimeline = JSON.stringify([
+        { date: new Date().toISOString().split('T')[0], event: `Application approved. Role assigned: ${finalRole.replace(/_/g, ' ').toUpperCase()} for constituency.` }
+      ]);
+
+      if (checkMetrics.rows.length === 0) {
+        await query(
+          'INSERT INTO member_profile_metrics (user_id, issues_resolved, issues_pending, rating, timeline) VALUES ($1, 0, 0, 5.00, $2::jsonb)',
+          [uid, defaultTimeline]
+        );
+      } else {
+        await query(
+          'UPDATE member_profile_metrics SET timeline = timeline || $1::jsonb WHERE user_id = $2',
+          [defaultTimeline, uid]
+        );
+      }
+    }
+
     // Insert audit log
     await query(
       'INSERT INTO realtime_activity_logs (user_id, activity_type, details, ip_address) VALUES ($1, $2, $3, $4)',
-      [req.user.uid, 'UPDATE_JOIN_REQUEST_STATUS', `Application request #${id} status changed to '${status}'`, getClientIP(req)]
+      [req.user.uid, 'UPDATE_JOIN_REQUEST_STATUS', `Application request #${id} status changed to '${status}'${status === 'Approved' ? ` with role '${assignedRole || 'student'}'` : ''}`, getClientIP(req)]
     );
 
-    res.json({ success: true, message: `Application status updated to ${status}.`, request: result.rows[0] });
+    res.json({ success: true, message: `Application status updated to ${status}${status === 'Approved' ? ` with role '${assignedRole || 'student'}' assigned.` : '.'}`, request: result.rows[0] });
   } catch (error) {
     console.error('🚨 [Update Join Request Status Error]:', error.message);
     res.status(500).json({ success: false, error: error.message });

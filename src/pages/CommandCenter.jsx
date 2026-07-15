@@ -70,6 +70,8 @@ export default function CommandCenter() {
   // Tab 4: Join requests state
   const [joinRequests, setJoinRequests] = useState([]);
   const [fetchingRequests, setFetchingRequests] = useState(false);
+  const [approvingApp, setApprovingApp] = useState(null);
+  const [selectedRole, setSelectedRole] = useState('student');
 
   // Tab 5: Complaint Operations queue states
   const [allComplaints, setAllComplaints] = useState([]);
@@ -354,7 +356,7 @@ export default function CommandCenter() {
     }
   }, [activeTab]);
 
-  const handleUpdateRequestStatus = async (id, status) => {
+  const handleUpdateRequestStatus = async (id, status, assignedRole) => {
     try {
       const token = localStorage.getItem('trsv_session_token');
       const res = await fetch(`/api/join-tvrs/${id}`, {
@@ -363,11 +365,12 @@ export default function CommandCenter() {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ status })
+        body: JSON.stringify({ status, role: assignedRole || 'student' })
       });
       const data = await res.json();
       if (data.success) {
-        setMessage({ text: `Application ${status === 'Approved' ? 'approved' : 'rejected'} successfully.`, type: 'success' });
+        setMessage({ text: data.message || `Application ${status === 'Approved' ? 'approved' : 'rejected'} successfully.`, type: 'success' });
+        setApprovingApp(null);
         fetchJoinRequests();
       } else {
         setMessage({ text: data.message || 'Failed to update application status.', type: 'error' });
@@ -935,7 +938,7 @@ export default function CommandCenter() {
                     {req.status === 'Pending' && (
                       <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
                         <button
-                          onClick={() => handleUpdateRequestStatus(req.id, 'Approved')}
+                          onClick={() => { setApprovingApp(req); setSelectedRole('student'); }}
                           className="inline-flex items-center justify-center font-bold rounded-xl transition-all duration-300 active:scale-95 px-4 py-2 text-xs bg-emerald-600 hover:bg-emerald-500 text-white shadow-md border border-emerald-500/20 gap-1.5 cursor-pointer"
                         >
                           <Check className="w-3.5 h-3.5" />
@@ -1053,6 +1056,65 @@ export default function CommandCenter() {
           userProfile={userProfile} 
           onUpdateSuccess={fetchAllComplaints} 
         />
+      )}
+
+      {approvingApp && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+            <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
+              <div>
+                <h3 className="font-bold text-slate-800 dark:text-white">Assign Role & Approve</h3>
+                <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Select leadership role for {approvingApp.full_name}</p>
+              </div>
+              <button onClick={() => setApprovingApp(null)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="space-y-4 py-2">
+              <div className="space-y-1">
+                <label className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400">Target Constituency</label>
+                <div className="text-xs text-slate-700 dark:text-slate-200 font-bold bg-slate-100 dark:bg-slate-950 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800">
+                  {approvingApp.constituency_name || 'Not Set'}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400">Assign Union Role</label>
+                <select
+                  value={selectedRole}
+                  onChange={(e) => setSelectedRole(e.target.value)}
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg p-2.5 text-xs text-slate-700 dark:text-slate-200 focus:outline-none focus:border-cyan-500 cursor-pointer"
+                >
+                  <option value="student">Regular Student Member (No Leadership Role)</option>
+                  <option value="president">Constituency President</option>
+                  <option value="vice_president">Constituency Vice President</option>
+                  <option value="general_secretary">Constituency General Secretary</option>
+                  <option value="secretary">Constituency Secretary</option>
+                </select>
+                <p className="text-[10px] text-slate-400 italic">
+                  Selecting a leadership role grants access to scan digital IDs and moderate constituency logs.
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex justify-end gap-3 pt-3 border-t border-slate-200 dark:border-slate-800">
+              <button 
+                onClick={() => setApprovingApp(null)}
+                className="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleUpdateRequestStatus(approvingApp.id, 'Approved', selectedRole)}
+                className="inline-flex items-center justify-center font-bold rounded-xl transition-all duration-300 active:scale-95 px-4 py-2 text-xs bg-emerald-600 hover:bg-emerald-500 text-white shadow-md border border-emerald-500/20 gap-1.5 cursor-pointer"
+              >
+                <Check className="w-3.5 h-3.5" />
+                Confirm & Approve
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
     </div>
