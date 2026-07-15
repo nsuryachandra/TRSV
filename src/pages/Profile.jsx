@@ -211,12 +211,12 @@ function MicroWatermark({ text = "TVRS \u2022 AUTHENTIC \u2022" }) {
 /*  Shared bits                                                       */
 /* ------------------------------------------------------------------ */
 
-function OrgMark({ logo, size = 38 }) {
+function OrgMark({ logo, size = 52 }) {
   const finalLogo = logo || "/trsv.jpeg";
   return (
     <div
-      className="flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-white/95 ring-[1.5px] ring-white/50 shadow-[0_2px_8px_rgba(0,0,0,0.15)]"
-      style={{ width: size, height: size }}
+      className="flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-white/95 ring-2 ring-white/60 shadow-[0_4px_14px_rgba(0,0,0,0.22)]"
+      style={{ width: size, height: size, flexShrink: 0 }}
     >
       <img src={finalLogo} alt="TVRS logo" className="h-full w-full object-cover" />
     </div>
@@ -308,7 +308,7 @@ function CardFront(props) {
 
       {/* Header */}
       <div
-        className="relative overflow-hidden px-6 pb-8 pt-4"
+        className="relative overflow-hidden px-6 pb-8 pt-6"
         style={{
           background: `linear-gradient(155deg, ${TOKENS.blue} 0%, ${TOKENS.blueLight} 100%)`,
         }}
@@ -475,7 +475,7 @@ function CardBack(props) {
 
       {/* Header – matches front */}
       <div
-        className="relative overflow-hidden px-6 pb-4 pt-4 flex items-center justify-center gap-3 w-full"
+        className="relative overflow-hidden px-6 pb-6 pt-6 flex items-center justify-center gap-3 w-full"
         style={{ background: `linear-gradient(155deg, ${TOKENS.blue} 0%, ${TOKENS.blueLight} 100%)` }}
       >
         <GuillochePattern id="backHeaderPattern" color="#FFFFFF" opacity={0.055} />
