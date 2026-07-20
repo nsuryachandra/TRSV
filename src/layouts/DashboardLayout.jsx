@@ -33,12 +33,14 @@ import { App } from '@capacitor/app';
 import { PushNotifications } from '@capacitor/push-notifications';
 import { io } from 'socket.io-client';
 import CommandPalette from '../components/CommandPalette';
+import { useOrg } from '../context/OrgContext';
 
 export default function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const pathname = location.pathname;
+  const { shortName, fullName } = useOrg();
   const { 
     userProfile, 
     logout,
@@ -502,7 +504,7 @@ export default function DashboardLayout() {
           desc: 'Verifiable complaint list'
         },
         {
-          name: 'TVRS Team',
+          name: `${shortName} Team`,
           path: '/dashboard/team',
           icon: <Users className="w-5 h-5" />,
           desc: 'Union state leaders'
@@ -521,17 +523,17 @@ export default function DashboardLayout() {
       category: 'Info',
       links: [
         {
-          name: 'About TVRS',
+          name: `About ${shortName}`,
           path: '/dashboard/about',
           icon: <Info className="w-5 h-5" />,
-          desc: 'About TVRS union'
+          desc: `About ${shortName} union`
         },
         // Only student roles can apply to join the union
         ...(userProfile?.role === 'student' ? [{
-          name: 'Join TVRS',
+          name: `Join ${shortName}`,
           path: '/dashboard/join',
           icon: <UserPlus className="w-5 h-5" />,
-          desc: 'Apply to join TVRS'
+          desc: `Apply to join ${shortName}`
         }] : [])
       ]
     },
@@ -588,12 +590,12 @@ export default function DashboardLayout() {
         <div className="p-6 border-b border-slate-200/50 dark:border-slate-900/60 flex items-center gap-3">
           <img 
             src="/trsv.jpeg" 
-            alt="TVRS Logo" 
+            alt={`${shortName} Logo`} 
             className="w-10 h-10 rounded-2xl object-cover border border-cyan-500/30 shadow-[0_0_8px_rgba(6,182,212,0.15)] shrink-0"
           />
           <div className="text-left">
             <span className="font-black text-base tracking-tight text-slate-800 dark:text-white uppercase block">
-              TVRS State OS
+              {shortName} State OS
             </span>
             <span className="text-[10px] font-extrabold text-cyan-600 dark:text-cyan-400 tracking-widest uppercase block mt-0.5">
               STATE CONTROL TERM
@@ -683,10 +685,10 @@ export default function DashboardLayout() {
                 <div className="flex items-center gap-3">
                   <img 
                     src="/trsv.jpeg" 
-                    alt="TVRS Logo" 
+                    alt={`${shortName} Logo`} 
                     className="w-9 h-9 rounded-xl object-cover border border-cyan-500/30 shadow-[0_0_8px_rgba(6,182,212,0.15)] shrink-0"
                   />
-                  <span className="font-extrabold text-sm text-slate-800 dark:text-white uppercase tracking-wider">TVRS OS</span>
+                  <span className="font-extrabold text-sm text-slate-800 dark:text-white uppercase tracking-wider">{shortName} OS</span>
                 </div>
                 <button
                   onClick={() => setSidebarOpen(false)}
@@ -783,8 +785,8 @@ export default function DashboardLayout() {
               {/* Compact Title Group */}
               <div className="flex flex-col text-left">
                 <h1 className="text-xs sm:text-sm font-black text-slate-850 dark:text-white uppercase tracking-wider flex items-center gap-2 leading-none">
-                  <span className="hidden sm:inline">TVRS Student Network</span>
-                  <span className="sm:hidden">TVRS OS</span>
+                  <span className="hidden sm:inline">{shortName} Student Network</span>
+                  <span className="sm:hidden">{shortName} OS</span>
                   <span className="px-1.5 py-0.5 rounded-full text-[8px] font-bold bg-green-500/10 text-green-500 border border-green-500/20 animate-pulse">
                     Live
                   </span>

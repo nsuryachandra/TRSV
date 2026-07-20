@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Users } from 'lucide-react';
 import GlassCard from '../components/GlassCard';
 import AnimatedSection from '../components/AnimatedSection';
+import { useOrg } from '../context/OrgContext';
 
 const LEADERS = [
   {
@@ -133,7 +134,9 @@ const CinematicCard = ({ lead, accentColor = 'cyan' }) => {
       dept: 'text-amber-500/80',
     },
   };
-  const c = accents[accentColor] || accents.cyan;
+  const c = accents[lead.accentColor] || accents.cyan;
+
+  const formattedDescription = lead.description ? lead.description.replace(/TVRS/g, shortName) : '';
 
   return (
     <GlassCard hoverEffect={true} className="group p-0 flex flex-col items-stretch text-left bg-gradient-to-b from-white/40 to-white/10 dark:from-slate-950/50 dark:to-slate-950/20 border border-slate-200/50 dark:border-slate-800 shadow-xl overflow-hidden rounded-3xl">
@@ -151,7 +154,7 @@ const CinematicCard = ({ lead, accentColor = 'cyan' }) => {
               <Users className="w-7 h-7 text-cyan-400" />
             </div>
             <span className="text-[10px] font-black text-cyan-400 tracking-[0.25em] uppercase mb-1">
-              TVRS Officer
+              {shortName} Officer
             </span>
             <span className="text-xs font-bold text-slate-500 tracking-wider">
               Executive Board
@@ -180,7 +183,7 @@ const CinematicCard = ({ lead, accentColor = 'cyan' }) => {
       {/* Details below portrait */}
       <div className="flex flex-col gap-3 p-6">
         <p className="text-xs sm:text-sm text-slate-550 dark:text-slate-400 leading-relaxed">
-          {lead.description}
+          {formattedDescription}
         </p>
       </div>
     </GlassCard>
@@ -201,77 +204,56 @@ export default function Team() {
           }
         });
         const data = await response.json();
-        if (data.success && data.leaders) {
-          // Map DB columns to what CinematicCard expects
-          const mappedLeaders = data.leaders.map(lead => {
-            // Resolve accent colors based on role
-            let accentColor = 'emerald';
-            if (lead.role === 'supreme_admin') accentColor = 'cyan';
-            else if (lead.role === 'state_president') accentColor = 'emerald';
-            else if (lead.role === 'vice_president') accentColor = 'emerald';
-            else if (lead.role === 'general_secretary') accentColor = 'violet';
-            else if (lead.role === 'secretary') accentColor = 'violet';
-            else if (lead.role === 'president') accentColor = 'violet';
+        if (data.success && data.leaders && data.leaders.length > 0) {
+          const apiLeaders = data.leaders.map(lead => {
+            const roleKey = (lead.role || '').toLowerCase();
+            let roleLabel = 'Leader';
+            if (roleKey === 'supreme_admin' || roleKey === 'founder') roleLabel = 'Founder & Patron';
+            else if (roleKey === 'state_president') roleLabel = 'State President';
+            else if (roleKey === 'district_incharge') roleLabel = 'District Incharge';
+            else if (roleKey === 'constituency_president') roleLabel = 'Constituency President';
+            else if (roleKey === 'college_incharge') roleLabel = 'College Incharge';
 
-            // Check if the user is SuryaChandra
-            if (lead.id === 'suryachandra' || lead.full_name.toLowerCase().includes('suryachandra')) {
-              accentColor = 'amber';
-            }
-
-            // Map description fallback
-            let roleLabel = lead.role.replace('_', ' ').toUpperCase();
-            if (lead.role === 'state_president') roleLabel = 'State President';
-            if (lead.role === 'supreme_admin') roleLabel = 'Founder';
+            let accentColor = 'cyan';
+            if (roleKey === 'state_president' || roleKey === 'president') accentColor = 'emerald';
+            else if (roleKey === 'general_secretary' || roleKey === 'secretary') accentColor = 'violet';
 
             return {
               id: lead.id,
-              full_name: lead.full_name,
+              full_name: lead.full_name || lead.username,
               role: roleLabel,
-              profile_image: lead.profile_image,
-              accentColor,
-              description: lead.id === 'suryachandra'
-                ? 'Digital Architect of TVRS - designs, implements, and maintains the portal, database infrastructure, and student safety telemetry systems.'
-                : `${roleLabel} of TVRS union. Serving the student community and strengthening organizational coordination in the ${lead.constituency_name || lead.district || 'State'} region.`
+              profile_image: lead.profile_image || (lead.username === 'suryachandra' ? '/suryachandra.jpeg' : '/default-avatar.png'),
+              accentColor: accentColor,
+              description: lead.username === 'suryachandra'
+                ? `Digital Architect of ${shortName} - designs, implements, and maintains the portal, database infrastructure, and student safety telemetry systems.`
+                : `${roleLabel} of ${shortName} union. Serving the student community and strengthening organizational coordination in the ${lead.constituency_name || lead.district || 'State'} region.`
             };
           });
-
-          // Merge with static details if available
-          const merged = mappedLeaders.map(m => {
-            const staticLead = LEADERS.find(s => s.id === m.id || s.full_name.toLowerCase() === m.full_name.toLowerCase());
-            if (staticLead) {
-              return {
-                ...m,
-                description: staticLead.description || m.description,
-                profile_image: staticLead.profile_image || m.profile_image
-              };
-            }
-            return m;
-          });
-
-          setLeaders(merged);
+          
+          setLeaders(apiLeaders);
         }
       } catch (err) {
-        console.error('Error fetching leaders:', err);
+        console.warn('Failed to load leaders from database:', err);
       } finally {
         setLoading(false);
       }
     };
 
     fetchLeaders();
-  }, []);
+  }, [shortName]);
 
   return (
     <div className="w-full flex flex-col gap-16 py-4">
       {/* Header */}
       <AnimatedSection direction="up" className="text-center max-w-3xl mx-auto flex flex-col gap-4">
         <span className="text-xs font-bold text-cyan-600 dark:text-cyan-400 tracking-widest uppercase">
-          TVRS DIRECTORY
+          {shortName} DIRECTORY
         </span>
         <h1 className="fluid-heading-2 font-black text-slate-850 dark:text-white leading-tight">
           Executive Board & Command Council
         </h1>
         <p className="text-base sm:text-lg text-slate-500 dark:text-slate-400 leading-relaxed">
-          The unified leadership council of Telangana Vidyarthi Rakshana Sena (TVRS), guiding student welfare and security across Telangana.
+          The unified leadership council of {fullName} ({shortName}), guiding student welfare and security across Telangana.
         </p>
       </AnimatedSection>
 

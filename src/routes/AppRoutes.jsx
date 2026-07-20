@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import ProtectedRoute from '../components/ProtectedRoute';
 import { useAuth } from '../context/AuthContext';
+import { useOrg } from '../context/OrgContext';
 
 // Dynamic Dashboard Index redirection to bypass page loops
 function DashboardIndex() {
@@ -51,6 +52,7 @@ const DevTools = lazy(() => import('../pages/DevTools'));
 
 // Futuristic Holographic Loading Spinner
 function PageLoader() {
+  const { shortName } = useOrg();
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-tvrs-bg-light dark:bg-tvrs-bg-dark transition-colors duration-300">
       <div className="relative flex flex-col items-center">
@@ -64,7 +66,7 @@ function PageLoader() {
         <div className="absolute top-[32px] left-[32px] w-4 h-4 bg-cyan-500 rounded-full shadow-glow-cyan-strong" />
 
         <h3 className="mt-8 font-semibold tracking-wider text-sm uppercase text-slate-600 dark:text-cyan-400 animate-pulse">
-          TVRS Quantum Terminal
+          {shortName} Quantum Terminal
         </h3>
         <p className="mt-1 text-xs text-slate-440 dark:text-slate-550">
           Syncing statewide governance node...

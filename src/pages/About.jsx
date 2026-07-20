@@ -2,8 +2,11 @@ import React from 'react';
 import { ShieldCheck, Flag, Users, Scale, CheckCircle, GraduationCap, HeartPulse } from 'lucide-react';
 import GlassCard from '../components/GlassCard';
 import AnimatedSection from '../components/AnimatedSection';
+import { useOrg } from '../context/OrgContext';
 
 export default function About() {
+  const { shortName, fullName } = useOrg();
+
   const pillars = [
     {
       icon: <ShieldCheck className="w-8 h-8 text-rose-500" />,
@@ -23,7 +26,7 @@ export default function About() {
     {
       icon: <Flag className="w-8 h-8 text-amber-500" />,
       title: 'Statewide Representative Action',
-      desc: 'TVRS operates a scalable State → Constituency → College network. We empower students to stand as coordinators, resolve local college issues, and direct rapid mediation dispatches.'
+      desc: `${shortName} operates a scalable State → Constituency → College network. We empower students to stand as coordinators, resolve local college issues, and direct rapid mediation dispatches.`
     }
   ];
 
@@ -36,10 +39,10 @@ export default function About() {
           WHO WE ARE
         </span>
         <h1 className="fluid-heading-2 font-black text-slate-850 dark:text-white leading-tight">
-          Telangana Vidyarthi Rakshana Sena
+          {fullName}
         </h1>
         <p className="text-base sm:text-lg text-slate-500 dark:text-slate-400 leading-relaxed">
-          Founded as a statewide digital-first student governance organization, TVRS shields millions of students across campuses from exploitation, ragging, and institutional harassment.
+          Founded as a statewide digital-first student governance organization, {shortName} shields millions of students across campuses from exploitation, ragging, and institutional harassment.
         </p>
       </AnimatedSection>
 
@@ -60,7 +63,7 @@ export default function About() {
         ))}
       </section>
 
-      {/* Manifesto Section (moved higher for prominence) */}
+      {/* Manifesto Section */}
       <AnimatedSection direction="up" className="w-full flex flex-col gap-8 text-center max-w-4xl mx-auto">
         <div className="flex flex-col gap-2">
           <span className="text-xs font-bold text-rose-500 tracking-widest uppercase">
@@ -70,7 +73,7 @@ export default function About() {
             Transforming Student Welfare & Governance
           </h2>
           <p className="text-sm text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">
-            TVRS is committed to advocating for fundamental rights that empower every student to learn, grow, and thrive without financial or social barriers.
+            {shortName} is committed to advocating for fundamental rights that empower every student to learn, grow, and thrive without financial or social barriers.
           </p>
         </div>
 
@@ -110,7 +113,7 @@ export default function About() {
         <GlassCard className="p-8 sm:p-12 text-left relative">
           <h2 className="font-extrabold text-2xl text-slate-850 dark:text-white mb-6 border-b border-slate-200/50 dark:border-slate-850 pb-4 flex items-center gap-2.5">
             <ShieldCheck className="w-6.5 h-6.5 text-cyan-500" />
-            TVRS State Student Charter Principles
+            {shortName} State Student Charter Principles
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
             <div className="flex items-start gap-3">

@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { useOrg } from '../context/OrgContext';
 
 /* ═══════════════════════════════════════════════════════════════
    21st.dev-grade Reusable Sub-components (Light Theme)
@@ -155,6 +156,7 @@ export default function Welcome() {
   const navigate = useNavigate();
   const { loginSimplified, login, userProfile, checkBiometricsAvailable, loginWithBiometrics } = useAuth();
   const { isDark } = useTheme();
+  const { fullName } = useOrg();
 
   const [biometricsAvailable, setBiometricsAvailable] = useState(false);
   const [biometricsConfigured, setBiometricsConfigured] = useState(false);
@@ -343,10 +345,7 @@ export default function Welcome() {
         >
           <span className="text-slate-800 dark:text-slate-100 transition-colors duration-300">Welcome to</span><br />
           <span className="bg-clip-text text-transparent bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600">
-            Telangana Vidyarthi
-          </span><br />
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600">
-            Rakshana Sena
+            {fullName}
           </span>
         </h1>
 

@@ -22,10 +22,12 @@ import AnimatedSection from '../components/AnimatedSection';
 import { useNavigate } from 'react-router-dom';
 import PremiumButton from '../components/PremiumButton';
 import { useAuth } from '../context/AuthContext';
+import { useOrg } from '../context/OrgContext';
 
 export default function JoinTVRS() {
   const navigate = useNavigate();
   const { userProfile, refreshProfile } = useAuth();
+  const { shortName, fullName } = useOrg();
   
   const [constituencies, setConstituencies] = useState([]);
   const [loadingConstituencies, setLoadingConstituencies] = useState(true);
@@ -376,10 +378,9 @@ export default function JoinTVRS() {
                 </div>
               </div>
 
-              {/* Status Message Text */}
-              <div className="p-4 bg-slate-100/80 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-900 rounded-xl text-xs leading-relaxed text-slate-700 dark:text-slate-300">
+              <div className="p-4 bg-slate-100/80 dark:bg-slate-955/80 border border-slate-200 dark:border-slate-900 rounded-xl text-xs leading-relaxed text-slate-700 dark:text-slate-300">
                 {isPending && "Your membership request has been registered and is currently being inspected by the regional constituency committee. Please wait for official authorization."}
-                {isApproved && "Congratulations! Your registration has been approved. You are now officially recognized as a TVRS representative. Please restart the app or refresh to sync your dashboard access."}
+                {isApproved && `Congratulations! Your registration has been approved. You are now officially recognized as a ${shortName} representative. Please restart the app or refresh to sync your dashboard access.`}
                 {isRejected && "Your application has been rejected by the regional committee. You can submit a new application below with updated coordinates if necessary."}
               </div>
             </div>
@@ -418,24 +419,18 @@ export default function JoinTVRS() {
           <GlassCard className="p-8 sm:p-12 border border-emerald-500/20 bg-emerald-500/5 shadow-2xl rounded-2xl">
             <div className="flex flex-col items-center text-center justify-center gap-6 w-full h-full">
               <div className="w-16 h-16 rounded-full bg-emerald-500/10 border-2 border-emerald-500/20 flex items-center justify-center text-emerald-500 shadow-glow-emerald animate-bounce">
-                <CheckCircle2 className="w-9 h-9" />
+                <Check className="w-8 h-8" />
               </div>
-
-              <div className="flex flex-col gap-1.5">
-                <h2 className="text-2xl font-black text-slate-800 dark:text-white uppercase tracking-tight">
-                  Application Submitted!
+              <div className="flex flex-col gap-2">
+                <h2 className="text-2xl font-black text-slate-855 dark:text-white tracking-tight">
+                  Application Submitted Successfully
                 </h2>
-                <span className="text-[10px] text-emerald-500 font-extrabold uppercase tracking-widest">
-                  Ledger Logged Successfully
-                </span>
+                <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
+                  Your application node has been registered. The constituency leadership team will audit your credentials shortly.
+                </p>
               </div>
-
-              <p className="text-sm text-slate-550 dark:text-slate-450 leading-relaxed max-w-md">
-                Your application to join the <strong>Telangana Vidyarthi Rakshana Sena</strong> has been registered on our secure node. Our regional committee will inspect your profile details and contact you soon.
-              </p>
-
               <PremiumButton
-                onClick={() => navigate('/dashboard/student')}
+                onClick={() => navigate('/dashboard')}
                 variant="glow"
                 size="sm"
                 icon={<ArrowLeft className="w-4 h-4" />}
@@ -453,7 +448,7 @@ export default function JoinTVRS() {
   return (
     <div className="w-full min-h-[80vh] flex flex-col items-center py-4 px-2 sm:py-8 sm:px-4">
       <AnimatedSection direction="up" className="w-full max-w-2xl text-left">
-        <GlassCard hoverEffect={false} className="p-5 sm:p-10 relative overflow-hidden border border-slate-200/50 dark:border-slate-850 shadow-2xl rounded-3xl bg-white/40 dark:bg-slate-950/20">
+        <GlassCard hoverEffect={false} className="p-5 sm:p-10 relative overflow-hidden border border-slate-200/50 dark:border-slate-855 shadow-2xl rounded-3xl bg-white/40 dark:bg-slate-950/20">
           {/* Cybernetic ambient backing light */}
           <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-cyan-400/10 to-transparent blur-2xl pointer-events-none" />
           
@@ -461,7 +456,7 @@ export default function JoinTVRS() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-8 border-b border-slate-200/40 dark:border-slate-850 pb-5">
             <img 
               src="/trsv.jpeg" 
-              alt="TVRS Logo" 
+              alt={`${shortName} Logo`} 
               className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-cover border border-slate-200/50 dark:border-slate-800 shadow-md shrink-0" 
             />
             <div className="flex flex-col text-left">
@@ -469,7 +464,7 @@ export default function JoinTVRS() {
                 OFFICIAL REGISTRATION TERMINAL
               </span>
               <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-855 dark:text-white leading-tight mt-1">
-                Telangana Vidyarthi Rakshana Sena
+                {fullName}
               </h1>
               <p className="text-xs text-slate-450 dark:text-slate-400 leading-normal mt-0.5 font-medium">
                 Submit details below to stand as a digital coordinator node and represent student advocacy rights across educational zones.

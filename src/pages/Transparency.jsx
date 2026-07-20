@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { ShieldCheck, Activity, Users, Clock, AlertTriangle, ChevronRight, BarChart2, ShieldAlert } from 'lucide-react';
 import GlassCard from '../components/GlassCard';
 import AnimatedSection from '../components/AnimatedSection';
+import { useOrg } from '../context/OrgContext';
 
 export default function Transparency() {
+  const { shortName } = useOrg();
   const [metrics, setMetrics] = useState(null);
   const [rankings, setRankings] = useState([]);
   const [activity, setActivity] = useState([]);
@@ -58,7 +60,7 @@ export default function Transparency() {
           Public Accountability Portal
         </h1>
         <p className="text-base sm:text-lg text-slate-500 dark:text-slate-400 leading-relaxed max-w-2xl mx-auto">
-          TVRS operates with 100% transparency. Every issue tracked, every emergency dispatched, and every constituency ranked publicly for total systemic accountability.
+          {shortName} operates with 100% transparency. Every issue tracked, every emergency dispatched, and every constituency ranked publicly for total systemic accountability.
         </p>
       </AnimatedSection>
 

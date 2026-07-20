@@ -6,9 +6,11 @@ import ThemeToggle from '../components/ThemeToggle';
 import PremiumButton from '../components/PremiumButton';
 import FloatingParticles from '../components/FloatingParticles';
 import { useAuth } from '../context/AuthContext';
+import { useOrg } from '../context/OrgContext';
 
 export default function RootLayout() {
   const { currentUser, userProfile, logout } = useAuth();
+  const { shortName, fullName } = useOrg();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -78,12 +80,12 @@ export default function RootLayout() {
           <Link to="/" onClick={(e) => handleNavClick(e, '/')} className="flex items-center gap-2.5 group">
             <img 
               src="/tvrs.jpeg" 
-              alt="TVRS Logo" 
+              alt={`${shortName} Logo`} 
               className="w-9 h-9 rounded-xl object-cover border border-cyan-500/30 shadow-[0_0_8px_rgba(6,182,212,0.15)] transition-transform group-hover:scale-105 shrink-0"
             />
             <div className="flex flex-col">
               <span style={{fontFamily:'Satoshi,Inter,sans-serif',fontWeight:700,fontSize:'1.125rem',letterSpacing:'-0.04em',lineHeight:1}} className="bg-clip-text text-transparent bg-gradient-to-r from-sky-600 via-cyan-600 to-blue-700 dark:from-sky-400 dark:via-cyan-400 dark:to-blue-500">
-                TVRS
+                {shortName}
               </span>
               <span style={{fontFamily:'Inter,sans-serif',fontSize:'0.5625rem',fontWeight:500,letterSpacing:'0.1em'}} className="hidden sm:inline text-slate-400 dark:text-slate-500 uppercase">
                 Student Governance
@@ -319,13 +321,13 @@ export default function RootLayout() {
               <div className="flex items-center gap-2">
                 <img 
                   src="/tvrs.jpeg" 
-                  alt="TVRS Logo" 
+                  alt={`${shortName} Logo`} 
                   className="w-8 h-8 rounded-lg object-cover border border-cyan-500/30"
                 />
-                <span className="font-black text-xl tracking-tight text-slate-800 dark:text-white">TVRS</span>
+                <span className="font-black text-xl tracking-tight text-slate-800 dark:text-white">{shortName}</span>
               </div>
               <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-                Telangana Vidyarthi Rakshana Sena is a premier student union organization offering campus representation, peer mentorship, transparency auditing, and complaint assistance.
+                {fullName} is a premier student union organization offering campus representation, peer mentorship, transparency auditing, and complaint assistance.
               </p>
               <div className="flex items-center gap-3 text-slate-400 dark:text-slate-500 text-sm">
                 <Globe className="w-4 h-4 text-cyan-500" />
@@ -339,7 +341,7 @@ export default function RootLayout() {
                 Union Directory
               </h4>
               <div className="grid grid-cols-2 gap-2 text-sm">
-                <Link to="/login" className="text-slate-500 dark:text-slate-450 hover:text-cyan-500 dark:hover:text-cyan-400">About TVRS</Link>
+                <Link to="/login" className="text-slate-500 dark:text-slate-450 hover:text-cyan-500 dark:hover:text-cyan-400">About {shortName}</Link>
                 <Link to="/login" className="text-slate-500 dark:text-slate-450 hover:text-cyan-500 dark:hover:text-cyan-400">Services</Link>
                 <Link to="/login" className="text-slate-500 dark:text-slate-450 hover:text-cyan-500 dark:hover:text-cyan-400">Public Audit</Link>
                 <Link to="/login" className="text-slate-500 dark:text-slate-450 hover:text-cyan-500 dark:hover:text-cyan-400">Districts</Link>
@@ -403,7 +405,7 @@ export default function RootLayout() {
           {/* Bottom copyright details */}
           <div className="max-w-7xl mx-auto border-t border-slate-200/50 dark:border-slate-900/60 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-xs text-slate-400 dark:text-slate-500 text-center md:text-left">
-              © {new Date().getFullYear()} TVRS (Telangana Vidyarthi Rakshana Sena). Developed for student union empowerment. All rights reserved.
+              © {new Date().getFullYear()} {shortName} ({fullName}). Developed for student union empowerment. All rights reserved.
             </p>
             <div className="flex items-center gap-4 text-xs text-slate-400 dark:text-slate-500">
               <Link to="/login" className="hover:text-cyan-500">Staff Access</Link>

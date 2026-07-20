@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ShieldCheck, BookOpen, Download, HelpCircle, FileText, ChevronRight, CheckCircle2, RefreshCw, AlertTriangle, ShieldAlert, Building, MapPin } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useOrg } from '../context/OrgContext';
 import GlassCard from '../components/GlassCard';
 import PremiumButton from '../components/PremiumButton';
 import ComplaintDetailsModal from '../components/ComplaintDetailsModal';
@@ -11,6 +12,7 @@ export default function StudentDashboard() {
   const [searchParams] = useSearchParams();
   const openTicketId = searchParams.get('open_ticket_id');
   const { userProfile, refreshProfile } = useAuth();
+  const { shortName } = useOrg();
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
@@ -621,13 +623,13 @@ export default function StudentDashboard() {
               <h3 className="text-2xl font-black tracking-wider text-amber-600 dark:text-amber-400 uppercase">
                 ⚠️ Be Alert!
               </h3>
-              <p className="text-[10px] text-slate-550 dark:text-slate-400 font-extrabold uppercase tracking-widest">
-                Official TVRS Student Notice
+              <p className="text-[10px] text-slate-555 dark:text-slate-400 font-extrabold uppercase tracking-widest">
+                Official {shortName} Student Notice
               </p>
             </div>
 
             <p className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed font-semibold z-10">
-              Issue tickets logged in the TVRS Command Node are transmitted directly to regional boards. 
+              Issue tickets logged in the {shortName} Command Node are transmitted directly to regional boards. 
               <span className="text-amber-600 dark:text-amber-400 font-bold block mt-1">You must file only real and genuine issues.</span> 
               Filing simulated, fake, or false issues is strictly prohibited and will result in permanent student credential suspension.
             </p>

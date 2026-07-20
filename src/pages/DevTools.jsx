@@ -1,17 +1,18 @@
 import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useOrg } from '../context/OrgContext';
 import {
   Users, FileText, Megaphone, Calendar, Network, ShieldAlert, Server, Globe,
   ChevronRight, Command, Cpu, Activity, Shield, Settings2, PanelLeft, X,
-  LayoutDashboard, Zap, Search
+  LayoutDashboard, Zap, Search, Building2
 } from 'lucide-react';
 import devModules from '../modules/index.js';
 
 // Icon resolver
 const iconMap = {
   Users, FileText, Megaphone, Calendar, Network, ShieldAlert, Server, Globe,
-  Cpu, Activity, Shield, Settings2, Zap, LayoutDashboard
+  Cpu, Activity, Shield, Settings2, Zap, LayoutDashboard, Building2
 };
 const getIcon = (name) => iconMap[name] || Settings2;
 
@@ -209,14 +210,15 @@ const DevTools = () => {
 
 // ─── Dev Tools Home / Overview ────────────────────────────────────────────────
 const DevToolsHome = ({ modules, onNavigate }) => {
+  const { shortName } = useOrg();
   return (
     <div className="space-y-8 max-w-4xl">
       <div className="space-y-2">
         <h1 className="text-2xl font-bold text-slate-100">
-          TVRS Supreme Administration Console
+          {shortName} Supreme Administration Console
         </h1>
         <p className="text-sm text-slate-400 max-w-xl">
-          The central governance brain of TRSV. Manage statewide membership, dispatch official documents, monitor security intelligence, and configure the public portal — all from a single command plane.
+          The central governance brain of {shortName}. Manage statewide membership, dispatch official documents, monitor security intelligence, and configure the public portal — all from a single command plane.
         </p>
       </div>
 

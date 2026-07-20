@@ -4,8 +4,10 @@ import { Camera, Scan, Upload, ShieldCheck, ShieldAlert, X, HelpCircle, User, In
 import GlassCard from '../components/GlassCard';
 import PremiumButton from '../components/PremiumButton';
 import jsQR from 'jsqr';
+import { useOrg } from '../context/OrgContext';
 
 export default function QrScanExperience() {
+  const { shortName, fullName } = useOrg();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const solveTicketId = searchParams.get('solve_ticket_id');
@@ -217,7 +219,7 @@ export default function QrScanExperience() {
         }
       } catch (err) {
         console.error(err);
-        setScanError('TVRS node communication failed. Server unreachable.');
+        setScanError(`${shortName} node communication failed. Server unreachable.`);
       } finally {
         setScanning(false);
       }
@@ -279,7 +281,7 @@ export default function QrScanExperience() {
   };
 
   const quickScans = [
-    { label: 'Audit Supreme Leader ID', token: 'TVRS-HQ-0001', desc: 'Queries Surya\'s Verified Official Card' },
+    { label: 'Audit Supreme Leader ID', token: `${shortName}-HQ-0001`, desc: 'Queries Surya\'s Verified Official Card' },
     { label: 'Scan secure QR Token', token: ['supreme_secure_qr_token_surya', '2026'].join('_'), desc: 'Validates raw QR cryptographic JWT key' },
     { label: 'Simulate Corrupt QR Scan', token: 'corrupted_token_abc_123', desc: 'Triggers active error database alert logs' }
   ];
@@ -292,7 +294,7 @@ export default function QrScanExperience() {
         
         <div className="flex flex-col gap-2">
           <div className="inline-flex items-center gap-1.5 self-start px-2.5 py-1 rounded-full bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 text-[10px] font-extrabold uppercase tracking-wider border border-cyan-500/20">
-            TVRS Verification Terminal
+            {shortName} Verification Terminal
           </div>
           <h2 className="text-3xl font-black text-slate-800 dark:text-white flex items-center gap-2">
             Holographic QR Scanner
@@ -452,7 +454,7 @@ export default function QrScanExperience() {
                   </div>
 
                   <span className={`text-[10px] font-black uppercase tracking-widest ${scanResult.verified ? 'text-emerald-500' : 'text-rose-500'}`}>
-                    TVRS System Decrypted
+                    {shortName} System Decrypted
                   </span>
 
                   <h2 className="text-2xl font-black text-slate-800 dark:text-white mt-1">
@@ -572,7 +574,7 @@ export default function QrScanExperience() {
                   </p>
 
                   <p className="text-[9px] text-slate-500 dark:text-slate-400 mt-4 leading-relaxed max-w-[280px]">
-                    This QR code contains an expired key, tampered signatures, or resides outside the Telangana V.R.S. secure server network.
+                    This QR code contains an expired key, tampered signatures, or resides outside the {fullName} secure server network.
                   </p>
 
                   <PremiumButton 

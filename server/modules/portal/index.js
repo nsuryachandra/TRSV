@@ -17,7 +17,7 @@ router.get('/branding', async (req, res) => {
   }
 });
 
-router.post('/branding', requireAuth, requireRole(['supreme_admin']), async (req, res) => {
+router.post('/branding', requireAuth, requireRole(['supreme_admin', 'dev']), async (req, res) => {
   const settings = req.body;
   try {
     for (const [key, value] of Object.entries(settings)) {

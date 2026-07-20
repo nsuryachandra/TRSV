@@ -86,7 +86,9 @@ const runPhase9Migrations = async () => {
         ('footer_text', '© 2026 TVRS (Telangana Vidyarthi Rakshana Sena). All Rights Reserved.'),
         ('announcement_banner', 'Welcome to the TVRS Official Student Safety & Protection Portal.'),
         ('homepage_title', 'Statewide Student Protection Protocol'),
-        ('homepage_subtitle', 'Secure. Real-time. Accountable. Empowering the students of Telangana.')
+        ('homepage_subtitle', 'Secure. Real-time. Accountable. Empowering the students of Telangana.'),
+        ('short_name', 'TVRS'),
+        ('full_name', 'Telangana Vidyarthi Rakshana Sena')
       ON CONFLICT (key) DO NOTHING;
     `);
 

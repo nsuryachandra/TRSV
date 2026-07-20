@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Command, ArrowRight, Users, FileText, Megaphone, Calendar, Network, ShieldAlert, Server, Globe, Home, MessageSquare, Bell, Map, ClipboardList, CreditCard, Zap, ChevronRight } from 'lucide-react';
 import devModules from '../modules/index.js';
+import { useOrg } from '../context/OrgContext';
 
 // Icon resolver
 const iconMap = {
@@ -23,6 +24,7 @@ const STATIC_COMMANDS = [
 ];
 
 const CommandPalette = ({ isOpen, onClose, user }) => {
+  const { shortName } = useOrg();
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
@@ -207,7 +209,7 @@ const CommandPalette = ({ isOpen, onClose, user }) => {
             <span className="flex items-center gap-1"><kbd className="bg-slate-800 border border-slate-700 px-1.5 rounded font-mono">↵</kbd> Execute</span>
             <span className="flex items-center gap-1"><kbd className="bg-slate-800 border border-slate-700 px-1.5 rounded font-mono">ESC</kbd> Dismiss</span>
             <span className="ml-auto flex items-center gap-1">
-              <Command className="w-3 h-3" /> TVRS Command Hub
+              <Command className="w-3 h-3" /> {shortName} Command Hub
             </span>
           </div>
         </div>

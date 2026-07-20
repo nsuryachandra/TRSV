@@ -23,9 +23,11 @@ import {
 } from 'lucide-react';
 import GlassCard from '../components/GlassCard';
 import { TVRSIdentityCard } from './Profile';
+import { useOrg } from '../context/OrgContext';
 import QRCode from 'qrcode';
 
 export default function PublicVerification() {
+  const { shortName, fullName } = useOrg();
   const { token_or_id } = useParams();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -332,12 +334,11 @@ export default function PublicVerification() {
     }
 
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = "bold 34px 'Sora', sans-serif";
-    ctx.fillText('TELANGANA VIDYARTHI', fX + 350, cY + 135);
-    ctx.fillText('RAKSHANA SENA', fX + 350, cY + 185);
+    ctx.font = "bold 32px 'Sora', sans-serif";
+    ctx.fillText((fullName || 'ORGANIZATION NAME').toUpperCase(), fX + 350, cY + 160);
     ctx.fillStyle = '#F0A400';
     ctx.font = "bold 20px 'Sora', sans-serif";
-    ctx.fillText('OFFICIAL DIGITAL IDENTITY', fX + 350, cY + 230);
+    ctx.fillText('OFFICIAL DIGITAL IDENTITY', fX + 350, cY + 210);
 
     drawRoundedRect(ctx, fX + 60, cY + 340, 240, 300, 24, '#EDF0F5', 'rgba(255, 255, 255, 1)', 8);
     if (avatarImg) {
@@ -433,7 +434,7 @@ export default function PublicVerification() {
 
     ctx.fillStyle = '#0A2A54';
     ctx.font = "bold 18px 'Sora', sans-serif";
-    ctx.fillText('TVRS OFFICIAL SCANNER', fX + 110, cY + 1485);
+    ctx.fillText(`${shortName} OFFICIAL SCANNER`, fX + 110, cY + 1485);
 
     if (qrImg) {
       drawRoundedRect(ctx, fX + 620, cY + 1200, 290, 290, 20, '#ffffff', 'rgba(10,42,84,0.08)', 2);
@@ -496,7 +497,7 @@ export default function PublicVerification() {
 
     ctx.fillStyle = '#FFFFFF';
     ctx.font = "bold 28px 'Sora', sans-serif";
-    ctx.fillText('TVRS OFFICIAL IDENTITY', bX + 390, cY + 90);
+    ctx.fillText(`${shortName} OFFICIAL IDENTITY`, bX + 390, cY + 90);
 
     ctx.fillStyle = '#5B6472';
     ctx.font = "bold 22px 'Sora', sans-serif";
@@ -504,7 +505,7 @@ export default function PublicVerification() {
 
     ctx.fillStyle = '#141922';
     ctx.font = "26px 'Sora', sans-serif";
-    const instructText = 'This digital identity can be verified through the official TVRS Verification Portal by scanning the QR code using any smartphone camera or the official TVRS Scanner application.';
+    const instructText = `This digital identity can be verified through the official ${shortName} Verification Portal by scanning the QR code using any smartphone camera or the official ${shortName} Scanner application.`;
     wrapText(ctx, instructText, bX + 80, cY + 290, 852, 42);
 
     ctx.fillStyle = '#0A2A54';
@@ -559,7 +560,7 @@ export default function PublicVerification() {
     ctx.translate(sX, sY);
     ctx.fillStyle = '#0A2A54';
     ctx.font = "bold 15px 'Sora', sans-serif";
-    const sealText = '  TVRS \u2022 OFFICIAL SEAL \u2022 TELANGANA \u2022';
+    const sealText = `  ${shortName} \u2022 OFFICIAL SEAL \u2022 TELANGANA \u2022`;
     for (let i = 0; i < sealText.length; i++) {
       ctx.save();
       ctx.rotate((i * 360 / sealText.length) * Math.PI / 180);
@@ -592,9 +593,9 @@ export default function PublicVerification() {
     ctx.fillText('CARD REFERENCE', bX + 80, cY + 1010);
     ctx.fillStyle = '#141922';
     ctx.font = "bold 26px 'JetBrains Mono', monospace";
-    ctx.fillText(identity?.trsv_member_id || 'TVRS-HQ-0000', bX + 80, cY + 1060);
+    ctx.fillText(identity?.trsv_member_id || `${shortName}-HQ-0000`, bX + 80, cY + 1060);
 
-    wrapText(ctx, 'This card remains the property of TVRS and must be surrendered upon request or termination of membership.', bX + 80, cY + 1110, 480, 24);
+    wrapText(ctx, `This card remains the property of ${shortName} and must be surrendered upon request or termination of membership.`, bX + 80, cY + 1110, 480, 24);
 
     if (qrImg) {
       drawRoundedRect(ctx, bX + 680, cY + 1140, 252, 252, 20, '#ffffff', 'rgba(10, 42, 84, 0.08)', 2);
@@ -681,8 +682,8 @@ export default function PublicVerification() {
             {error}
           </p>
           <div className="text-[10px] text-slate-450 mt-6 leading-relaxed">
-            TELANGANA VIDYARTHI RAKSHANA SENA<br />
-            State Audit Security Node: <span className="font-mono">TVRS-SEC-CORE</span>
+            {fullName}<br />
+            State Audit Security Node: <span className="font-mono">{shortName}-SEC-CORE</span>
           </div>
         </GlassCard>
       </div>
@@ -695,7 +696,7 @@ export default function PublicVerification() {
       {/* Top Banner Insignia */}
       <div className="w-full max-w-6xl flex flex-col items-center gap-1.5 text-center mb-8">
         <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">
-          Telangana Vidyarthi Rakshana Sena
+          {fullName}
         </div>
         <h1 className="text-lg font-black text-slate-800 dark:text-white uppercase tracking-tight">
           Public Credentials Registry Node
@@ -746,7 +747,7 @@ export default function PublicVerification() {
                 </span>
                 <span className="hidden md:inline text-slate-300 dark:text-slate-700">•</span>
                 <span className="font-mono bg-slate-100 dark:bg-slate-900/60 px-2 py-0.5 rounded text-[11px] border border-slate-200/50 dark:border-slate-850">
-                  TVRS ID: {identity?.trsv_member_id || 'TVRS-HQ-0000'}
+                  {shortName} ID: {identity?.trsv_member_id || `${shortName}-HQ-0000`}
                 </span>
               </div>
 
@@ -781,7 +782,7 @@ export default function PublicVerification() {
           <div ref={idSectionRef} className="lg:col-start-4 lg:col-span-6 flex flex-col gap-4">
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">
-                Official TVRS Digital ID
+                Official {shortName} Digital ID
               </h3>
               
               <button
@@ -875,7 +876,7 @@ export default function PublicVerification() {
       {/* Return Link */}
       <div className="text-center mt-6">
         <Link to="/" className="text-xs text-slate-400 hover:text-cyan-500 transition-colors uppercase tracking-widest font-black">
-          ← Return to TVRS Portal
+          ← Return to {shortName} Portal
         </Link>
       </div>
 

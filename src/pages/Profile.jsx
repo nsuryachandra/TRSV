@@ -29,6 +29,7 @@ import {
 import { useAuth } from "../context/AuthContext";
 import GlassCard from "../components/GlassCard";
 import PremiumButton from "../components/PremiumButton";
+import { useOrg } from "../context/OrgContext";
 import QRCode from "qrcode";
 
 /* ------------------------------------------------------------------ */
@@ -285,6 +286,7 @@ function Field({ icon: Icon, label, value }) {
 /* ------------------------------------------------------------------ */
 
 function CardFront(props) {
+  const { shortName, fullName } = useOrg();
   const {
     logo,
     photo,
@@ -304,7 +306,7 @@ function CardFront(props) {
       className="relative flex h-full w-full flex-col overflow-hidden rounded-[22px] text-left"
       style={{ background: TOKENS.paper }}
     >
-      <MicroWatermark />
+      <MicroWatermark text={`${shortName} • AUTHENTIC •`} />
 
       {/* Header */}
       <div
@@ -318,15 +320,13 @@ function CardFront(props) {
           <OrgMark logo={logo} />
           <div className="text-left">
             <div
-              className="text-[11px] font-bold leading-[1.3] text-white"
+              className="text-[11px] font-bold leading-[1.3] text-white uppercase"
               style={{
                 fontFamily: "Sora, sans-serif",
                 letterSpacing: "0.035em",
               }}
             >
-              TELANGANA VIDYARTHI
-              <br />
-              RAKSHANA SENA
+              {fullName}
             </div>
             <div
               className="mt-1 text-[7.5px] font-semibold uppercase"
@@ -464,6 +464,7 @@ function CardFront(props) {
 /* ------------------------------------------------------------------ */
 
 function CardBack(props) {
+  const { shortName, fullName } = useOrg();
   const { logo, tvrsId, qrValue, signatureImage, organizationSeal, qrCodeDataUrl } = props;
 
   return (
@@ -471,7 +472,7 @@ function CardBack(props) {
       className="relative flex h-full w-full flex-col overflow-hidden rounded-[22px] text-left"
       style={{ background: TOKENS.paper }}
     >
-      <MicroWatermark />
+      <MicroWatermark text={`${shortName} • AUTHENTIC •`} />
 
       {/* Header – matches front */}
       <div
@@ -482,12 +483,10 @@ function CardBack(props) {
         <OrgMark logo={logo} size={34} />
         <div className="text-left relative">
           <div
-            className="text-[11px] font-bold leading-[1.3] text-white"
+            className="text-[11px] font-bold leading-[1.3] text-white uppercase"
             style={{ fontFamily: "Sora, sans-serif", letterSpacing: "0.035em" }}
           >
-            TELANGANA VIDYARTHI
-            <br />
-            RAKSHANA SENA
+            {fullName}
           </div>
           <div
             className="mt-1 text-[7.5px] font-semibold uppercase"
@@ -516,7 +515,7 @@ function CardBack(props) {
           className="mt-1.5 text-[9px] leading-[1.5]"
           style={{ color: TOKENS.ink, fontFamily: "Inter, sans-serif" }}
         >
-          Verify this identity via the TVRS Portal by scanning the QR code with any smartphone camera.
+          Verify this identity via the {shortName} Portal by scanning the QR code with any smartphone camera.
         </p>
         <div className="mt-2 flex items-center gap-1.5">
           <Globe size={10} color={TOKENS.blue} />
@@ -608,7 +607,7 @@ function CardBack(props) {
             className="mt-2 max-w-[178px] text-[6.5px] leading-[1.45]"
             style={{ color: TOKENS.slate }}
           >
-            Property of TVRS. Must be surrendered upon request or membership termination.
+            Property of {shortName}. Must be surrendered upon request or membership termination.
           </p>
         </div>
         <div className="rounded-[9px] bg-white p-1.5 shadow-[0_2px_8px_rgba(10,42,84,0.1)] ring-1 ring-[rgba(10,42,84,0.08)] flex items-center justify-center overflow-hidden" style={{ width: 72, height: 72 }}>
