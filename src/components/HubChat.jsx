@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 
 export default function HubChat({ user, chatMode = 'admin' }) {
-  const { logout, applyExternalToken } = useAuth();
+  const { logout, applyExternalToken, silentRefresh } = useAuth();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [currentChannel, setCurrentChannel] = useState(() => {
@@ -102,8 +102,20 @@ export default function HubChat({ user, chatMode = 'admin' }) {
       console.warn('[Socket.io] Disconnected:', reason);
     });
 
-    socket.on('connect_error', (err) => {
+    socket.on('connect_error', async (err) => {
       console.warn('[Socket.io] Connection error:', err.message);
+      if (err.message && (err.message.includes('Authentication error') || err.message.includes('token'))) {
+        try {
+          const freshToken = typeof silentRefresh === 'function' ? await silentRefresh() : null;
+          if (freshToken) {
+            console.log('🔄 [HubChat Socket] Re-authenticating socket with refreshed token...');
+            socket.auth = { token: freshToken };
+            socket.connect();
+          }
+        } catch (e) {
+          console.warn('[Socket.io] Refresh on socket error failed:', e.message);
+        }
+      }
     });
 
     // Accept refreshed tokens emitted by the server and apply to session
