@@ -51,6 +51,7 @@ export default function HubChat({ user, chatMode = 'admin' }) {
   const socketRef = useRef(null);
   const messagesEndRef = useRef(null);
   const typingTimeoutRef = useRef(null);
+  const isRefreshingRef = useRef(false);
 
   const isDevOrSupreme = user.role === 'dev' || user.role === 'supreme_admin';
 
@@ -75,13 +76,14 @@ export default function HubChat({ user, chatMode = 'admin' }) {
       ? 'https://trsv-union.onrender.com'
       : (import.meta.env.DEV ? 'http://localhost:5000' : window.location.origin);
     
-    const token = localStorage.getItem('trsv_session_token') || localStorage.getItem('token') || sessionStorage.getItem('token');
-
     // Connect socket ONCE — channel switching is handled by emit, not reconnect
     const socket = io(socketUrl, {
       transports: ['websocket', 'polling'], // Allow polling as fallback
       upgrade: true,
-      auth: { token },
+      auth: (cb) => {
+        const token = localStorage.getItem('trsv_session_token') || localStorage.getItem('token') || sessionStorage.getItem('token');
+        cb({ token });
+      },
       withCredentials: true,
       reconnection: true,
       reconnectionAttempts: 10,
@@ -104,16 +106,25 @@ export default function HubChat({ user, chatMode = 'admin' }) {
 
     socket.on('connect_error', async (err) => {
       console.warn('[Socket.io] Connection error:', err.message);
-      if (err.message && (err.message.includes('Authentication error') || err.message.includes('token'))) {
+      if (
+        !isRefreshingRef.current &&
+        err.message &&
+        (err.message.includes('Authentication error') || err.message.includes('token'))
+      ) {
+        isRefreshingRef.current = true;
         try {
           const freshToken = typeof silentRefresh === 'function' ? await silentRefresh() : null;
           if (freshToken) {
             console.log('🔄 [HubChat Socket] Re-authenticating socket with refreshed token...');
-            socket.auth = { token: freshToken };
+            socket.auth = (cb) => cb({ token: freshToken });
             socket.connect();
           }
         } catch (e) {
           console.warn('[Socket.io] Refresh on socket error failed:', e.message);
+        } finally {
+          setTimeout(() => {
+            isRefreshingRef.current = false;
+          }, 5000);
         }
       }
     });
