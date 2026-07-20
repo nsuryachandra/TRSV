@@ -507,13 +507,12 @@ router.put('/:id/status', requireRole(['secretary', 'general_secretary', 'vice_p
     const currentStatus = complaint.status;
     const studentId = complaint.student_id;
 
-    // Step transition ordering check
-    const stages = ['Complaint Registered', 'Complaint Verified', 'Solving Started', 'Solved'];
+    // Step transition ordering check: 3 linear stages (Registered -> Started -> Solved)
+    const stages = ['Registered', 'Solving Started', 'Solved'];
     const getStatusIdx = (st) => {
-      if (st === 'Complaint Registered' || st === 'Audit Phase' || st === 'Registered' || st === 'Emergency Dispatched') return 0;
-      if (st === 'Complaint Verified' || st === 'Verified') return 1;
-      if (st === 'Solving Started' || st === 'Processing' || st === 'In Progress' || st === 'Under Investigation') return 2;
-      if (st === 'Solved' || st === 'Resolved') return 3;
+      if (st === 'Complaint Registered' || st === 'Audit Phase' || st === 'Registered' || st === 'Pending' || st === 'Emergency Dispatched') return 0;
+      if (st === 'Solving Started' || st === 'Processing' || st === 'In Progress' || st === 'Under Investigation' || st === 'Complaint Verified' || st === 'Verified' || st === 'Started') return 1;
+      if (st === 'Solved' || st === 'Resolved') return 2;
       return -1;
     };
 

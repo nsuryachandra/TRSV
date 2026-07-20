@@ -318,29 +318,28 @@ export default function Contact() {
   };
 
   const renderStatusStepper = (status) => {
-    const stages = ['Complaint Registered', 'Complaint Verified', 'Solving Started', 'Solved'];
+    const stages = ['Registered', 'Started', 'Solved'];
     let currentIdx = 0;
-    if (status === 'Complaint Registered' || status === 'Audit Phase' || status === 'Registered') {
+    const st = (status || '').trim();
+    if (st === 'Complaint Registered' || st === 'Audit Phase' || st === 'Registered' || st === 'Pending') {
       currentIdx = 0;
-    } else if (status === 'Complaint Verified' || status === 'Verified') {
+    } else if (st === 'Solving Started' || st === 'Processing' || st === 'In Progress' || st === 'Complaint Verified' || st === 'Verified' || st === 'Started') {
       currentIdx = 1;
-    } else if (status === 'Solving Started' || status === 'Processing' || status === 'In Progress') {
+    } else if (st === 'Solved' || st === 'Resolved') {
       currentIdx = 2;
-    } else if (status === 'Solved' || status === 'Resolved') {
-      currentIdx = 3;
-    } else if (status === 'Dismissed') {
+    } else if (st === 'Dismissed' || st === 'Rejected') {
       currentIdx = -1;
     }
 
     if (currentIdx === -1) {
       return (
         <div className="flex items-center gap-1.5 mt-2 text-[10px] text-rose-500 font-bold">
-          <AlertTriangle className="w-3.5 h-3.5" /> Dismissed / Rejected
+          <AlertTriangle className="w-3.5 h-3.5" /> Rejected
         </div>
       );
     }
 
-    const shortLabels = ['Registered', 'Verified', 'Solving Started', 'Solved'];
+    const shortLabels = ['Registered', 'Started', 'Solved'];
 
     return (
       <div className="flex items-center gap-2 mt-3 w-full bg-slate-50 dark:bg-slate-900/30 p-2.5 rounded-xl border border-slate-200/30 dark:border-slate-800">
@@ -364,14 +363,14 @@ export default function Contact() {
                     ? 'text-cyan-500 font-black' 
                     : isCompleted 
                       ? 'text-emerald-500' 
-                      : 'text-slate-405 dark:text-slate-500'
+                      : 'text-slate-400 dark:text-slate-500'
                 }`}>
                   {shortLabels[idx]}
                 </span>
               </div>
               {idx < stages.length - 1 && (
-                <div className={`h-0.5 flex-1 max-w-[25px] rounded transition-colors ${
-                  currentIdx > idx ? 'bg-emerald-500' : 'bg-slate-250 dark:bg-slate-800'
+                <div className={`h-0.5 flex-1 max-w-[40px] rounded transition-colors ${
+                  currentIdx > idx ? 'bg-emerald-500' : 'bg-slate-200 dark:bg-slate-800'
                 }`} />
               )}
             </React.Fragment>
@@ -379,7 +378,9 @@ export default function Contact() {
         })}
       </div>
     );
-  };  return (
+  };
+
+  return (
     <div className="w-full flex flex-col gap-12 py-4 text-left animate-fadeIn">
       
       {/* Header Banner */}

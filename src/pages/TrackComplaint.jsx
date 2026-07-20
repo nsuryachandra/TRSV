@@ -8,18 +8,15 @@ import {
   Clock, 
   AlertCircle, 
   XCircle, 
-  ChevronRight, 
   Eye, 
   MapPin, 
   Building, 
-  Calendar, 
   ShieldCheck,
-  RefreshCw,
-  X
+  RefreshCw
 } from 'lucide-react';
 import GlassCard from '../components/GlassCard';
 import AnimatedSection from '../components/AnimatedSection';
-import PremiumButton from '../components/PremiumButton';
+import ComplaintDetailsModal from '../components/ComplaintDetailsModal';
 import { useOrg } from '../context/OrgContext';
 import { useAuth } from '../context/AuthContext';
 
@@ -33,18 +30,17 @@ export default function TrackComplaint() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('ALL');
-  const [selectedComplaint, setSelectedComplaint] = useState(null);
+  const [selectedTicketId, setSelectedTicketId] = useState(openTicketId ? parseInt(openTicketId) || openTicketId : null);
 
   useEffect(() => {
     fetchMyComplaints();
   }, []);
 
   useEffect(() => {
-    if (openTicketId && complaints.length > 0) {
-      const match = complaints.find(c => c.id === parseInt(openTicketId) || c.ticket_id === openTicketId);
-      if (match) setSelectedComplaint(match);
+    if (openTicketId) {
+      setSelectedTicketId(parseInt(openTicketId) || openTicketId);
     }
-  }, [openTicketId, complaints]);
+  }, [openTicketId]);
 
   const fetchMyComplaints = async () => {
     setLoading(true);
@@ -75,44 +71,105 @@ export default function TrackComplaint() {
   };
 
   const getStatusBadge = (status) => {
-    const s = (status || '').toUpperCase();
-    if (s === 'RESOLVED' || s === 'SOLVED') {
+    const raw = status || 'Complaint Registered';
+    const s = raw.toUpperCase().trim();
+
+    if (s === 'SOLVED' || s === 'RESOLVED') {
       return (
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-          <CheckCircle className="w-3.5 h-3.5" /> Resolved
+          <CheckCircle className="w-3.5 h-3.5" /> {raw.toUpperCase()}
         </span>
       );
     }
-    if (s === 'UNDER REVIEW' || s === 'IN PROGRESS' || s === 'ASSIGNED') {
+    if (s === 'COMPLAINT VERIFIED' || s === 'VERIFIED') {
+      return (
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+          <ShieldCheck className="w-3.5 h-3.5" /> {raw.toUpperCase()}
+        </span>
+      );
+    }
+    if (s === 'SOLVING STARTED' || s === 'IN PROGRESS' || s === 'UNDER REVIEW' || s === 'PROCESSING' || s === 'UNDER INVESTIGATION' || s === 'ASSIGNED') {
       return (
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
-          <Clock className="w-3.5 h-3.5 animate-pulse" /> Under Review
+          <Clock className="w-3.5 h-3.5 animate-pulse" /> {raw.toUpperCase()}
         </span>
       );
     }
     if (s === 'REJECTED' || s === 'DISMISSED') {
       return (
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
-          <XCircle className="w-3.5 h-3.5" /> Rejected
+          <XCircle className="w-3.5 h-3.5" /> {raw.toUpperCase()}
         </span>
       );
     }
     return (
       <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
-        <AlertCircle className="w-3.5 h-3.5" /> Pending Dispatch
+        <AlertCircle className="w-3.5 h-3.5" /> {raw.toUpperCase()}
       </span>
     );
   };
 
-  const getTimelineSteps = (status) => {
-    const s = (status || '').toUpperCase();
-    const steps = [
-      { label: 'Registered', done: true },
-      { label: 'Assigned to Lead', done: ['UNDER REVIEW', 'IN PROGRESS', 'ASSIGNED', 'RESOLVED', 'SOLVED'].includes(s) },
-      { label: 'Investigation', done: ['UNDER REVIEW', 'IN PROGRESS', 'RESOLVED', 'SOLVED'].includes(s) },
-      { label: 'Resolution', done: ['RESOLVED', 'SOLVED'].includes(s) }
-    ];
-    return steps;
+  const renderStatusStepper = (status) => {
+    const stages = ['Registered', 'Started', 'Solved'];
+    let currentIdx = 0;
+    const st = (status || '').trim();
+    if (st === 'Complaint Registered' || st === 'Audit Phase' || st === 'Registered' || st === 'Pending' || st === 'Emergency Dispatched') {
+      currentIdx = 0;
+    } else if (st === 'Solving Started' || st === 'Processing' || st === 'In Progress' || st === 'Under Investigation' || st === 'Under Review' || st === 'Assigned' || st === 'Complaint Verified' || st === 'Verified' || st === 'Started') {
+      currentIdx = 1;
+    } else if (st === 'Solved' || st === 'Resolved') {
+      currentIdx = 2;
+    } else if (st === 'Dismissed' || st === 'Rejected') {
+      currentIdx = -1;
+    }
+
+    if (currentIdx === -1) {
+      return (
+        <div className="flex items-center gap-1.5 mt-2 text-[10px] text-rose-500 font-bold">
+          <XCircle className="w-3.5 h-3.5" /> Rejected
+        </div>
+      );
+    }
+
+    const shortLabels = ['Registered', 'Started', 'Solved'];
+
+    return (
+      <div className="flex items-center gap-2 mt-3 w-full bg-slate-50 dark:bg-slate-900/30 p-2.5 rounded-xl border border-slate-200/30 dark:border-slate-800">
+        {stages.map((stage, idx) => {
+          const isCompleted = currentIdx >= idx;
+          const isActive = currentIdx === idx;
+          return (
+            <React.Fragment key={idx}>
+              <div className="flex flex-col items-center gap-1 flex-1 min-w-0">
+                <div className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold transition-all ${
+                  isActive 
+                    ? 'bg-blue-600 text-white shadow-glow-blue animate-pulse scale-110' 
+                    : isCompleted 
+                      ? 'bg-emerald-500 text-white' 
+                      : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600'
+                }`}>
+                  {isCompleted ? '✓' : idx + 1}
+                </div>
+                <span className={`text-[9px] font-semibold tracking-tight truncate max-w-full uppercase ${
+                  isActive 
+                    ? 'text-blue-600 dark:text-blue-400 font-bold' 
+                    : isCompleted 
+                      ? 'text-emerald-500 font-bold' 
+                      : 'text-slate-400 dark:text-slate-500'
+                }`}>
+                  {shortLabels[idx]}
+                </span>
+              </div>
+              {idx < stages.length - 1 && (
+                <div className={`h-0.5 flex-1 max-w-[60px] rounded transition-colors ${
+                  currentIdx > idx ? 'bg-emerald-500' : 'bg-slate-200 dark:bg-slate-800'
+                }`} />
+              )}
+            </React.Fragment>
+          );
+        })}
+      </div>
+    );
   };
 
   const filteredComplaints = complaints.filter(item => {
@@ -123,15 +180,24 @@ export default function TrackComplaint() {
     
     if (selectedStatus === 'ALL') return matchesSearch;
     const s = (item.status || '').toUpperCase();
-    if (selectedStatus === 'PENDING') return matchesSearch && (s === 'PENDING' || s === 'NEW');
-    if (selectedStatus === 'UNDER_REVIEW') return matchesSearch && (s === 'UNDER REVIEW' || s === 'IN PROGRESS' || s === 'ASSIGNED');
-    if (selectedStatus === 'RESOLVED') return matchesSearch && (s === 'RESOLVED' || s === 'SOLVED');
-    if (selectedStatus === 'REJECTED') return matchesSearch && (s === 'REJECTED' || s === 'DISMISSED');
+
+    if (selectedStatus === 'REGISTERED') {
+      return matchesSearch && (s === 'COMPLAINT REGISTERED' || s === 'REGISTERED' || s === 'PENDING' || s === 'AUDIT PHASE');
+    }
+    if (selectedStatus === 'STARTED') {
+      return matchesSearch && (s === 'SOLVING STARTED' || s === 'STARTED' || s === 'IN PROGRESS' || s === 'UNDER REVIEW' || s === 'PROCESSING' || s === 'ASSIGNED' || s === 'COMPLAINT VERIFIED' || s === 'VERIFIED');
+    }
+    if (selectedStatus === 'RESOLVED' || selectedStatus === 'SOLVED') {
+      return matchesSearch && (s === 'RESOLVED' || s === 'SOLVED');
+    }
+    if (selectedStatus === 'REJECTED') {
+      return matchesSearch && (s === 'REJECTED' || s === 'DISMISSED');
+    }
     return matchesSearch;
   });
 
   return (
-    <div className="w-full flex flex-col gap-8 py-8 animate-fadeIn text-left">
+    <div className="w-full flex flex-col gap-8 py-8 animate-fadeIn text-left select-none">
       
       {/* Header */}
       <AnimatedSection direction="up" className="text-center max-w-3xl mx-auto flex flex-col gap-3">
@@ -163,7 +229,7 @@ export default function TrackComplaint() {
 
         {/* Status Filter Pills */}
         <div className="flex flex-wrap gap-2 w-full sm:w-auto">
-          {['ALL', 'PENDING', 'UNDER_REVIEW', 'RESOLVED', 'REJECTED'].map((st) => (
+          {['ALL', 'REGISTERED', 'STARTED', 'SOLVED', 'REJECTED'].map((st) => (
             <button
               key={st}
               onClick={() => setSelectedStatus(st)}
@@ -173,13 +239,13 @@ export default function TrackComplaint() {
                   : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:border-blue-500/50'
               }`}
             >
-              {st.replace('_', ' ')}
+              {st}
             </button>
           ))}
           
           <button
             onClick={fetchMyComplaints}
-            className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-blue-600"
+            className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-blue-600 cursor-pointer"
             title="Refresh Complaints"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
@@ -210,12 +276,11 @@ export default function TrackComplaint() {
         ) : (
           <div className="grid grid-cols-1 gap-4">
             {filteredComplaints.map((item) => {
-              const timeline = getTimelineSteps(item.status);
               return (
-                <GlassCard key={item.id} hoverEffect className="p-6 flex flex-col gap-5">
+                <GlassCard key={item.id} hoverEffect className="p-6 flex flex-col gap-4">
                   
                   {/* Top Row: Ticket ID + Status */}
-                  <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-200/80 dark:border-slate-800/80">
+                  <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-200/80 dark:border-slate-800/80">
                     <div className="flex items-center gap-3">
                       <div className="px-3 py-1 rounded-lg bg-blue-600/10 border border-blue-600/20 text-blue-600 dark:text-blue-400 font-mono text-xs font-bold">
                         #{item.ticket_id || `${shortName}-${item.id}`}
@@ -237,7 +302,7 @@ export default function TrackComplaint() {
                         {item.description || item.content || 'No detailed description logged.'}
                       </p>
 
-                      <div className="flex flex-wrap gap-4 mt-2 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                      <div className="flex flex-wrap gap-4 mt-1 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
                         {(item.college || item.college_name) && (
                           <span className="flex items-center gap-1">
                             <Building className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
@@ -254,30 +319,15 @@ export default function TrackComplaint() {
                     </div>
 
                     <button
-                      onClick={() => setSelectedComplaint(item)}
+                      onClick={() => setSelectedTicketId(item.id)}
                       className="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 text-xs font-bold transition flex items-center gap-2 cursor-pointer shrink-0"
                     >
                       <Eye className="w-4 h-4" /> Track Details
                     </button>
                   </div>
 
-                  {/* Mini Stepper Progress */}
-                  <div className="pt-2">
-                    <div className="grid grid-cols-4 gap-2">
-                      {timeline.map((step, idx) => (
-                        <div key={idx} className="flex flex-col gap-1.5">
-                          <div className={`h-1.5 rounded-full transition-all duration-300 ${
-                            step.done ? 'bg-blue-600 dark:bg-blue-500' : 'bg-slate-200 dark:bg-slate-800'
-                          }`} />
-                          <span className={`text-[10px] font-semibold truncate ${
-                            step.done ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400'
-                          }`}>
-                            {step.label}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                  {/* Live Stepper Progress */}
+                  {renderStatusStepper(item.status)}
 
                 </GlassCard>
               );
@@ -286,79 +336,14 @@ export default function TrackComplaint() {
         )}
       </AnimatedSection>
 
-      {/* Complaint Detail Modal */}
-      {selectedComplaint && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col gap-6 text-left">
-            
-            <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
-              <div>
-                <span className="text-[10px] font-bold text-amber-600 uppercase tracking-widest block">
-                  Official Grievance Detail
-                </span>
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white font-mono">
-                  #{selectedComplaint.ticket_id || `${shortName}-${selectedComplaint.id}`}
-                </h3>
-              </div>
-              <button 
-                onClick={() => setSelectedComplaint(null)}
-                className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="flex flex-col gap-4">
-              <div>
-                <span className="text-xs font-bold text-slate-400 uppercase">Subject</span>
-                <h4 className="text-base font-bold text-slate-900 dark:text-white mt-0.5">
-                  {selectedComplaint.subject || selectedComplaint.title || 'Grievance Report'}
-                </h4>
-              </div>
-
-              <div>
-                <span className="text-xs font-bold text-slate-400 uppercase">Full Description</span>
-                <p className="text-xs text-slate-700 dark:text-slate-300 mt-1 leading-relaxed whitespace-pre-wrap bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl border border-slate-200 dark:border-slate-800">
-                  {selectedComplaint.description || selectedComplaint.content || 'No full description provided.'}
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 text-xs">
-                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
-                  <span className="text-slate-400 font-medium block">Current Status</span>
-                  <div className="mt-1">{getStatusBadge(selectedComplaint.status)}</div>
-                </div>
-                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
-                  <span className="text-slate-400 font-medium block">Assigned Officer</span>
-                  <span className="font-bold text-slate-900 dark:text-white mt-1 block">
-                    {selectedComplaint.assigned_to || selectedComplaint.handler || 'State Grievance Cell'}
-                  </span>
-                </div>
-              </div>
-
-              {selectedComplaint.resolution && (
-                <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs">
-                  <span className="font-bold text-emerald-800 dark:text-emerald-300 block mb-1">
-                    Official Resolution Remarks
-                  </span>
-                  <p className="text-emerald-700 dark:text-emerald-400 leading-relaxed">
-                    {selectedComplaint.resolution}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex justify-end">
-              <button
-                onClick={() => setSelectedComplaint(null)}
-                className="px-6 py-2.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-bold"
-              >
-                Close Tracking View
-              </button>
-            </div>
-
-          </div>
-        </div>
+      {/* Official Complaint Detail Modal */}
+      {selectedTicketId && (
+        <ComplaintDetailsModal 
+          ticketId={selectedTicketId} 
+          onClose={() => setSelectedTicketId(null)} 
+          userProfile={userProfile} 
+          onUpdateSuccess={fetchMyComplaints}
+        />
       )}
 
     </div>

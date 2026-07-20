@@ -394,12 +394,11 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
   const handleUpdateStatus = async (e) => {
     e.preventDefault();
 
-    const stages = ['Issue Registered', 'Issue Verified', 'Solving Started', 'Solved'];
+    const stages = ['Registered', 'Started', 'Solved'];
     const getStatusIdx = (st) => {
       if (st === 'Complaint Registered' || st === 'Audit Phase' || st === 'Registered' || st === 'Emergency Dispatched') return 0;
-      if (st === 'Complaint Verified' || st === 'Verified') return 1;
-      if (st === 'Solving Started' || st === 'Processing' || st === 'In Progress' || st === 'Under Investigation') return 2;
-      if (st === 'Solved' || st === 'Resolved') return 3;
+      if (st === 'Solving Started' || st === 'Processing' || st === 'In Progress' || st === 'Under Investigation' || st === 'Complaint Verified' || st === 'Verified' || st === 'Started') return 1;
+      if (st === 'Solved' || st === 'Resolved') return 2;
       return -1;
     };
 
@@ -508,29 +507,28 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
   };
 
   const renderProgressStepper = (status) => {
-    const stages = ['Issue Registered', 'Issue Verified', 'Solving Started', 'Solved'];
+    const stages = ['Registered', 'Started', 'Solved'];
     let currentIdx = 0;
-    if (status === 'Complaint Registered' || status === 'Audit Phase' || status === 'Registered') {
+    const st = (status || '').trim();
+    if (st === 'Complaint Registered' || st === 'Audit Phase' || st === 'Registered' || st === 'Pending') {
       currentIdx = 0;
-    } else if (status === 'Complaint Verified' || status === 'Verified') {
+    } else if (st === 'Solving Started' || st === 'Processing' || st === 'In Progress' || st === 'Complaint Verified' || st === 'Verified' || st === 'Started') {
       currentIdx = 1;
-    } else if (status === 'Solving Started' || status === 'Processing' || status === 'In Progress') {
+    } else if (st === 'Solved' || st === 'Resolved') {
       currentIdx = 2;
-    } else if (status === 'Solved' || status === 'Resolved') {
-      currentIdx = 3;
-    } else if (status === 'Dismissed') {
+    } else if (st === 'Dismissed' || st === 'Rejected') {
       currentIdx = -1;
     }
 
     if (currentIdx === -1) {
       return (
-        <div className="flex items-center gap-1.5 p-3 bg-rose-500/10 text-rose-500 rounded-xl border border-rose-500/20 text-xs font-bold w-full">
-          <AlertTriangle className="w-4 h-4" /> This docket has been Dismissed / Rejected.
+        <div className="flex items-center gap-1.5 p-3 bg-rose-500/10 text-rose-500 rounded-xl border border-rose-500/20 text-xs font-bold w-full mb-6">
+          <AlertTriangle className="w-4 h-4" /> This complaint has been Rejected.
         </div>
       );
     }
 
-    const labels = ['Registered', 'Verified', 'Started', 'Solved'];
+    const labels = ['Registered', 'Started', 'Solved'];
 
     return (
       <div className="w-full bg-slate-50 dark:bg-slate-800/30 p-4 rounded-2xl border border-slate-100 dark:border-slate-800/60 mb-6 flex items-center justify-between gap-2">
@@ -1195,11 +1193,10 @@ export default function ComplaintDetailsModal({ ticketId, onClose, userProfile, 
                               onChange={(e) => setUpdateStatus(e.target.value)}
                               className="w-full p-2.5 rounded-lg border border-slate-200/60 dark:border-slate-700 bg-white dark:bg-slate-855 text-xs focus:outline-none focus:border-cyan-400 text-slate-800 dark:text-white"
                             >
-                              <option value="Complaint Registered">Issue Registered</option>
-                              <option value="Complaint Verified">Issue Verified</option>
-                              <option value="Solving Started">Solving Started</option>
+                              <option value="Registered">Registered</option>
+                              <option value="Solving Started">Started</option>
                               <option value="Solved">Solved</option>
-                              <option value="Dismissed">Dismissed</option>
+                              <option value="Dismissed">Rejected</option>
                             </select>
                           </div>
                           

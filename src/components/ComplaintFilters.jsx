@@ -89,10 +89,9 @@ export default function ComplaintFilters({ onFilterChange, constituencies = [], 
           >
             <option value="all">All Statuses</option>
             <option value="Complaint Registered">Registered</option>
-            <option value="Complaint Verified">Verified</option>
-            <option value="Solving Started">Solving Started</option>
+            <option value="Solving Started">Started</option>
             <option value="Solved">Solved</option>
-            <option value="Dismissed">Dismissed</option>
+            <option value="Dismissed">Rejected</option>
           </select>
         </div>
 
