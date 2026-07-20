@@ -26,10 +26,10 @@ export default function ProtectedRoute({ children, allowedRoles, excludeRoles })
     return <Navigate to="/" replace />;
   }
 
-  // 2. If role-specific guards are defined, check active permissions (dev bypasses administrative/leader blocks but not student-only client forms)
-  const isDevBypass = userProfile.role === 'dev' && allowedRoles && !allowedRoles.includes('student');
-  const isExcluded = excludeRoles && excludeRoles.includes(userProfile.role);
-  const isNotAllowed = allowedRoles && !isDevBypass && !allowedRoles.includes(userProfile.role);
+  // 2. If role-specific guards are defined, check active permissions (dev and supreme_admin bypass guards for testing & administration)
+  const isDevBypass = userProfile.role === 'dev' || userProfile.role === 'supreme_admin';
+  const isExcluded = excludeRoles && excludeRoles.includes(userProfile.role) && !isDevBypass;
+  const isNotAllowed = allowedRoles && !allowedRoles.includes(userProfile.role) && !isDevBypass;
 
   if (isExcluded || isNotAllowed) {
     console.warn(`🛡️ [Guard Alert] User of role "${userProfile.role}" attempted unauthorized access to restricted panel.`);

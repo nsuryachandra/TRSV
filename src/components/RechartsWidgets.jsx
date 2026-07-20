@@ -63,7 +63,7 @@ export const TrendChart = ({ data, color = '#06b6d4', dataKey = 'count', name = 
 
   return (
     <ChartContainer>
-      <ResponsiveContainer width="100%" height="100%" debounce={100}>
+      <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={180} debounce={100}>
         <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
           <defs>
             <linearGradient id={`color${name}`} x1="0" y1="0" x2="0" y2="1">
@@ -95,7 +95,7 @@ export const CategoryPieChart = ({ data }) => {
 
   return (
     <ChartContainer>
-      <ResponsiveContainer width="100%" height="100%" debounce={100}>
+      <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={180} debounce={100}>
         <PieChart>
           <RechartsTooltip content={<CustomTooltip />} />
           <Pie
@@ -129,7 +129,7 @@ export const CategoryRadar = ({ data }) => {
 
   return (
     <ChartContainer>
-      <ResponsiveContainer width="100%" height="100%" debounce={100}>
+      <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={180} debounce={100}>
         <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data}>
           <PolarGrid stroke="currentColor" className="text-slate-200/50 dark:text-slate-800" />
           <PolarAngleAxis dataKey="name" tick={{ fontSize: 9, fill: '#94a3b8' }} />
@@ -153,7 +153,7 @@ export const ActivityBarChart = ({ data, dataKey = 'emergencies', color = '#f43f
 
   return (
     <ChartContainer>
-      <ResponsiveContainer width="100%" height="100%" debounce={100}>
+      <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={180} debounce={100}>
         <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="text-slate-200/50 dark:text-slate-800" />
           <XAxis dataKey="name" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} stroke="currentColor" className="text-slate-400" />

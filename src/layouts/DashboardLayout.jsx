@@ -494,12 +494,12 @@ export default function DashboardLayout() {
           icon: <FileText className="w-5 h-5" />,
           desc: 'Register a new complaint'
         }] : []),
-        {
+        ...(userProfile?.role === 'student' ? [{
           name: 'Track Complaint',
           path: '/dashboard/track-complaint',
           icon: <SearchCheck className="w-5 h-5" />,
           desc: 'Track submitted grievances'
-        },
+        }] : []),
         {
           name: 'Student Community',
           path: '/dashboard/social-chat',
