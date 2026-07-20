@@ -170,7 +170,8 @@ export default function LeaderDashboard() {
     }
 
     const token = localStorage.getItem('trsv_session_token');
-    const base = window.Capacitor ? 'https://trsv-union.onrender.com' : '';
+    const isNativeMobile = Boolean(window.Capacitor && window.Capacitor.getPlatform && window.Capacitor.getPlatform() !== 'web');
+    const base = isNativeMobile ? 'https://trsv-union.onrender.com' : '';
     const es = new EventSource(`${base}/api/realtime/stream?token=${token}`);
     eventSourceRef.current = es;
 

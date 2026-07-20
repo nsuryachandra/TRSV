@@ -251,16 +251,20 @@ export default function DashboardLayout() {
   };
 
   useEffect(() => {
-    const socketUrl = window.Capacitor
+    const isNativeMobile = Boolean(window.Capacitor && window.Capacitor.getPlatform && window.Capacitor.getPlatform() !== 'web');
+    const socketUrl = isNativeMobile
       ? 'https://trsv-union.onrender.com'
       : (import.meta.env.DEV ? 'http://localhost:5000' : window.location.origin);
     
     const token = localStorage.getItem('trsv_session_token');
     if (token) {
       socketRef.current = io(socketUrl, {
-        transports: ['websocket'],
-        upgrade: false,
-        auth: { token },
+        transports: ['websocket', 'polling'],
+        upgrade: true,
+        auth: (cb) => {
+          const t = localStorage.getItem('trsv_session_token');
+          cb({ token: t });
+        },
         withCredentials: true
       });
 

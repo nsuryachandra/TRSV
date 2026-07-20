@@ -72,7 +72,8 @@ export default function HubChat({ user, chatMode = 'admin' }) {
 
   // 3. Configure socket connection — create ONCE per user session, not per channel
   useEffect(() => {
-    const socketUrl = window.Capacitor
+    const isNativeMobile = Boolean(window.Capacitor && window.Capacitor.getPlatform && window.Capacitor.getPlatform() !== 'web');
+    const socketUrl = isNativeMobile
       ? 'https://trsv-union.onrender.com'
       : (import.meta.env.DEV ? 'http://localhost:5000' : window.location.origin);
     
