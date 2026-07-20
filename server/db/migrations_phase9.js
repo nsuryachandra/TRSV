@@ -32,9 +32,30 @@ const runPhase9Migrations = async () => {
         description TEXT NOT NULL,
         location VARCHAR(255) NOT NULL,
         event_date TIMESTAMP NOT NULL,
+        time VARCHAR(100) DEFAULT '10:00 AM',
+        organizer VARCHAR(255) DEFAULT 'TRSV Executive Council',
         capacity INT DEFAULT 100,
         attendance_count INT DEFAULT 0,
-        status VARCHAR(50) DEFAULT 'Active' CHECK (status IN ('Active', 'Past', 'Cancelled')),
+        status VARCHAR(50) DEFAULT 'Upcoming',
+        banner_url TEXT DEFAULT '',
+        images TEXT DEFAULT '[]',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+      ALTER TABLE events ADD COLUMN IF NOT EXISTS time VARCHAR(100) DEFAULT '10:00 AM';
+      ALTER TABLE events ADD COLUMN IF NOT EXISTS organizer VARCHAR(255) DEFAULT 'TRSV Executive Council';
+      ALTER TABLE events ADD COLUMN IF NOT EXISTS banner_url TEXT DEFAULT '';
+      ALTER TABLE events ADD COLUMN IF NOT EXISTS images TEXT DEFAULT '[]';
+    `);
+
+    // 2b. Gallery Table
+    console.log('🔹 Creating gallery table...');
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS gallery (
+        id SERIAL PRIMARY KEY,
+        title VARCHAR(255) DEFAULT 'Gallery Media',
+        caption TEXT DEFAULT '',
+        category VARCHAR(100) DEFAULT 'General',
+        image_url TEXT NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);

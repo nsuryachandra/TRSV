@@ -50,7 +50,7 @@ const TOKENS = {
 };
 
 const FONT_IMPORT_URL =
-  "https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap";
+  "https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap";
 
 /* ------------------------------------------------------------------ */
 /*  Deterministic verification-pattern generator                      */
@@ -66,8 +66,9 @@ function hashString(str) {
 }
 
 function VerificationGlyph({ value, size = 108, dark = TOKENS.blue }) {
+  const { shortName } = useOrg();
   const grid = 21;
-  const seed = hashString(value || "TVRS-DEFAULT");
+  const seed = hashString(value || `${shortName}-DEFAULT`);
   const cells = useMemo(() => {
     const arr = [];
     let s = seed;
@@ -182,8 +183,10 @@ function GuillochePattern({ id, color = TOKENS.blue, opacity = 0.05 }) {
   );
 }
 
-function MicroWatermark({ text = "TVRS \u2022 AUTHENTIC \u2022" }) {
-  const line = Array(6).fill(text).join("  ");
+function MicroWatermark({ text }) {
+  const { shortName } = useOrg();
+  const watermarkText = text || `${shortName} • AUTHENTIC •`;
+  const line = Array(6).fill(watermarkText).join("  ");
   return (
     <div
       className="pointer-events-none absolute inset-0 overflow-hidden select-none"
@@ -213,13 +216,14 @@ function MicroWatermark({ text = "TVRS \u2022 AUTHENTIC \u2022" }) {
 /* ------------------------------------------------------------------ */
 
 function OrgMark({ logo, size = 52 }) {
+  const { shortName } = useOrg();
   const finalLogo = logo || "/trsv.jpeg";
   return (
     <div
       className="flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-white/95 ring-2 ring-white/60 shadow-[0_4px_14px_rgba(0,0,0,0.22)]"
       style={{ width: size, height: size, flexShrink: 0 }}
     >
-      <img src={finalLogo} alt="TVRS logo" className="h-full w-full object-cover" />
+      <img src={finalLogo} alt={`${shortName} logo`} className="h-full w-full object-cover" />
     </div>
   );
 }
@@ -405,7 +409,7 @@ function CardFront(props) {
             width: "fit-content",
           }}
         >
-          ID&nbsp; {tvrsId || "TVRS-000000"}
+          ID&nbsp; {tvrsId ? tvrsId.replace(/^(TVRS|TRSV)-/i, `${shortName}-`) : `${shortName}-000000`}
         </div>
 
         <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-5">
@@ -601,7 +605,7 @@ function CardBack(props) {
             className="mt-[3px] text-[9.5px] font-semibold"
             style={{ color: TOKENS.ink, fontFamily: "'JetBrains Mono', monospace" }}
           >
-            {tvrsId || "TVRS-000000"}
+            {tvrsId ? tvrsId.replace(/^(TVRS|TRSV)-/i, `${shortName}-`) : `${shortName}-000000`}
           </div>
           <p
             className="mt-2 max-w-[178px] text-[6.5px] leading-[1.45]"
@@ -623,6 +627,7 @@ function CardBack(props) {
 }
 
 function SealPlaceholder() {
+  const { shortName } = useOrg();
   const rId = "sealTextPath";
   return (
     <svg viewBox="0 0 100 100" className="h-full w-full opacity-45">
@@ -633,7 +638,7 @@ function SealPlaceholder() {
       <circle cx="50" cy="50" r="38" fill="none" stroke={TOKENS.blue} strokeWidth="1.1" opacity="0.5" />
       <text fontSize="7.4" fontWeight="700" fill={TOKENS.blue} letterSpacing="2" opacity="0.6">
         <textPath href={`#${rId}`} startOffset="2%">
-          TVRS &#8226; OFFICIAL SEAL &#8226; TELANGANA &#8226;
+          {shortName} &#8226; OFFICIAL SEAL &#8226; TELANGANA &#8226;
         </textPath>
       </text>
       <ShieldIcon />
@@ -659,29 +664,35 @@ function ShieldIcon() {
 /*  Public component                                                  */
 /* ------------------------------------------------------------------ */
 
-export function TVRSIdentityCard({
-  photo,
-  logo,
-  name = "Ananya Reddy",
-  tvrsId = "TVRS-244819",
-  designation = "District Coordinator",
-  constituency = "Warangal East",
-  district = "Warangal",
-  joinedDate = "14 Jun 2023",
-  verified = true,
-  qrValue = "https://trsv-union.onrender.com/verify/TVRS-244819",
-  signatureImage,
-  organizationSeal,
-}) {
+export function TVRSIdentityCard(props) {
+  const { shortName } = useOrg();
+  const {
+    photo,
+    logo,
+    name = "Ananya Reddy",
+    tvrsId,
+    designation = "District Coordinator",
+    constituency = "Warangal East",
+    district = "Warangal",
+    joinedDate = "14 Jun 2023",
+    verified = true,
+    qrValue,
+    signatureImage,
+    organizationSeal,
+  } = props;
+
+  const formattedTvrsId = tvrsId ? tvrsId.replace(/^(TVRS|TRSV)-/i, `${shortName}-`) : `${shortName}-244819`;
+  const finalQrValue = qrValue || `https://trsv-union.onrender.com/verify/${formattedTvrsId}`;
   const [flipped, setFlipped] = useState(false);
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState("");
 
   useEffect(() => {
-    if (qrValue) {
-      if (qrValue.startsWith("data:image")) {
-        setQrCodeDataUrl(qrValue);
+    const activeQr = finalQrValue;
+    if (activeQr) {
+      if (activeQr.startsWith("data:image")) {
+        setQrCodeDataUrl(activeQr);
       } else {
-        QRCode.toDataURL(qrValue, {
+        QRCode.toDataURL(activeQr, {
           width: 300,
           margin: 1,
           color: { dark: "#0A2A54", light: "#ffffff" },
@@ -691,19 +702,19 @@ export function TVRSIdentityCard({
           .catch((err) => console.error("QR Code generation error:", err));
       }
     }
-  }, [qrValue]);
+  }, [finalQrValue]);
 
   const data = {
     photo,
     logo,
     name,
-    tvrsId,
+    tvrsId: formattedTvrsId,
     designation,
     constituency,
     district,
     joinedDate,
     verified,
-    qrValue,
+    qrValue: finalQrValue,
     signatureImage,
     organizationSeal,
   };
@@ -806,6 +817,7 @@ export function TVRSIdentityCard({
 /* ------------------------------------------------------------------ */
 
 export default function Profile() {
+  const { shortName, fullName } = useOrg();
   const { userProfile } = useAuth();
   const [identity, setIdentity] = useState(null);
   const [metrics, setMetrics] = useState(null);
@@ -820,7 +832,7 @@ export default function Profile() {
   const getDisplayRole = (role, constituencyName) => {
     if (!role) return "MEMBER";
     if (role === "student") return "STUDENT MEMBER";
-    if (role === "supreme_admin") return "TVRS FOUNDER";
+    if (role === "supreme_admin") return `${shortName} FOUNDER`;
     if (role === "dev") return "DEVELOPER";
     
     const roleLabel = role.replace(/_/g, " ").toUpperCase();
@@ -972,7 +984,7 @@ export default function Profile() {
 
     const drawVerificationGlyph = (c, val, gX, gY, gSize, dark) => {
       const grid = 21;
-      const seed = hashStringLocal(val || "TVRS-DEFAULT");
+      const seed = hashStringLocal(val || `${shortName}-DEFAULT`);
       let s = seed;
       const rand = () => {
         s ^= s << 13;
@@ -1051,7 +1063,7 @@ export default function Profile() {
       c.fillStyle = "rgba(10, 42, 84, 0.012)";
       c.font = "bold 22px 'JetBrains Mono', monospace";
       for (let row = -10; row < 50; row++) {
-        let line = Array(15).fill("TVRS \u2022 AUTHENTIC \u2022").join("  ");
+        let line = Array(15).fill(`${shortName} \u2022 AUTHENTIC \u2022`).join("  ");
         c.fillText(line, -400, row * 52);
       }
       c.restore();
@@ -1132,11 +1144,11 @@ export default function Profile() {
 
     // Header text
     ctx.fillStyle = "#FFFFFF";
-    ctx.font = "bold 34px 'Sora', sans-serif";
+    ctx.font = "bold 34px 'Poppins', sans-serif";
     ctx.fillText("TELANGANA VIDYARTHI", fX + 350, cY + 135);
     ctx.fillText("RAKSHANA SENA", fX + 350, cY + 185);
     ctx.fillStyle = "#F0A400";
-    ctx.font = "bold 20px 'Sora', sans-serif";
+    ctx.font = "bold 20px 'Poppins', sans-serif";
     ctx.fillText("OFFICIAL DIGITAL IDENTITY", fX + 350, cY + 230);
 
     // Photo Box
@@ -1148,7 +1160,7 @@ export default function Profile() {
       ctx.restore();
     } else {
       ctx.fillStyle = "#5B6472";
-      ctx.font = "bold 26px 'Sora', sans-serif";
+      ctx.font = "bold 26px 'Poppins', sans-serif";
       ctx.textAlign = "center";
       ctx.fillText("PHOTO", fX + 180, cY + 505);
       ctx.textAlign = "left";
@@ -1174,10 +1186,10 @@ export default function Profile() {
 
     // Name & Designation
     ctx.fillStyle = "#141922";
-    ctx.font = "bold 44px 'Sora', sans-serif";
+    ctx.font = "bold 44px 'Poppins', sans-serif";
     ctx.fillText(userProfile?.full_name || "Official Name", fX + 340, cY + 460);
 
-    ctx.font = "bold 20px 'Sora', sans-serif";
+    ctx.font = "bold 20px 'Poppins', sans-serif";
     const desigW = ctx.measureText(designation).width;
     drawRoundedRect(ctx, fX + 340, cY + 490, desigW + 30, 42, 21, "rgba(10,42,84,0.07)", null, 0);
     ctx.fillStyle = "#0A2A54";
@@ -1189,12 +1201,12 @@ export default function Profile() {
       ctx.beginPath();
       ctx.arc(fX + 340 + desigW + 40 + 22, cY + 511, 6, 0, 2 * Math.PI);
       ctx.fill();
-      ctx.font = "bold 16px 'Sora', sans-serif";
+      ctx.font = "bold 16px 'Poppins', sans-serif";
       ctx.fillText("VERIFIED", fX + 340 + desigW + 40 + 38, cY + 517);
     }
 
     // ID Pill
-    const memberIdText = "ID   " + (identity?.trsv_member_id || "TVRS-HQ-0000");
+    const memberIdText = "ID   " + (identity?.trsv_member_id ? identity.trsv_member_id.replace(/^(TVRS|TRSV)-/i, `${shortName}-`) : `${shortName}-HQ-0000`);
     ctx.font = "bold 26px 'JetBrains Mono', monospace";
     const pillW = ctx.measureText(memberIdText).width;
     drawRoundedRect(ctx, fX + 60, cY + 680, pillW + 40, 60, 10, "rgba(240,164,0,0.13)", "rgba(240,164,0,0.28)", 2.5);
@@ -1204,10 +1216,10 @@ export default function Profile() {
     // Fields Grid
     const drawField = (lbl, val, fx, fy) => {
       ctx.fillStyle = "#5B6472";
-      ctx.font = "bold 18px 'Sora', sans-serif";
+      ctx.font = "bold 18px 'Poppins', sans-serif";
       ctx.fillText(lbl.toUpperCase(), fx, fy);
       ctx.fillStyle = "#141922";
-      ctx.font = "bold 28px 'Sora', sans-serif";
+      ctx.font = "bold 28px 'Poppins', sans-serif";
       ctx.fillText(val || "—", fx, fy + 38);
     };
 
@@ -1226,10 +1238,10 @@ export default function Profile() {
     // Footer
     drawRoundedRect(ctx, fX + 60, cY + 1140, 892, 412, 28, "rgba(10,42,84,0.025)", "#EBEEF3", 2);
     ctx.fillStyle = "#0A2A54";
-    ctx.font = "bold 28px 'Sora', sans-serif";
+    ctx.font = "bold 28px 'Poppins', sans-serif";
     ctx.fillText("OFFICIAL VERIFICATION", fX + 110, cY + 1210);
     ctx.fillStyle = "#5B6472";
-    ctx.font = "bold 22px 'Sora', sans-serif";
+    ctx.font = "bold 22px 'Poppins', sans-serif";
     ctx.fillText("SCAN TO VERIFY COORDINATES", fX + 110, cY + 1260);
 
     const qrUrlText = identity?.qr_token ? `trsv-union.onrender.com/verify/${identity.qr_token}` : "trsv-union.onrender.com";
@@ -1238,8 +1250,8 @@ export default function Profile() {
     ctx.fillText(qrUrlText, fX + 110, cY + 1315);
 
     ctx.fillStyle = "#0A2A54";
-    ctx.font = "bold 18px 'Sora', sans-serif";
-    ctx.fillText("TVRS OFFICIAL SCANNER", fX + 110, cY + 1485);
+    ctx.font = "bold 18px 'Poppins', sans-serif";
+    ctx.fillText(`${shortName} OFFICIAL SCANNER`, fX + 110, cY + 1485);
 
     if (qrImg) {
       drawRoundedRect(ctx, fX + 620, cY + 1200, 290, 290, 20, "#ffffff", "rgba(10,42,84,0.08)", 2);
@@ -1305,17 +1317,17 @@ export default function Profile() {
 
     // Header text
     ctx.fillStyle = "#FFFFFF";
-    ctx.font = "bold 28px 'Sora', sans-serif";
-    ctx.fillText("TVRS OFFICIAL IDENTITY", bX + 390, cY + 90);
+    ctx.font = "bold 28px 'Poppins', sans-serif";
+    ctx.fillText(`${shortName} OFFICIAL IDENTITY`, bX + 390, cY + 90);
 
     // Instructions Section
     ctx.fillStyle = "#5B6472";
-    ctx.font = "bold 22px 'Sora', sans-serif";
+    ctx.font = "bold 22px 'Poppins', sans-serif";
     ctx.fillText("OFFICIAL VERIFICATION INSTRUCTIONS", bX + 80, cY + 230);
 
     ctx.fillStyle = "#141922";
-    ctx.font = "26px 'Sora', sans-serif";
-    const instructText = "This digital identity can be verified through the official TVRS Verification Portal by scanning the QR code using any smartphone camera or the official TVRS Scanner application.";
+    ctx.font = "26px 'Poppins', sans-serif";
+    const instructText = `This digital identity can be verified through the official ${shortName} Verification Portal by scanning the QR code using any smartphone camera or the official ${shortName} Scanner application.`;
     wrapText(ctx, instructText, bX + 80, cY + 290, 852, 42);
 
     ctx.fillStyle = "#0A2A54";
@@ -1339,19 +1351,19 @@ export default function Profile() {
     ctx.stroke();
 
     ctx.fillStyle = "#9CA5B4";
-    ctx.font = "italic 32px 'Sora', sans-serif";
+    ctx.font = "italic 32px 'Poppins', sans-serif";
     ctx.fillText("Signature on file", bX + 100, cY + 760);
 
     ctx.fillStyle = "#141922";
-    ctx.font = "bold 24px 'Sora', sans-serif";
+    ctx.font = "bold 24px 'Poppins', sans-serif";
     ctx.fillText("Kavitha Garu", bX + 80, cY + 830);
 
     ctx.fillStyle = "#0A2A54";
-    ctx.font = "bold 18px 'Sora', sans-serif";
+    ctx.font = "bold 18px 'Poppins', sans-serif";
     ctx.fillText("Chief of TRS", bX + 80, cY + 865);
 
     ctx.fillStyle = "#5B6472";
-    ctx.font = "14px 'Sora', sans-serif";
+    ctx.font = "14px 'Poppins', sans-serif";
     ctx.fillText("Authorized Signatory", bX + 80, cY + 895);
 
     // Organization Seal
@@ -1374,8 +1386,8 @@ export default function Profile() {
     ctx.save();
     ctx.translate(sX, sY);
     ctx.fillStyle = "#0A2A54";
-    ctx.font = "bold 15px 'Sora', sans-serif";
-    const sealText = "  TVRS \u2022 OFFICIAL SEAL \u2022 TELANGANA \u2022";
+    ctx.font = "bold 15px 'Poppins', sans-serif";
+    const sealText = `  ${shortName} \u2022 OFFICIAL SEAL \u2022 TELANGANA \u2022`;
     for (let i = 0; i < sealText.length; i++) {
       ctx.save();
       ctx.rotate((i * 360 / sealText.length) * Math.PI / 180);
@@ -1406,13 +1418,13 @@ export default function Profile() {
 
     // Card Reference info
     ctx.fillStyle = "#5B6472";
-    ctx.font = "bold 18px 'Sora', sans-serif";
+    ctx.font = "bold 18px 'Poppins', sans-serif";
     ctx.fillText("CARD REFERENCE", bX + 80, cY + 1010);
     ctx.fillStyle = "#141922";
     ctx.font = "bold 26px 'JetBrains Mono', monospace";
-    ctx.fillText(identity?.trsv_member_id || "TVRS-HQ-0000", bX + 80, cY + 1060);
+    ctx.fillText(identity?.trsv_member_id || `${shortName}-HQ-0000`, bX + 80, cY + 1060);
 
-    wrapText(ctx, "This card remains the property of TVRS and must be surrendered upon request or termination of membership.", bX + 80, cY + 1110, 480, 24);
+    wrapText(ctx, `This card remains the property of ${shortName} and must be surrendered upon request or termination of membership.`, bX + 80, cY + 1110, 480, 24);
 
     // Scannable QR Code
     if (qrImg) {
@@ -1426,7 +1438,7 @@ export default function Profile() {
 
     // Download trigger
     const link = document.createElement("a");
-    link.download = `${identity?.trsv_member_id || "TVRS_Personnel"}_OfficialID.png`;
+    link.download = `${identity?.trsv_member_id || `${shortName}_Personnel`}_OfficialID.png`;
     link.href = canvas.toDataURL("image/png");
     link.click();
   };
@@ -1547,7 +1559,7 @@ export default function Profile() {
               </span>
               <span className="hidden md:inline text-slate-300 dark:text-slate-700">•</span>
               <span className="font-mono bg-slate-100 dark:bg-slate-900/60 px-2 py-0.5 rounded text-[11px] border border-slate-200/50 dark:border-slate-800">
-                TVRS ID: {identity?.trsv_member_id || "TVRS-HQ-0000"}
+                {shortName} ID: {identity?.trsv_member_id || `${shortName}-HQ-0000`}
               </span>
             </div>
 
@@ -1673,7 +1685,7 @@ export default function Profile() {
         <div ref={idSectionRef} className="lg:col-span-6 flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">
-              Official TVRS Digital ID
+              Official {shortName} Digital ID
             </h3>
             
             <button

@@ -27,11 +27,11 @@ function InteractiveCard({ children, isActive, accentColor, onClick, disabled })
   }, []);
 
   const colors = {
-    cyan:    { glow: 'rgba(14,165,233,0.15)',  border: '#0ea5e9', bg: '#f0f9ff', darkBg: '#082f49' },
+    blue:    { glow: 'rgba(29,78,216,0.15)',   border: '#1d4ed8', bg: '#eff6ff', darkBg: '#1e3a8a' },
     emerald: { glow: 'rgba(16,185,129,0.15)',  border: '#10b981', bg: '#ecfdf5', darkBg: '#064e3b' },
     amber:   { glow: 'rgba(245,158,11,0.15)',  border: '#f59e0b', bg: '#fffbeb', darkBg: '#78350f' },
   };
-  const c = colors[accentColor] || colors.cyan;
+  const c = colors[accentColor] || colors.blue;
 
   return (
     <motion.button
@@ -41,10 +41,10 @@ function InteractiveCard({ children, isActive, accentColor, onClick, disabled })
       onMouseMove={onMove}
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
-      whileTap={{ scale: 0.96 }}
-      className="relative flex flex-col items-center justify-between p-5 rounded-3xl border cursor-pointer overflow-hidden group w-full h-[146px] transition-all duration-300"
+      whileTap={{ scale: disabled ? 1 : 0.96 }}
+      className="relative flex flex-col items-center justify-between p-4 rounded-2xl border cursor-pointer overflow-hidden group w-full h-[146px] transition-all duration-300"
       style={{
-        fontFamily: "'Satoshi', 'Inter', sans-serif",
+        fontFamily: "'Poppins', sans-serif",
         borderColor: isActive ? c.border : (isDark ? 'rgba(51, 65, 85, 0.4)' : 'rgba(226,232,240,0.9)'),
         backgroundColor: isActive 
           ? (isDark ? 'rgba(30, 41, 59, 0.7)' : '#ffffff') 
@@ -90,7 +90,7 @@ function PremiumInput({ label, icon: Icon, error, helperText, value, onChange, .
   return (
     <div className="w-full flex flex-col gap-2 text-left">
       <div className="flex justify-between items-center px-1">
-        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-450 dark:text-slate-500" style={{ fontFamily: "'Satoshi', sans-serif" }}>
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400" style={{ fontFamily: "'Poppins', sans-serif" }}>
           {label}
         </span>
         {helperText && !error && (
@@ -105,16 +105,17 @@ function PremiumInput({ label, icon: Icon, error, helperText, value, onChange, .
           onChange={onChange}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
-          className={`peer w-full py-3.5 pr-4 rounded-2xl border outline-none text-slate-800 dark:text-slate-100 text-sm font-semibold transition-all duration-300 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md
+          className={`peer w-full py-3.5 pr-4 rounded-2xl border outline-none text-slate-800 dark:text-slate-100 text-sm font-medium transition-all duration-300 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md
             ${Icon ? 'pl-12' : 'pl-4'}
             ${focused 
-              ? 'border-sky-500 ring-4 ring-sky-500/10 shadow-[0_4px_16px_rgba(14,165,233,0.05)]' 
+              ? 'border-blue-600 ring-4 ring-blue-600/10 shadow-sm' 
               : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 shadow-sm'
             }`}
+          style={{ fontFamily: "'Poppins', sans-serif" }}
           {...props}
         />
         {Icon && (
-          <span className={`absolute left-4 pointer-events-none z-10 transition-colors duration-200 ${focused ? 'text-sky-500' : 'text-slate-450 dark:text-slate-500'} animate-icon-bounce-static`}>
+          <span className={`absolute left-4 pointer-events-none z-10 transition-colors duration-200 ${focused ? 'text-blue-600' : 'text-slate-400 dark:text-slate-500'}`}>
             <Icon className="w-5 h-5" />
           </span>
         )}
@@ -131,8 +132,8 @@ function ShimmerCTA({ children, onClick, disabled, gradient, type = 'button' }) 
       onClick={onClick}
       disabled={disabled}
       type={type}
-      className="relative w-full py-4 rounded-2xl font-bold text-sm text-white overflow-hidden disabled:opacity-40 cursor-pointer group shadow-[0_4px_20px_-4px_rgba(14,165,233,0.3)] transition-all duration-200 hover:shadow-[0_6px_24px_-4px_rgba(14,165,233,0.45)]"
-      style={{ fontFamily: "'Satoshi', 'Inter', sans-serif", background: gradient }}
+      className="relative w-full py-4 rounded-2xl font-semibold text-sm text-white overflow-hidden disabled:opacity-40 cursor-pointer group shadow-md transition-all duration-200"
+      style={{ fontFamily: "'Poppins', sans-serif", background: gradient || 'linear-gradient(135deg, #1d4ed8, #2563eb)' }}
     >
       {/* Top highlight line */}
       <span className="absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/50 to-transparent" />
@@ -150,7 +151,7 @@ function ShimmerCTA({ children, onClick, disabled, gradient, type = 'button' }) 
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   Main Welcome Page — Light Theme Only
+   Main Welcome Page — Institutional Theme
    ═══════════════════════════════════════════════════════════════ */
 export default function Welcome() {
   const navigate = useNavigate();
@@ -214,11 +215,9 @@ export default function Welcome() {
         navigate(profile.role === 'student' ? '/dashboard/student' : '/dashboard/leader');
         return;
       } catch (err) {
-        // If simplified-entry endpoint fails or returns non-JSON, fallback to standard login
         console.warn('[Welcome] Simplified login failed, attempting fallback with password = username', err.message);
       }
 
-      // Fallback: try standard login using username as password (temporary behavior)
       const profile = await login(username, username);
       setModalOpen(false);
       navigate(profile.role === 'student' ? '/dashboard/student' : '/dashboard/leader');
@@ -269,10 +268,10 @@ export default function Welcome() {
       icon: User, 
       title: 'Student',  
       desc: 'Username login', 
-      color: 'cyan',    
-      gradient: 'linear-gradient(135deg, #0ea5e9, #2563eb)',
-      inactiveBg: 'rgba(14,165,233,0.08)',
-      inactiveText: '#0284c7'
+      color: 'blue',    
+      gradient: 'linear-gradient(135deg, #1d4ed8, #3b82f6)',
+      inactiveBg: 'rgba(29,78,216,0.06)',
+      inactiveText: '#1d4ed8'
     },
     { 
       id: 'guest',    
@@ -281,17 +280,17 @@ export default function Welcome() {
       desc: 'Browse freely',  
       color: 'emerald', 
       gradient: 'linear-gradient(135deg, #10b981, #059669)',
-      inactiveBg: 'rgba(16,185,129,0.08)',
+      inactiveBg: 'rgba(16,185,129,0.06)',
       inactiveText: '#059669'
     },
     { 
       id: 'admin',    
       icon: Lock,  
       title: 'Admin',   
-      desc: 'Officers only',  
+      desc: 'Officers only', 
       color: 'amber',   
-      gradient: 'linear-gradient(135deg, #f59e0b, #d97706)',
-      inactiveBg: 'rgba(245,158,11,0.08)',
+      gradient: 'linear-gradient(135deg, #d97706, #f59e0b)',
+      inactiveBg: 'rgba(245,158,11,0.06)',
       inactiveText: '#d97706'
     },
   ];
@@ -300,12 +299,12 @@ export default function Welcome() {
     <div
       className="relative min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 select-none overflow-hidden w-full bg-[#f8fafc] dark:bg-slate-950 transition-colors duration-300"
       style={{
-        fontFamily: "'Inter', system-ui, sans-serif",
+        fontFamily: "'Poppins', sans-serif",
         background: isDark ? 'linear-gradient(180deg, #090d16 0%, #0f172a 100%)' : 'linear-gradient(180deg, #f1f5f9 0%, #f8fafc 50%, #ffffff 100%)',
       }}
     >
       {/* Ambient background orbs */}
-      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-sky-200/20 dark:bg-sky-900/10 blur-[130px] pointer-events-none" />
+      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-blue-200/20 dark:bg-blue-900/10 blur-[130px] pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[45%] h-[45%] rounded-full bg-amber-200/20 dark:bg-amber-900/10 blur-[130px] pointer-events-none" />
       {/* Subtle dot grid */}
       <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(15,23,42,0.03)_1px,transparent_1px)] dark:bg-[radial-gradient(circle,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
@@ -333,24 +332,24 @@ export default function Welcome() {
         </motion.div>
 
         {/* Badge */}
-        <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-amber-50 dark:bg-amber-950/20 border border-amber-200/50 dark:border-amber-900/30 text-[10px] font-bold text-amber-700 dark:text-amber-400 uppercase tracking-[0.15em] shadow-sm">
+        <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-amber-50 dark:bg-amber-950/20 border border-amber-200/50 dark:border-amber-900/30 text-[10px] font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-widest shadow-sm">
           <Sparkles className="w-3 h-3 text-amber-500" />
           Student Command Portal
         </div>
 
-        {/* Title — Satoshi Black */}
+        {/* Title */}
         <h1
-          className="text-[1.6rem] sm:text-[2rem] md:text-[2.25rem] font-black uppercase tracking-tight leading-[1.12]"
-          style={{ fontFamily: "'Satoshi', 'Inter', sans-serif" }}
+          className="text-[1.6rem] sm:text-[2rem] md:text-[2.25rem] font-semibold uppercase tracking-tight leading-[1.12]"
+          style={{ fontFamily: "'Poppins', sans-serif" }}
         >
-          <span className="text-slate-800 dark:text-slate-100 transition-colors duration-300">Welcome to</span><br />
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600">
+          <span className="text-slate-900 dark:text-slate-100 transition-colors duration-300">Welcome to</span><br />
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700">
             {fullName}
           </span>
         </h1>
 
         {/* Description */}
-        <p className="text-[13.5px] text-slate-500 dark:text-slate-400 leading-relaxed max-w-xs font-semibold transition-colors duration-300">
+        <p className="text-[13.5px] text-slate-600 dark:text-slate-400 leading-relaxed max-w-xs font-normal transition-colors duration-300">
           Under the visionary leadership of Kavitha Kalvakuntla — safeguarding student welfare statewide.
         </p>
 
@@ -358,11 +357,10 @@ export default function Welcome() {
         <motion.button
           whileTap={{ scale: 0.97 }}
           onClick={openModal}
-          className="mt-2 relative inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl font-bold text-[13px] tracking-tight text-white overflow-hidden cursor-pointer group"
+          className="mt-2 relative inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl font-semibold text-[13px] tracking-wide text-white overflow-hidden cursor-pointer group shadow-md"
           style={{
-            fontFamily: "'Satoshi', 'Inter', sans-serif",
-            background: 'linear-gradient(135deg, #0ea5e9, #6366f1)',
-            boxShadow: '0 8px 30px -4px rgba(14,165,233,0.35), 0 2px 4px rgba(0,0,0,0.04)',
+            fontFamily: "'Poppins', sans-serif",
+            background: 'linear-gradient(135deg, #1d4ed8, #2563eb)',
           }}
         >
           {/* Top highlight */}
@@ -399,6 +397,7 @@ export default function Welcome() {
               transition={{ type: 'spring', stiffness: 160, damping: 22 }}
               className="w-full max-w-[480px] relative z-10 rounded-3xl overflow-hidden transition-colors duration-300"
               style={{
+                fontFamily: "'Poppins', sans-serif",
                 background: isDark ? 'rgba(15,23,42,0.95)' : 'rgba(255,255,255,0.95)',
                 backdropFilter: 'blur(30px) saturate(180%)',
                 border: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(255,255,255,0.6)',
@@ -408,10 +407,10 @@ export default function Welcome() {
               <div className="p-6 sm:p-8">
                 {/* Header */}
                 <div className="text-center mb-6">
-                  <h3 className="text-xl font-black text-slate-900 dark:text-slate-100 tracking-tight transition-colors duration-300" style={{ fontFamily: "'Satoshi', 'Inter', sans-serif" }}>
+                  <h3 className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-slate-100 tracking-tight transition-colors duration-300" style={{ fontFamily: "'Poppins', sans-serif" }}>
                     Choose Access Mode
                   </h3>
-                  <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 font-semibold tracking-wide">Select your portal entry method</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-normal">Select your portal entry method</p>
                 </div>
 
                 {/* ── 3-Card Identity Selector ── */}
@@ -429,24 +428,23 @@ export default function Welcome() {
                       >
                         {/* Icon Container with explicit BackgroundImage/Color */}
                         <div
-                          className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm transition-all duration-300 group-hover:scale-105"
+                          className="w-11 h-11 rounded-xl flex items-center justify-center shadow-sm transition-all duration-300 group-hover:scale-105"
                           style={{ 
                             backgroundImage: isActive ? card.gradient : 'none',
                             backgroundColor: isActive ? 'transparent' : (isDark ? 'rgba(255,255,255,0.03)' : card.inactiveBg),
-                            boxShadow: isActive ? '0 4px 14px rgba(14,165,233,0.25)' : 'none'
                           }}
                         >
                           <IconComponent 
                             className="w-5 h-5" 
                             stroke={isActive ? '#ffffff' : card.inactiveText}
-                            strokeWidth={2.5}
+                            strokeWidth={2}
                           />
                         </div>
                         <div className="flex flex-col items-center">
-                          <span className="text-[12.5px] font-extrabold text-slate-800 dark:text-slate-200 tracking-tight leading-normal" style={{ fontFamily: "'Satoshi', 'Inter', sans-serif" }}>
+                          <span className="text-xs font-semibold text-slate-900 dark:text-slate-100 tracking-tight leading-snug" style={{ fontFamily: "'Poppins', sans-serif" }}>
                             {card.title}
                           </span>
-                          <span className="text-[9.5px] text-slate-400 dark:text-slate-550 font-bold mt-0.5 leading-none">
+                          <span className="text-[10px] text-slate-500 dark:text-slate-400 font-normal mt-0.5 leading-tight text-center">
                             {card.desc}
                           </span>
                         </div>
@@ -530,7 +528,7 @@ export default function Welcome() {
                         icon={User}
                         value={adminEmail}
                         onChange={(e) => setAdminEmail(e.target.value)}
-                        placeholder="officer@tvrs.gov.in"
+                        placeholder="officer@trsv.gov.in"
                         disabled={loading}
                       />
                       <div className="relative">

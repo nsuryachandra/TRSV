@@ -271,6 +271,26 @@ router.post('/', requireRole(['student']), async (req, res) => {
 });
 
 /**
+ * 2.0 Retrieve My Complaints (Logged-in Student)
+ */
+router.get('/my', requireRole(['student', 'secretary', 'general_secretary', 'vice_president', 'president', 'state_president', 'supreme_admin', 'dev']), async (req, res) => {
+  try {
+    const result = await query(
+      `SELECT c.*, con.constituency_name, col.college_name 
+       FROM complaints c
+       LEFT JOIN constituencies con ON c.constituency_id = con.id
+       LEFT JOIN colleges col ON c.college_id = col.id
+       WHERE c.student_id = $1 ORDER BY c.created_at DESC`,
+      [req.user.uid]
+    );
+    res.json({ success: true, complaints: result.rows });
+  } catch (error) {
+    console.error('🚨 [My Complaints Fetch Error]:', error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
  * 2. Retrieve Complaints (Dynamic Role-based Location Scope filters)
  */
 router.get('/', requireRole(['student', 'secretary', 'general_secretary', 'vice_president', 'president', 'state_president', 'supreme_admin', 'dev']), async (req, res) => {

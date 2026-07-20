@@ -11,6 +11,7 @@ import { motion } from 'framer-motion';
 export default function GlassCard({ 
   children, 
   className = '', 
+  contentClassName = '',
   hoverEffect = true,
   delay = 0,
   onClick,
@@ -20,6 +21,19 @@ export default function GlassCard({
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const [glare, setGlare] = useState({ x: 50, y: 50, opacity: 0 });
   const rafRef = useRef(null);
+
+  // Extract layout/alignment classes to apply to inner container
+  const layoutClasses = className
+    .split(/\s+/)
+    .filter(c => 
+      c.startsWith('items-') || 
+      c.startsWith('justify-') || 
+      c.startsWith('text-center') || 
+      c.startsWith('text-left') || 
+      c.startsWith('text-right') || 
+      c.startsWith('gap-')
+    )
+    .join(' ');
 
   const cardVariants = {
     hidden: { opacity: 0, y: 18, scale: 0.97 },
@@ -114,7 +128,7 @@ export default function GlassCard({
         }}
       />
 
-      <div className="relative z-10 w-full h-full flex flex-col">
+      <div className={`relative z-10 w-full h-full flex flex-col ${layoutClasses} ${contentClassName}`}>
         {children}
       </div>
     </motion.div>

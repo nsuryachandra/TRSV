@@ -11,7 +11,7 @@ const LEADERS = [
     role: 'Founder',
     profile_image: '/akka.jpg',
     accentColor: 'cyan',
-    description: 'Founder & Patron of TVRS. Dedicated to championing student rights, state education reforms, and empowering youth across all districts of Telangana.'
+    description: 'Founder & Patron of TRSV. Dedicated to championing student rights, state education reforms, and empowering youth across all districts of Telangana.'
   },
   {
     id: 'aaditya',
@@ -35,7 +35,7 @@ const LEADERS = [
     role: 'Developer & Digital Operations President',
     profile_image: null,
     accentColor: 'amber',
-    description: 'Digital Architect of TVRS - designs, implements, and maintains the portal, database infrastructure, and student safety telemetry systems.'
+    description: 'Digital Architect of TRSV - designs, implements, and maintains the portal, database infrastructure, and student safety telemetry systems.'
   },
   {
     id: 'ramu',
@@ -90,51 +90,43 @@ const LEADERS = [
     full_name: 'Vogoti Shekar',
     role: 'Greater Hyderabad Vice President',
     profile_image: '/shekar_hydvice.jpg',
-    accentColor: 'violet',
+    accentColor: 'blue',
     description: 'Manages student outreach initiatives, campus union activities, and regional support networks across Greater Hyderabad.'
   }
 ];
 
-const CinematicCard = ({ lead, accentColor = 'cyan' }) => {
+const CinematicCard = ({ lead, accentColor = 'blue' }) => {
   const accents = {
-    cyan: {
-      gradient: 'from-cyan-500/20 to-transparent',
-      badge: 'border-cyan-500/40 text-cyan-400',
-      pulseDot: 'bg-cyan-400',
-      roleColor: 'text-cyan-400',
-      hoverColor: 'group-hover:text-cyan-400',
-      officeIcon: 'text-cyan-500',
-      dept: 'text-cyan-500/80',
+    blue: {
+      gradient: 'from-blue-500/20 to-transparent',
+      badge: 'border-blue-500/40 text-blue-600 dark:text-blue-400',
+      pulseDot: 'bg-blue-500',
+      roleColor: 'text-blue-600 dark:text-blue-400',
+      hoverColor: 'group-hover:text-blue-600 dark:group-hover:text-blue-400',
+      officeIcon: 'text-blue-600 dark:text-blue-400',
+      dept: 'text-blue-600/80 dark:text-blue-400/80',
     },
     emerald: {
       gradient: 'from-emerald-500/20 to-transparent',
-      badge: 'border-emerald-500/40 text-emerald-400',
-      pulseDot: 'bg-emerald-400',
-      roleColor: 'text-emerald-400',
-      hoverColor: 'group-hover:text-emerald-400',
-      officeIcon: 'text-emerald-500',
-      dept: 'text-emerald-500/80',
-    },
-    violet: {
-      gradient: 'from-violet-500/20 to-transparent',
-      badge: 'border-violet-500/40 text-violet-400',
-      pulseDot: 'bg-violet-400',
-      roleColor: 'text-violet-400',
-      hoverColor: 'group-hover:text-violet-400',
-      officeIcon: 'text-violet-500',
-      dept: 'text-violet-500/80',
+      badge: 'border-emerald-500/40 text-emerald-600 dark:text-emerald-400',
+      pulseDot: 'bg-emerald-500',
+      roleColor: 'text-emerald-600 dark:text-emerald-400',
+      hoverColor: 'group-hover:text-emerald-600 dark:group-hover:text-emerald-400',
+      officeIcon: 'text-emerald-600 dark:text-emerald-400',
+      dept: 'text-emerald-600/80 dark:text-emerald-400/80',
     },
     amber: {
-      gradient: 'from-amber-550/20 to-transparent',
-      badge: 'border-amber-500/45 text-amber-450 dark:text-amber-400',
-      pulseDot: 'bg-amber-400',
-      roleColor: 'text-amber-450 dark:text-amber-400',
-      hoverColor: 'group-hover:text-amber-450 dark:group-hover:text-amber-400',
+      gradient: 'from-amber-500/20 to-transparent',
+      badge: 'border-amber-500/40 text-amber-600 dark:text-amber-400',
+      pulseDot: 'bg-amber-500',
+      roleColor: 'text-amber-600 dark:text-amber-400',
+      hoverColor: 'group-hover:text-amber-600 dark:group-hover:text-amber-400',
       officeIcon: 'text-amber-500',
       dept: 'text-amber-500/80',
     },
   };
-  const c = accents[lead.accentColor] || accents.cyan;
+  const c = accents[lead.accentColor] || accents.blue;
+  const { shortName } = useOrg();
 
   const formattedDescription = lead.description ? lead.description.replace(/TVRS/g, shortName) : '';
 
@@ -149,14 +141,14 @@ const CinematicCard = ({ lead, accentColor = 'cyan' }) => {
             className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-slate-950 via-slate-900 to-cyan-950/40 flex flex-col items-center justify-center p-6 text-center select-none border-b border-slate-900/50">
-            <div className="w-16 h-16 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center mb-3 shadow-[0_0_20px_rgba(6,182,212,0.1)]">
-              <Users className="w-7 h-7 text-cyan-400" />
+          <div className="w-full h-full bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950/40 flex flex-col items-center justify-center p-6 text-center select-none border-b border-slate-900/50">
+            <div className="w-16 h-16 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mb-3 shadow-[0_0_20px_rgba(29,78,216,0.1)]">
+              <Users className="w-7 h-7 text-blue-400" />
             </div>
-            <span className="text-[10px] font-black text-cyan-400 tracking-[0.25em] uppercase mb-1">
+            <span className="text-[10px] font-semibold text-blue-400 tracking-[0.25em] uppercase mb-1">
               {shortName} Officer
             </span>
-            <span className="text-xs font-bold text-slate-500 tracking-wider">
+            <span className="text-xs font-semibold text-slate-500 tracking-wider">
               Executive Board
             </span>
           </div>
@@ -190,8 +182,14 @@ const CinematicCard = ({ lead, accentColor = 'cyan' }) => {
   );
 };
 
+const getInitialLeaders = (shortName) => LEADERS.map(lead => ({
+  ...lead,
+  description: lead.description.replace(/(TVRS|TRSV)/g, shortName)
+}));
+
 export default function Team() {
-  const [leaders, setLeaders] = useState(LEADERS);
+  const { shortName, fullName } = useOrg();
+  const [leaders, setLeaders] = useState(() => getInitialLeaders(shortName || 'TRSV'));
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

@@ -5,8 +5,8 @@ import { requireAuth, requireRole } from '../../middleware/auth.js';
 const router = express.Router();
 
 router.use(requireAuth);
-router.use(requireRole(['supreme_admin']));
 
+// Public GET endpoint for all authenticated users
 router.get('/', async (req, res) => {
   try {
     const result = await query('SELECT * FROM events ORDER BY event_date DESC');
@@ -16,19 +16,111 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Admin management endpoints
+router.use(requireRole(['supreme_admin', 'dev']));
+
 router.post('/', async (req, res) => {
-  const { title, description, location, event_date, capacity } = req.body;
-  if (!title || !description || !location || !event_date) {
-    return res.status(400).json({ success: false, message: 'All details are required.' });
+  const { 
+    title, 
+    description, 
+    location, 
+    venue,
+    event_date, 
+    event_time,
+    time,
+    organizer, 
+    status, 
+    banner_url, 
+    images, 
+    capacity 
+  } = req.body;
+
+  if (!title || !description || !(location || venue) || !event_date) {
+    return res.status(400).json({ success: false, message: 'Title, description, venue/location, and date are required.' });
   }
+
+  const finalVenue = venue || location;
+  const finalTime = event_time || time || '10:00 AM';
+  const finalOrganizer = organizer || 'TRSV Executive Body';
+  const finalStatus = status || 'Upcoming';
 
   try {
     const result = await query(`
-      INSERT INTO events (title, description, location, event_date, capacity)
-      VALUES ($1, $2, $3, $4, $5)
+      INSERT INTO events (
+        title, description, location, event_date, time, organizer, status, banner_url, images, capacity
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
       RETURNING *
-    `, [title, description, location, event_date, capacity || 100]);
+    `, [
+      title, 
+      description, 
+      finalVenue, 
+      event_date, 
+      finalTime, 
+      finalOrganizer, 
+      finalStatus, 
+      banner_url || '', 
+      JSON.stringify(images || []), 
+      capacity || 100
+    ]);
     res.status(201).json({ success: true, event: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+router.put('/:id', async (req, res) => {
+  const { id } = req.params;
+  const { 
+    title, 
+    description, 
+    location, 
+    venue,
+    event_date, 
+    event_time,
+    time,
+    organizer, 
+    status, 
+    banner_url, 
+    images, 
+    capacity 
+  } = req.body;
+
+  try {
+    const result = await query(`
+      UPDATE events
+      SET 
+        title = COALESCE($1, title),
+        description = COALESCE($2, description),
+        location = COALESCE($3, location),
+        event_date = COALESCE($4, event_date),
+        time = COALESCE($5, time),
+        organizer = COALESCE($6, organizer),
+        status = COALESCE($7, status),
+        banner_url = COALESCE($8, banner_url),
+        images = COALESCE($9, images),
+        capacity = COALESCE($10, capacity)
+      WHERE id = $11
+      RETURNING *
+    `, [
+      title, 
+      description, 
+      venue || location, 
+      event_date, 
+      event_time || time, 
+      organizer, 
+      status, 
+      banner_url, 
+      images ? JSON.stringify(images) : null, 
+      capacity, 
+      id
+    ]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Event not found.' });
+    }
+
+    res.json({ success: true, event: result.rows[0] });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }

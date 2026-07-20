@@ -365,7 +365,20 @@ pool.query = async function (text, params, callback) {
     }
   }
 
-  const result = await originalQuery.call(pool, modifiedText, actualParams);
+  let result;
+  try {
+    result = await originalQuery.call(pool, modifiedText, actualParams);
+  } catch (err) {
+    const msg = (err.message || '').toLowerCase();
+    const isTransient = msg.includes('connection terminated') || msg.includes('connection timeout') || msg.includes('socket closed') || msg.includes('econnreset');
+    if (isTransient) {
+      console.warn('⚠️ [Database Interceptor] Connection drop detected. Retrying in 300ms...');
+      await new Promise(r => setTimeout(r, 300));
+      result = await originalQuery.call(pool, modifiedText, actualParams);
+    } else {
+      throw err;
+    }
+  }
 
   try {
     const queryStr = typeof text === 'string' ? text.trim().toLowerCase() : '';

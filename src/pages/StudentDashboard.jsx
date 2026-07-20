@@ -220,28 +220,28 @@ export default function StudentDashboard() {
           return (
             <React.Fragment key={idx}>
               <div className="flex flex-col items-center gap-1 flex-1 min-w-0">
-                <div className={`w-3.5 h-3.5 rounded-full flex items-center justify-center text-[8px] font-black transition-all ${
+                <div className={`w-3.5 h-3.5 rounded-full flex items-center justify-center text-[8px] font-bold transition-all ${
                   isActive 
-                    ? 'bg-cyan-500 text-white shadow-glow-cyan animate-pulse scale-110' 
+                    ? 'bg-blue-600 text-white shadow-glow-blue animate-pulse scale-110' 
                     : isCompleted 
                       ? 'bg-emerald-500 text-white' 
                       : 'bg-slate-200 dark:bg-slate-800 text-slate-450 dark:text-slate-600'
                 }`}>
                   {isCompleted ? '✓' : idx + 1}
                 </div>
-                <span className={`text-[8px] font-extrabold tracking-tight truncate max-w-full uppercase ${
+                <span className={`text-[8px] font-semibold tracking-tight truncate max-w-full uppercase ${
                   isActive 
-                    ? 'text-cyan-500 font-black' 
+                    ? 'text-blue-600 dark:text-blue-400 font-bold' 
                     : isCompleted 
                       ? 'text-emerald-500' 
-                      : 'text-slate-405 dark:text-slate-500'
+                      : 'text-slate-400 dark:text-slate-500'
                 }`}>
                   {shortLabels[idx]}
                 </span>
               </div>
               {idx < stages.length - 1 && (
                 <div className={`h-0.5 flex-1 max-w-[20px] rounded transition-colors ${
-                  currentIdx > idx ? 'bg-emerald-500' : 'bg-slate-250 dark:bg-slate-800'
+                  currentIdx > idx ? 'bg-emerald-500' : 'bg-slate-200 dark:bg-slate-800'
                 }`} />
               )}
             </React.Fragment>
@@ -261,20 +261,20 @@ export default function StudentDashboard() {
       {/* 1. Dashboard Welcome System Card */}
       <div className="relative overflow-hidden rounded-2xl glass-panel-light dark:glass-panel-dark border border-slate-200/50 dark:border-slate-850 p-8 shadow-premium-light dark:shadow-premium-dark flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         {/* Glow ambient backing */}
-        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-cyan-500/10 to-transparent blur-xl pointer-events-none" />
+        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-blue-500/10 to-transparent blur-xl pointer-events-none" />
         
         <div className="flex flex-col gap-2">
           {/* Subtitle/Role Tag badge */}
-          <div className="inline-flex items-center gap-1.5 self-start px-2.5 py-1 rounded-full bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 text-[10px] font-extrabold uppercase tracking-wider border border-cyan-500/20">
+          <div className="inline-flex items-center gap-1.5 self-start px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[10px] font-semibold uppercase tracking-wider border border-blue-500/20">
             Student Member Node
           </div>
           
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-800 dark:text-white flex flex-wrap items-center gap-x-2 gap-y-1">
-            Welcome, {userProfile?.full_name || 'User'} <span className="text-slate-300 dark:text-slate-750 hidden sm:inline">|</span> <span className="text-gradient-cyan block sm:inline">{userProfile?.role === 'dev' ? 'Developer' : userProfile?.role === 'supreme_admin' ? 'Supreme Admin' : 'Student'}</span>
+            Welcome, {userProfile?.full_name || 'User'} <span className="text-slate-300 dark:text-slate-750 hidden sm:inline">|</span> <span className="text-blue-600 dark:text-blue-400 block sm:inline">{userProfile?.role === 'dev' ? 'Developer' : userProfile?.role === 'supreme_admin' ? 'Supreme Admin' : 'Student'}</span>
           </h2>
           
-          <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 max-w-xl leading-relaxed">
-            Registered Student Coordinator node active. Your digital identity credentials, local district cluster, and issue records are fully synchronized with the Neon database.
+          <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xl">
+            Statewide Student Grievance & Emergency Protocol active. Dispatch escalations directly to assigned Constituency Leaders.
           </p>
         </div>
         
@@ -292,31 +292,31 @@ export default function StudentDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full items-stretch">
         
         {/* 2. Verified Student Identity Card */}
-        <GlassCard hoverEffect={false} className="p-6 flex flex-col justify-between gap-6 border border-cyan-400/20 relative">
+        <GlassCard hoverEffect={false} className="p-6 flex flex-col justify-between gap-6 border border-blue-400/20 relative">
           <div className="absolute top-3 right-3">
-            <ShieldAlert className="w-5 h-5 text-cyan-500" />
+            <ShieldAlert className="w-5 h-5 text-blue-600 dark:text-blue-400" />
           </div>
 
           <div className="flex flex-col gap-4 text-left">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">My Profile</span>
+            <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">My Profile</span>
             
             <div className="flex items-center gap-4 bg-slate-100/50 dark:bg-slate-900/60 p-4 rounded-xl border border-slate-200/30 dark:border-slate-850">
               {userProfile?.profile_image ? (
                 <img 
                   src={userProfile.profile_image} 
                   alt={userProfile.full_name} 
-                  className="w-14 h-14 rounded-full object-cover shadow-glow-cyan shrink-0"
+                  className="w-14 h-14 rounded-full object-cover shadow-glow-blue shrink-0"
                 />
               ) : (
-                <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-sky-500 to-cyan-400 text-white font-black text-xl flex items-center justify-center shadow-glow-cyan uppercase shrink-0">
+                <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-blue-600 to-blue-400 text-white font-bold text-xl flex items-center justify-center shadow-glow-blue uppercase shrink-0">
                   {userProfile?.full_name ? userProfile.full_name.split(' ').map(n => n[0]).join('').substring(0, 2) : 'ST'}
                 </div>
               )}
               <div className="flex flex-col min-w-0">
-                <span className="font-black text-base text-slate-800 dark:text-white truncate">
+                <span className="font-bold text-base text-slate-800 dark:text-white truncate">
                   {userProfile?.full_name}
                 </span>
-                <span className="text-[11px] font-semibold text-cyan-500 mt-0.5 truncate">
+                <span className="text-[11px] font-semibold text-blue-600 dark:text-blue-400 mt-0.5 truncate">
                   {userProfile?.college_name || 'Not Set'}
                 </span>
                 <span className="text-[9px] text-slate-450 mt-0.5 font-mono">
@@ -362,9 +362,9 @@ export default function StudentDashboard() {
                 <button
                   type="button"
                   onClick={() => setTicketTab('active')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border ${
                     ticketTab === 'active'
-                      ? 'bg-cyan-500 text-white border-cyan-500 shadow-glow-cyan'
+                      ? 'bg-blue-600 text-white border-blue-600 shadow-glow-blue'
                       : 'bg-white/40 dark:bg-slate-900/40 border-slate-200/60 dark:border-slate-800 text-slate-500 dark:text-slate-400'
                   }`}
                 >
@@ -373,9 +373,9 @@ export default function StudentDashboard() {
                 <button
                   type="button"
                   onClick={() => setTicketTab('resolved')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border ${
                     ticketTab === 'resolved'
-                      ? 'bg-cyan-500 text-white border-cyan-500 shadow-glow-cyan'
+                      ? 'bg-blue-600 text-white border-blue-600 shadow-glow-blue'
                       : 'bg-white/40 dark:bg-slate-900/40 border-slate-200/60 dark:border-slate-800 text-slate-500 dark:text-slate-400'
                   }`}
                 >
@@ -386,7 +386,7 @@ export default function StudentDashboard() {
 
             {loading ? (
               <div className="flex-1 flex items-center justify-center min-h-[150px]">
-                <div className="w-8 h-8 rounded-full border-2 border-t-cyan-500 border-r-transparent border-slate-850 animate-spin" />
+                <div className="w-8 h-8 rounded-full border-2 border-t-blue-600 border-r-transparent border-slate-800 animate-spin" />
               </div>
             ) : (
               <div className="flex-1 flex flex-col gap-3 my-2 overflow-y-auto max-h-[220px] pr-1 custom-sidebar-scrollbar min-h-[150px]">
@@ -395,12 +395,12 @@ export default function StudentDashboard() {
                     <div 
                       key={t.id} 
                       onClick={() => setSelectedTicketId(t.id)}
-                      className="flex flex-col p-4 rounded-xl bg-slate-100/50 dark:bg-slate-900/40 border border-slate-200/40 dark:border-slate-850 cursor-pointer hover:border-cyan-500/50 transition-all group gap-2"
+                      className="flex flex-col p-4 rounded-xl bg-slate-100/50 dark:bg-slate-900/40 border border-slate-200/40 dark:border-slate-850 cursor-pointer hover:border-blue-500/50 transition-all group gap-2"
                     >
                       <div className="flex items-start justify-between min-w-0">
                         <div className="flex flex-col text-left min-w-0 max-w-[70%]">
-                          <span className="font-bold text-sm text-slate-800 dark:text-white flex items-center gap-1.5 truncate">
-                            <FileText className="w-4 h-4 text-cyan-500 shrink-0" />
+                          <span className="font-semibold text-sm text-slate-800 dark:text-white flex items-center gap-1.5 truncate">
+                            <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
                             {t.title}
                           </span>
                           <span className="text-[10px] text-slate-400 mt-0.5 truncate flex items-center gap-1.5 flex-wrap">
@@ -410,7 +410,7 @@ export default function StudentDashboard() {
                                 href={t.attachment_url} 
                                 target="_blank" 
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-500 dark:text-cyan-400 text-[8px] font-black uppercase tracking-wider transition-colors border border-cyan-500/15"
+                                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 text-[8px] font-semibold uppercase tracking-wider transition-colors border border-blue-500/15"
                                 onClick={(e) => e.stopPropagation()}
                               >
                                 Evidence Attached
@@ -418,11 +418,13 @@ export default function StudentDashboard() {
                             )}
                           </span>
                         </div>
-                        <div className="flex items-center gap-2 shrink-0">
-                          <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded border uppercase ${getUrgencyBadge(t.urgency)}`}>
-                            {t.urgency}
-                          </span>
-                        </div>
+                        <span className={`text-[9px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded border shrink-0 ${
+                          t.status === 'Resolved' || t.status === 'Solved' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' :
+                          t.status === 'Under Investigation' || t.status === 'In Progress' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' :
+                          'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20'
+                        }`}>
+                          {t.status}
+                        </span>
                       </div>
                       
                       {/* Live Stepper */}
@@ -430,9 +432,8 @@ export default function StudentDashboard() {
                     </div>
                   ))
                 ) : (
-                  <div className="flex flex-col items-center justify-center py-8 text-slate-400 text-xs">
-                    <AlertTriangle className="w-8 h-8 text-slate-400 mb-2 opacity-50" />
-                    No tickets in this section. Submit a case to get immediate redressal.
+                  <div className="flex-1 flex items-center justify-center p-6 text-center text-xs font-semibold text-slate-400">
+                    {ticketTab === 'active' ? 'No active tickets.' : 'No resolved tickets.'}
                   </div>
                 )}
               </div>
@@ -462,17 +463,17 @@ export default function StudentDashboard() {
       </div>
 
        {/* 4. Profile Location & Constituency Hub */}
-      <GlassCard hoverEffect={false} className="p-6 flex flex-col gap-5 border border-cyan-500/10 relative overflow-hidden">
+      <GlassCard hoverEffect={false} className="p-6 flex flex-col gap-5 border border-blue-500/10 relative overflow-hidden">
         {/* Glow backing */}
-        <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-bl from-cyan-500/5 to-transparent blur-2xl pointer-events-none" />
+        <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-bl from-blue-500/5 to-transparent blur-2xl pointer-events-none" />
         
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200/40 dark:border-slate-850 pb-4">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-cyan-500/10 text-cyan-500 border border-cyan-500/20">
+            <div className="p-2.5 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
               <Building className="w-5 h-5" />
             </div>
             <div className="flex flex-col text-left">
-              <h3 className="font-black text-base text-slate-800 dark:text-white uppercase tracking-wider">
+              <h3 className="font-semibold text-base text-slate-800 dark:text-white uppercase tracking-wider">
                 📍 Campus & Constituency Selection
               </h3>
               <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
@@ -482,11 +483,11 @@ export default function StudentDashboard() {
           </div>
           
           {userProfile?.college_name && userProfile.college_name !== 'Not Set' ? (
-            <span className="self-start md:self-center text-[9px] font-black bg-emerald-500/10 text-emerald-500 dark:text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-full uppercase tracking-wider">
+            <span className="self-start md:self-center text-[9px] font-semibold bg-emerald-500/10 text-emerald-500 dark:text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-full uppercase tracking-wider">
               ✓ Profile Details Locked: {userProfile.college_name}
             </span>
           ) : (
-            <span className="self-start md:self-center text-[9px] font-black bg-amber-500/10 text-amber-500 dark:text-amber-400 border border-amber-500/20 px-2.5 py-1 rounded-full uppercase tracking-wider">
+            <span className="self-start md:self-center text-[9px] font-semibold bg-amber-500/10 text-amber-500 dark:text-amber-400 border border-amber-500/20 px-2.5 py-1 rounded-full uppercase tracking-wider">
               ⚠️ Details Not Set
             </span>
           )}
@@ -497,7 +498,7 @@ export default function StudentDashboard() {
           <div className="lg:col-span-2 flex flex-col gap-4 text-left justify-between">
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
                   College / School Name
                 </label>
                 <div className="relative">
@@ -509,22 +510,22 @@ export default function StudentDashboard() {
                       setCollegeSearch(e.target.value);
                       setSaveSuccess('');
                     }}
-                    className="peer w-full pl-11 pr-4 py-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-800 dark:text-slate-100 shadow-sm"
+                    className="peer w-full pl-11 pr-4 py-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-blue-500 border-slate-200/60 dark:border-slate-800 text-slate-800 dark:text-slate-100 shadow-sm"
                   />
-                  <Building className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400 pointer-events-none z-10" strokeWidth={2.2} />
+                  <Building className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-blue-600 dark:text-blue-400 pointer-events-none z-10" strokeWidth={2.2} />
                 </div>
               </div>
 
               {/* Manual constituency select option */}
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
                   Assembly Constituency
                 </label>
                 <div className="relative">
                   <select
                     value={selectedConstituencyId}
                     onChange={(e) => setSelectedConstituencyId(e.target.value)}
-                    className="peer w-full pl-11 pr-4 py-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-855 dark:text-slate-100"
+                    className="peer w-full pl-11 pr-4 py-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-blue-500 border-slate-200/60 dark:border-slate-800 text-slate-800 dark:text-slate-100"
                   >
                     {constituencies.map(con => (
                       <option key={con.id} value={con.id}>
@@ -534,7 +535,7 @@ export default function StudentDashboard() {
                       </option>
                     ))}
                   </select>
-                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400 pointer-events-none z-10" strokeWidth={2.2} />
+                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-blue-600 dark:text-blue-400 pointer-events-none z-10" strokeWidth={2.2} />
                 </div>
               </div>
             </div>
@@ -553,7 +554,7 @@ export default function StudentDashboard() {
               </PremiumButton>
 
               {saveSuccess && (
-                <p className={`text-[10px] font-bold uppercase tracking-wider mt-1 text-left ${saveSuccess.startsWith('❌') ? 'text-rose-500' : 'text-emerald-500 dark:text-emerald-400'}`}>
+                <p className={`text-[10px] font-semibold uppercase tracking-wider mt-1 text-left ${saveSuccess.startsWith('❌') ? 'text-rose-500' : 'text-emerald-500 dark:text-emerald-400'}`}>
                   {saveSuccess}
                 </p>
               )}
@@ -563,29 +564,29 @@ export default function StudentDashboard() {
           {/* Right Panel: How to find your constituency instructions */}
           <div className="lg:col-span-3 w-full flex flex-col justify-between p-5 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-slate-500/5 relative overflow-hidden">
             <div className="flex flex-col gap-4 text-left">
-              <div className="flex items-center gap-2 text-cyan-500">
-                <HelpCircle className="w-5 h-5 text-cyan-500" />
-                <span className="text-xs font-black uppercase tracking-widest text-slate-400">
+              <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
+                <HelpCircle className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                <span className="text-xs font-semibold uppercase tracking-widest text-slate-400">
                   Constituency Identification Guide
                 </span>
               </div>
-              <div className="flex flex-col gap-3.5 text-xs text-slate-650 dark:text-slate-400 font-semibold leading-relaxed">
+              <div className="flex flex-col gap-3.5 text-xs text-slate-600 dark:text-slate-400 font-medium leading-relaxed">
                 <div className="flex items-start gap-2.5">
-                  <div className="w-5 h-5 rounded-full bg-cyan-500/10 border border-cyan-500/25 flex items-center justify-center text-[10px] text-cyan-500 font-black shrink-0 mt-0.5">1</div>
+                  <div className="w-5 h-5 rounded-full bg-blue-500/10 border border-blue-500/25 flex items-center justify-center text-[10px] text-blue-600 dark:text-blue-400 font-bold shrink-0 mt-0.5">1</div>
                   <p>
                     <strong className="text-slate-800 dark:text-slate-200">Get your Campus Pincode:</strong> Check the address of your college or school to locate its 6-digit postal pincode.
                   </p>
                 </div>
                 <div className="flex items-start gap-2.5">
-                  <div className="w-5 h-5 rounded-full bg-cyan-500/10 border border-cyan-500/25 flex items-center justify-center text-[10px] text-cyan-500 font-black shrink-0 mt-0.5">2</div>
+                  <div className="w-5 h-5 rounded-full bg-blue-500/10 border border-blue-500/25 flex items-center justify-center text-[10px] text-blue-600 dark:text-blue-400 font-bold shrink-0 mt-0.5">2</div>
                   <p>
-                    <strong className="text-slate-800 dark:text-slate-200">Search on Google:</strong> Type your college pincode followed by <span className="font-mono text-cyan-600 dark:text-cyan-400">"assembly constituency"</span> into Google search (e.g. search: <span className="font-mono text-cyan-600 dark:text-cyan-400">"500001 assembly constituency"</span>).
+                    <strong className="text-slate-800 dark:text-slate-200">Search on Google:</strong> Type your college pincode followed by <span className="font-mono text-blue-600 dark:text-blue-400 font-semibold">"assembly constituency"</span> into Google search (e.g. search: <span className="font-mono text-blue-600 dark:text-blue-400 font-semibold">"500001 assembly constituency"</span>).
                   </p>
                 </div>
                 <div className="flex items-start gap-2.5">
-                  <div className="w-5 h-5 rounded-full bg-cyan-500/10 border border-cyan-500/25 flex items-center justify-center text-[10px] text-cyan-500 font-black shrink-0 mt-0.5">3</div>
+                  <div className="w-5 h-5 rounded-full bg-blue-500/10 border border-blue-500/25 flex items-center justify-center text-[10px] text-blue-600 dark:text-blue-400 font-bold shrink-0 mt-0.5">3</div>
                   <p>
-                    <strong className="text-slate-800 dark:text-slate-200">Select & Save:</strong> Match the Google result with our constituency list dropdown. Click <span className="text-cyan-500">"Lock Profile Details"</span> to save.
+                    <strong className="text-slate-800 dark:text-slate-200">Select & Save:</strong> Match the Google result with our constituency list dropdown. Click <span className="text-blue-600 dark:text-blue-400 font-semibold">"Lock Profile Details"</span> to save.
                   </p>
                 </div>
                 <div className="flex items-start gap-2.5">

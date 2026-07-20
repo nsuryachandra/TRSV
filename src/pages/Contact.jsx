@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Mail, Phone, MapPin, Send, ShieldAlert, CheckCircle, Lock, Sparkles, ChevronRight, ChevronLeft, UploadCloud, EyeOff, FileText, X, AlertTriangle, RefreshCw, Mic, Square, Trash2, User, Building, AlignLeft } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import GlassCard from '../components/GlassCard';
 import PremiumButton from '../components/PremiumButton';
 import AnimatedSection from '../components/AnimatedSection';
 import { uploadGrievanceMedia } from '../config/supabase';
-import ComplaintDetailsModal from '../components/ComplaintDetailsModal';
 
 export default function Contact() {
   const { currentUser: user, userProfile } = useAuth();
@@ -151,54 +150,30 @@ export default function Contact() {
     fetchConstituencies();
   }, []);
 
-  // Complaint list tracking states
-  const [searchParams] = useSearchParams();
-  const openTicketId = searchParams.get('open_ticket_id');
-  const [tickets, setTickets] = useState([]);
-  const [loadingTickets, setLoadingTickets] = useState(true);
-  const [selectedTicketId, setSelectedTicketId] = useState(null);
-
+  // Cooldown check based on latest complaint
   React.useEffect(() => {
-    if (openTicketId) {
-      setSelectedTicketId(parseInt(openTicketId));
-    }
-  }, [openTicketId]);
-  const [ticketTab, setTicketTab] = useState('active'); // 'active' | 'resolved'
-
-  const fetchTickets = async () => {
-    try {
-      const token = localStorage.getItem('trsv_session_token');
-      const response = await fetch('/api/complaints', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data = await response.json();
-      if (data.success) {
-        setTickets(data.complaints || []);
+    const checkCooldown = async () => {
+      if (!user) return;
+      try {
+        const token = localStorage.getItem('trsv_session_token');
+        const res = await fetch('/api/complaints/my', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.success && data.complaints && data.complaints.length > 0) {
+          const latestTime = new Date(data.complaints[0].created_at).getTime();
+          const diffMs = Date.now() - latestTime;
+          const cooldownMs = 6 * 60 * 60 * 1000;
+          setCooldownRemaining(diffMs < cooldownMs ? cooldownMs - diffMs : 0);
+        } else {
+          setCooldownRemaining(0);
+        }
+      } catch (err) {
+        console.warn('Cooldown check failed:', err);
       }
-    } catch (err) {
-      console.error('Failed to load student complaints in contact page:', err);
-    } finally {
-      setLoadingTickets(false);
-    }
-  };
-
-  React.useEffect(() => {
-    if (user) {
-      fetchTickets();
-    }
+    };
+    checkCooldown();
   }, [user]);
-
-  // Compute initial cooldown from the latest ticket
-  React.useEffect(() => {
-    if (tickets && tickets.length > 0) {
-      const latestTime = new Date(tickets[0].created_at).getTime();
-      const diffMs = Date.now() - latestTime;
-      const cooldownMs = 6 * 60 * 60 * 1000;
-      setCooldownRemaining(diffMs < cooldownMs ? cooldownMs - diffMs : 0);
-    } else {
-      setCooldownRemaining(0);
-    }
-  }, [tickets]);
 
   // Tick cooldown timer every second
   React.useEffect(() => {
@@ -440,13 +415,19 @@ export default function Contact() {
                   <span className="text-xs font-bold text-cyan-500 font-mono tracking-widest uppercase bg-cyan-500/10 px-3 py-1 rounded-full self-center border border-cyan-500/15">
                     Ticket ID: #{assignedTicketId}
                   </span>
-                </div>
-
-                <p className="text-sm text-slate-550 dark:text-slate-400 leading-relaxed">
-                  Your complaint has been successfully recorded in the Neon database. The regional leaders mapped to your constituency area have been notified. You can track the progress of this ticket in the tracking section below.
+                </div>                <p className="text-sm text-slate-555 dark:text-slate-400 leading-relaxed">
+                  Your complaint has been successfully recorded in the database. The regional leaders mapped to your constituency area have been notified. You can track the real-time resolution progress of this ticket anytime on the dedicated Track Complaint page.
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-3 w-full justify-center">
+                  <PremiumButton
+                    variant="primary"
+                    size="md"
+                    onClick={() => navigate(`/dashboard/track-complaint?open_ticket_id=${assignedTicketId}`)}
+                  >
+                    Track Complaint Status
+                  </PremiumButton>
+
                   {cooldownRemaining > 0 ? (
                     <div className="w-full flex flex-col items-center gap-2">
                       <div className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-amber-500/10 border border-amber-500/25 text-amber-600 dark:text-amber-400">
@@ -457,7 +438,7 @@ export default function Contact() {
                     </div>
                   ) : (
                     <PremiumButton
-                      variant="primary"
+                      variant="secondary"
                       size="md"
                       onClick={() => {
                         setComplaintSubmitted(false);
@@ -812,112 +793,7 @@ export default function Contact() {
             </div>
           )}
         </GlassCard>
-
-        {/* 4. Complaint Tracking Section */}
-        {user && (
-          <GlassCard hoverEffect={false} className="p-6 sm:p-8 w-full border border-slate-200/50 dark:border-slate-850 text-left">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200/50 dark:border-slate-850 pb-4">
-              <div className="flex flex-col gap-1">
-                <h3 className="font-black text-lg text-slate-850 dark:text-white uppercase tracking-wider">
-                  Complaint Tickets Tracking
-                </h3>
-                <p className="text-xs text-slate-400">
-                  Monitor the real-time resolution timeline of your submitted cases. Click any ticket for complete logs.
-                </p>
-              </div>
-              
-              {/* Tab Selector */}
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setTicketTab('active')}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all border ${
-                    ticketTab === 'active'
-                      ? 'bg-cyan-500 text-white border-cyan-500 shadow-glow-cyan'
-                      : 'bg-white/40 dark:bg-slate-900/40 border-slate-200/60 dark:border-slate-800 text-slate-500 dark:text-slate-400'
-                  }`}
-                >
-                  Active ({tickets.filter(t => t.status !== 'Solved' && t.status !== 'Resolved' && t.status !== 'Dismissed').length})
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setTicketTab('resolved')}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all border ${
-                    ticketTab === 'resolved'
-                      ? 'bg-cyan-500 text-white border-cyan-500 shadow-glow-cyan'
-                      : 'bg-white/40 dark:bg-slate-900/40 border-slate-200/60 dark:border-slate-800 text-slate-500 dark:text-slate-400'
-                  }`}
-                >
-                  Resolved ({tickets.filter(t => t.status === 'Solved' || t.status === 'Resolved').length})
-                </button>
-              </div>
-            </div>
-
-            {loadingTickets ? (
-              <div className="flex items-center justify-center py-12">
-                <RefreshCw className="w-8 h-8 text-cyan-500 animate-spin" />
-              </div>
-            ) : (
-              <div className="flex flex-col gap-4 mt-6">
-                {(ticketTab === 'active' 
-                  ? tickets.filter(t => t.status !== 'Solved' && t.status !== 'Resolved' && t.status !== 'Dismissed')
-                  : tickets.filter(t => t.status === 'Solved' || t.status === 'Resolved')
-                ).length > 0 ? (
-                  (ticketTab === 'active' 
-                    ? tickets.filter(t => t.status !== 'Solved' && t.status !== 'Resolved' && t.status !== 'Dismissed')
-                    : tickets.filter(t => t.status === 'Solved' || t.status === 'Resolved')
-                  ).map((t) => (
-                    <div 
-                      key={t.id} 
-                      onClick={() => setSelectedTicketId(t.id)}
-                      className="flex flex-col p-5 rounded-2xl bg-slate-100/50 dark:bg-slate-900/40 border border-slate-200/40 dark:border-slate-850 cursor-pointer hover:border-cyan-500/50 transition-all hover:scale-[1.005] group gap-3 text-left animate-fadeIn"
-                    >
-                      <div className="flex items-start justify-between min-w-0">
-                        <div className="flex flex-col text-left min-w-0 max-w-[70%]">
-                          <span className="font-extrabold text-sm sm:text-base text-slate-800 dark:text-white flex items-center gap-2 truncate">
-                            <FileText className="w-4.5 h-4.5 text-cyan-500 shrink-0" />
-                            {t.description.substring(0, 100)}{t.description.length > 100 ? '...' : ''}
-                          </span>
-                          <span className="text-[10px] text-slate-450 mt-1 truncate flex items-center gap-1.5 flex-wrap font-bold">
-                            Ticket #{t.id} • {new Date(t.created_at).toLocaleDateString()}
-                            {t.attachment_url && (
-                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-500 dark:text-cyan-400 text-[8px] font-black uppercase tracking-wider border border-cyan-500/15">
-                                Evidence Attached
-                              </span>
-                            )}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2 shrink-0">
-                          <span className={`text-[9px] font-black px-2 py-1 rounded border uppercase tracking-wider ${getUrgencyBadge(t.urgency)}`}>
-                            {t.urgency}
-                          </span>
-                        </div>
-                      </div>
-                      
-                      {/* Live Stepper */}
-                      {renderStatusStepper(t.status)}
-                    </div>
-                  ))
-                ) : (
-                  <div className="flex flex-col items-center justify-center py-12 text-slate-400 text-xs border-2 border-dashed border-slate-200/20 dark:border-slate-800 rounded-2xl bg-slate-50/50 dark:bg-slate-905/30">
-                    <AlertTriangle className="w-8 h-8 text-slate-400 mb-2 opacity-50 animate-pulse" />
-                    No tickets in this section. Submit a ticket under Get Help to activate real-time tracking.
-                  </div>
-                )}
-              </div>
-            )}
-          </GlassCard>
-        )}
       </section>
-
-      {/* Ticket Details Modal */}
-      {selectedTicketId && (
-        <ComplaintDetailsModal 
-          ticketId={selectedTicketId} 
-          onClose={() => setSelectedTicketId(null)} 
-          userProfile={userProfile} 
-        />
-      )}
 
     </div>
   );

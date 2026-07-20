@@ -116,15 +116,15 @@ export default function SystemLogs() {
     }
     if (normalType.includes('LOGIN') || normalType.includes('COMMENT') || normalType.includes('UPDATE_STATUS')) {
       return {
-        bg: 'bg-cyan-500/10 dark:bg-cyan-500/15',
-        text: 'text-cyan-600 dark:text-cyan-400',
-        border: 'border-cyan-500/20'
+        bg: 'bg-blue-500/10 dark:bg-blue-500/15',
+        text: 'text-blue-600 dark:text-blue-400',
+        border: 'border-blue-500/20'
       };
     }
     return {
-      bg: 'bg-purple-500/10 dark:bg-purple-500/15',
-      text: 'text-purple-600 dark:text-purple-400',
-      border: 'border-purple-500/20'
+      bg: 'bg-amber-500/10 dark:bg-amber-500/15',
+      text: 'text-amber-600 dark:text-amber-400',
+      border: 'border-amber-500/20'
     };
   };
 
@@ -140,11 +140,11 @@ export default function SystemLogs() {
       {/* Title Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
         <div>
-          <h2 className="text-xl sm:text-2xl font-black text-slate-800 dark:text-white uppercase tracking-tight flex items-center gap-2.5">
-            <Terminal className="w-6 h-6 text-cyan-500 animate-pulse" />
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white uppercase tracking-tight flex items-center gap-2.5">
+            <Terminal className="w-6 h-6 text-blue-600 dark:text-blue-400 animate-pulse" />
             System Security Ledger
           </h2>
-          <p className="text-xs text-slate-500 dark:text-slate-450 mt-1">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             Real-time decentralized telemetry monitoring of administrative and security events.
           </p>
         </div>
@@ -156,7 +156,7 @@ export default function SystemLogs() {
             className={`p-2 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-1.5 ${
               isPaused 
                 ? 'bg-rose-500/15 text-rose-500 hover:bg-rose-500/20' 
-                : 'bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 hover:bg-cyan-500/20'
+                : 'bg-blue-500/15 text-blue-600 dark:text-blue-400 hover:bg-blue-500/20'
             }`}
           >
             {isPaused ? (
@@ -206,7 +206,7 @@ export default function SystemLogs() {
         <div className="glass-panel-light dark:glass-panel-dark p-4 rounded-2xl border border-slate-200/50 dark:border-slate-850">
           <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-1">Unique Categories</span>
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-black text-cyan-600 dark:text-cyan-400 font-mono">{activityTypes.length}</span>
+            <span className="text-2xl font-bold text-blue-600 dark:text-blue-400 font-mono">{activityTypes.length}</span>
             <span className="text-xs text-slate-450 dark:text-slate-500">active</span>
           </div>
         </div>
@@ -220,7 +220,7 @@ export default function SystemLogs() {
         <div className="glass-panel-light dark:glass-panel-dark p-4 rounded-2xl border border-slate-200/50 dark:border-slate-850">
           <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-1">Logging Engine</span>
           <div className="flex items-baseline gap-2">
-            <span className="text-sm font-extrabold text-slate-800 dark:text-slate-200 uppercase font-mono">NEON POSTGRES</span>
+            <span className="text-sm font-semibold text-slate-800 dark:text-slate-200 uppercase font-mono">NEON POSTGRES</span>
           </div>
         </div>
       </div>
@@ -234,7 +234,7 @@ export default function SystemLogs() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search details, actor names, emails, or action types..."
-            className="peer w-full bg-slate-100/50 dark:bg-slate-900/40 border border-slate-250 dark:border-slate-800 rounded-xl py-2.5 pl-10 pr-4 text-sm font-medium text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/20 transition-all"
+            className="peer w-full bg-slate-100/50 dark:bg-slate-900/40 border border-slate-250 dark:border-slate-800 rounded-xl py-2.5 pl-10 pr-4 text-sm font-medium text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 transition-all"
           />
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500 pointer-events-none z-10 animate-icon-bounce-centered" />
         </div>
@@ -244,7 +244,7 @@ export default function SystemLogs() {
           <select
             value={selectedType}
             onChange={(e) => setSelectedType(e.target.value)}
-            className="peer w-full bg-slate-100/50 dark:bg-slate-900/40 border border-slate-250 dark:border-slate-800 rounded-xl py-2.5 pl-10 pr-8 text-sm font-medium text-slate-800 dark:text-white outline-none cursor-pointer focus:border-cyan-500/50 transition-all appearance-none"
+            className="peer w-full bg-slate-100/50 dark:bg-slate-900/40 border border-slate-250 dark:border-slate-800 rounded-xl py-2.5 pl-10 pr-8 text-sm font-medium text-slate-800 dark:text-white outline-none cursor-pointer focus:border-blue-500/50 transition-all appearance-none"
           >
             <option value="">All Action Types</option>
             {activityTypes.map((type) => (
@@ -259,7 +259,7 @@ export default function SystemLogs() {
           <select
             value={limit}
             onChange={(e) => setLimit(Number(e.target.value))}
-            className="peer w-full bg-slate-100/50 dark:bg-slate-900/40 border border-slate-250 dark:border-slate-800 rounded-xl py-2.5 pl-10 pr-8 text-sm font-medium text-slate-800 dark:text-white outline-none cursor-pointer focus:border-cyan-500/50 transition-all appearance-none"
+            className="peer w-full bg-slate-100/50 dark:bg-slate-900/40 border border-slate-250 dark:border-slate-800 rounded-xl py-2.5 pl-10 pr-8 text-sm font-medium text-slate-800 dark:text-white outline-none cursor-pointer focus:border-blue-500/50 transition-all appearance-none"
           >
             <option value={50}>Limit: 50</option>
             <option value={100}>Limit: 100</option>
@@ -283,12 +283,12 @@ export default function SystemLogs() {
           <table className="w-full min-w-[800px] border-collapse text-left">
             <thead>
               <tr className="border-b border-slate-250 dark:border-slate-850 bg-slate-100/40 dark:bg-slate-900/30">
-                <th className="p-4 text-[10px] font-black text-slate-500 uppercase tracking-widest w-40">TIMESTAMP</th>
-                <th className="p-4 text-[10px] font-black text-slate-500 uppercase tracking-widest w-48">ACTION TYPE</th>
-                <th className="p-4 text-[10px] font-black text-slate-500 uppercase tracking-widest w-44">IP ADDRESS</th>
-                <th className="p-4 text-[10px] font-black text-slate-500 uppercase tracking-widest w-64">ACTOR Badges</th>
-                <th className="p-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">EVENT DESCRIPTION</th>
-                <th className="p-4 text-[10px] font-black text-slate-500 uppercase tracking-widest w-20 text-center">ACTION</th>
+                <th className="p-4 text-[10px] font-semibold text-slate-500 uppercase tracking-widest w-40">TIMESTAMP</th>
+                <th className="p-4 text-[10px] font-semibold text-slate-500 uppercase tracking-widest w-48">ACTION TYPE</th>
+                <th className="p-4 text-[10px] font-semibold text-slate-500 uppercase tracking-widest w-44">IP ADDRESS</th>
+                <th className="p-4 text-[10px] font-semibold text-slate-500 uppercase tracking-widest w-64">ACTOR Badges</th>
+                <th className="p-4 text-[10px] font-semibold text-slate-500 uppercase tracking-widest">EVENT DESCRIPTION</th>
+                <th className="p-4 text-[10px] font-semibold text-slate-500 uppercase tracking-widest w-20 text-center">ACTION</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200/60 dark:divide-slate-850">
@@ -315,14 +315,14 @@ export default function SystemLogs() {
                         {/* Timestamp */}
                         <td className="p-4 align-top font-mono text-[11px] text-slate-500 dark:text-slate-400 whitespace-nowrap">
                           <div className="flex flex-col">
-                            <span className="font-extrabold">{formattedDate}</span>
+                            <span className="font-semibold">{formattedDate}</span>
                             <span className="text-[9px] text-slate-400 mt-0.5">UID: {log.user_id ? log.user_id.substring(0, 8) : 'SYSTEM'}</span>
                           </div>
                         </td>
 
                         {/* Action Badge */}
                         <td className="p-4 align-top">
-                          <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-extrabold border font-mono tracking-wider ${badge.bg} ${badge.text} ${badge.border}`}>
+                          <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-semibold border font-mono tracking-wider ${badge.bg} ${badge.text} ${badge.border}`}>
                             {log.activity_type}
                           </span>
                         </td>
@@ -341,13 +341,13 @@ export default function SystemLogs() {
                               <User className="w-4 h-4" />
                             </div>
                             <div className="flex flex-col min-w-0">
-                              <span className="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">
+                              <span className="text-xs font-semibold text-slate-800 dark:text-slate-100 truncate">
                                 {log.full_name || 'System Node'}
                               </span>
-                              <span className="text-[10px] text-slate-450 dark:text-slate-450 truncate">
-                                {log.email || 'admin@tvrs.gov.in'}
+                              <span className="text-[10px] text-slate-455 dark:text-slate-450 truncate">
+                                {log.email || 'admin@trsv.gov.in'}
                               </span>
-                              <span className="text-[9px] font-black text-cyan-600 dark:text-cyan-400 tracking-wider mt-0.5 uppercase">
+                              <span className="text-[9px] font-semibold text-blue-600 dark:text-blue-400 tracking-wider mt-0.5 uppercase">
                                 {formatRole(log.role)}
                               </span>
                             </div>

@@ -241,28 +241,28 @@ export default function JoinTVRS() {
     return (
       <div className="w-full min-h-[80vh] flex flex-col items-center justify-center py-4 px-2 sm:py-8 sm:px-4">
         <AnimatedSection direction="up" className="w-full max-w-md text-center">
-          <GlassCard hoverEffect={false} className="p-8 sm:p-10 relative overflow-hidden border border-rose-500/20 dark:border-rose-500/10 shadow-2xl rounded-3xl bg-white/40 dark:bg-slate-955/20 flex flex-col items-center">
+          <GlassCard hoverEffect={false} className="p-8 sm:p-10 relative overflow-hidden border border-rose-500/20 dark:border-rose-500/10 shadow-2xl rounded-3xl bg-white/40 dark:bg-slate-955/20 flex flex-col items-center text-center">
             {/* Ambient background light */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-rose-500/10 to-transparent blur-2xl pointer-events-none" />
 
-            <div className="w-16 h-16 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center mb-6 shadow-[0_0_20px_rgba(244,63,94,0.15)] animate-bounce">
+            <div className="w-16 h-16 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center mb-6 shadow-[0_0_20px_rgba(244,63,94,0.15)] animate-bounce mx-auto">
               <AlertTriangle className="w-8 h-8 text-rose-500 dark:text-rose-450" />
             </div>
 
-            <span className="text-[10px] font-black text-rose-600 dark:text-rose-400 tracking-widest uppercase block mb-2">
+            <span className="text-[10px] font-black text-rose-600 dark:text-rose-400 tracking-widest uppercase block mb-2 text-center">
               Access Restricted
             </span>
-            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-855 dark:text-white leading-tight mb-4">
-              Guest Logins can't join TVRS
+            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-855 dark:text-white leading-tight mb-4 text-center">
+              Guest Logins can't join {shortName}
             </h1>
-            <p className="text-sm text-slate-550 dark:text-slate-400 leading-relaxed mb-6 font-medium">
+            <p className="text-sm text-slate-550 dark:text-slate-400 leading-relaxed mb-6 font-medium text-center">
               You are currently logged in with a guest session. Please register or log in using a verified student account to apply for membership.
             </p>
 
             <PremiumButton
               variant="glow"
               onClick={() => navigate('/dashboard')}
-              className="w-full max-w-[200px]"
+              className="w-full max-w-[200px] mx-auto"
             >
               Back to Dashboard
             </PremiumButton>
@@ -287,7 +287,7 @@ export default function JoinTVRS() {
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-8 border-b border-slate-200/40 dark:border-slate-850 pb-5">
               <img 
                 src="/trsv.jpeg" 
-                alt="TVRS Logo" 
+                alt={`${shortName} Logo`} 
                 className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-cover border border-slate-200/50 dark:border-slate-800 shadow-md shrink-0" 
               />
               <div className="flex flex-col text-left">
@@ -298,7 +298,7 @@ export default function JoinTVRS() {
                   Application Tracking Node
                 </h1>
                 <p className="text-xs text-slate-450 dark:text-slate-400 leading-normal mt-0.5 font-medium">
-                  Track your registration status on the decentralized TVRS network.
+                  Track your registration status on the decentralized {shortName} network.
                 </p>
               </div>
             </div>

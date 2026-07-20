@@ -179,7 +179,7 @@ export default function PublicVerification() {
 
     const drawVerificationGlyph = (c, val, gX, gY, gSize, dark) => {
       const grid = 21;
-      const seed = hashStringLocal(val || 'TVRS-DEFAULT');
+      const seed = hashStringLocal(val || `${shortName}-DEFAULT`);
       let s = seed;
       const rand = () => {
         s ^= s << 13;
@@ -257,7 +257,7 @@ export default function PublicVerification() {
       c.fillStyle = 'rgba(10, 42, 84, 0.012)';
       c.font = "bold 22px 'JetBrains Mono', monospace";
       for (let row = -10; row < 50; row++) {
-        let line = Array(15).fill('TVRS \u2022 AUTHENTIC \u2022').join('  ');
+        let line = Array(15).fill(`${shortName} \u2022 AUTHENTIC \u2022`).join('  ');
         c.fillText(line, -400, row * 52);
       }
       c.restore();
@@ -334,10 +334,10 @@ export default function PublicVerification() {
     }
 
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = "bold 32px 'Sora', sans-serif";
+    ctx.font = "bold 32px 'Poppins', sans-serif";
     ctx.fillText((fullName || 'ORGANIZATION NAME').toUpperCase(), fX + 350, cY + 160);
     ctx.fillStyle = '#F0A400';
-    ctx.font = "bold 20px 'Sora', sans-serif";
+    ctx.font = "bold 20px 'Poppins', sans-serif";
     ctx.fillText('OFFICIAL DIGITAL IDENTITY', fX + 350, cY + 210);
 
     drawRoundedRect(ctx, fX + 60, cY + 340, 240, 300, 24, '#EDF0F5', 'rgba(255, 255, 255, 1)', 8);
@@ -348,7 +348,7 @@ export default function PublicVerification() {
       ctx.restore();
     } else {
       ctx.fillStyle = '#5B6472';
-      ctx.font = "bold 26px 'Sora', sans-serif";
+      ctx.font = "bold 26px 'Poppins', sans-serif";
       ctx.textAlign = 'center';
       ctx.fillText('PHOTO', fX + 180, cY + 505);
       ctx.textAlign = 'left';
@@ -373,10 +373,10 @@ export default function PublicVerification() {
     }
 
     ctx.fillStyle = '#141922';
-    ctx.font = "bold 44px 'Sora', sans-serif";
+    ctx.font = "bold 44px 'Poppins', sans-serif";
     ctx.fillText(profile?.full_name || 'Official Name', fX + 340, cY + 460);
 
-    ctx.font = "bold 20px 'Sora', sans-serif";
+    ctx.font = "bold 20px 'Poppins', sans-serif";
     const desigW = ctx.measureText(designation).width;
     drawRoundedRect(ctx, fX + 340, cY + 490, desigW + 30, 42, 21, 'rgba(10,42,84,0.07)', null, 0);
     ctx.fillStyle = '#0A2A54';
@@ -388,11 +388,11 @@ export default function PublicVerification() {
       ctx.beginPath();
       ctx.arc(fX + 340 + desigW + 40 + 22, cY + 511, 6, 0, 2 * Math.PI);
       ctx.fill();
-      ctx.font = "bold 16px 'Sora', sans-serif";
+      ctx.font = "bold 16px 'Poppins', sans-serif";
       ctx.fillText('VERIFIED', fX + 340 + desigW + 40 + 38, cY + 517);
     }
 
-    const memberIdText = 'ID   ' + (identity?.trsv_member_id || 'TVRS-HQ-0000');
+    const memberIdText = 'ID   ' + (identity?.trsv_member_id ? identity.trsv_member_id.replace(/^(TVRS|TRSV)-/i, `${shortName}-`) : `${shortName}-HQ-0000`);
     ctx.font = "bold 26px 'JetBrains Mono', monospace";
     const pillW = ctx.measureText(memberIdText).width;
     drawRoundedRect(ctx, fX + 60, cY + 680, pillW + 40, 60, 10, 'rgba(240,164,0,0.13)', 'rgba(240,164,0,0.28)', 2.5);
@@ -401,10 +401,10 @@ export default function PublicVerification() {
 
     const drawField = (lbl, val, fx, fy) => {
       ctx.fillStyle = '#5B6472';
-      ctx.font = "bold 18px 'Sora', sans-serif";
+      ctx.font = "bold 18px 'Poppins', sans-serif";
       ctx.fillText(lbl.toUpperCase(), fx, fy);
       ctx.fillStyle = '#141922';
-      ctx.font = "bold 28px 'Sora', sans-serif";
+      ctx.font = "bold 28px 'Poppins', sans-serif";
       ctx.fillText(val || '—', fx, fy + 38);
     };
 
@@ -421,10 +421,10 @@ export default function PublicVerification() {
 
     drawRoundedRect(ctx, fX + 60, cY + 1140, 892, 412, 28, 'rgba(10,42,84,0.025)', '#EBEEF3', 2);
     ctx.fillStyle = '#0A2A54';
-    ctx.font = "bold 28px 'Sora', sans-serif";
+    ctx.font = "bold 28px 'Poppins', sans-serif";
     ctx.fillText('OFFICIAL VERIFICATION', fX + 110, cY + 1210);
     ctx.fillStyle = '#5B6472';
-    ctx.font = "bold 22px 'Sora', sans-serif";
+    ctx.font = "bold 22px 'Poppins', sans-serif";
     ctx.fillText('SCAN TO VERIFY COORDINATES', fX + 110, cY + 1260);
 
     const qrUrlText = identity?.qr_token ? `trsv-union.onrender.com/verify/${identity.qr_token}` : 'trsv-union.onrender.com';
@@ -433,7 +433,7 @@ export default function PublicVerification() {
     ctx.fillText(qrUrlText, fX + 110, cY + 1315);
 
     ctx.fillStyle = '#0A2A54';
-    ctx.font = "bold 18px 'Sora', sans-serif";
+    ctx.font = "bold 18px 'Poppins', sans-serif";
     ctx.fillText(`${shortName} OFFICIAL SCANNER`, fX + 110, cY + 1485);
 
     if (qrImg) {
@@ -496,15 +496,15 @@ export default function PublicVerification() {
     }
 
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = "bold 28px 'Sora', sans-serif";
+    ctx.font = "bold 28px 'Poppins', sans-serif";
     ctx.fillText(`${shortName} OFFICIAL IDENTITY`, bX + 390, cY + 90);
 
     ctx.fillStyle = '#5B6472';
-    ctx.font = "bold 22px 'Sora', sans-serif";
+    ctx.font = "bold 22px 'Poppins', sans-serif";
     ctx.fillText('OFFICIAL VERIFICATION INSTRUCTIONS', bX + 80, cY + 230);
 
     ctx.fillStyle = '#141922';
-    ctx.font = "26px 'Sora', sans-serif";
+    ctx.font = "26px 'Poppins', sans-serif";
     const instructText = `This digital identity can be verified through the official ${shortName} Verification Portal by scanning the QR code using any smartphone camera or the official ${shortName} Scanner application.`;
     wrapText(ctx, instructText, bX + 80, cY + 290, 852, 42);
 
@@ -527,17 +527,17 @@ export default function PublicVerification() {
     ctx.stroke();
 
     ctx.fillStyle = '#9CA5B4';
-    ctx.font = "italic 32px 'Sora', sans-serif";
+    ctx.font = "italic 32px 'Poppins', sans-serif";
     ctx.fillText('Signature on file', bX + 100, cY + 760);
 
     ctx.fillStyle = '#141922';
-    ctx.font = "bold 24px 'Sora', sans-serif";
+    ctx.font = "bold 24px 'Poppins', sans-serif";
     ctx.fillText('Kavitha Garu', bX + 80, cY + 830);
     ctx.fillStyle = '#0A2A54';
-    ctx.font = "bold 18px 'Sora', sans-serif";
+    ctx.font = "bold 18px 'Poppins', sans-serif";
     ctx.fillText('General Secretary', bX + 80, cY + 865);
     ctx.fillStyle = '#5B6472';
-    ctx.font = "14px 'Sora', sans-serif";
+    ctx.font = "14px 'Poppins', sans-serif";
     ctx.fillText('Authorized Signatory', bX + 80, cY + 895);
 
     const sX = bX + 810;
@@ -559,7 +559,7 @@ export default function PublicVerification() {
     ctx.save();
     ctx.translate(sX, sY);
     ctx.fillStyle = '#0A2A54';
-    ctx.font = "bold 15px 'Sora', sans-serif";
+    ctx.font = "bold 15px 'Poppins', sans-serif";
     const sealText = `  ${shortName} \u2022 OFFICIAL SEAL \u2022 TELANGANA \u2022`;
     for (let i = 0; i < sealText.length; i++) {
       ctx.save();
@@ -589,7 +589,7 @@ export default function PublicVerification() {
     ctx.stroke();
 
     ctx.fillStyle = '#5B6472';
-    ctx.font = "bold 18px 'Sora', sans-serif";
+    ctx.font = "bold 18px 'Poppins', sans-serif";
     ctx.fillText('CARD REFERENCE', bX + 80, cY + 1010);
     ctx.fillStyle = '#141922';
     ctx.font = "bold 26px 'JetBrains Mono', monospace";
@@ -607,7 +607,7 @@ export default function PublicVerification() {
 
     // Download trigger
     const link = document.createElement('a');
-    link.download = `${identity?.trsv_member_id || 'TVRS_Personnel'}_OfficialID.png`;
+    link.download = `${identity?.trsv_member_id ? identity.trsv_member_id.replace(/^(TVRS|TRSV)-/i, `${shortName}-`) : `${shortName}_Personnel`}_OfficialID.png`;
     link.href = canvas.toDataURL('image/png');
     link.click();
   };

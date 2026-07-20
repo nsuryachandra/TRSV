@@ -33,6 +33,10 @@ const Announcements = lazy(() => import('../pages/Announcements'));
 const Contact = lazy(() => import('../pages/Contact'));
 const MessengerPage = lazy(() => import('../pages/MessengerPage'));
 const SocialChatPage = lazy(() => import('../pages/SocialChatPage'));
+const VisionMission = lazy(() => import('../pages/VisionMission'));
+const TrackComplaint = lazy(() => import('../pages/TrackComplaint'));
+const Events = lazy(() => import('../pages/Events'));
+const Gallery = lazy(() => import('../pages/Gallery'));
 
 // Digital Identity Ecosystem Pages
 const DigitalIdCard = lazy(() => import('../pages/DigitalIdCard'));
@@ -57,16 +61,16 @@ function PageLoader() {
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-tvrs-bg-light dark:bg-tvrs-bg-dark transition-colors duration-300">
       <div className="relative flex flex-col items-center">
         {/* Glowing rings */}
-        <div className="w-20 h-20 border-4 border-slate-200 dark:border-slate-880 rounded-full" />
-        <div className="absolute w-20 h-20 border-4 border-transparent border-t-cyan-500 border-r-sky-500 rounded-full animate-spin" />
-        <div className="absolute w-14 h-14 border-2 border-transparent border-b-cyan-400 border-l-blue-400 rounded-full animate-[spin_1s_linear_infinite_reverse]" />
+        <div className="w-20 h-20 border-4 border-slate-200 dark:border-slate-800 rounded-full" />
+        <div className="absolute w-20 h-20 border-4 border-transparent border-t-blue-600 border-r-amber-500 rounded-full animate-spin" />
+        <div className="absolute w-14 h-14 border-2 border-transparent border-b-amber-500 border-l-blue-600 rounded-full animate-[spin_1s_linear_infinite_reverse]" />
         
         {/* Glowing Center Core */}
-        <div className="absolute top-[28px] left-[28px] w-6 h-6 bg-cyan-400 rounded-full animate-ping opacity-60" />
-        <div className="absolute top-[32px] left-[32px] w-4 h-4 bg-cyan-500 rounded-full shadow-glow-cyan-strong" />
+        <div className="absolute top-[28px] left-[28px] w-6 h-6 bg-blue-600 rounded-full animate-ping opacity-60" />
+        <div className="absolute top-[32px] left-[32px] w-4 h-4 bg-blue-600 rounded-full shadow-glow-blue" />
 
-        <h3 className="mt-8 font-semibold tracking-wider text-sm uppercase text-slate-600 dark:text-cyan-400 animate-pulse">
-          {shortName} Quantum Terminal
+        <h3 className="mt-8 font-semibold tracking-wider text-sm uppercase text-slate-700 dark:text-slate-200 animate-pulse">
+          {shortName} Portal Terminal
         </h3>
         <p className="mt-1 text-xs text-slate-440 dark:text-slate-550">
           Syncing statewide governance node...
@@ -145,6 +149,10 @@ export default function AppRoutes() {
           <Route path="districts" element={<Districts />} />
           <Route path="transparency" element={<Transparency />} />
           <Route path="about" element={<About />} />
+          <Route path="vision-mission" element={<VisionMission />} />
+          <Route path="track-complaint" element={<TrackComplaint />} />
+          <Route path="events" element={<Events />} />
+          <Route path="gallery" element={<Gallery />} />
           <Route path="team" element={<Team />} />
           <Route path="announcements" element={<Announcements />} />
           <Route path="contact" element={

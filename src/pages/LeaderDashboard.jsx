@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Shield, Users, Radio, CheckCircle, AlertTriangle, Play, ChevronRight, Phone, RefreshCw, X, Check } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useOrg } from '../context/OrgContext';
 import { useSearchParams } from 'react-router-dom';
 import GlassCard from '../components/GlassCard';
 import PremiumButton from '../components/PremiumButton';
@@ -13,6 +14,7 @@ import HubChat from '../components/HubChat';
 
 export default function LeaderDashboard() {
   const { userProfile } = useAuth();
+  const { shortName } = useOrg();
   const [searchParams] = useSearchParams();
   const openTicketId = searchParams.get('open_ticket_id');
   const [activeTab, setActiveTab] = useState('complaints'); // 'complaints', 'applications'
@@ -454,7 +456,7 @@ export default function LeaderDashboard() {
           <div className="p-6 flex flex-col gap-4 text-left rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-premium-light dark:shadow-premium-dark">
             <h3 className="font-extrabold text-sm text-slate-700 dark:text-white uppercase tracking-wider flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
               <Users className="w-4 h-4 text-cyan-500" />
-              Join TVRS Regional Requests
+              Join {shortName} Regional Requests
             </h3>
 
             {requestMessage.text && (

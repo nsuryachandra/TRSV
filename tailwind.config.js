@@ -9,9 +9,34 @@ export default {
     extend: {
       colors: {
         brand: {
-          light: '#38bdf8', // sky-400
-          DEFAULT: '#0284c7', // sky-600
-          dark: '#0369a1', // sky-700
+          light: '#3b82f6',
+          DEFAULT: '#1d4ed8', // Royal Blue
+          dark: '#1e3a8a',
+        },
+        royal: {
+          50: '#eff6ff',
+          100: '#dbeafe',
+          200: '#bfdbfe',
+          300: '#93c5fd',
+          400: '#60a5fa',
+          500: '#3b82f6',
+          600: '#2563eb',
+          700: '#1d4ed8', // Primary Royal Blue
+          800: '#1e40af',
+          900: '#1e3a8a',
+          950: '#172554',
+        },
+        gold: {
+          50: '#fffbeb',
+          100: '#fef3c7',
+          200: '#fde68a',
+          300: '#fcd34d',
+          400: '#fbbf24',
+          500: '#f59e0b', // Accent Golden Yellow
+          600: '#d97706',
+          700: '#b45309',
+          800: '#92400e',
+          900: '#78350f',
         },
         slate: {
           55: '#f4f7fa',
@@ -36,10 +61,10 @@ export default {
           955: '#060814',
         },
         cyan: {
-          205: '#86ecfd',
-          450: '#14c4e4',
-          650: '#0b83a1',
-          755: '#106982',
+          205: '#93c5fd',
+          450: '#2563eb',
+          650: '#1d4ed8',
+          755: '#1e40af',
         },
         rose: {
           450: '#f75871',
@@ -64,44 +89,50 @@ export default {
         },
         tvrs: {
           accent: {
-            light: '#22d3ee', // cyan-400
-            DEFAULT: '#0891b2', // cyan-600
-            dark: '#0e7490', // cyan-700
+            light: '#fbbf24',
+            DEFAULT: '#f59e0b', // Golden Yellow
+            dark: '#d97706',
+          },
+          primary: {
+            light: '#3b82f6',
+            DEFAULT: '#1d4ed8', // Royal Blue
+            dark: '#1e3a8a',
           },
           bg: {
-            light: '#f9fafb', // ultra-clean warm white background
-            dark: '#020408', // premium deep obsidian black background
+            light: '#ffffff', // Pure White background
+            dark: '#0f172a',
           },
           surface: {
             light: '#ffffff',
-            dark: '#070a13', // sophisticated deep slate-charcoal surface
+            dark: '#1e293b',
           },
           card: {
-            light: 'rgba(255, 255, 255, 0.8)',
-            dark: 'rgba(7, 10, 19, 0.75)', // sleek glassmorphism card
+            light: '#ffffff',
+            dark: 'rgba(30, 41, 59, 0.75)',
           },
           border: {
-            light: 'rgba(229, 231, 235, 0.5)', // light grey border
-            dark: 'rgba(255, 255, 255, 0.035)', // razor-thin translucent border
+            light: 'rgba(226, 232, 240, 0.9)',
+            dark: 'rgba(255, 255, 255, 0.08)',
           },
           text: {
-            light: '#0f172a',
-            dark: '#f1f5f9', // crisp off-white text
+            light: '#0f172a', // Dark Gray / Near Black
+            dark: '#f8fafc',
             mutedLight: '#64748b',
             mutedDark: '#94a3b8',
           }
         }
       },
       fontFamily: {
-        sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
-        display: ['"Outfit"', 'sans-serif'],
+        sans: ['Poppins', 'Inter', 'sans-serif'],
+        display: ['Poppins', 'sans-serif'],
       },
       boxShadow: {
-        'premium-light': '0 10px 30px -10px rgba(15, 23, 42, 0.04), 0 1px 3px 0 rgba(15, 23, 42, 0.02)',
-        'premium-dark': '0 10px 30px -10px rgba(0, 0, 0, 0.4), 0 1px 3px 0 rgba(0, 0, 0, 0.3)',
-        'glow-cyan': '0 0 20px rgba(6, 182, 212, 0.12)',
-        'glow-cyan-strong': '0 0 35px rgba(6, 182, 212, 0.25)',
-        'glow-blue': '0 0 20px rgba(14, 165, 233, 0.12)',
+        'premium-light': '0 4px 20px -2px rgba(15, 23, 42, 0.05), 0 1px 3px 0 rgba(15, 23, 42, 0.03)',
+        'premium-dark': '0 4px 20px -2px rgba(0, 0, 0, 0.4), 0 1px 3px 0 rgba(0, 0, 0, 0.3)',
+        'glow-cyan': '0 0 16px rgba(29, 78, 216, 0.15)',
+        'glow-cyan-strong': '0 0 25px rgba(29, 78, 216, 0.25)',
+        'glow-blue': '0 0 16px rgba(29, 78, 216, 0.15)',
+        'glow-gold': '0 0 16px rgba(245, 158, 11, 0.2)',
       },
       backdropBlur: {
         xs: '2px',

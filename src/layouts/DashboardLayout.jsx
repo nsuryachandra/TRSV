@@ -22,7 +22,11 @@ import {
   MessageSquare,
   Fingerprint,
   Lock,
-  Activity
+  Activity,
+  Target,
+  SearchCheck,
+  Calendar,
+  Image
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
@@ -459,7 +463,7 @@ export default function DashboardLayout() {
 
   const sidebarLinks = [
     {
-      category: 'General',
+      category: 'GENERAL',
       links: [
         {
           name: currentOverview.name,
@@ -467,44 +471,60 @@ export default function DashboardLayout() {
           icon: currentOverview.icon,
           desc: 'Main user dashboard overview'
         },
-        // Only student roles can lodge standard complaints directly
+        {
+          name: `About ${shortName}`,
+          path: '/dashboard/about',
+          icon: <Info className="w-5 h-5" />,
+          desc: `About ${shortName} union`
+        },
+        {
+          name: 'Vision & Mission',
+          path: '/dashboard/vision-mission',
+          icon: <Target className="w-5 h-5" />,
+          desc: 'Core values & student rights'
+        }
+      ]
+    },
+    {
+      category: 'STUDENT SERVICES',
+      links: [
         ...(userProfile?.role === 'student' ? [{
-          name: 'Complaint Register',
+          name: 'Register Complaint',
           path: '/dashboard/contact',
           icon: <FileText className="w-5 h-5" />,
           desc: 'Register a new complaint'
+        }] : []),
+        {
+          name: 'Track Complaint',
+          path: '/dashboard/track-complaint',
+          icon: <SearchCheck className="w-5 h-5" />,
+          desc: 'Track submitted grievances'
+        },
+        {
+          name: 'Student Community',
+          path: '/dashboard/social-chat',
+          icon: <Users className="w-5 h-5" />,
+          desc: 'Regional student lounge'
+        },
+        ...(userProfile?.role === 'student' ? [{
+          name: `Join ${shortName}`,
+          path: '/dashboard/join',
+          icon: <UserPlus className="w-5 h-5" />,
+          desc: `Apply to join ${shortName}`
         }] : []),
         ...(userProfile?.role !== 'student' ? [{
           name: 'Messenger',
           path: '/dashboard/messenger',
           icon: <MessageSquare className="w-5 h-5" />,
           desc: 'Internal team chat rooms'
-        }] : []),
-        {
-          name: 'Social Chat',
-          path: '/dashboard/social-chat',
-          icon: <Users className="w-5 h-5" />,
-          desc: 'Regional student lounge'
-        }
+        }] : [])
       ]
     },
     {
-      category: 'Services',
+      category: 'ORGANIZATION',
       links: [
         {
-          name: 'Campus & Districts',
-          path: '/dashboard/districts',
-          icon: <MapPin className="w-5 h-5" />,
-          desc: 'List of colleges and districts'
-        },
-        {
-          name: 'Complaint Board',
-          path: '/dashboard/transparency',
-          icon: <CheckCircle className="w-5 h-5" />,
-          desc: 'Verifiable complaint list'
-        },
-        {
-          name: `${shortName} Team`,
+          name: 'Leadership',
           path: '/dashboard/team',
           icon: <Users className="w-5 h-5" />,
           desc: 'Union state leaders'
@@ -515,30 +535,35 @@ export default function DashboardLayout() {
           icon: <Bell className="w-5 h-5" />,
           desc: 'Latest union announcements'
         },
-        ...( ['supreme_admin', 'dev', 'state_president'].includes(userProfile?.role) ? [{ name: 'System Logs', path: '/dashboard/logs', icon: <Activity className="w-5 h-5" />, desc: 'Real-time security audit logs' }] : []),
+        {
+          name: 'Events',
+          path: '/dashboard/events',
+          icon: <Calendar className="w-5 h-5" />,
+          desc: 'Outreach & campus events'
+        },
+        {
+          name: 'Gallery',
+          path: '/dashboard/gallery',
+          icon: <Image className="w-5 h-5" />,
+          desc: 'Campaign & event photos'
+        },
         ...( ['supreme_admin', 'dev'].includes(userProfile?.role) ? [{ name: '⚙ Dev Tools', path: '/dashboard/dev-tools', icon: <Shield className="w-5 h-5" />, desc: 'Supreme Admin Control Panel' }] : [])
       ]
     },
     {
-      category: 'Info',
+      category: 'REPORTS',
       links: [
         {
-          name: `About ${shortName}`,
-          path: '/dashboard/about',
-          icon: <Info className="w-5 h-5" />,
-          desc: `About ${shortName} union`
+          name: 'Complaint Statistics',
+          path: '/dashboard/transparency',
+          icon: <CheckCircle className="w-5 h-5" />,
+          desc: 'Verifiable complaint list & statistics'
         },
-        // Only student roles can apply to join the union
-        ...(userProfile?.role === 'student' ? [{
-          name: `Join ${shortName}`,
-          path: '/dashboard/join',
-          icon: <UserPlus className="w-5 h-5" />,
-          desc: `Apply to join ${shortName}`
-        }] : [])
+        ...( ['supreme_admin', 'dev', 'state_president'].includes(userProfile?.role) ? [{ name: 'System Logs', path: '/dashboard/logs', icon: <Activity className="w-5 h-5" />, desc: 'Real-time security audit logs' }] : [])
       ]
     },
     {
-      category: 'Profile',
+      category: 'PROFILE',
       links: [
         ...(userProfile?.role !== 'student' ? [
           {
@@ -580,25 +605,25 @@ export default function DashboardLayout() {
       {/* Background canvas particles */}
       <FloatingParticles />
 
-      {/* Premium Ambient Glow Orbs */}
-      <div className="fixed top-[-10%] left-[-10%] w-[45%] h-[45%] rounded-full bg-gradient-to-tr from-cyan-500/8 to-blue-500/5 dark:from-cyan-500/4 dark:to-blue-600/2 blur-[120px] pointer-events-none z-0" />
-      <div className="fixed bottom-[-10%] right-[-10%] w-[45%] h-[45%] rounded-full bg-gradient-to-br from-purple-500/8 to-cyan-500/5 dark:from-purple-500/3 dark:to-cyan-600/2 blur-[120px] pointer-events-none z-0" />
+      {/* Ambient Orbs */}
+      <div className="fixed top-[-10%] left-[-10%] w-[45%] h-[45%] rounded-full bg-gradient-to-tr from-blue-600/10 to-amber-500/5 dark:from-blue-600/5 dark:to-amber-500/2 blur-[120px] pointer-events-none z-0" />
+      <div className="fixed bottom-[-10%] right-[-10%] w-[45%] h-[45%] rounded-full bg-gradient-to-br from-amber-500/8 to-blue-700/5 dark:from-amber-500/3 dark:to-blue-900/2 blur-[120px] pointer-events-none z-0" />
 
       {/* Sidebar - Desktop Layout */}
-      <aside className="hidden lg:flex flex-col w-80 border-r border-slate-200/50 dark:border-slate-900/60 glass-panel-light dark:glass-panel-dark z-25 shrink-0 relative h-screen">
+      <aside className="hidden lg:flex flex-col w-80 border-r border-slate-200/80 dark:border-slate-800/80 glass-panel-light dark:glass-panel-dark z-25 shrink-0 relative h-screen">
         {/* Brand Logo and Title */}
-        <div className="p-6 border-b border-slate-200/50 dark:border-slate-900/60 flex items-center gap-3">
+        <div className="p-6 border-b border-slate-200/80 dark:border-slate-800/80 flex items-center gap-3">
           <img 
             src="/trsv.jpeg" 
             alt={`${shortName} Logo`} 
-            className="w-10 h-10 rounded-2xl object-cover border border-cyan-500/30 shadow-[0_0_8px_rgba(6,182,212,0.15)] shrink-0"
+            className="w-10 h-10 rounded-2xl object-cover border border-blue-700/40 shadow-sm shrink-0"
           />
           <div className="text-left">
-            <span className="font-black text-base tracking-tight text-slate-800 dark:text-white uppercase block">
-              {shortName} State OS
+            <span className="font-semibold text-base tracking-tight text-slate-900 dark:text-white uppercase block">
+              {shortName} Portal
             </span>
-            <span className="text-[10px] font-extrabold text-cyan-600 dark:text-cyan-400 tracking-widest uppercase block mt-0.5">
-              STATE CONTROL TERM
+            <span className="text-[10px] font-medium text-amber-600 dark:text-amber-400 tracking-wider uppercase block mt-0.5">
+              Official Student System
             </span>
           </div>
         </div>
@@ -607,7 +632,7 @@ export default function DashboardLayout() {
         <div className="flex-1 overflow-y-auto px-4 py-6 flex flex-col gap-6 custom-sidebar-scrollbar">
           {sidebarLinks.filter(section => section.links.length > 0).map((section, sIdx) => (
             <div key={sIdx} className="flex flex-col gap-2.5 text-left">
-              <span className="px-3.5 text-[9.5px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-wider">
+              <span className="px-3.5 text-[9.5px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                 {section.category}
               </span>
               <div className="flex flex-col gap-1.5">
@@ -618,27 +643,27 @@ export default function DashboardLayout() {
                       key={link.path}
                       ref={isActive ? activeLinkRef : null}
                       to={link.path}
-                      className={`flex items-start gap-3.5 p-3 rounded-2xl transition-all duration-300 relative ${
+                      className={`flex items-start gap-3.5 p-3 rounded-2xl transition-all duration-200 relative ${
                         isActive
-                           ? 'text-sky-600 dark:text-cyan-400 bg-slate-100/30 dark:bg-slate-900/20 font-semibold shadow-sm'
-                           : 'text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/50 dark:hover:bg-slate-900/30 font-medium'
+                           ? 'text-blue-700 dark:text-blue-400 bg-blue-50/80 dark:bg-blue-950/50 font-medium shadow-sm'
+                           : 'text-slate-700 dark:text-slate-300 hover:text-blue-700 dark:hover:text-blue-400 hover:bg-slate-100/60 dark:hover:bg-slate-800/40 font-medium'
                       }`}
                     >
-                      <div className={`p-2 rounded-xl transition-all duration-300 ${
+                      <div className={`p-2 rounded-xl transition-all duration-200 ${
                         isActive 
-                           ? 'bg-sky-100 dark:bg-cyan-950/60 text-sky-600 dark:text-cyan-400 shadow-glow-cyan border border-cyan-500/20' 
-                           : 'bg-slate-200/80 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 border border-transparent'
+                           ? 'bg-blue-700 text-white shadow-md shadow-blue-700/20' 
+                           : 'bg-slate-100 dark:bg-slate-800/70 text-slate-500 dark:text-slate-400 border border-transparent'
                       }`}>
                         {link.icon}
                       </div>
                       <div className="flex flex-col min-w-0">
-                        <span className="font-bold text-sm truncate">{link.name}</span>
-                        <span className={`text-[10px] mt-0.5 truncate ${isActive ? 'text-sky-500/90 dark:text-cyan-400/90 font-medium' : 'text-slate-500 dark:text-slate-400 font-normal'}`}>{link.desc}</span>
+                        <span className="font-medium text-sm truncate">{link.name}</span>
+                        <span className={`text-[10px] mt-0.5 truncate ${isActive ? 'text-amber-600 dark:text-amber-400 font-normal' : 'text-slate-500 dark:text-slate-400 font-normal'}`}>{link.desc}</span>
                       </div>
                       {isActive && (
                         <motion.span
                           layoutId="activeSideIndicator"
-                          className="absolute right-0 top-3 bottom-3 w-[3px] bg-gradient-to-b from-sky-500 to-cyan-400 rounded-l-md"
+                          className="absolute right-0 top-3 bottom-3 w-[4px] bg-amber-500 rounded-l-md"
                           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                         />
                       )}
@@ -651,13 +676,13 @@ export default function DashboardLayout() {
         </div>
 
         {/* Sidebar bottom action control */}
-        <div className="p-4 border-t border-slate-200/50 dark:border-slate-900/60 flex flex-col gap-2">
+        <div className="p-4 border-t border-slate-200/80 dark:border-slate-800/80 flex flex-col gap-2">
           <button
             onClick={handleLogout}
-            className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs font-black bg-rose-500/15 text-rose-600 dark:text-rose-400 hover:bg-rose-500 hover:text-white transition-all duration-300"
+            className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs font-medium bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:bg-rose-600 hover:text-white transition-all duration-200 cursor-pointer"
           >
             <LogOut className="w-4 h-4 text-rose-500" />
-            Disconnect Node
+            Sign Out
           </button>
         </div>
       </aside>
@@ -679,20 +704,20 @@ export default function DashboardLayout() {
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'tween', duration: 0.22, ease: 'easeOut' }}
-              className="fixed inset-y-0 left-0 w-80 bg-white dark:bg-slate-950 border-r border-slate-200/60 dark:border-slate-900 z-45 lg:hidden flex flex-col p-4 max-h-screen overflow-hidden shadow-2xl"
+              className="fixed inset-y-0 left-0 w-80 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 z-45 lg:hidden flex flex-col p-4 max-h-screen overflow-hidden shadow-2xl"
             >
-              <div className="flex items-center justify-between pb-4 border-b border-slate-200/50 dark:border-slate-900/60">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
                 <div className="flex items-center gap-3">
                   <img 
                     src="/trsv.jpeg" 
                     alt={`${shortName} Logo`} 
-                    className="w-9 h-9 rounded-xl object-cover border border-cyan-500/30 shadow-[0_0_8px_rgba(6,182,212,0.15)] shrink-0"
+                    className="w-9 h-9 rounded-xl object-cover border border-blue-700/40 shrink-0"
                   />
-                  <span className="font-extrabold text-sm text-slate-800 dark:text-white uppercase tracking-wider">{shortName} OS</span>
+                  <span className="font-semibold text-sm text-slate-900 dark:text-white uppercase tracking-wider">{shortName} Portal</span>
                 </div>
                 <button
                   onClick={() => setSidebarOpen(false)}
-                  className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-900 text-slate-500 border"
+                  className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-700"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -701,7 +726,7 @@ export default function DashboardLayout() {
               <div className="flex-1 py-4 overflow-y-auto flex flex-col gap-5 custom-sidebar-scrollbar min-h-0">
                 {sidebarLinks.filter(section => section.links.length > 0).map((section, sIdx) => (
                   <div key={sIdx} className="flex flex-col gap-2.5 text-left">
-                    <span className="px-3.5 text-[9.5px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-wider">
+                    <span className="px-3.5 text-[9.5px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                       {section.category}
                     </span>
                     <div className="flex flex-col gap-1.5">
@@ -712,22 +737,22 @@ export default function DashboardLayout() {
                             key={link.path}
                             to={link.path}
                             onClick={() => setSidebarOpen(false)}
-                            className={`flex items-start gap-3 p-2.5 rounded-xl transition-all duration-300 relative ${
+                            className={`flex items-start gap-3 p-2.5 rounded-xl transition-all duration-200 relative ${
                               isActive
-                                ? 'text-sky-600 dark:text-cyan-400 bg-slate-100/40 dark:bg-slate-900/30 font-semibold shadow-sm'
-                                : 'text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/50 dark:hover:bg-slate-900/30 font-medium'
+                                ? 'text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 font-medium shadow-sm'
+                                : 'text-slate-700 dark:text-slate-200 hover:text-blue-700 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800/40 font-medium'
                             }`}
                           >
-                            <div className={`p-1.5 rounded-lg transition-all duration-300 ${
+                            <div className={`p-1.5 rounded-lg transition-all duration-200 ${
                               isActive 
-                                ? 'bg-sky-100 dark:bg-cyan-950/60 text-sky-600 dark:text-cyan-400 border border-cyan-500/20 shadow-glow-cyan/20' 
-                                : 'bg-slate-200/80 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 border border-transparent'
+                                ? 'bg-blue-700 text-white shadow-sm' 
+                                : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-transparent'
                             }`}>
                               {link.icon}
                             </div>
                             <div className="flex flex-col min-w-0">
-                              <span className="font-bold text-xs truncate">{link.name}</span>
-                              <span className={`text-[9.5px] mt-0.5 truncate ${isActive ? 'text-sky-500/90 dark:text-cyan-400/90 font-medium' : 'text-slate-500 dark:text-slate-400 font-normal'}`}>{link.desc}</span>
+                              <span className="font-medium text-xs truncate">{link.name}</span>
+                              <span className={`text-[9.5px] mt-0.5 truncate ${isActive ? 'text-amber-600 dark:text-amber-400 font-normal' : 'text-slate-500 dark:text-slate-400 font-normal'}`}>{link.desc}</span>
                             </div>
                           </Link>
                         );
@@ -737,16 +762,16 @@ export default function DashboardLayout() {
                 ))}
               </div>
 
-              <div className="pt-4 border-t border-slate-200/50 dark:border-slate-900/60 flex flex-col gap-2 shrink-0">
+              <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex flex-col gap-2 shrink-0">
                 {biometricsAvailable && (
                   <button
                     type="button"
                     disabled={biometricsLoading}
                     onClick={handleToggleBiometrics}
-                    className={`flex md:hidden items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-black border transition-all duration-200 cursor-pointer ${
+                    className={`flex md:hidden items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-medium border transition-all duration-200 cursor-pointer ${
                       biometricsConfigured
-                        ? 'bg-cyan-500/10 border-cyan-500/30 text-cyan-600 dark:text-cyan-400'
-                        : 'bg-slate-100 dark:bg-slate-900 border-slate-200/50 dark:border-slate-800 text-slate-700 dark:text-slate-200'
+                        ? 'bg-blue-50 border-blue-600/40 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400'
+                        : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200'
                     }`}
                   >
                     <Fingerprint className={`w-4 h-4 ${biometricsLoading ? 'animate-spin' : ''}`} />
@@ -755,10 +780,10 @@ export default function DashboardLayout() {
                 )}
                 <button
                   onClick={handleLogout}
-                  className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-black bg-rose-500/15 text-rose-600 dark:text-rose-400 hover:bg-rose-500 hover:text-white transition-all duration-200"
+                  className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-medium bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:bg-rose-600 hover:text-white transition-all duration-200"
                 >
                   <LogOut className="w-4 h-4 text-rose-500" />
-                  Disconnect
+                  Sign Out
                 </button>
               </div>
             </motion.aside>
@@ -771,28 +796,28 @@ export default function DashboardLayout() {
         
         {/* Top bar dashboard control strips */}
         <header className="sticky top-0 z-20 w-full px-4 sm:px-6 py-4">
-          <div className="glass-panel-light dark:glass-panel-dark glass-card-border-light dark:glass-card-border-dark px-4 sm:px-6 py-3 rounded-2xl flex items-center justify-between shadow-premium-light dark:shadow-premium-dark relative">
+          <div className="glass-panel-light dark:glass-panel-dark px-4 sm:px-6 py-3 rounded-2xl flex items-center justify-between shadow-sm relative">
             
             {/* Sidebar mobile toggle trigger & Official Branding */}
             <div className="flex items-center gap-3.5">
               <button
                 onClick={() => setSidebarOpen(true)}
-                className="lg:hidden p-2 rounded-xl bg-slate-100 dark:bg-slate-900 text-slate-500 border border-slate-200/50 dark:border-slate-800"
+                className="lg:hidden p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 border border-slate-200 dark:border-slate-700"
               >
                 <Menu className="w-5 h-5" />
               </button>
               
               {/* Compact Title Group */}
               <div className="flex flex-col text-left">
-                <h1 className="text-xs sm:text-sm font-black text-slate-850 dark:text-white uppercase tracking-wider flex items-center gap-2 leading-none">
+                <h1 className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2 leading-none">
                   <span className="hidden sm:inline">{shortName} Student Network</span>
-                  <span className="sm:hidden">{shortName} OS</span>
-                  <span className="px-1.5 py-0.5 rounded-full text-[8px] font-bold bg-green-500/10 text-green-500 border border-green-500/20 animate-pulse">
+                  <span className="sm:hidden">{shortName} Portal</span>
+                  <span className="px-2 py-0.5 rounded-full text-[9px] font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                     Live
                   </span>
                 </h1>
-                <span className="text-[8px] text-slate-400 dark:text-slate-500 uppercase tracking-widest hidden xs:block mt-0.5">
-                  Central Telemetry Node
+                <span className="text-[9px] text-slate-500 dark:text-slate-400 uppercase tracking-wider hidden xs:block mt-0.5">
+                  Official Portal Terminal
                 </span>
               </div>
             </div>
@@ -812,13 +837,13 @@ export default function DashboardLayout() {
                   }}
                   className={`relative p-2.5 rounded-xl border transition-all duration-200 cursor-pointer ${
                     notificationsOpen
-                      ? 'bg-cyan-500/15 border-cyan-500/40 text-cyan-600 dark:text-cyan-400 shadow-glow-cyan/15'
-                      : 'bg-slate-100 dark:bg-slate-900 border-slate-200/50 dark:border-slate-800/60 text-slate-500 hover:text-slate-800 dark:hover:text-white'
+                      ? 'bg-blue-50 border-blue-600/40 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400'
+                      : 'bg-slate-100 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 text-slate-600 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
                   <Bell className="w-4 h-4" />
                   {unreadCount > 0 && (
-                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full border border-white dark:border-slate-900 shadow-[0_0_5px_rgba(244,63,94,0.6)] animate-pulse" />
+                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-amber-500 rounded-full border border-white dark:border-slate-900" />
                   )}
                 </button>
 
@@ -826,7 +851,6 @@ export default function DashboardLayout() {
                 <AnimatePresence>
                   {notificationsOpen && (
                     <>
-                      {/* Click outside backdrop close layer */}
                       <div className="fixed inset-0 z-35" onClick={() => setNotificationsOpen(false)} />
                       
                       <motion.div
@@ -834,15 +858,15 @@ export default function DashboardLayout() {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 12, scale: 0.95 }}
                         transition={{ duration: 0.15 }}
-                        className="fixed sm:absolute left-4 right-4 sm:left-auto sm:right-0 sm:w-96 mt-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-2xl p-4 text-left z-40"
+                        className="fixed sm:absolute left-4 right-4 sm:left-auto sm:right-0 sm:w-96 mt-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl p-4 text-left z-40"
                       >
-                        <div className="flex items-center justify-between border-b border-slate-200/50 dark:border-slate-850 pb-2.5 mb-2.5">
+                        <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2.5 mb-2.5">
                           <div className="flex items-center gap-2">
-                            <span className="font-extrabold text-xs text-slate-800 dark:text-white uppercase tracking-wider">
-                              Command Alerts
+                            <span className="font-semibold text-xs text-slate-900 dark:text-white uppercase tracking-wider">
+                              System Alerts
                             </span>
                             {unreadCount > 0 && (
-                              <span className="px-2 py-0.5 rounded-full text-[9px] font-black bg-rose-500/10 text-rose-500 border border-rose-500/20">
+                              <span className="px-2 py-0.5 rounded-full text-[9px] font-medium bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
                                 {unreadCount} New
                               </span>
                             )}
@@ -850,7 +874,7 @@ export default function DashboardLayout() {
                           {unreadCount > 0 && (
                             <button
                               onClick={handleMarkAllRead}
-                              className="text-[10px] font-black text-cyan-600 dark:text-cyan-400 hover:underline cursor-pointer uppercase tracking-wider"
+                              className="text-[10px] font-medium text-blue-700 dark:text-blue-400 hover:underline cursor-pointer uppercase tracking-wider"
                             >
                               Mark all read
                             </button>
@@ -865,21 +889,21 @@ export default function DashboardLayout() {
                                 onClick={() => handleToggleRead(n.id, n.read)}
                                 className={`p-3 rounded-xl border transition-all duration-200 cursor-pointer flex flex-col gap-1.5 ${
                                   n.read
-                                    ? 'bg-slate-50/40 dark:bg-slate-900/20 border-slate-200/30 dark:border-slate-850/50 opacity-60'
-                                    : 'bg-cyan-500/5 dark:bg-cyan-950/20 border-cyan-500/25 dark:border-cyan-500/20 shadow-sm'
+                                    ? 'bg-slate-50 dark:bg-slate-800/30 border-slate-200/50 dark:border-slate-800 opacity-60'
+                                    : 'bg-blue-50/60 dark:bg-blue-950/30 border-blue-600/30 shadow-sm'
                                 }`}
                               >
-                                <p className={`text-xs leading-relaxed ${n.read ? 'text-slate-500 dark:text-slate-450' : 'text-slate-800 dark:text-slate-100 font-extrabold'}`}>
+                                <p className={`text-xs leading-relaxed ${n.read ? 'text-slate-500 dark:text-slate-400' : 'text-slate-900 dark:text-slate-100 font-medium'}`}>
                                   {n.message}
                                 </p>
-                                <span className="text-[9px] text-slate-400 dark:text-slate-550 font-bold self-end">
+                                <span className="text-[9px] text-slate-400 font-normal self-end">
                                   {formatTimeAgo(n.created_at)}
                                 </span>
                               </div>
                             ))
                           ) : (
                             <div className="py-8 text-center text-xs text-slate-400 dark:text-slate-500 italic">
-                              No recent command notifications.
+                              No recent notifications.
                             </div>
                           )}
                         </div>
@@ -898,8 +922,8 @@ export default function DashboardLayout() {
                   title={biometricsConfigured ? "Disable Fingerprint Login" : "Enable Fingerprint Login"}
                   className={`hidden md:inline-flex p-2.5 rounded-xl border transition-all duration-200 cursor-pointer relative shrink-0 ${
                     biometricsConfigured
-                      ? 'bg-cyan-500/10 border-cyan-500/35 text-cyan-600 dark:text-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.2)]'
-                      : 'bg-slate-100 dark:bg-slate-900 border-slate-200/50 dark:border-slate-800/60 text-slate-450 hover:text-slate-700 dark:hover:text-slate-300'
+                      ? 'bg-blue-50 border-blue-600/40 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400'
+                      : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
                   }`}
                 >
                   <Fingerprint className={`w-4 h-4 transition-transform duration-300 ${biometricsLoading ? 'animate-spin' : ''}`} />
@@ -910,24 +934,24 @@ export default function DashboardLayout() {
               <div className="relative">
                 <div 
                   onClick={handleAvatarClick}
-                  className="flex items-center gap-2 bg-slate-100/80 border border-slate-200/50 dark:bg-slate-900/60 dark:border-slate-800/60 px-2.5 py-1.5 rounded-xl shrink-0 cursor-pointer hover:bg-slate-200/55 dark:hover:bg-slate-850/70 transition-all select-none"
+                  className="flex items-center gap-2 bg-slate-100 border border-slate-200 dark:bg-slate-800 dark:border-slate-700 px-2.5 py-1.5 rounded-xl shrink-0 cursor-pointer hover:bg-slate-200/70 dark:hover:bg-slate-700/70 transition-all select-none"
                 >
                   {userProfile?.profile_image ? (
                     <img 
                       src={userProfile.profile_image} 
                       alt={userProfile.full_name} 
-                      className="w-6 h-6 rounded-lg object-cover shadow-glow-cyan shrink-0"
+                      className="w-6 h-6 rounded-lg object-cover shrink-0"
                     />
                   ) : (
-                    <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-sky-500 to-cyan-400 text-white font-black text-[10px] flex items-center justify-center uppercase shadow-glow-cyan shrink-0">
+                    <div className="w-6 h-6 rounded-lg bg-blue-700 text-white font-medium text-[10px] flex items-center justify-center uppercase shrink-0">
                       {userProfile?.full_name ? userProfile.full_name.split(' ').map(n => n[0]).join('').substring(0, 2) : 'ST'}
                     </div>
                   )}
                   <div className="hidden md:flex flex-col text-left">
-                    <span className="text-[10px] font-extrabold text-slate-700 dark:text-white truncate max-w-[90px]">
+                    <span className="text-[10px] font-medium text-slate-800 dark:text-white truncate max-w-[90px]">
                       {userProfile?.full_name || 'Student'}
                     </span>
-                    <span className="text-[8px] text-slate-400 uppercase tracking-wider leading-none mt-0.5">
+                    <span className="text-[8px] text-amber-600 dark:text-amber-400 uppercase tracking-wider leading-none mt-0.5 font-medium">
                       {userProfile?.role === 'supreme_admin' ? 'Supreme Leader' : userProfile?.role || 'Student'}
                     </span>
                   </div>

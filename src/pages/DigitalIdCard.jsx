@@ -1,17 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ShieldCheck, RefreshCw, FlipHorizontal, Download, Printer, ShieldAlert, ArrowRight, Sun, Moon, Info, PhoneCall } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useOrg } from '../context/OrgContext';
 import GlassCard from '../components/GlassCard';
 import PremiumButton from '../components/PremiumButton';
 import QRCode from 'qrcode';
 
 export default function DigitalIdCard() {
+  const { shortName, fullName } = useOrg();
   const { userProfile } = useAuth();
   const isLeader = userProfile?.role !== 'student';
   const getDisplayRole = (role, constituencyName) => {
     if (!role) return "UNION MEMBER";
     if (role === "student") return "STUDENT MEMBER";
-    if (role === "supreme_admin") return "TVRS FOUNDER";
+    if (role === "supreme_admin") return `${shortName} FOUNDER`;
     if (role === "dev") return "DEVELOPER";
     
     const roleLabel = role.replace(/_/g, " ").toUpperCase();
@@ -269,7 +271,7 @@ export default function DigitalIdCard() {
     // Front Card Header
     ctx.fillStyle = accentTextColor;
     ctx.font = 'bold 13px Outfit, sans-serif';
-    ctx.fillText('TELANGANA RAKSHANA SENA VIDYARTHI VIBHAGAM', fX + 24, cY + 36);
+    ctx.fillText(fullName.toUpperCase(), fX + 24, cY + 36);
 
     ctx.fillStyle = isLeader ? '#fbbf24' : '#0ea5e9';
     ctx.fillStyle = '#94a3b8';
@@ -351,11 +353,11 @@ export default function DigitalIdCard() {
     // Front Card Footer
     ctx.fillStyle = '#64748b';
     ctx.font = '8px Outfit, sans-serif';
-    ctx.fillText('TVRS SYSTEM NODE ID', fX + 24, cY + cH - 38);
+    ctx.fillText(`${shortName} SYSTEM NODE ID`, fX + 24, cY + cH - 38);
     
     ctx.fillStyle = accentTextColor;
     ctx.font = 'bold 15px Courier New, monospace';
-    ctx.fillText(identity?.trsv_member_id || 'TVRS-KHA-0001', fX + 24, cY + cH - 20);
+    ctx.fillText(identity?.trsv_member_id ? identity.trsv_member_id.replace(/^(TVRS|TRSV)-/i, `${shortName}-`) : `${shortName}-KHA-0001`, fX + 24, cY + cH - 20);
 
     // Verified Seal Badge at bottom-right
     const badgeX = fX + cW - 84;
@@ -380,7 +382,7 @@ export default function DigitalIdCard() {
     // Back card Header
     ctx.fillStyle = accentTextColor;
     ctx.font = 'bold 11px Outfit, sans-serif';
-    ctx.fillText('TVRS SECURE DATABASE GRID', bX + 24, cY + 36);
+    ctx.fillText(`${shortName} SECURE DATABASE GRID`, bX + 24, cY + 36);
 
     ctx.fillStyle = '#64748b';
     ctx.font = 'bold 7px Outfit, sans-serif';
@@ -447,12 +449,12 @@ export default function DigitalIdCard() {
 
     ctx.fillStyle = '#cbd5e1';
     ctx.font = 'bold 9px Outfit, sans-serif';
-    ctx.fillText('TVRS-V2.5.0', bX + 24, cY + cH - 22);
+    ctx.fillText(`${shortName}-V2.5.0`, bX + 24, cY + cH - 22);
     ctx.fillText(userProfile?.constituency_name && userProfile.constituency_name !== 'Not Set' ? userProfile.constituency_name : 'Not Set', bX + cW - 120, cY + cH - 22);
 
     // Trigger immediate link download
     const link = document.createElement('a');
-    link.download = `${identity?.trsv_member_id || 'TVRS_Card'}_DigitalID.png`;
+    link.download = `${identity?.trsv_member_id ? identity.trsv_member_id.replace(/^(TVRS|TRSV)-/i, `${shortName}-`) : `${shortName}_Card`}_DigitalID.png`;
     link.href = canvas.toDataURL('image/png');
     link.click();
   };
@@ -581,7 +583,7 @@ export default function DigitalIdCard() {
 
                 {/* 3. TVRS Logo Watermark */}
                 <div className="absolute inset-0 flex items-center justify-center opacity-[0.035] select-none pointer-events-none">
-                  <img src="/tvrslogo.jpeg" alt="TVRS Logo" className="w-[50%] h-[50%] object-contain rounded-full" />
+                  <img src="/tvrslogo.jpeg" alt={`${shortName} Logo`} className="w-[50%] h-[50%] object-contain rounded-full" />
                 </div>
 
                 {/* Holographic reflection glint sheet */}
@@ -600,12 +602,12 @@ export default function DigitalIdCard() {
                     {/* TVRS Logo in header of ID Card */}
                     <img 
                       src="/trsv.jpeg" 
-                      alt="TVRS Logo" 
+                      alt={`${shortName} Logo`} 
                       className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg object-cover border border-white/10 shrink-0" 
                     />
                     <div className="flex flex-col text-left">
-                      <span className="text-[7.5px] xs:text-[8.5px] sm:text-[10px] font-black tracking-[0.12em] text-white uppercase font-sans">TELANGANA RAKSHANA SENA</span>
-                      <span className={`text-[5.5px] xs:text-[6px] sm:text-[7px] font-extrabold ${cardThemeStyles.textGold} uppercase tracking-[0.16em]`}>VIDYARTHI VIBHAGAM (TVRS)</span>
+                      <span className="text-[7.5px] xs:text-[8.5px] sm:text-[10px] font-black tracking-[0.12em] text-white uppercase font-sans">{fullName}</span>
+                      <span className={`text-[5.5px] xs:text-[6px] sm:text-[7px] font-extrabold ${cardThemeStyles.textGold} uppercase tracking-[0.16em]`}>VIDYARTHI VIBHAGAM ({shortName})</span>
                     </div>
                   </div>
                   <div className="flex flex-col items-end shrink-0">
@@ -682,7 +684,7 @@ export default function DigitalIdCard() {
                   <div className="flex flex-col text-left">
                     <span className="text-[5px] xs:text-[5.5px] sm:text-[6.5px] text-slate-400 uppercase tracking-widest">CREDENTIAL NUMBER</span>
                     <span className={`text-[9.5px] xs:text-[10.5px] sm:text-[12px] font-bold font-mono ${cardThemeStyles.textGold} tracking-wider mt-0.5`}>
-                      {identity?.trsv_member_id}
+                      {identity?.trsv_member_id ? identity.trsv_member_id.replace(/^(TVRS|TRSV)-/i, `${shortName}-`) : ''}
                     </span>
                   </div>
 
@@ -709,8 +711,8 @@ export default function DigitalIdCard() {
                 {/* Back card Header */}
                 <div className="flex items-center justify-between border-b border-slate-200/10 dark:border-slate-800/50 pb-1.5 sm:pb-2">
                   <div className="flex flex-col text-left">
-                    <span className={`text-[7.5px] xs:text-[8px] sm:text-[9px] font-black tracking-widest ${cardThemeStyles.textGold} uppercase`}>TVRS DATABASE GRID</span>
-                    <span className="text-[5px] sm:text-[6px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-widest mt-0.5 font-sans">Verification Portal</span>
+                    <span className={`text-[7.5px] xs:text-[8px] sm:text-[9px] font-black tracking-widest ${cardThemeStyles.textGold} uppercase`}>{shortName} DATABASE GRID</span>
+                    <span className="text-[5px] sm:text-[6px] font-bold text-slate-455 dark:text-slate-500 uppercase tracking-widest mt-0.5 font-sans">Verification Portal</span>
                   </div>
                   <div className={`w-6 h-4 sm:w-8 sm:h-6 rounded relative overflow-hidden border shrink-0 ${isLeader ? 'bg-gradient-to-tr from-amber-500 to-amber-300 border-amber-600/30' : 'bg-gradient-to-tr from-slate-400 to-slate-200 border-slate-500/30'}`}>
                     <div className="absolute top-1/2 left-0 right-0 h-[1px] bg-slate-800/20" />
@@ -742,7 +744,7 @@ export default function DigitalIdCard() {
                   <div className="flex flex-col text-left">
                     <span className="text-[5px] sm:text-[6px] text-slate-450 dark:text-slate-500 uppercase tracking-widest">System Node</span>
                     <span className="text-[7px] sm:text-[8px] font-extrabold text-slate-350 dark:text-slate-200 mt-0.5 font-mono">
-                      TVRS-V2.5.0
+                      {shortName}-V2.5.0
                     </span>
                   </div>
                   <div className="flex flex-col text-right">

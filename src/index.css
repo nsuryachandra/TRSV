@@ -1,11 +1,9 @@
 /* ============================================================
-   TVRS MASTER DESIGN SYSTEM — Elite Premium UI
-   Font Stack: Satoshi (headings) + Inter (body/UI)
+   OFFICIAL STUDENT ORGANIZATION DESIGN SYSTEM — Royal Blue & Golden Yellow
+   Global Typography: Poppins
    ============================================================ */
 
-/* Satoshi — Premium geometric sans for headings + Inter — Gold standard UI font */
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
-@import url('https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,600,700,800,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 @import "tailwindcss";
 @config "../tailwind.config.js";
@@ -13,37 +11,39 @@
 @layer base {
   html {
     scroll-behavior: smooth;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'Poppins', system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "cv01" 1;
-    background-color: #f8fafc;
-    letter-spacing: -0.011em;
+    background-color: #ffffff;
+    letter-spacing: -0.01em;
   }
   
   html.dark, .dark {
-    background-color: #020408;
+    background-color: #0f172a;
   }
 
-  /* ── DISPLAY HEADINGS — Satoshi ── */
+  /* ── DISPLAY HEADINGS — Poppins SemiBold (600) ── */
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Satoshi', 'Inter', system-ui, sans-serif;
-    letter-spacing: -0.03em;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600; /* SemiBold per typography hierarchy */
+    letter-spacing: -0.02em;
+    color: inherit;
   }
 
-  h1 { font-size: clamp(2.5rem, 6vw + 1rem, 5.5rem); line-height: 1.05; letter-spacing: -0.045em; font-weight: 800; }
-  h2 { font-size: clamp(1.75rem, 4vw + 0.5rem, 3.25rem); line-height: 1.1; letter-spacing: -0.035em; font-weight: 700; }
-  h3 { font-size: clamp(1.25rem, 2.5vw + 0.3rem, 2rem); line-height: 1.2; letter-spacing: -0.025em; font-weight: 700; }
-  h4 { font-size: clamp(1rem, 1.5vw + 0.2rem, 1.375rem); line-height: 1.3; letter-spacing: -0.02em; font-weight: 600; }
+  h1 { font-size: clamp(2.25rem, 5vw + 1rem, 4.5rem); line-height: 1.1; font-weight: 600; }
+  h2 { font-size: clamp(1.5rem, 3.5vw + 0.5rem, 2.75rem); line-height: 1.2; font-weight: 600; }
+  h3 { font-size: clamp(1.15rem, 2vw + 0.3rem, 1.75rem); line-height: 1.25; font-weight: 600; }
+  h4 { font-size: clamp(0.95rem, 1.2vw + 0.2rem, 1.25rem); line-height: 1.35; font-weight: 600; }
   
   body {
-    @apply transition-colors duration-500 ease-in-out bg-tvrs-bg-light text-tvrs-text-light dark:bg-tvrs-bg-dark dark:text-tvrs-text-dark;
+    @apply transition-colors duration-300 ease-in-out bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-100;
     overflow-x: hidden;
-    font-size: 0.9375rem; /* 15px — Inter renders beautifully at 15px */
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.9375rem;
+    font-weight: 400; /* Regular */
     line-height: 1.6;
-    /* Ultra-subtle dot grid — inspired by Linear.app */
-    background-image: radial-gradient(circle, rgba(15,23,42,0.06) 1px, transparent 1px);
+    background-image: radial-gradient(circle, rgba(30,58,138,0.03) 1px, transparent 1px);
     background-size: 24px 24px;
     background-attachment: fixed;
   }
@@ -51,14 +51,13 @@
   html.dark body {
     background-image:
       radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px),
-      radial-gradient(ellipse 80% 50% at 50% 0%, rgba(6,182,212,0.04) 0%, transparent 60%),
-      radial-gradient(ellipse 60% 40% at 100% 100%, rgba(99,102,241,0.04) 0%, transparent 60%);
-    background-size: 24px 24px, auto, auto;
+      radial-gradient(ellipse 80% 50% at 50% 0%, rgba(29,78,216,0.06) 0%, transparent 60%);
+    background-size: 24px 24px, auto;
     background-attachment: fixed;
-    background-color: #020408;
+    background-color: #0f172a;
   }
 
-  /* ── ELITE FORM INPUTS — Geist-grade ── */
+  /* ── FORM INPUTS ── */
   input[type="text"], 
   input[type="password"], 
   input[type="email"], 
@@ -67,17 +66,16 @@
   select, 
   textarea {
     @apply transition-all duration-200 ease-out;
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Poppins', sans-serif;
     font-size: 0.875rem;
-    font-weight: 450;
+    font-weight: 400;
     letter-spacing: -0.005em;
-    border: 1px solid rgba(226, 232, 240, 0.8);
-    background: rgba(255,255,255,0.6);
-    backdrop-filter: blur(8px);
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    background: #ffffff;
     color: #0f172a;
     border-radius: 10px;
     outline: none;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.04), inset 0 1px 2px rgba(0,0,0,0.02);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
     transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
   }
 
@@ -88,186 +86,165 @@
   html.dark input[type="number"], .dark input[type="number"],
   html.dark select, .dark select,
   html.dark textarea, .dark textarea {
-    border: 1px solid rgba(30,41,59,0.8);
-    background: rgba(15,23,42,0.5);
-    color: #f1f5f9;
+    border: 1px solid rgba(51,65,85,0.8);
+    background: rgba(30,41,59,0.7);
+    color: #f8fafc;
   }
 
   input:focus, select:focus, textarea:focus {
-    border-color: rgba(6,182,212,0.6) !important;
-    box-shadow: 0 0 0 3px rgba(6,182,212,0.12), 0 1px 2px rgba(0,0,0,0.04) !important;
-    background: rgba(255,255,255,0.95) !important;
+    border-color: rgba(29,78,216,0.7) !important;
+    box-shadow: 0 0 0 3px rgba(29,78,216,0.15) !important;
+    background: #ffffff !important;
   }
 
   html.dark input:focus, .dark input:focus,
   html.dark select:focus, .dark select:focus,
   html.dark textarea:focus, .dark textarea:focus {
-    background: rgba(15,23,42,0.9) !important;
+    background: rgba(30,41,59,0.95) !important;
   }
 
-  /* ── PREMIUM SCROLLBAR — Notion-grade ── */
+  /* ── SCROLLBAR ── */
   ::-webkit-scrollbar { width: 5px; height: 5px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb {
     background: rgba(148,163,184,0.4);
     border-radius: 100px;
   }
-  ::-webkit-scrollbar-thumb:hover { background: rgba(6,182,212,0.5); }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(29,78,216,0.5); }
 }
 
 @layer utilities {
 .glass-panel-light {
-  background: rgba(255,255,255,0.72);
-  backdrop-filter: blur(24px) saturate(180%) brightness(1.02);
-  -webkit-backdrop-filter: blur(24px) saturate(180%) brightness(1.02);
-  border: 1px solid rgba(255,255,255,0.9);
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(226,232,240,0.8);
   box-shadow:
-    0 1px 0 rgba(255,255,255,0.8) inset,
-    0 -1px 0 rgba(0,0,0,0.04) inset,
-    0 4px 6px -1px rgba(0,0,0,0.04),
-    0 12px 32px -8px rgba(15,23,42,0.08);
-  transition: transform 0.35s cubic-bezier(0.16,1,0.3,1), box-shadow 0.35s ease, border-color 0.35s ease;
+    0 1px 3px rgba(0,0,0,0.03),
+    0 8px 24px -6px rgba(15,23,42,0.05);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
 .glass-panel-light:hover {
-  border-color: rgba(6,182,212,0.2);
+  border-color: rgba(29,78,216,0.25);
   box-shadow:
-    0 1px 0 rgba(255,255,255,0.9) inset,
-    0 -1px 0 rgba(0,0,0,0.04) inset,
-    0 8px 16px -4px rgba(15,23,42,0.08),
-    0 20px 40px -12px rgba(15,23,42,0.12),
-    0 0 0 1px rgba(6,182,212,0.08);
+    0 4px 12px rgba(15,23,42,0.06),
+    0 12px 32px -8px rgba(29,78,216,0.08);
 }
 
 .glass-panel-dark,
 html.dark .glass-panel-light,
 .dark .glass-panel-light {
-  background: linear-gradient(145deg, rgba(15,23,42,0.82) 0%, rgba(7,15,30,0.78) 100%);
-  backdrop-filter: blur(24px) saturate(160%);
-  -webkit-backdrop-filter: blur(24px) saturate(160%);
-  border: 1px solid rgba(255,255,255,0.07);
+  background: rgba(30,41,59,0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.08);
   box-shadow:
-    0 1px 0 rgba(255,255,255,0.05) inset,
-    0 -1px 0 rgba(0,0,0,0.3) inset,
-    0 4px 6px -1px rgba(0,0,0,0.4),
-    0 12px 32px -8px rgba(0,0,0,0.6);
-  transition: transform 0.35s cubic-bezier(0.16,1,0.3,1), box-shadow 0.35s ease, border-color 0.35s ease;
+    0 4px 6px -1px rgba(0,0,0,0.3),
+    0 12px 32px -8px rgba(0,0,0,0.5);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
 html.dark .glass-panel-light:hover,
 .dark .glass-panel-light:hover,
 .glass-panel-dark:hover {
-  border-color: rgba(6,182,212,0.2);
+  border-color: rgba(29,78,216,0.3);
   box-shadow:
-    0 1px 0 rgba(255,255,255,0.06) inset,
-    0 -1px 0 rgba(0,0,0,0.35) inset,
     0 8px 20px -4px rgba(0,0,0,0.5),
-    0 24px 48px -12px rgba(0,0,0,0.7),
-    0 0 80px -20px rgba(6,182,212,0.12);
+    0 0 30px -10px rgba(29,78,216,0.2);
 }
 
-/* Alias classes — same rules duplicated for compatibility */
 .glass-card-border-light {
-  background: rgba(255,255,255,0.72);
-  backdrop-filter: blur(24px) saturate(180%) brightness(1.02);
-  -webkit-backdrop-filter: blur(24px) saturate(180%) brightness(1.02);
-  border: 1px solid rgba(255,255,255,0.9);
-  box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset, 0 4px 6px -1px rgba(0,0,0,0.04), 0 12px 32px -8px rgba(15,23,42,0.08);
-  transition: transform 0.35s cubic-bezier(0.16,1,0.3,1), box-shadow 0.35s ease, border-color 0.35s ease;
+  background: #ffffff;
+  border: 1px solid rgba(226,232,240,0.9);
+  box-shadow: 0 2px 8px -2px rgba(15,23,42,0.04);
 }
 .glass-card-border-dark {
-  background: linear-gradient(145deg, rgba(15,23,42,0.82) 0%, rgba(7,15,30,0.78) 100%);
-  backdrop-filter: blur(24px) saturate(160%);
-  -webkit-backdrop-filter: blur(24px) saturate(160%);
-  border: 1px solid rgba(255,255,255,0.07);
-  box-shadow: 0 1px 0 rgba(255,255,255,0.05) inset, 0 4px 6px -1px rgba(0,0,0,0.4), 0 12px 32px -8px rgba(0,0,0,0.6);
-  transition: transform 0.35s cubic-bezier(0.16,1,0.3,1), box-shadow 0.35s ease, border-color 0.35s ease;
+  background: rgba(30,41,59,0.85);
+  border: 1px solid rgba(255,255,255,0.08);
 }
 html.dark .glass-card-border-light,
 .dark .glass-card-border-light {
-  background: linear-gradient(145deg, rgba(15,23,42,0.82) 0%, rgba(7,15,30,0.78) 100%);
-  backdrop-filter: blur(24px) saturate(160%);
-  border: 1px solid rgba(255,255,255,0.07);
+  background: rgba(30,41,59,0.85);
+  border: 1px solid rgba(255,255,255,0.08);
 }
-html.dark .glass-card-border-light:hover,
-.dark .glass-card-border-light:hover { border-color: rgba(6,182,212,0.2); }
 } /* end @layer utilities */
 
 /* ================================================================
-   TYPOGRAPHY + TEXT GRADIENT UTILITIES
+   TYPOGRAPHY & BRAND GRADIENT UTILITIES
    ================================================================ */
 @layer utilities {
 .fluid-heading-1 {
-  font-family: 'Satoshi', 'Inter', sans-serif;
-  font-size: clamp(2.75rem, 7vw + 0.5rem, 6rem);
-  line-height: 1.0;
-  letter-spacing: -0.05em;
-  font-weight: 800;
+  font-family: 'Poppins', sans-serif;
+  font-size: clamp(2.5rem, 6vw + 0.5rem, 5rem);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  font-weight: 600;
 }
 .fluid-heading-2 {
-  font-family: 'Satoshi', 'Inter', sans-serif;
-  font-size: clamp(1.875rem, 4vw + 0.5rem, 3.5rem);
-  line-height: 1.1;
-  letter-spacing: -0.04em;
-  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  font-size: clamp(1.75rem, 3.5vw + 0.5rem, 3rem);
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  font-weight: 600;
 }
 .fluid-heading-3 {
-  font-family: 'Satoshi', 'Inter', sans-serif;
-  font-size: clamp(1.375rem, 2.5vw + 0.25rem, 2.25rem);
-  line-height: 1.2;
-  letter-spacing: -0.03em;
-  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  font-size: clamp(1.25rem, 2vw + 0.25rem, 2rem);
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  font-weight: 600;
 }
 .label-text {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
+  font-weight: 400;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 .text-gradient-cyan {
-  background: linear-gradient(135deg, #38bdf8 0%, #22d3ee 40%, #6366f1 100%);
+  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #f59e0b 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 html.dark .text-gradient-cyan {
-  background: linear-gradient(135deg, #7dd3fc 0%, #22d3ee 40%, #818cf8 100%);
+  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #fbbf24 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 .text-gradient-gold {
-  background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 50%, #f97316 100%);
+  background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 50%, #d97706 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 .text-gradient-sunset {
-  background: linear-gradient(135deg, #f43f5e 0%, #ec4899 50%, #f97316 100%);
+  background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 50%, #f59e0b 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 .text-gradient-violet {
-  background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 50%, #3b82f6 100%);
+  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #3b82f6 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 .stat-number {
-  font-family: 'Satoshi', 'Inter', sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.04em;
   line-height: 1;
 }
 .badge-text {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-size: 0.625rem;
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 .card-label {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-size: 0.6875rem;
   font-weight: 600;
   letter-spacing: 0.08em;
@@ -289,13 +266,13 @@ html.dark .text-gradient-cyan {
 .animate-voice-bar-5 { animation: voiceWave 0.75s ease-in-out infinite 0.48s; }
 .animate-voice-bar-6 { animation: voiceWave 0.75s ease-in-out infinite 0.60s; }
 .glow-border-hover { position: relative; z-index: 1; isolation: isolate; }
-.glow-border-hover::before { content:''; position:absolute; inset:-1.5px; background:linear-gradient(90deg,#22d3ee,#6366f1,#f43f5e,#22d3ee); background-size:300% 100%; border-radius:inherit; z-index:-1; opacity:0; animation:gradient-flow 4s linear infinite; transition:opacity 0.3s ease; }
+.glow-border-hover::before { content:''; position:absolute; inset:-1.5px; background:linear-gradient(90deg,#1d4ed8,#3b82f6,#f59e0b,#1d4ed8); background-size:300% 100%; border-radius:inherit; z-index:-1; opacity:0; animation:gradient-flow 4s linear infinite; transition:opacity 0.3s ease; }
 .glow-border-hover:hover::before { opacity: 0.7; }
 .preserve-3d { transform-style: preserve-3d; perspective: 1200px; }
 .backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
 .rotate-y-180 { transform: rotateY(180deg); }
 .hover-lift { transition: transform 0.25s cubic-bezier(0.16,1,0.3,1), box-shadow 0.25s ease; }
-.hover-lift:hover { transform: translateY(-4px) scale(1.008); box-shadow: 0 20px 40px -12px rgba(0,0,0,0.15), 0 0 0 1px rgba(6,182,212,0.1); }
+.hover-lift:hover { transform: translateY(-4px) scale(1.008); box-shadow: 0 16px 32px -8px rgba(15,23,42,0.08), 0 0 0 1px rgba(29,78,216,0.15); }
 .icon-box { display:flex; align-items:center; justify-content:center; width:2.75rem; height:2.75rem; border-radius:12px; transition:transform 0.25s cubic-bezier(0.16,1,0.3,1),box-shadow 0.25s ease; }
 .group:hover .icon-box { transform: scale(1.1) rotate(-4deg); }
 .three-canvas-container { position:relative; width:100%; height:100%; pointer-events:auto; }
@@ -509,35 +486,35 @@ select {
    PREMIUM CARD TOKENS — Applied by GlassCard & Dashboard widgets
    ================================================================ */
 
-/* Stat number — massive tabular numerals */
+/* Stat number — tabular numerals */
 .stat-number {
-  font-family: 'Satoshi', 'Inter', sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.03em;
   line-height: 1;
 }
 
 /* Badge / pill text */
 .badge-text {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-size: 0.625rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
+  font-weight: 500;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 /* Card header label */
 .card-label {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  font-weight: 500;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: rgb(148,163,184);
+  color: rgb(100,116,139);
 }
 
 /* ================================================================
-   ELITE HOVER STATES — Micro-interaction library
+   HOVER STATES
    ================================================================ */
 
 /* Lift card on hover */
@@ -545,8 +522,8 @@ select {
   transition: transform 0.25s cubic-bezier(0.16,1,0.3,1), box-shadow 0.25s ease;
 }
 .hover-lift:hover {
-  transform: translateY(-4px) scale(1.008);
-  box-shadow: 0 20px 40px -12px rgba(0,0,0,0.15), 0 0 0 1px rgba(6,182,212,0.1);
+  transform: translateY(-4px);
+  box-shadow: 0 16px 32px -8px rgba(15,23,42,0.1), 0 0 0 1px rgba(29,78,216,0.15);
 }
 
 /* Interactive icon container */
@@ -560,11 +537,11 @@ select {
   transition: transform 0.25s cubic-bezier(0.16,1,0.3,1), box-shadow 0.25s ease;
 }
 .group:hover .icon-box {
-  transform: scale(1.1) rotate(-4deg);
+  transform: scale(1.08);
 }
 
 /* ================================================================
-   MICRO-MOTION INPUT ICON ANIMATIONS — Elite Focus Radar Transition
+   MICRO-MOTION INPUT ICON ANIMATIONS
    ================================================================ */
 
 .animate-icon-bounce-centered,
@@ -579,8 +556,8 @@ select {
 }
 .peer:focus ~ .animate-icon-bounce-centered {
   transform: translateY(-50%) scale(1.1);
-  color: #0ea5e9 !important; /* Sky-500 premium color */
-  filter: drop-shadow(0 0 5px rgba(14, 165, 233, 0.45));
+  color: #1d4ed8 !important; /* Royal Blue */
+  filter: drop-shadow(0 0 4px rgba(29, 78, 216, 0.35));
 }
 
 /* Static/Flex/Top-aligned absolute icons */
@@ -590,8 +567,8 @@ select {
 }
 .peer:focus ~ .animate-icon-bounce-static {
   transform: scale(1.1);
-  color: #0ea5e9 !important; /* Sky-500 premium color */
-  filter: drop-shadow(0 0 5px rgba(14, 165, 233, 0.45));
+  color: #1d4ed8 !important; /* Royal Blue */
+  filter: drop-shadow(0 0 4px rgba(29, 78, 216, 0.35));
 }
 
 /* ── Radar Ring Expansion Pseudo-element ── */
@@ -603,7 +580,7 @@ select {
   left: 50%;
   width: 28px;
   height: 28px;
-  border: 1.5px solid rgba(14, 165, 233, 0.65);
+  border: 1.5px solid rgba(29, 78, 216, 0.65);
   border-radius: 50%;
   opacity: 0;
   pointer-events: none;
