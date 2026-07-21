@@ -1,10 +1,34 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ShieldCheck, BookOpen, Download, HelpCircle, FileText, ChevronRight, CheckCircle2, RefreshCw, AlertTriangle, ShieldAlert, Building, MapPin } from 'lucide-react';
+import { 
+  ShieldCheck, 
+  BookOpen, 
+  HelpCircle, 
+  FileText, 
+  ChevronRight, 
+  CheckCircle2, 
+  RefreshCw, 
+  AlertTriangle, 
+  ShieldAlert, 
+  Building, 
+  MapPin,
+  SearchCheck,
+  MessageSquare,
+  Volume2,
+  Calendar,
+  Image as ImageIcon,
+  ArrowRight,
+  Info,
+  Clock,
+  Sparkles,
+  Users,
+  Eye,
+  CheckCircle,
+  XCircle,
+  AlertCircle
+} from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useOrg } from '../context/OrgContext';
-import GlassCard from '../components/GlassCard';
-import PremiumButton from '../components/PremiumButton';
 import ComplaintDetailsModal from '../components/ComplaintDetailsModal';
 
 export default function StudentDashboard() {
@@ -12,11 +36,15 @@ export default function StudentDashboard() {
   const [searchParams] = useSearchParams();
   const openTicketId = searchParams.get('open_ticket_id');
   const { userProfile, refreshProfile } = useAuth();
-  const { shortName } = useOrg();
+  const { shortName, fullName } = useOrg();
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
   const [selectedTicketId, setSelectedTicketId] = useState(null);
+
+  // Additional preview data states for Dashboard V2
+  const [announcements, setAnnouncements] = useState([]);
+  const [events, setEvents] = useState([]);
 
   // 6-hour submission cooldown
   const [cooldownRemaining, setCooldownRemaining] = useState(0);
@@ -43,7 +71,7 @@ export default function StudentDashboard() {
   const [saveSuccess, setSaveSuccess] = useState('');
   const [showWarningModal, setShowWarningModal] = useState(false);
 
-  // Trigger luxury security alert modal on dashboard visit
+  // Trigger security warning modal on first visit
   useEffect(() => {
     const accepted = localStorage.getItem('trsv_warning_accepted');
     if (!accepted) {
@@ -76,7 +104,6 @@ export default function StudentDashboard() {
         const data = await response.json();
         if (data.success) {
           setConstituencies(data.constituencies);
-          // If no constituency is preselected, default to the first one
           if (!selectedConstituencyId && data.constituencies.length > 0) {
             setSelectedConstituencyId(data.constituencies[0].id.toString());
           }
@@ -86,6 +113,39 @@ export default function StudentDashboard() {
       }
     };
     fetchConstituencies();
+  }, []);
+
+  // Fetch announcements & events for dashboard V2 preview cards
+  useEffect(() => {
+    const fetchPreviews = async () => {
+      try {
+        const token = localStorage.getItem('trsv_session_token');
+        const headers = { 'Authorization': `Bearer ${token}` };
+
+        const [annRes, evRes] = await Promise.all([
+          fetch('/api/announcements', { headers }).catch(() => null),
+          fetch('/api/modules/events', { headers }).catch(() => null)
+        ]);
+
+        if (annRes && annRes.ok) {
+          const annData = await annRes.json();
+          if (annData.success && annData.announcements) {
+            setAnnouncements(annData.announcements.slice(0, 3));
+          }
+        }
+
+        if (evRes && evRes.ok) {
+          const evData = await evRes.json();
+          if (evData.success && evData.events) {
+            setEvents(evData.events.slice(0, 3));
+          }
+        }
+      } catch (err) {
+        console.warn('Failed to load dashboard previews:', err);
+      }
+    };
+
+    fetchPreviews();
   }, []);
 
   const handleLockCoordinates = async () => {
@@ -177,16 +237,6 @@ export default function StudentDashboard() {
 
   const [ticketTab, setTicketTab] = useState('active'); // 'active' | 'resolved'
 
-  const getUrgencyBadge = (urgency) => {
-    const maps = {
-      critical: 'bg-rose-500/10 text-rose-500 border-rose-500/20',
-      high: 'bg-amber-500/10 text-amber-500 border-amber-500/20',
-      medium: 'bg-sky-500/10 text-sky-500 border-sky-500/20',
-      low: 'bg-green-500/10 text-green-500 border-green-500/20'
-    };
-    return maps[urgency?.toLowerCase()] || maps.medium;
-  };
-
   const renderStatusStepper = (status) => {
     const stages = ['Registered', 'Started', 'Solved'];
     let currentIdx = 0;
@@ -203,8 +253,8 @@ export default function StudentDashboard() {
 
     if (currentIdx === -1) {
       return (
-        <div className="flex items-center gap-1.5 mt-2 text-[10px] text-rose-500 font-bold">
-          <AlertTriangle className="w-3.5 h-3.5" /> Rejected
+        <div className="flex items-center gap-1.5 mt-2 text-xs text-rose-600 dark:text-rose-400 font-semibold">
+          <XCircle className="w-3.5 h-3.5" /> Rejected
         </div>
       );
     }
@@ -212,27 +262,27 @@ export default function StudentDashboard() {
     const shortLabels = ['Registered', 'Started', 'Solved'];
 
     return (
-      <div className="flex items-center gap-2 mt-3 w-full bg-slate-50 dark:bg-slate-900/30 p-2.5 rounded-xl border border-slate-200/30 dark:border-slate-800">
+      <div className="flex items-center gap-2 mt-3 w-full bg-slate-50 dark:bg-slate-950/60 p-2.5 rounded-xl border border-slate-200/80 dark:border-slate-800/80">
         {stages.map((stage, idx) => {
           const isCompleted = currentIdx >= idx;
           const isActive = currentIdx === idx;
           return (
             <React.Fragment key={idx}>
               <div className="flex flex-col items-center gap-1 flex-1 min-w-0">
-                <div className={`w-3.5 h-3.5 rounded-full flex items-center justify-center text-[8px] font-bold transition-all ${
+                <div className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold transition-all ${
                   isActive 
-                    ? 'bg-blue-600 text-white shadow-glow-blue animate-pulse scale-110' 
+                    ? 'bg-blue-600 text-white shadow-sm ring-2 ring-blue-600/20' 
                     : isCompleted 
-                      ? 'bg-emerald-500 text-white' 
-                      : 'bg-slate-200 dark:bg-slate-800 text-slate-450 dark:text-slate-600'
+                      ? 'bg-emerald-600 text-white' 
+                      : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600'
                 }`}>
                   {isCompleted ? '✓' : idx + 1}
                 </div>
-                <span className={`text-[8px] font-semibold tracking-tight truncate max-w-full uppercase ${
+                <span className={`text-[9px] font-semibold tracking-tight truncate max-w-full uppercase ${
                   isActive 
-                    ? 'text-blue-600 dark:text-blue-400 font-bold' 
+                    ? 'text-blue-600 dark:text-blue-400' 
                     : isCompleted 
-                      ? 'text-emerald-500' 
+                      ? 'text-emerald-600 dark:text-emerald-400' 
                       : 'text-slate-400 dark:text-slate-500'
                 }`}>
                   {shortLabels[idx]}
@@ -254,352 +304,413 @@ export default function StudentDashboard() {
   const resolvedTickets = tickets.filter(t => t.status === 'Solved' || t.status === 'Resolved');
   const currentTabTickets = ticketTab === 'active' ? activeTickets : resolvedTickets;
 
+  const quickActions = [
+    { label: 'Register Complaint', icon: FileText, path: '/dashboard/contact', color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-950/40 border-blue-200/80 dark:border-blue-900/60' },
+    { label: 'Track Status', icon: SearchCheck, path: '/dashboard/track-complaint', color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200/80 dark:border-emerald-900/60' },
+    { label: 'Student Community', icon: MessageSquare, path: '/dashboard/social-chat', color: 'text-purple-600 dark:text-purple-400', bg: 'bg-purple-50 dark:bg-purple-950/40 border-purple-200/80 dark:border-purple-900/60' },
+    { label: 'Announcements', icon: Volume2, path: '/dashboard/announcements', color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-50 dark:bg-amber-950/40 border-amber-200/80 dark:border-amber-900/60' },
+    { label: 'State Events', icon: Calendar, path: '/dashboard/events', color: 'text-cyan-600 dark:text-cyan-400', bg: 'bg-cyan-50 dark:bg-cyan-950/40 border-cyan-200/80 dark:border-cyan-900/60' },
+    { label: 'Media Gallery', icon: ImageIcon, path: '/dashboard/gallery', color: 'text-rose-600 dark:text-rose-400', bg: 'bg-rose-50 dark:bg-rose-950/40 border-rose-200/80 dark:border-rose-900/60' },
+  ];
+
   return (
-    <div className="w-full flex flex-col gap-6 text-left select-none animate-fadeIn">
+    <div className="w-full flex flex-col gap-6 text-left select-none animate-fadeIn pb-10">
       
-      {/* 1. Dashboard Welcome System Card */}
-      <div className="relative overflow-hidden rounded-2xl glass-panel-light dark:glass-panel-dark border border-slate-200/50 dark:border-slate-850 p-8 shadow-premium-light dark:shadow-premium-dark flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-        {/* Glow ambient backing */}
-        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-blue-500/10 to-transparent blur-xl pointer-events-none" />
-        
-        <div className="flex flex-col gap-2">
-          {/* Subtitle/Role Tag badge */}
-          <div className="inline-flex items-center gap-1.5 self-start px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[10px] font-semibold uppercase tracking-wider border border-blue-500/20">
-            Student Member Node
+      {/* 1. WELCOME BANNER */}
+      <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div className="flex flex-col gap-1.5">
+          <div className="inline-flex items-center gap-1.5 self-start px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 text-[11px] font-semibold border border-blue-200 dark:border-blue-800/60">
+            <ShieldCheck className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" /> Official Student Portal
           </div>
           
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-800 dark:text-white flex flex-wrap items-center gap-x-2 gap-y-1">
-            Welcome, {userProfile?.full_name || 'User'} <span className="text-slate-300 dark:text-slate-750 hidden sm:inline">|</span> <span className="text-blue-600 dark:text-blue-400 block sm:inline">{userProfile?.role === 'dev' ? 'Developer' : userProfile?.role === 'supreme_admin' ? 'Supreme Admin' : 'Student'}</span>
-          </h2>
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight flex flex-wrap items-center gap-x-2 gap-y-1 mt-1">
+            Welcome back, {userProfile?.full_name || 'Student'}
+          </h1>
           
-          <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xl">
-            Statewide Student Grievance & Emergency Protocol active. Dispatch escalations directly to assigned Constituency Leaders.
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-xl leading-relaxed">
+            Statewide Grievance & Emergency Protocol active. Dispatch escalations directly to assigned Constituency Leaders.
           </p>
         </div>
         
-        <PremiumButton 
-          variant="glow" 
-          size="sm" 
+        <button 
           onClick={handleSync}
           disabled={syncing}
-          icon={<RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />}
+          className="px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-200 text-xs font-semibold border border-slate-200 dark:border-slate-700 transition flex items-center gap-2 cursor-pointer shrink-0 shadow-xs"
         >
-          {syncing ? 'Syncing Network...' : 'Sync Profile'}
-        </PremiumButton>
+          <RefreshCw className={`w-3.5 h-3.5 text-blue-600 dark:text-blue-400 ${syncing ? 'animate-spin' : ''}`} />
+          {syncing ? 'Syncing...' : 'Sync Session'}
+        </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full items-stretch">
-        
-        {/* 2. Verified Student Identity Card */}
-        <GlassCard hoverEffect={false} className="p-6 flex flex-col justify-between gap-6 border border-blue-400/20 relative">
-          <div className="absolute top-3 right-3">
-            <ShieldAlert className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-          </div>
-
-          <div className="flex flex-col gap-4 text-left">
-            <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">My Profile</span>
-            
-            <div className="flex items-center gap-4 bg-slate-100/50 dark:bg-slate-900/60 p-4 rounded-xl border border-slate-200/30 dark:border-slate-850">
-              {userProfile?.profile_image ? (
-                <img 
-                  src={userProfile.profile_image} 
-                  alt={userProfile.full_name} 
-                  className="w-14 h-14 rounded-full object-cover shadow-glow-blue shrink-0"
-                />
-              ) : (
-                <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-blue-600 to-blue-400 text-white font-bold text-xl flex items-center justify-center shadow-glow-blue uppercase shrink-0">
-                  {userProfile?.full_name ? userProfile.full_name.split(' ').map(n => n[0]).join('').substring(0, 2) : 'ST'}
-                </div>
-              )}
-              <div className="flex flex-col min-w-0">
-                <span className="font-bold text-base text-slate-800 dark:text-white truncate">
-                  {userProfile?.full_name}
-                </span>
-                <span className="text-[11px] font-semibold text-blue-600 dark:text-blue-400 mt-0.5 truncate">
-                  {userProfile?.college_name || 'Not Set'}
-                </span>
-                <span className="text-[9px] text-slate-450 mt-0.5 font-mono">
-                  ID: #{userProfile?.id ? userProfile.id.substring(0, 8).toUpperCase() : 'MOCK_ID'}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-2.5 text-xs text-slate-500 dark:text-slate-400 text-left border-t border-slate-200/50 dark:border-slate-850 pt-4">
-            <div className="flex justify-between">
-              <span>Role:</span>
-              <strong className="text-slate-800 dark:text-slate-200">
-                {userProfile?.role ? userProfile.role.charAt(0).toUpperCase() + userProfile.role.slice(1) : 'Student'}
-              </strong>
-            </div>
-            <div className="flex justify-between">
-              <span>Constituency:</span>
-              <strong className="text-slate-800 dark:text-slate-250">
-                {userProfile?.constituency_name || 'Not Set'}
-              </strong>
-            </div>
-            <div className="flex justify-between">
-              <span>District:</span>
-              <strong className="text-slate-800 dark:text-slate-255">
-                {userProfile?.district || 'Not Set'}
-              </strong>
-            </div>
-          </div>
-        </GlassCard>
-
-        {/* 3. Complaints Dispatch Tracker */}
-        <div className="lg:col-span-2">
-          <GlassCard hoverEffect={false} className="p-6 h-full flex flex-col justify-between gap-4 text-left">
-            <div className="flex flex-col gap-2 border-b border-slate-200/50 dark:border-slate-850 pb-3">
-              <div className="flex items-center justify-between">
-                <span className="font-extrabold text-sm text-slate-700 dark:text-white uppercase tracking-wider">My Issues</span>
-                <span className="text-xs text-slate-400">{tickets.length} Logged</span>
-              </div>
-              
-              {/* Tab Selector */}
-              <div className="flex gap-2 mt-2">
-                <button
-                  type="button"
-                  onClick={() => setTicketTab('active')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border ${
-                    ticketTab === 'active'
-                      ? 'bg-blue-600 text-white border-blue-600 shadow-glow-blue'
-                      : 'bg-white/40 dark:bg-slate-900/40 border-slate-200/60 dark:border-slate-800 text-slate-500 dark:text-slate-400'
-                  }`}
-                >
-                  Open Issues ({activeTickets.length})
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setTicketTab('resolved')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border ${
-                    ticketTab === 'resolved'
-                      ? 'bg-blue-600 text-white border-blue-600 shadow-glow-blue'
-                      : 'bg-white/40 dark:bg-slate-900/40 border-slate-200/60 dark:border-slate-800 text-slate-500 dark:text-slate-400'
-                  }`}
-                >
-                  Resolved Issues ({resolvedTickets.length})
-                </button>
-              </div>
-            </div>
-
-            {loading ? (
-              <div className="flex-1 flex items-center justify-center min-h-[150px]">
-                <div className="w-8 h-8 rounded-full border-2 border-t-blue-600 border-r-transparent border-slate-800 animate-spin" />
-              </div>
-            ) : (
-              <div className="flex-1 flex flex-col gap-3 my-2 overflow-y-auto max-h-[220px] pr-1 custom-sidebar-scrollbar min-h-[150px]">
-                {currentTabTickets.length > 0 ? (
-                  currentTabTickets.map((t) => (
-                    <div 
-                      key={t.id} 
-                      onClick={() => setSelectedTicketId(t.id)}
-                      className="flex flex-col p-4 rounded-xl bg-slate-100/50 dark:bg-slate-900/40 border border-slate-200/40 dark:border-slate-850 cursor-pointer hover:border-blue-500/50 transition-all group gap-2"
-                    >
-                      <div className="flex items-start justify-between min-w-0">
-                        <div className="flex flex-col text-left min-w-0 max-w-[70%]">
-                          <span className="font-semibold text-sm text-slate-800 dark:text-white flex items-center gap-1.5 truncate">
-                            <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
-                            {t.title}
-                          </span>
-                          <span className="text-[10px] text-slate-400 mt-0.5 truncate flex items-center gap-1.5 flex-wrap">
-                            Ticket #{t.id} • {new Date(t.created_at).toLocaleDateString()}
-                            {t.attachment_url && (
-                              <a 
-                                href={t.attachment_url} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 text-[8px] font-semibold uppercase tracking-wider transition-colors border border-blue-500/15"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                Evidence Attached
-                              </a>
-                            )}
-                          </span>
-                        </div>
-                        <span className={`text-[9px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded border shrink-0 ${
-                          t.status === 'Resolved' || t.status === 'Solved' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' :
-                          t.status === 'Under Investigation' || t.status === 'In Progress' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' :
-                          'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20'
-                        }`}>
-                          {t.status}
-                        </span>
-                      </div>
-                      
-                      {/* Live Stepper */}
-                      {renderStatusStepper(t.status)}
-                    </div>
-                  ))
-                ) : (
-                  <div className="flex-1 flex items-center justify-center p-6 text-center text-xs font-semibold text-slate-400">
-                    {ticketTab === 'active' ? 'No active tickets.' : 'No resolved tickets.'}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {cooldownRemaining > 0 ? (
-              <div className="mt-2 flex flex-col items-center gap-1.5 p-3 rounded-xl bg-amber-500/10 border border-amber-500/25">
-                <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
-                  <span className="text-[10px] font-extrabold uppercase tracking-wider">⏳ Cooldown</span>
-                  <span className="font-mono font-black text-sm">{formatCooldown(cooldownRemaining)}</span>
-                </div>
-                <p className="text-[9px] text-slate-400 text-center">Next issue submission available after cooldown expires.</p>
-              </div>
-            ) : (
-              <PremiumButton
-                type="button"
-                variant="primary"
-                size="sm"
-                className="w-full mt-2"
-                onClick={() => navigate('/dashboard/contact')}
-              >
-                Get Help
-              </PremiumButton>
-            )}
-          </GlassCard>
+      {/* 2. MOST IMPORTANT INFORMATION (Key Status Metrics Focus) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 shadow-xs flex flex-col justify-between gap-2">
+          <span className="text-2xl font-bold text-blue-600 dark:text-blue-400 tracking-tight">{activeTickets.length}</span>
+          <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">Active Grievances</span>
+        </div>
+        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 shadow-xs flex flex-col justify-between gap-2">
+          <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 tracking-tight">{resolvedTickets.length}</span>
+          <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">Resolved Cases</span>
+        </div>
+        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 shadow-xs flex flex-col justify-between gap-2 truncate">
+          <span className="text-sm font-semibold text-slate-900 dark:text-white truncate">
+            {userProfile?.college_name && userProfile.college_name !== 'Not Set' ? userProfile.college_name : 'Not Mapped'}
+          </span>
+          <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">Campus Assignment</span>
+        </div>
+        <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 shadow-xs flex flex-col justify-between gap-2 truncate">
+          <span className="text-sm font-semibold text-slate-900 dark:text-white truncate">
+            {userProfile?.constituency_name || 'Not Mapped'}
+          </span>
+          <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">Assembly Constituency</span>
         </div>
       </div>
 
-       {/* 4. Profile Location & Constituency Hub */}
-      <GlassCard hoverEffect={false} className="p-6 flex flex-col gap-5 border border-blue-500/10 relative overflow-hidden">
-        {/* Glow backing */}
-        <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-bl from-blue-500/5 to-transparent blur-2xl pointer-events-none" />
+      {/* 3. QUICK ACTIONS */}
+      <div className="flex flex-col gap-2.5">
+        <h2 className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider pl-1">
+          Quick Actions
+        </h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          {quickActions.map((action, idx) => {
+            const IconComponent = action.icon;
+            return (
+              <div
+                key={idx}
+                onClick={() => navigate(action.path)}
+                className="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 shadow-xs hover:border-blue-500/50 transition-all flex flex-col items-center text-center gap-2 cursor-pointer group"
+              >
+                <div className={`w-9 h-9 rounded-lg border flex items-center justify-center group-hover:scale-105 transition-transform ${action.bg}`}>
+                  <IconComponent className={`w-4.5 h-4.5 ${action.color}`} />
+                </div>
+                <span className="text-xs font-medium text-slate-700 dark:text-slate-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                  {action.label}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 4. RECENT UPDATES (My Issues & Grievances Tracker) */}
+      <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-6 shadow-xs flex flex-col gap-4 text-left">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800/80 pb-4">
+          <div>
+            <h2 className="text-base font-semibold text-slate-900 dark:text-white tracking-tight">
+              My Registered Grievances
+            </h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Live status updates on complaints submitted to your constituency officers.
+            </p>
+          </div>
+          
+          <div className="flex gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => setTicketTab('active')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border ${
+                ticketTab === 'active'
+                  ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
+                  : 'bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300'
+              }`}
+            >
+              Open ({activeTickets.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setTicketTab('resolved')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border ${
+                ticketTab === 'resolved'
+                  ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
+                  : 'bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300'
+              }`}
+            >
+              Resolved ({resolvedTickets.length})
+            </button>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="py-12 flex items-center justify-center">
+            <div className="w-6 h-6 rounded-full border-2 border-blue-600 border-t-transparent animate-spin" />
+          </div>
+        ) : (
+          <div className="flex flex-col gap-3 max-h-[300px] overflow-y-auto pr-1 custom-sidebar-scrollbar min-h-[140px]">
+            {currentTabTickets.length > 0 ? (
+              currentTabTickets.map((t) => (
+                <div 
+                  key={t.id} 
+                  onClick={() => setSelectedTicketId(t.id)}
+                  className="flex flex-col p-4 rounded-xl bg-slate-50/70 dark:bg-slate-950/50 border border-slate-200/80 dark:border-slate-800/80 cursor-pointer hover:border-blue-500/50 transition-all gap-2"
+                >
+                  <div className="flex items-start justify-between min-w-0">
+                    <div className="flex flex-col text-left min-w-0 max-w-[70%]">
+                      <span className="font-semibold text-sm text-slate-900 dark:text-white flex items-center gap-1.5 truncate">
+                        <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
+                        {t.title}
+                      </span>
+                      <span className="text-[11px] text-slate-500 mt-0.5 truncate flex items-center gap-1.5 flex-wrap">
+                        Ticket #{t.id} • {new Date(t.created_at).toLocaleDateString()}
+                        {t.attachment_url && (
+                          <a 
+                            href={t.attachment_url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 text-[10px] font-medium border border-blue-200 dark:border-blue-800"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            Evidence Attached
+                          </a>
+                        )}
+                      </span>
+                    </div>
+                    <span className={`text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full border shrink-0 ${
+                      t.status === 'Resolved' || t.status === 'Solved' ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800' :
+                      t.status === 'Under Investigation' || t.status === 'In Progress' ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800' :
+                      'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800'
+                    }`}>
+                      {t.status}
+                    </span>
+                  </div>
+                  
+                  {renderStatusStepper(t.status)}
+                </div>
+              ))
+            ) : (
+              <div className="py-10 text-center text-xs text-slate-500 font-medium">
+                {ticketTab === 'active' ? 'No active grievances registered.' : 'No resolved grievances recorded yet.'}
+              </div>
+            )}
+          </div>
+        )}
+
+        {cooldownRemaining > 0 ? (
+          <div className="flex flex-col items-center gap-1 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-center">
+            <div className="flex items-center gap-2 text-amber-700 dark:text-amber-300">
+              <span className="text-xs font-semibold uppercase tracking-wider">⏳ Submission Cooldown</span>
+              <span className="font-mono font-bold text-xs">{formatCooldown(cooldownRemaining)}</span>
+            </div>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">Next issue submission available after cooldown expires.</p>
+          </div>
+        ) : (
+          <button
+            type="button"
+            className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow-xs transition flex items-center justify-center gap-2 cursor-pointer"
+            onClick={() => navigate('/dashboard/contact')}
+          >
+            <FileText className="w-4 h-4" /> Register New Grievance
+          </button>
+        )}
+      </div>
+
+      {/* 5. ACTIVITY & PREVIEWS (Announcements, Events & Community) */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full items-stretch">
         
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200/40 dark:border-slate-850 pb-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
-              <Building className="w-5 h-5" />
-            </div>
-            <div className="flex flex-col text-left">
-              <h3 className="font-semibold text-base text-slate-800 dark:text-white uppercase tracking-wider">
-                📍 Campus & Constituency Selection
-              </h3>
-              <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
-                Set your college campus name and select your assembly constituency to route your issues to the correct leaders.
-              </p>
-            </div>
+        {/* Latest Announcements */}
+        <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-5 shadow-xs flex flex-col justify-between gap-4 text-left">
+          <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-3">
+            <span className="font-semibold text-xs text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+              <Volume2 className="w-4 h-4 text-amber-500" /> Announcements
+            </span>
+            <button 
+              onClick={() => navigate('/dashboard/announcements')}
+              className="text-[11px] text-blue-600 dark:text-blue-400 hover:underline font-semibold flex items-center gap-1 cursor-pointer"
+            >
+              View All <ArrowRight className="w-3 h-3" />
+            </button>
+          </div>
+
+          <div className="flex flex-col gap-2.5">
+            {announcements.length > 0 ? (
+              announcements.map((note) => (
+                <div 
+                  key={note.id} 
+                  onClick={() => navigate('/dashboard/announcements')}
+                  className="p-3 rounded-xl bg-slate-50/70 dark:bg-slate-950/50 border border-slate-200/80 dark:border-slate-800/80 hover:border-blue-500/40 transition flex flex-col gap-1 cursor-pointer"
+                >
+                  <div className="flex items-center justify-between text-[10px] font-semibold">
+                    <span className="text-amber-700 dark:text-amber-300 uppercase">
+                      {note.target_audience === 'all' ? 'Statewide' : note.target_audience}
+                    </span>
+                    <span className="text-slate-400 font-normal">
+                      {new Date(note.created_at).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <h3 className="font-semibold text-xs text-slate-900 dark:text-white line-clamp-1">
+                    {note.title}
+                  </h3>
+                </div>
+              ))
+            ) : (
+              <div className="py-6 text-center text-xs text-slate-500">
+                No active announcements.
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Upcoming Events */}
+        <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-5 shadow-xs flex flex-col justify-between gap-4 text-left">
+          <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-3">
+            <span className="font-semibold text-xs text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+              <Calendar className="w-4 h-4 text-cyan-500" /> State Events
+            </span>
+            <button 
+              onClick={() => navigate('/dashboard/events')}
+              className="text-[11px] text-blue-600 dark:text-blue-400 hover:underline font-semibold flex items-center gap-1 cursor-pointer"
+            >
+              View All <ArrowRight className="w-3 h-3" />
+            </button>
+          </div>
+
+          <div className="flex flex-col gap-2.5">
+            {events.length > 0 ? (
+              events.map((ev) => (
+                <div 
+                  key={ev.id} 
+                  onClick={() => navigate('/dashboard/events')}
+                  className="p-3 rounded-xl bg-slate-50/70 dark:bg-slate-950/50 border border-slate-200/80 dark:border-slate-800/80 hover:border-blue-500/40 transition flex flex-col gap-1 cursor-pointer"
+                >
+                  <div className="flex items-center justify-between text-[10px] font-semibold">
+                    <span className="text-cyan-700 dark:text-cyan-300 uppercase">
+                      {ev.location || 'Campus Event'}
+                    </span>
+                    <span className="text-slate-400 font-normal">
+                      {ev.event_date ? new Date(ev.event_date).toLocaleDateString() : 'Upcoming'}
+                    </span>
+                  </div>
+                  <h3 className="font-semibold text-xs text-slate-900 dark:text-white line-clamp-1">
+                    {ev.title}
+                  </h3>
+                </div>
+              ))
+            ) : (
+              <div className="py-6 text-center text-xs text-slate-500">
+                No scheduled events.
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Community Discussion */}
+        <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-5 shadow-xs flex flex-col justify-between gap-4 text-left">
+          <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-3">
+            <span className="font-semibold text-xs text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+              <MessageSquare className="w-4 h-4 text-purple-500" /> Student Community
+            </span>
+            <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+              Live
+            </span>
+          </div>
+
+          <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+            Engage with fellow union members across campuses and participate in active student welfare forums.
+          </p>
+
+          <button
+            onClick={() => navigate('/dashboard/social-chat')}
+            className="w-full py-2 px-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+          >
+            Open Student Hub <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+      </div>
+
+      {/* 6. ADDITIONAL INFORMATION (Campus & Constituency Mapping) */}
+      <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-6 shadow-xs flex flex-col gap-5 text-left">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800/80 pb-4">
+          <div className="flex items-center gap-2.5">
+            <Building className="w-4.5 h-4.5 text-blue-600 dark:text-blue-400" />
+            <h2 className="font-semibold text-base text-slate-900 dark:text-white tracking-tight">
+              Campus & Assembly Constituency Mapping
+            </h2>
           </div>
           
           {userProfile?.college_name && userProfile.college_name !== 'Not Set' ? (
-            <span className="self-start md:self-center text-[9px] font-semibold bg-emerald-500/10 text-emerald-500 dark:text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-full uppercase tracking-wider">
-              ✓ Profile Details Locked: {userProfile.college_name}
+            <span className="text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 px-3 py-1 rounded-full flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5" /> Details Locked
             </span>
           ) : (
-            <span className="self-start md:self-center text-[9px] font-semibold bg-amber-500/10 text-amber-500 dark:text-amber-400 border border-amber-500/20 px-2.5 py-1 rounded-full uppercase tracking-wider">
-              ⚠️ Details Not Set
+            <span className="text-xs font-semibold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 px-3 py-1 rounded-full flex items-center gap-1.5">
+              <AlertTriangle className="w-3.5 h-3.5" /> Details Not Set
             </span>
           )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-stretch">
-          {/* Left Panel: College name and constituency dropdown */}
-          <div className="lg:col-span-2 flex flex-col gap-4 text-left justify-between">
-            <div className="flex flex-col gap-4">
+          <div className="lg:col-span-2 flex flex-col gap-4 justify-between">
+            <div className="flex flex-col gap-3">
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
                   College / School Name
                 </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="e.g. Aurora Technological Uppal"
-                    value={collegeSearch}
-                    onChange={(e) => {
-                      setCollegeSearch(e.target.value);
-                      setSaveSuccess('');
-                    }}
-                    className="peer w-full pl-11 pr-4 py-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-blue-500 border-slate-200/60 dark:border-slate-800 text-slate-800 dark:text-slate-100 shadow-sm"
-                  />
-                  <Building className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-blue-600 dark:text-blue-400 pointer-events-none z-10" strokeWidth={2.2} />
-                </div>
+                <input
+                  type="text"
+                  placeholder="e.g. JNTU Hyderabad / Aurora College"
+                  value={collegeSearch}
+                  onChange={(e) => {
+                    setCollegeSearch(e.target.value);
+                    setSaveSuccess('');
+                  }}
+                  className="w-full px-3.5 py-2.5 rounded-xl border bg-slate-50/50 dark:bg-slate-950 text-xs focus:outline-none focus:border-blue-600 border-slate-200/80 dark:border-slate-800 text-slate-900 dark:text-white"
+                />
               </div>
 
-              {/* Manual constituency select option */}
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+                <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
                   Assembly Constituency
                 </label>
-                <div className="relative">
-                  <select
-                    value={selectedConstituencyId}
-                    onChange={(e) => setSelectedConstituencyId(e.target.value)}
-                    className="peer w-full pl-11 pr-4 py-3 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-blue-500 border-slate-200/60 dark:border-slate-800 text-slate-800 dark:text-slate-100"
-                  >
-                    {constituencies.map(con => (
-                      <option key={con.id} value={con.id}>
-                        {con.constituency_name === 'Upcoming Area' || con.constituency_name === 'Upcoming Area Node'
-                          ? 'Not Listed (Send to All State Leaders)'
-                          : con.constituency_name}
-                      </option>
-                    ))}
-                  </select>
-                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-blue-600 dark:text-blue-400 pointer-events-none z-10" strokeWidth={2.2} />
-                </div>
+                <select
+                  value={selectedConstituencyId}
+                  onChange={(e) => setSelectedConstituencyId(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border bg-slate-50/50 dark:bg-slate-950 text-xs focus:outline-none focus:border-blue-600 border-slate-200/80 dark:border-slate-800 text-slate-900 dark:text-white"
+                >
+                  {constituencies.map(con => (
+                    <option key={con.id} value={con.id}>
+                      {con.constituency_name === 'Upcoming Area' || con.constituency_name === 'Upcoming Area Node'
+                        ? 'Not Listed (Send to All State Leaders)'
+                        : con.constituency_name}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 
             <div className="flex flex-col gap-2">
-              {/* Lock details button */}
-              <PremiumButton
+              <button
                 type="button"
-                variant="glow"
-                size="md"
-                className="w-full"
                 onClick={handleLockCoordinates}
                 disabled={savingMap || !collegeSearch}
+                className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold text-xs transition flex items-center justify-center gap-2 cursor-pointer shadow-xs"
               >
                 {savingMap ? 'Locking Details...' : 'Lock Profile Details'}
-              </PremiumButton>
+              </button>
 
               {saveSuccess && (
-                <p className={`text-[10px] font-semibold uppercase tracking-wider mt-1 text-left ${saveSuccess.startsWith('❌') ? 'text-rose-500' : 'text-emerald-500 dark:text-emerald-400'}`}>
+                <p className={`text-xs font-semibold mt-1 text-left ${saveSuccess.startsWith('❌') ? 'text-rose-500' : 'text-emerald-600 dark:text-emerald-400'}`}>
                   {saveSuccess}
                 </p>
               )}
             </div>
           </div>
 
-          {/* Right Panel: How to find your constituency instructions */}
-          <div className="lg:col-span-3 w-full flex flex-col justify-between p-5 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-slate-500/5 relative overflow-hidden">
-            <div className="flex flex-col gap-4 text-left">
-              <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
-                <HelpCircle className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                <span className="text-xs font-semibold uppercase tracking-widest text-slate-400">
-                  Constituency Identification Guide
-                </span>
-              </div>
-              <div className="flex flex-col gap-3.5 text-xs text-slate-600 dark:text-slate-400 font-medium leading-relaxed">
-                <div className="flex items-start gap-2.5">
-                  <div className="w-5 h-5 rounded-full bg-blue-500/10 border border-blue-500/25 flex items-center justify-center text-[10px] text-blue-600 dark:text-blue-400 font-bold shrink-0 mt-0.5">1</div>
-                  <p>
-                    <strong className="text-slate-800 dark:text-slate-200">Get your Campus Pincode:</strong> Check the address of your college or school to locate its 6-digit postal pincode.
-                  </p>
-                </div>
-                <div className="flex items-start gap-2.5">
-                  <div className="w-5 h-5 rounded-full bg-blue-500/10 border border-blue-500/25 flex items-center justify-center text-[10px] text-blue-600 dark:text-blue-400 font-bold shrink-0 mt-0.5">2</div>
-                  <p>
-                    <strong className="text-slate-800 dark:text-slate-200">Search on Google:</strong> Type your college pincode followed by <span className="font-mono text-blue-600 dark:text-blue-400 font-semibold">"assembly constituency"</span> into Google search (e.g. search: <span className="font-mono text-blue-600 dark:text-blue-400 font-semibold">"500001 assembly constituency"</span>).
-                  </p>
-                </div>
-                <div className="flex items-start gap-2.5">
-                  <div className="w-5 h-5 rounded-full bg-blue-500/10 border border-blue-500/25 flex items-center justify-center text-[10px] text-blue-600 dark:text-blue-400 font-bold shrink-0 mt-0.5">3</div>
-                  <p>
-                    <strong className="text-slate-800 dark:text-slate-200">Select & Save:</strong> Match the Google result with our constituency list dropdown. Click <span className="text-blue-600 dark:text-blue-400 font-semibold">"Lock Profile Details"</span> to save.
-                  </p>
-                </div>
-                <div className="flex items-start gap-2.5">
-                  <div className="w-5 h-5 rounded-full bg-amber-500/10 border border-amber-500/25 flex items-center justify-center text-[10px] text-amber-500 font-black shrink-0 mt-0.5">!</div>
-                  <p>
-                    <strong className="text-amber-500">Not Listed?</strong> If your constituency is not present in our database, select <strong className="text-amber-500">"Not Listed (Send to All State Leaders)"</strong>. Your issue tickets will be dispatched globally to all state committee members.
-                  </p>
-                </div>
-              </div>
+          <div className="lg:col-span-3 w-full flex flex-col justify-between p-4 rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-950/50">
+            <div className="flex flex-col gap-3 text-xs text-slate-600 dark:text-slate-400">
+              <span className="font-semibold text-slate-900 dark:text-white text-xs">
+                Constituency Identification Steps
+              </span>
+              <p className="leading-relaxed">
+                1. Check the postal pincode of your college campus.<br/>
+                2. Search Google for <span className="font-mono text-blue-600 dark:text-blue-400 font-medium">"[pincode] assembly constituency"</span>.<br/>
+                3. Match and select your constituency from the dropdown above.
+              </p>
             </div>
           </div>
         </div>
-      </GlassCard>
+      </div>
 
+      {/* Official Grievance Details Modal */}
       {selectedTicketId && (
         <ComplaintDetailsModal 
           ticketId={selectedTicketId} 
@@ -608,38 +719,34 @@ export default function StudentDashboard() {
         />
       )}
 
+      {/* Security Warning Modal */}
       {showWarningModal && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/80 backdrop-blur-md animate-fadeIn">
-          <div className="max-w-md w-full mx-4 p-8 rounded-3xl bg-white dark:bg-slate-900 border-2 border-amber-500 shadow-2xl text-center flex flex-col items-center gap-5 relative overflow-hidden animate-scaleUp">
-            {/* Ambient Background Glow */}
-            <div className="absolute top-0 inset-x-0 h-32 bg-gradient-to-b from-amber-500/15 to-transparent blur-xl pointer-events-none" />
-            
-            {/* Glowing warning icon container */}
-            <div className="w-16 h-16 rounded-full bg-amber-500/10 border-2 border-amber-500/40 flex items-center justify-center text-amber-600 dark:text-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.2)] animate-bounce">
-              <ShieldAlert className="w-9 h-9" />
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/75 backdrop-blur-xs animate-fadeIn">
+          <div className="max-w-md w-full mx-4 p-7 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl text-center flex flex-col items-center gap-4">
+            <div className="w-12 h-12 rounded-full bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 flex items-center justify-center text-amber-600 dark:text-amber-400">
+              <ShieldAlert className="w-6 h-6" />
             </div>
 
-            <div className="flex flex-col gap-1.5 z-10">
-              <h3 className="text-2xl font-black tracking-wider text-amber-600 dark:text-amber-400 uppercase">
-                ⚠️ Be Alert!
+            <div className="flex flex-col gap-1">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+                Genuine Grievance Notice
               </h3>
-              <p className="text-[10px] text-slate-555 dark:text-slate-400 font-extrabold uppercase tracking-widest">
-                Official {shortName} Student Notice
+              <p className="text-[11px] text-slate-400 font-semibold uppercase tracking-wider">
+                Official {shortName} Guidelines
               </p>
             </div>
 
-            <p className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed font-semibold z-10">
-              Issue tickets logged in the {shortName} Command Node are transmitted directly to regional boards. 
-              <span className="text-amber-600 dark:text-amber-400 font-bold block mt-1">You must file only real and genuine issues.</span> 
-              Filing simulated, fake, or false issues is strictly prohibited and will result in permanent student credential suspension.
+            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+              Issues logged in the portal are transmitted directly to regional governance boards. 
+              Filing false issues is strictly prohibited and will result in credential suspension.
             </p>
 
             <button
               type="button"
               onClick={handleAcceptWarning}
-              className="w-full z-10 py-3.5 px-6 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black uppercase text-xs tracking-wider transition-all duration-200 shadow-md hover:shadow-lg active:scale-[0.98] select-none cursor-pointer border border-amber-400/20"
+              className="w-full py-2.5 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs transition-all shadow-xs cursor-pointer"
             >
-              OK, I Accept
+              OK, I Understand & Accept
             </button>
           </div>
         </div>

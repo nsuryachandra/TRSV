@@ -230,32 +230,14 @@ function OrgMark({ logo, size = 52 }) {
 
 function VerifiedChip() {
   return (
-    <div
-      className="inline-flex items-center gap-0.5 rounded-full py-[2px] pl-1 pr-1.5"
-      style={{
-        background: "rgba(19,122,75,0.09)",
-        border: `1px solid rgba(19,122,75,0.22)`,
-      }}
-    >
-      <span
-        className="flex h-[11px] w-[11px] items-center justify-center rounded-full"
-        style={{ background: TOKENS.verified }}
-      >
+    <div className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 bg-emerald-50 border border-emerald-200/80 shadow-2xs">
+      <span className="flex h-3 w-3 items-center justify-center rounded-full bg-emerald-600 text-white shrink-0">
         <svg width="7" height="7" viewBox="0 0 24 24" fill="none">
-          <path
-            d="M5 13l4 4L19 7"
-            stroke="#fff"
-            strokeWidth="3.4"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
+          <path d="M5 13l4 4L19 7" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </span>
-      <span
-        className="text-[7px] font-bold uppercase"
-        style={{ color: TOKENS.verified, letterSpacing: "0.08em" }}
-      >
-        Verified
+      <span className="text-[7.5px] font-bold uppercase tracking-[0.14em] text-emerald-800 font-sans">
+        VERIFIED MEMBER
       </span>
     </div>
   );
@@ -265,21 +247,15 @@ function Field({ icon: Icon, label, value }) {
   return (
     <div className="flex items-start gap-2">
       {Icon && (
-        <Icon size={13} className="mt-[3px] shrink-0" color={TOKENS.slate} strokeWidth={2} />
+        <Icon size={12} className="mt-[2px] shrink-0 text-slate-400" strokeWidth={2} />
       )}
-      <div className="min-w-0">
-        <div
-          className="text-[8.5px] font-semibold uppercase leading-none"
-          style={{ color: TOKENS.slate, letterSpacing: "0.09em", fontFamily: "Inter, sans-serif" }}
-        >
+      <div className="min-w-0 flex-1">
+        <span className="text-[7px] font-medium uppercase tracking-[0.14em] text-slate-500 block leading-none mb-1 font-sans">
           {label}
-        </div>
-        <div
-          className="mt-[5px] text-[12px] font-semibold leading-tight break-words"
-          style={{ color: TOKENS.ink, fontFamily: "Inter, sans-serif" }}
-        >
-          {value || "\u2014"}
-        </div>
+        </span>
+        <span className="text-[12.5px] font-semibold text-slate-800 tracking-tight leading-tight block break-words font-sans">
+          {value || "—"}
+        </span>
       </div>
     </div>
   );
@@ -353,13 +329,13 @@ function CardFront(props) {
         <div className="flex items-end gap-4">
           <div className="relative shrink-0">
             <div
-              className="h-[110px] w-[90px] overflow-hidden rounded-[12px] bg-white shadow-[0_8px_22px_rgba(10,42,84,0.28)] ring-[2.5px] ring-white"
+              className="h-[110px] w-[90px] overflow-hidden rounded-[14px] bg-white shadow-[0_8px_24px_rgba(10,42,84,0.22)] ring-[3px] ring-white"
             >
               {photo ? (
                 <img src={photo} alt={name} className="h-full w-full object-cover" />
               ) : (
                 <div
-                  className="flex h-full w-full items-center justify-center text-[9px] font-medium"
+                  className="flex h-full w-full items-center justify-center text-[10px] font-bold uppercase tracking-wider"
                   style={{ background: "#EDF0F5", color: TOKENS.slate }}
                 >
                   Photo
@@ -368,22 +344,17 @@ function CardFront(props) {
             </div>
             {verified && (
               <div
-                className="absolute -bottom-1 -right-1.5 flex h-[20px] w-[20px] items-center justify-center rounded-full ring-2 ring-white"
+                className="absolute -bottom-1 -right-1.5 flex h-[22px] w-[22px] items-center justify-center rounded-full ring-2 ring-white shadow-sm"
                 style={{ background: TOKENS.verified }}
               >
-                <BadgeCheck size={12} color="#fff" strokeWidth={2.6} />
+                <BadgeCheck size={14} color="#fff" strokeWidth={2.6} />
               </div>
             )}
           </div>
 
-          <div className="min-w-0 flex-1 pb-2">
+          <div className="min-w-0 flex-1 pb-1">
             <div
-              className="truncate text-[20px] font-bold leading-[1.15]"
-              style={{
-                color: TOKENS.ink,
-                fontFamily: "Sora, sans-serif",
-                letterSpacing: "-0.01em",
-              }}
+              className="truncate text-[22px] font-black leading-[1.1] tracking-tight text-slate-900 font-sans"
             >
               {name || "Member Name"}
             </div>
@@ -398,21 +369,14 @@ function CardFront(props) {
 
       {/* Data grid */}
       <div className="relative mt-4 px-6">
-        <div
-          className="rounded-[4px] px-3 py-[7px] text-[9.5px] font-semibold"
-          style={{
-            fontFamily: "'JetBrains Mono', monospace",
-            color: TOKENS.blue,
-            background: "rgba(240,164,0,0.13)",
-            border: "1px solid rgba(240,164,0,0.28)",
-            letterSpacing: "0.09em",
-            width: "fit-content",
-          }}
-        >
-          ID&nbsp; {tvrsId ? tvrsId.replace(/^(TVRS|TRSV)-/i, `${shortName}-`) : `${shortName}-000000`}
+        <div className="inline-flex items-center gap-2 rounded-md px-2.5 py-1 bg-amber-500/10 border border-amber-500/25 text-amber-900 shadow-2xs">
+          <span className="text-[7.5px] font-bold uppercase tracking-[0.14em] text-amber-800 font-sans">ID</span>
+          <span className="text-[11px] font-semibold font-mono tracking-widest text-slate-800">
+            {tvrsId ? tvrsId.replace(/^(TVRS|TRSV)-/i, `${shortName}-`) : `${shortName}-000000`}
+          </span>
         </div>
 
-        <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-5">
+        <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-4">
           <Field icon={Landmark} label="Constituency" value={constituency} />
           <Field icon={Shield} label="Post" value={designation} />
           <Field icon={CalendarDays} label="Joined" value={joinedDate} />
@@ -423,37 +387,22 @@ function CardFront(props) {
 
       {/* QR footer */}
       <div className="relative mt-4 px-6 pb-6">
-        <div
-          className="flex items-center gap-3 rounded-[14px] px-4 py-3"
-          style={{
-            background: "rgba(10,42,84,0.025)",
-            border: `1px solid ${TOKENS.hairlineSoft}`,
-          }}
-        >
-          <div className="shrink-0 rounded-[10px] bg-white p-1.5 shadow-[0_2px_10px_rgba(10,42,84,0.12)] ring-1 ring-[rgba(10,42,84,0.08)] flex items-center justify-center overflow-hidden" style={{ width: 100, height: 100 }}>
+        <div className="flex items-center gap-3.5 rounded-2xl p-3 bg-gradient-to-br from-slate-50 via-slate-100/50 to-blue-50/40 border border-slate-200/80 shadow-xs">
+          <div className="shrink-0 rounded-xl bg-white p-1.5 shadow-sm border border-slate-200/80 flex items-center justify-center overflow-hidden" style={{ width: 92, height: 92 }}>
             {qrCodeDataUrl ? (
               <img src={qrCodeDataUrl} alt="QR Code" className="w-full h-full object-contain" />
             ) : (
-              <VerificationGlyph value={qrValue || tvrsId} size={84} />
+              <VerificationGlyph value={qrValue || tvrsId} size={78} />
             )}
           </div>
           <div className="min-w-0 flex-1">
-            <div
-              className="text-[8.5px] font-bold uppercase"
-              style={{ color: TOKENS.blue, letterSpacing: "0.1em" }}
-            >
-              Official Verification
+            <div className="text-[9.5px] font-extrabold uppercase tracking-[0.12em] text-[#0a2a54]">
+              OFFICIAL VERIFICATION
             </div>
-            <div
-              className="mt-[3px] text-[8px] font-semibold uppercase"
-              style={{ color: TOKENS.slate, letterSpacing: "0.08em" }}
-            >
-              Scan to Verify
+            <div className="text-[7.5px] font-medium uppercase tracking-[0.14em] text-slate-500 mt-0.5">
+              SCAN TO VERIFY
             </div>
-            <div
-              className="mt-[6px] text-[7px] break-all leading-snug"
-              style={{ color: TOKENS.slate, fontFamily: "'JetBrains Mono', monospace" }}
-            >
+            <div className="mt-1.5 inline-block text-[8px] font-semibold font-mono text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-200/60">
               trsv-union.onrender.com
             </div>
           </div>
@@ -510,22 +459,19 @@ function CardBack(props) {
       {/* Instructions */}
       <div className="relative px-6 pt-4">
         <div
-          className="text-[8px] font-bold uppercase"
-          style={{ color: TOKENS.slate, letterSpacing: "0.11em" }}
+          className="text-[7.5px] font-medium uppercase tracking-[0.15em] text-slate-500"
         >
-          Verification Instructions
+          VERIFICATION INSTRUCTIONS
         </div>
         <p
-          className="mt-1.5 text-[9px] leading-[1.5]"
-          style={{ color: TOKENS.ink, fontFamily: "Inter, sans-serif" }}
+          className="mt-1.5 text-[9px] leading-[1.55] text-slate-700 font-normal font-sans"
         >
           Verify this identity via the {shortName} Portal by scanning the QR code with any smartphone camera.
         </p>
         <div className="mt-2 flex items-center gap-1.5">
           <Globe size={10} color={TOKENS.blue} />
           <span
-            className="text-[8.5px] font-semibold"
-            style={{ color: TOKENS.blue, fontFamily: "'JetBrains Mono', monospace" }}
+            className="text-[8px] font-semibold font-mono text-[#0a2a54]"
           >
             trsv-union.onrender.com
           </span>
@@ -549,35 +495,26 @@ function CardBack(props) {
               />
             ) : (
               <span
-                className="pb-1 text-[12px]"
-                style={{
-                  color: "#9CA5B4",
-                  fontFamily: "'Sora', sans-serif",
-                  fontStyle: "italic",
-                  fontWeight: 600,
-                }}
+                className="pb-1 text-[11px] font-serif italic text-slate-400 font-normal"
               >
                 Authorized Signatory
               </span>
             )}
           </div>
           <div
-            className="mt-1.5 text-[9px] font-bold"
-            style={{ color: TOKENS.ink, fontFamily: "Sora, sans-serif" }}
+            className="mt-1.5 text-[9.5px] font-semibold text-slate-800 font-sans"
           >
             Kavitha Garu
           </div>
           <div
-            className="text-[7.5px] font-bold uppercase"
-            style={{ color: TOKENS.blue, letterSpacing: "0.08em" }}
+            className="text-[7.5px] font-semibold uppercase tracking-[0.1em] text-[#0a2a54]"
           >
             Chief of TRS
           </div>
           <div
-            className="text-[7px] uppercase"
-            style={{ color: TOKENS.slate, letterSpacing: "0.08em" }}
+            className="text-[6.5px] font-medium uppercase tracking-[0.14em] text-slate-500"
           >
-            Authorized Signatory
+            AUTHORIZED SIGNATORY
           </div>
         </div>
 
@@ -596,20 +533,17 @@ function CardBack(props) {
       <div className="relative mt-auto flex items-center justify-between px-6 py-4">
         <div>
           <div
-            className="text-[7px] font-bold uppercase"
-            style={{ color: TOKENS.slate, letterSpacing: "0.09em" }}
+            className="text-[7px] font-medium uppercase tracking-[0.15em] text-slate-500"
           >
-            Card Reference
+            CARD REFERENCE
           </div>
           <div
-            className="mt-[3px] text-[9.5px] font-semibold"
-            style={{ color: TOKENS.ink, fontFamily: "'JetBrains Mono', monospace" }}
+            className="mt-[3px] text-[9.5px] font-semibold font-mono text-slate-800 tracking-wider"
           >
             {tvrsId ? tvrsId.replace(/^(TVRS|TRSV)-/i, `${shortName}-`) : `${shortName}-000000`}
           </div>
           <p
-            className="mt-2 max-w-[178px] text-[6.5px] leading-[1.45]"
-            style={{ color: TOKENS.slate }}
+            className="mt-2 max-w-[178px] text-[6.5px] leading-[1.45] text-slate-500 font-normal"
           >
             Property of {shortName}. Must be surrendered upon request or membership termination.
           </p>
@@ -834,7 +768,7 @@ export default function Profile() {
     if (role === "student") return "STUDENT MEMBER";
     if (role === "supreme_admin") return `${shortName} FOUNDER`;
     if (role === "dev") return "DEVELOPER";
-    
+
     const roleLabel = role.replace(/_/g, " ").toUpperCase();
     if (constituencyName && constituencyName !== "Statewide Headquarter") {
       return `${constituencyName} ${roleLabel}`.toUpperCase();
@@ -1512,10 +1446,10 @@ export default function Profile() {
 
   return (
     <div className="w-full flex flex-col gap-8 text-left animate-fadeIn max-w-6xl mx-auto pb-16">
-      
+
       {/* 👤 SECTION 1. Profile Header */}
       <div className="relative overflow-hidden rounded-3xl glass-panel-light dark:glass-panel-dark border border-slate-200/50 dark:border-slate-850 p-6 md:p-8 shadow-premium-light dark:shadow-premium-dark flex flex-col lg:flex-row items-center lg:items-start justify-between gap-6">
-        
+
         {/* Glow accent */}
         <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-bl from-amber-500/10 to-transparent blur-3xl pointer-events-none" />
 
@@ -1535,7 +1469,7 @@ export default function Profile() {
                 </div>
               )}
             </div>
-            
+
             {/* Status indicator badge */}
             <div className="absolute -bottom-1 -right-1 flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-bold bg-[#0a2a54] text-emerald-400 border border-emerald-500/30 shadow-md">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -1552,7 +1486,7 @@ export default function Profile() {
                 <BadgeCheck className="w-6 h-6 text-emerald-500 fill-emerald-500/10 shrink-0" />
               )}
             </div>
-            
+
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-2.5 text-xs font-semibold text-slate-500 dark:text-slate-400">
               <span className="px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 uppercase tracking-wider text-[10px] font-black">
                 {designation}
@@ -1579,7 +1513,7 @@ export default function Profile() {
             <Eye className="w-4 h-4 text-cyan-500" />
             View Digital ID
           </button>
-          
+
           <button
             onClick={handleDownload}
             className="flex-1 md:flex-initial flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-amber-500 text-[#071830] hover:bg-amber-600 text-xs font-black transition-all duration-200 shadow-md shadow-amber-500/10 cursor-pointer active:scale-95"
@@ -1595,7 +1529,7 @@ export default function Profile() {
         <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">
           Statewide Telemetry & Overview
         </h3>
-        
+
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           <GlassCard className="p-4 flex flex-col text-left gap-1" hoverEffect={true}>
             <span className="text-[10px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-wider block">
@@ -1646,22 +1580,22 @@ export default function Profile() {
 
       {/* Grid: Activities (Left) + ID Preview (Right) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        
+
         {/* 📋 SECTION 3. Recent Activity */}
         <div className="lg:col-span-6 flex flex-col gap-4">
           <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">
             Recent Activity & Timeline
           </h3>
-          
+
           <GlassCard className="p-6 text-left flex flex-col gap-6" hoverEffect={false}>
             {recentActivities.length > 0 ? (
               <div className="relative border-l-2 border-slate-200 dark:border-slate-800 pl-6 ml-2 flex flex-col gap-6">
                 {recentActivities.map((act, index) => (
                   <div key={index} className="relative group">
-                    
+
                     {/* Timeline dot */}
                     <span className="absolute -left-[31px] top-1.5 w-3.5 h-3.5 rounded-full bg-slate-900 border-2 border-amber-500 shadow-glow-amber-strong group-hover:scale-110 transition-transform duration-200" />
-                    
+
                     <div className="flex flex-col gap-0.5">
                       <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 font-mono">
                         {act.date}
@@ -1687,7 +1621,7 @@ export default function Profile() {
             <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">
               Official {shortName} Digital ID
             </h3>
-            
+
             <button
               onClick={() => setIsModalOpen(true)}
               className="text-xs font-black text-amber-500 hover:underline cursor-pointer flex items-center gap-1"
@@ -1722,7 +1656,7 @@ export default function Profile() {
 
         <GlassCard className="p-6" hoverEffect={false}>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            
+
 
 
             <div className="flex items-start gap-3 border-b md:border-b-0 pb-4 md:pb-0 border-slate-100 dark:border-slate-850">
@@ -1793,7 +1727,7 @@ export default function Profile() {
       {isModalOpen && (
         <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-fadeIn">
           <div className="absolute inset-0" onClick={() => setIsModalOpen(false)} />
-          
+
           {/* Floating Close Button */}
           <button
             onClick={() => setIsModalOpen(false)}

@@ -17,7 +17,6 @@ import {
   Check,
   Calendar
 } from 'lucide-react';
-import GlassCard from '../components/GlassCard';
 import AnimatedSection from '../components/AnimatedSection';
 import { useNavigate } from 'react-router-dom';
 import PremiumButton from '../components/PremiumButton';
@@ -241,32 +240,29 @@ export default function JoinTVRS() {
     return (
       <div className="w-full min-h-[80vh] flex flex-col items-center justify-center py-4 px-2 sm:py-8 sm:px-4">
         <AnimatedSection direction="up" className="w-full max-w-md text-center">
-          <GlassCard hoverEffect={false} className="p-8 sm:p-10 relative overflow-hidden border border-rose-500/20 dark:border-rose-500/10 shadow-2xl rounded-3xl bg-white/40 dark:bg-slate-955/20 flex flex-col items-center text-center">
-            {/* Ambient background light */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-rose-500/10 to-transparent blur-2xl pointer-events-none" />
-
-            <div className="w-16 h-16 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center mb-6 shadow-[0_0_20px_rgba(244,63,94,0.15)] animate-bounce mx-auto">
-              <AlertTriangle className="w-8 h-8 text-rose-500 dark:text-rose-450" />
+          <div className="p-8 sm:p-10 relative overflow-hidden rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 shadow-xs flex flex-col items-center text-center">
+            <div className="w-14 h-14 rounded-2xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-900/60 flex items-center justify-center mb-6 text-rose-600 dark:text-rose-400 mx-auto">
+              <AlertTriangle className="w-7 h-7" />
             </div>
 
-            <span className="text-[10px] font-black text-rose-600 dark:text-rose-400 tracking-widest uppercase block mb-2 text-center">
+            <span className="text-[10px] font-semibold text-rose-600 dark:text-rose-400 tracking-wider uppercase block mb-2 text-center">
               Access Restricted
             </span>
-            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-855 dark:text-white leading-tight mb-4 text-center">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white leading-tight mb-3 text-center">
               Guest Logins can't join {shortName}
             </h1>
-            <p className="text-sm text-slate-550 dark:text-slate-400 leading-relaxed mb-6 font-medium text-center">
+            <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed mb-6 font-medium text-center">
               You are currently logged in with a guest session. Please register or log in using a verified student account to apply for membership.
             </p>
 
             <PremiumButton
-              variant="glow"
+              variant="primary"
               onClick={() => navigate('/dashboard')}
               className="w-full max-w-[200px] mx-auto"
             >
               Back to Dashboard
             </PremiumButton>
-          </GlassCard>
+          </div>
         </AnimatedSection>
       </div>
     );
@@ -280,24 +276,21 @@ export default function JoinTVRS() {
     return (
       <div className="w-full min-h-[80vh] flex flex-col items-center py-4 px-2 sm:py-8 sm:px-4">
         <AnimatedSection direction="up" className="w-full max-w-2xl text-left">
-          <GlassCard hoverEffect={false} className="p-5 sm:p-10 relative overflow-hidden border border-slate-200/50 dark:border-slate-850 shadow-2xl rounded-3xl bg-white/40 dark:bg-slate-955/20">
-            {/* Cybernetic ambient backing light */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-amber-500/10 to-transparent blur-2xl pointer-events-none" />
-
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-8 border-b border-slate-200/40 dark:border-slate-850 pb-5">
+          <div className="p-5 sm:p-10 relative overflow-hidden rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 shadow-xs">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-8 border-b border-slate-100 dark:border-slate-800/80 pb-5">
               <img 
                 src="/trsv.jpeg" 
                 alt={`${shortName} Logo`} 
-                className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-cover border border-slate-200/50 dark:border-slate-800 shadow-md shrink-0" 
+                className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-xs shrink-0" 
               />
               <div className="flex flex-col text-left">
-                <span className="text-[9px] font-black text-amber-600 dark:text-amber-400 tracking-widest uppercase block leading-none">
+                <span className="text-[10px] font-semibold text-amber-600 dark:text-amber-400 tracking-wider uppercase block leading-none">
                   MEMBERSHIP APPLICATION STATUS
                 </span>
-                <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-855 dark:text-white leading-tight mt-1">
+                <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white leading-tight mt-1">
                   Application Tracking Node
                 </h1>
-                <p className="text-xs text-slate-450 dark:text-slate-400 leading-normal mt-0.5 font-medium">
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-normal mt-0.5 font-medium">
                   Track your registration status on the decentralized {shortName} network.
                 </p>
               </div>
@@ -305,29 +298,29 @@ export default function JoinTVRS() {
 
             {/* Application Info Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              <div className="bg-slate-100/60 dark:bg-slate-955/50 border border-slate-200 dark:border-slate-850 p-4 rounded-xl space-y-1">
-                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase block">Applicant Coordinates</span>
-                <strong className="text-sm font-bold text-slate-800 dark:text-slate-200 block">{activeApplication.full_name}</strong>
-                <span className="text-xs text-slate-600 dark:text-slate-400 block">{activeApplication.email}</span>
-                <span className="text-xs text-slate-600 dark:text-slate-400 block">{activeApplication.phone}</span>
+              <div className="bg-slate-50/50 dark:bg-slate-955 border border-slate-200/80 dark:border-slate-800 p-4 rounded-xl space-y-1">
+                <span className="text-[10px] font-semibold text-slate-400 uppercase block">Applicant Coordinates</span>
+                <strong className="text-sm font-semibold text-slate-900 dark:text-white block">{activeApplication.full_name}</strong>
+                <span className="text-xs text-slate-500 dark:text-slate-400 block">{activeApplication.email}</span>
+                <span className="text-xs text-slate-500 dark:text-slate-400 block">{activeApplication.phone}</span>
               </div>
 
-              <div className="bg-slate-100/60 dark:bg-slate-955/50 border border-slate-200 dark:border-slate-850 p-4 rounded-xl space-y-1">
-                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase block">Union Alignment</span>
-                <strong className="text-sm font-bold text-slate-800 dark:text-slate-200 block">{activeApplication.constituency_name}</strong>
-                <span className="text-xs text-slate-600 dark:text-slate-400 block">{activeApplication.district} District</span>
-                <span className="text-xs text-slate-600 dark:text-slate-400 block">{activeApplication.member_type}</span>
+              <div className="bg-slate-50/50 dark:bg-slate-955 border border-slate-200/80 dark:border-slate-800 p-4 rounded-xl space-y-1">
+                <span className="text-[10px] font-semibold text-slate-400 uppercase block">Union Alignment</span>
+                <strong className="text-sm font-semibold text-slate-900 dark:text-white block">{activeApplication.constituency_name}</strong>
+                <span className="text-xs text-slate-500 dark:text-slate-400 block">{activeApplication.district} District</span>
+                <span className="text-xs text-slate-500 dark:text-slate-400 block">{activeApplication.member_type}</span>
               </div>
             </div>
 
             {/* Status Visual Tracker */}
-            <div className="bg-slate-50/60 dark:bg-slate-955/40 border border-slate-200/80 dark:border-slate-900/60 rounded-2xl p-6 mb-8 space-y-6">
+            <div className="bg-slate-50/50 dark:bg-slate-955 border border-slate-200/80 dark:border-slate-800 rounded-xl p-6 mb-8 space-y-6">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Application Lifecycle</span>
-                <span className={`text-xs font-extrabold px-3 py-1 rounded-full uppercase border ${
-                  isPending ? 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/25 animate-pulse' :
-                  isApproved ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25' :
-                  'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/25'
+                <span className="text-xs font-semibold text-slate-400 uppercase">Application Lifecycle</span>
+                <span className={`text-xs font-semibold px-3 py-1 rounded-full uppercase border ${
+                  isPending ? 'bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800/60' :
+                  isApproved ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/60' :
+                  'bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800/60'
                 }`}>
                   {activeApplication.status}
                 </span>
@@ -339,7 +332,7 @@ export default function JoinTVRS() {
                 
                 {/* Left Half Line: Submitted -> Under Review */}
                 <div className={`absolute top-1/2 left-0 w-1/2 h-1 -translate-y-1/2 z-0 transition-all duration-500 ${
-                  (isPending || isApproved || isRejected) ? 'bg-amber-500' : 'bg-slate-200 dark:bg-slate-800'
+                  (isPending || isApproved || isRejected) ? 'bg-blue-600' : 'bg-slate-200 dark:bg-slate-800'
                 }`} />
 
                 {/* Right Half Line: Under Review -> Decision */}
@@ -348,37 +341,37 @@ export default function JoinTVRS() {
                 }`} />
 
                 {/* Step 1: Submitted */}
-                <div className="z-10 flex flex-col items-center gap-1.5 bg-slate-100 dark:bg-slate-900 p-2 rounded-xl border border-slate-200 dark:border-slate-800/40">
-                  <div className="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-glow-emerald">
+                <div className="z-10 flex flex-col items-center gap-1.5 bg-slate-50 dark:bg-slate-900 p-2 rounded-xl border border-slate-200/80 dark:border-slate-800">
+                  <div className="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center">
                     <Check className="w-4 h-4" />
                   </div>
-                  <span className="text-[10px] font-bold text-slate-700 dark:text-slate-350">Submitted</span>
+                  <span className="text-[10px] font-semibold text-slate-700 dark:text-slate-300">Submitted</span>
                 </div>
 
                 {/* Step 2: Under Review */}
-                <div className="z-10 flex flex-col items-center gap-1.5 bg-slate-100 dark:bg-slate-900 p-2 rounded-xl border border-slate-200 dark:border-slate-800/40">
+                <div className="z-10 flex flex-col items-center gap-1.5 bg-slate-50 dark:bg-slate-900 p-2 rounded-xl border border-slate-200/80 dark:border-slate-800">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                    isPending ? 'bg-cyan-500 text-white animate-pulse shadow-glow-cyan' :
-                    (isApproved || isRejected) ? 'bg-emerald-500 text-white shadow-glow-emerald' : 'bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+                    isPending ? 'bg-blue-600 text-white animate-pulse' :
+                    (isApproved || isRejected) ? 'bg-emerald-600 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
                   }`}>
                     {isPending ? <div className="w-2 h-2 rounded-full bg-white animate-ping" /> : <Check className="w-4 h-4" />}
                   </div>
-                  <span className="text-[10px] font-bold text-slate-700 dark:text-slate-350">Under Review</span>
+                  <span className="text-[10px] font-semibold text-slate-700 dark:text-slate-300">Under Review</span>
                 </div>
 
                 {/* Step 3: Decision */}
-                <div className="z-10 flex flex-col items-center gap-1.5 bg-slate-100 dark:bg-slate-900 p-2 rounded-xl border border-slate-200 dark:border-slate-800/40">
+                <div className="z-10 flex flex-col items-center gap-1.5 bg-slate-50 dark:bg-slate-900 p-2 rounded-xl border border-slate-200/80 dark:border-slate-800">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                    isApproved ? 'bg-emerald-500 text-white shadow-glow-emerald' :
-                    isRejected ? 'bg-rose-500 text-white shadow-glow-rose' : 'bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+                    isApproved ? 'bg-emerald-600 text-white' :
+                    isRejected ? 'bg-rose-600 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
                   }`}>
-                    {isApproved ? <Check className="w-4 h-4" /> : isRejected ? <div className="font-extrabold text-sm">✕</div> : <HelpCircle className="w-4 h-4" />}
+                    {isApproved ? <Check className="w-4 h-4" /> : isRejected ? <div className="font-bold text-sm">✕</div> : <HelpCircle className="w-4 h-4" />}
                   </div>
-                  <span className="text-[10px] font-bold text-slate-700 dark:text-slate-350">Decision</span>
+                  <span className="text-[10px] font-semibold text-slate-700 dark:text-slate-300">Decision</span>
                 </div>
               </div>
 
-              <div className="p-4 bg-slate-100/80 dark:bg-slate-955/80 border border-slate-200 dark:border-slate-900 rounded-xl text-xs leading-relaxed text-slate-700 dark:text-slate-300">
+              <div className="p-4 bg-slate-100/60 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 rounded-xl text-xs leading-relaxed text-slate-600 dark:text-slate-300 font-medium">
                 {isPending && "Your membership request has been registered and is currently being inspected by the regional constituency committee. Please wait for official authorization."}
                 {isApproved && `Congratulations! Your registration has been approved. You are now officially recognized as a ${shortName} representative. Please restart the app or refresh to sync your dashboard access.`}
                 {isRejected && "Your application has been rejected by the regional committee. You can submit a new application below with updated coordinates if necessary."}
@@ -389,7 +382,7 @@ export default function JoinTVRS() {
             <div className="flex gap-4">
               <PremiumButton
                 onClick={() => navigate('/dashboard/student')}
-                variant="glow"
+                variant="primary"
                 size="sm"
                 icon={<ArrowLeft className="w-4 h-4" />}
               >
@@ -399,14 +392,14 @@ export default function JoinTVRS() {
               {isRejected && (
                 <button
                   onClick={() => setActiveApplication(null)}
-                  className="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-[#071830] rounded-xl text-xs font-black transition-all cursor-pointer"
+                  className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold transition-colors cursor-pointer"
                 >
                   Submit New Application
                 </button>
               )}
             </div>
 
-          </GlassCard>
+          </div>
         </AnimatedSection>
       </div>
     );
@@ -416,30 +409,30 @@ export default function JoinTVRS() {
     return (
       <div className="w-full min-h-[70vh] flex flex-col items-center justify-center py-8 px-4 text-center">
         <AnimatedSection direction="up" className="w-full max-w-xl">
-          <GlassCard className="p-8 sm:p-12 border border-emerald-500/20 bg-emerald-500/5 shadow-2xl rounded-2xl">
+          <div className="p-8 sm:p-12 border border-emerald-200 dark:border-emerald-800/80 bg-emerald-50 dark:bg-emerald-950/50 rounded-2xl shadow-xs">
             <div className="flex flex-col items-center text-center justify-center gap-6 w-full h-full">
-              <div className="w-16 h-16 rounded-full bg-emerald-500/10 border-2 border-emerald-500/20 flex items-center justify-center text-emerald-500 shadow-glow-emerald animate-bounce">
-                <Check className="w-8 h-8" />
+              <div className="w-14 h-14 rounded-2xl bg-emerald-100 dark:bg-emerald-900/60 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                <Check className="w-7 h-7" />
               </div>
               <div className="flex flex-col gap-2">
-                <h2 className="text-2xl font-black text-slate-855 dark:text-white tracking-tight">
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
                   Application Submitted Successfully
                 </h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
+                <p className="text-xs font-medium text-slate-500 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
                   Your application node has been registered. The constituency leadership team will audit your credentials shortly.
                 </p>
               </div>
               <PremiumButton
                 onClick={() => navigate('/dashboard')}
-                variant="glow"
+                variant="primary"
                 size="sm"
                 icon={<ArrowLeft className="w-4 h-4" />}
-                className="mt-4"
+                className="mt-2"
               >
                 Return to Dashboard
               </PremiumButton>
             </div>
-          </GlassCard>
+          </div>
         </AnimatedSection>
       </div>
     );
@@ -448,25 +441,23 @@ export default function JoinTVRS() {
   return (
     <div className="w-full min-h-[80vh] flex flex-col items-center py-4 px-2 sm:py-8 sm:px-4">
       <AnimatedSection direction="up" className="w-full max-w-2xl text-left">
-        <GlassCard hoverEffect={false} className="p-5 sm:p-10 relative overflow-hidden border border-slate-200/50 dark:border-slate-855 shadow-2xl rounded-3xl bg-white/40 dark:bg-slate-950/20">
-          {/* Cybernetic ambient backing light */}
-          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-cyan-400/10 to-transparent blur-2xl pointer-events-none" />
+        <div className="p-5 sm:p-10 relative overflow-hidden rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 shadow-xs">
           
           {/* Official Branding Header Layout */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-8 border-b border-slate-200/40 dark:border-slate-850 pb-5">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-8 border-b border-slate-100 dark:border-slate-800/80 pb-5">
             <img 
               src="/trsv.jpeg" 
               alt={`${shortName} Logo`} 
-              className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-cover border border-slate-200/50 dark:border-slate-800 shadow-md shrink-0" 
+              className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-xs shrink-0" 
             />
             <div className="flex flex-col text-left">
-              <span className="text-[9px] font-black text-cyan-600 dark:text-cyan-400 tracking-widest uppercase block leading-none">
+              <span className="text-[10px] font-semibold text-blue-600 dark:text-blue-400 tracking-wider uppercase block leading-none">
                 OFFICIAL REGISTRATION TERMINAL
               </span>
-              <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-855 dark:text-white leading-tight mt-1">
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white leading-tight mt-1">
                 {fullName}
               </h1>
-              <p className="text-xs text-slate-450 dark:text-slate-400 leading-normal mt-0.5 font-medium">
+              <p className="text-xs text-slate-500 dark:text-slate-400 leading-normal mt-0.5 font-medium">
                 Submit details below to stand as a digital coordinator node and represent student advocacy rights across educational zones.
               </p>
             </div>
@@ -849,7 +840,7 @@ export default function JoinTVRS() {
               </PremiumButton>
             </div>
           </form>
-        </GlassCard>
+        </div>
       </AnimatedSection>
     </div>
   );

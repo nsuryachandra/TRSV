@@ -330,26 +330,26 @@ export default function HubChat({ user, chatMode = 'admin' }) {
   const displayMessages = [welcomeMessage, ...messages];
 
   return (
-    <div className="flex flex-col lg:flex-row gap-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 sm:p-6 flex-1 min-h-0 shadow-premium-light dark:shadow-premium-dark overflow-hidden">
+    <div className="flex flex-col lg:flex-row gap-0 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-5 sm:p-6 flex-1 min-h-0 shadow-xs overflow-hidden">
       
       {/* SIDEBAR: Channels & Switcher */}
       {showSidebar && (
-        <div className={`w-full lg:w-[280px] shrink-0 lg:border-r border-slate-200 dark:border-slate-800/60 lg:pr-6 flex flex-col h-full overflow-hidden ${
+        <div className={`w-full lg:w-[280px] shrink-0 lg:border-r border-slate-100 dark:border-slate-800/80 lg:pr-6 flex flex-col h-full overflow-hidden ${
           mobileView === 'channels' ? 'flex' : 'hidden lg:flex'
         }`}>
-          <div className="pb-4 border-b border-slate-200 dark:border-slate-800/40 flex items-center gap-2.5 shrink-0 h-[57px]">
-            <div className="p-1.5 rounded-xl bg-cyan-500/10 dark:bg-cyan-500/10 border border-cyan-200 dark:border-cyan-500/20 shadow-sm">
-              <MessageSquare className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
+          <div className="pb-4 border-b border-slate-100 dark:border-slate-800/80 flex items-center gap-2.5 shrink-0 h-[57px]">
+            <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-900/50 text-blue-600 dark:text-blue-400">
+              <MessageSquare className="w-4 h-4" />
             </div>
-            <h3 className="font-black text-slate-800 dark:text-slate-100 text-sm tracking-wide uppercase leading-none">Messenger</h3>
+            <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm tracking-tight uppercase leading-none">Messenger</h3>
           </div>
           {/* Channels List */}
-          <div className="space-y-5 flex-1 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800 scrollbar-track-transparent">
+          <div className="space-y-5 flex-1 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800 scrollbar-track-transparent mt-4">
             
             {chatMode === 'social' ? (
               /* ── SOCIAL MODE SIDEBAR ── */
               <div className="space-y-2">
-                <span className="text-[9px] font-black text-cyan-600 dark:text-cyan-400 uppercase tracking-widest px-1 block">
+                <span className="text-[10px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider px-1 block">
                   Social Lounges
                 </span>
 
@@ -357,28 +357,28 @@ export default function HubChat({ user, chatMode = 'admin' }) {
                 {user.constituency_name && (
                   <button
                     onClick={() => handleSelectChannel(`Social-Sector-${user.constituency_name}`)}
-                    className={`w-full text-left p-3.5 rounded-2xl flex items-center gap-3.5 transition-all duration-300 cursor-pointer border ${
+                    className={`w-full text-left p-3 rounded-xl flex items-center gap-3 transition-all duration-200 cursor-pointer border ${
                       currentChannel === `Social-Sector-${user.constituency_name}`
-                        ? 'bg-sky-50 dark:bg-cyan-500/10 border-sky-200 dark:border-cyan-500/30 text-sky-900 dark:text-cyan-200 shadow-sm font-extrabold'
-                        : 'bg-slate-50/50 dark:bg-slate-950/20 border-slate-100 dark:border-slate-800/50 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/40 hover:text-slate-800 dark:hover:text-slate-200 hover:border-slate-200 dark:hover:border-slate-700/30'
+                        ? 'bg-blue-50 dark:bg-blue-950/50 border-blue-200 dark:border-blue-900/50 text-blue-700 dark:text-blue-300 font-bold'
+                        : 'bg-slate-50 dark:bg-slate-800/40 border-slate-100 dark:border-slate-800/50 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/70 hover:text-slate-900 dark:hover:text-slate-200'
                     }`}
                   >
-                    <div className={`p-2.5 rounded-xl transition-all duration-300 ${
-                      currentChannel === `Social-Sector-${user.constituency_name}` ? 'bg-cyan-100 dark:bg-cyan-500/20 text-cyan-755 dark:text-cyan-400' : 'bg-slate-200/50 dark:bg-slate-800 text-slate-500'
+                    <div className={`p-2 rounded-lg ${
+                      currentChannel === `Social-Sector-${user.constituency_name}` ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300' : 'bg-slate-200/60 dark:bg-slate-800 text-slate-500'
                     }`}>
                       <Users className="w-4 h-4" />
                     </div>
                     <div className="min-w-0 flex-1 text-left">
-                      <div className="font-extrabold text-sm tracking-wide">{user.constituency_name} Social</div>
-                      <div className="text-[10px] text-slate-450 dark:text-slate-500 mt-0.5">Main Social Hub</div>
+                      <div className="font-semibold text-xs">{user.constituency_name} Social</div>
+                      <div className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">Main Social Hub</div>
                     </div>
                   </button>
                 )}
 
                 {/* Child / All Social-Sector channels */}
                 {(isDevOrSupreme || filteredConstituencies.length > 0) && (
-                  <div className="pt-3 flex flex-col border-t border-slate-200 dark:border-slate-800/50 gap-2.5">
-                    <span className="text-[9px] font-black text-rose-655 dark:text-rose-400/90 uppercase tracking-widest px-1 block">
+                  <div className="pt-3 flex flex-col border-t border-slate-100 dark:border-slate-800/80 gap-2.5">
+                    <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider px-1 block">
                       {isDevOrSupreme ? 'All Social Lounges' : 'Sub-Area Social Lounges'}
                     </span>
 
@@ -389,7 +389,7 @@ export default function HubChat({ user, chatMode = 'admin' }) {
                         placeholder="Search Area..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:border-rose-500/40 focus:ring-1 focus:ring-rose-500/10 text-xs rounded-xl py-2.5 pl-9 pr-3 text-slate-800 dark:text-slate-200 focus:outline-none placeholder-slate-400 dark:placeholder-slate-650"
+                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:border-blue-500/80 focus:ring-1 focus:ring-blue-500/20 text-xs rounded-xl py-2 pl-9 pr-3 text-slate-900 dark:text-slate-200 focus:outline-none placeholder-slate-400"
                       />
                     </div>
 
@@ -401,19 +401,19 @@ export default function HubChat({ user, chatMode = 'admin' }) {
                           <button
                             key={c.id}
                             onClick={() => handleSelectChannel(channelKey)}
-                            className={`w-full text-left py-2.5 px-3.5 rounded-xl text-[11px] font-semibold transition-all duration-300 flex items-center justify-between cursor-pointer border ${
+                            className={`w-full text-left py-2 px-3 rounded-lg text-xs font-medium transition-all duration-200 flex items-center justify-between cursor-pointer border ${
                               isActive
-                                ? 'bg-rose-50 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30 text-rose-850 dark:text-rose-300 shadow-sm'
-                                : 'bg-slate-50 dark:bg-slate-905/10 border-transparent text-slate-550 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/30 hover:text-slate-800 dark:hover:text-slate-200 hover:border-slate-200 dark:hover:border-slate-700/20'
+                                ? 'bg-blue-50 dark:bg-blue-950/50 border-blue-200 dark:border-blue-900/50 text-blue-700 dark:text-blue-300 font-semibold'
+                                : 'bg-slate-50 dark:bg-slate-800/30 border-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-200'
                             }`}
                           >
                             <span className="truncate">💬 {c.constituency_name}</span>
-                            {isActive && <span className="w-1.5 h-1.5 rounded-full bg-rose-500 dark:bg-rose-400 animate-pulse shrink-0 ml-1.5" />}
+                            {isActive && <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400 animate-pulse shrink-0 ml-1.5" />}
                           </button>
                         );
                       })}
                       {filteredConstituencies.length === 0 && !isDevOrSupreme && (
-                        <div className="text-[11px] text-slate-400 dark:text-slate-500 text-center py-4">No sub-areas available.</div>
+                        <div className="text-xs text-slate-400 text-center py-4 font-medium">No sub-areas available.</div>
                       )}
                     </div>
                   </div>
@@ -428,20 +428,20 @@ export default function HubChat({ user, chatMode = 'admin' }) {
                   {user.role !== 'student' && (
                     <button
                       onClick={() => handleSelectChannel('GH-Global')}
-                      className={`w-full text-left p-3.5 rounded-2xl flex items-center gap-3.5 transition-all duration-300 cursor-pointer border ${
+                      className={`w-full text-left p-3 rounded-xl flex items-center gap-3 transition-all duration-200 cursor-pointer border ${
                         currentChannel === 'GH-Global'
-                          ? 'bg-sky-50 dark:bg-cyan-500/10 border-sky-200 dark:border-cyan-500/30 text-sky-900 dark:text-cyan-200 shadow-sm font-extrabold'
-                          : 'bg-slate-50/50 dark:bg-slate-950/20 border-slate-100 dark:border-slate-800/50 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/40 hover:text-slate-855 hover:text-slate-800 dark:hover:text-slate-200 hover:border-slate-200 dark:hover:border-slate-700/30'
+                          ? 'bg-blue-50 dark:bg-blue-950/50 border-blue-200 dark:border-blue-900/50 text-blue-700 dark:text-blue-300 font-bold'
+                          : 'bg-slate-50 dark:bg-slate-800/40 border-slate-100 dark:border-slate-800/50 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/70 hover:text-slate-900 dark:hover:text-slate-200'
                       }`}
                     >
-                      <div className={`p-2.5 rounded-xl transition-all duration-300 ${
-                        currentChannel === 'GH-Global' ? 'bg-cyan-100 dark:bg-cyan-500/20 text-cyan-755 dark:text-cyan-400' : 'bg-slate-200/50 dark:bg-slate-800 text-slate-500'
+                      <div className={`p-2 rounded-lg ${
+                        currentChannel === 'GH-Global' ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300' : 'bg-slate-200/60 dark:bg-slate-800 text-slate-500'
                       }`}>
                         <Users className="w-4 h-4" />
                       </div>
                       <div className="min-w-0 flex-1 text-left">
-                        <div className="font-extrabold text-sm tracking-wide">Statewide Lounge</div>
-                        <div className="text-[10px] text-slate-450 dark:text-slate-500 mt-0.5">All State Admins</div>
+                        <div className="font-semibold text-xs">Statewide Lounge</div>
+                        <div className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">All State Admins</div>
                       </div>
                     </button>
                   )}
@@ -450,20 +450,20 @@ export default function HubChat({ user, chatMode = 'admin' }) {
                   {user.role !== 'student' && !isDevOrSupreme && user.constituency_name && (
                     <button
                       onClick={() => handleSelectChannel(`GH-Constituency-${user.constituency_name}`)}
-                      className={`w-full text-left p-3.5 rounded-2xl flex items-center gap-3.5 transition-all duration-300 cursor-pointer border ${
+                      className={`w-full text-left p-3 rounded-xl flex items-center gap-3 transition-all duration-200 cursor-pointer border ${
                         currentChannel === `GH-Constituency-${user.constituency_name}`
-                          ? 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30 text-emerald-900 dark:text-emerald-250 shadow-sm font-extrabold'
-                          : 'bg-slate-50/50 dark:bg-slate-950/20 border-slate-100 dark:border-slate-800/50 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/40 hover:text-slate-800 dark:hover:text-emerald-250 hover:border-slate-200 dark:hover:border-slate-700/30'
+                          ? 'bg-emerald-50 dark:bg-emerald-950/50 border-emerald-200 dark:border-emerald-900/50 text-emerald-700 dark:text-emerald-300 font-bold'
+                          : 'bg-slate-50 dark:bg-slate-800/40 border-slate-100 dark:border-slate-800/50 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/70 hover:text-slate-900 dark:hover:text-slate-200'
                       }`}
                     >
-                      <div className={`p-2.5 rounded-xl transition-all duration-300 ${
-                        currentChannel === `GH-Constituency-${user.constituency_name}` ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-450' : 'bg-slate-200/50 dark:bg-slate-800 text-slate-500'
+                      <div className={`p-2 rounded-lg ${
+                        currentChannel === `GH-Constituency-${user.constituency_name}` ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300' : 'bg-slate-200/60 dark:bg-slate-800 text-slate-500'
                       }`}>
                         <Shield className="w-4 h-4" />
                       </div>
                       <div className="min-w-0 flex-1 text-left">
-                        <div className="font-extrabold text-sm tracking-wide">{user.constituency_name} Chat</div>
-                        <div className="text-[10px] text-slate-450 dark:text-slate-500 mt-0.5">Local Area Group</div>
+                        <div className="font-semibold text-xs">{user.constituency_name} Chat</div>
+                        <div className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">Local Area Group</div>
                       </div>
                     </button>
                   )}
@@ -471,8 +471,8 @@ export default function HubChat({ user, chatMode = 'admin' }) {
 
                 {/* Area Switcher (Dev/Supreme or Parent Hub leaders - Leadership only) */}
                 {user.role !== 'student' && (isDevOrSupreme || filteredConstituencies.length > 0) && (
-                  <div className="pt-3 flex flex-col border-t border-slate-200 dark:border-slate-800/50 gap-2.5">
-                    <span className="text-[9px] font-black text-rose-655 dark:text-rose-400/90 uppercase tracking-widest px-1 block">
+                  <div className="pt-3 flex flex-col border-t border-slate-100 dark:border-slate-800/80 gap-2.5">
+                    <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider px-1 block">
                       {isDevOrSupreme ? 'All Area Switcher' : 'Sub-Area Switcher'}
                     </span>
                     
@@ -484,7 +484,7 @@ export default function HubChat({ user, chatMode = 'admin' }) {
                         placeholder="Search Area..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:border-rose-500/40 focus:ring-1 focus:ring-rose-500/10 text-xs rounded-xl py-2.5 pl-9 pr-3 text-slate-800 dark:text-slate-200 focus:outline-none placeholder-slate-400 dark:placeholder-slate-650"
+                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:border-blue-500/80 focus:ring-1 focus:ring-blue-500/20 text-xs rounded-xl py-2 pl-9 pr-3 text-slate-900 dark:text-slate-200 focus:outline-none placeholder-slate-400"
                       />
                     </div>
 
@@ -497,19 +497,19 @@ export default function HubChat({ user, chatMode = 'admin' }) {
                           <button
                             key={c.id}
                             onClick={() => handleSelectChannel(channelKey)}
-                            className={`w-full text-left py-2.5 px-3.5 rounded-xl text-[11px] font-semibold transition-all duration-300 flex items-center justify-between cursor-pointer border ${
+                            className={`w-full text-left py-2 px-3 rounded-lg text-xs font-medium transition-all duration-200 flex items-center justify-between cursor-pointer border ${
                               isActive
-                                ? 'bg-rose-50 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30 text-rose-850 dark:text-rose-300 shadow-sm'
-                                : 'bg-slate-50 dark:bg-slate-905/10 border-transparent text-slate-550 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/30 hover:text-slate-800 dark:hover:text-slate-200 hover:border-slate-200 dark:hover:border-slate-700/20'
+                                ? 'bg-blue-50 dark:bg-blue-950/50 border-blue-200 dark:border-blue-900/50 text-blue-700 dark:text-blue-300 font-semibold'
+                                : 'bg-slate-50 dark:bg-slate-800/30 border-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-200'
                             }`}
                           >
                             <span className="truncate">📍 {c.constituency_name}</span>
-                            {isActive && <span className="w-1.5 h-1.5 rounded-full bg-rose-500 dark:bg-rose-400 animate-pulse shrink-0 ml-1.5" />}
+                            {isActive && <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400 animate-pulse shrink-0 ml-1.5" />}
                           </button>
                         );
                       })}
                       {filteredConstituencies.length === 0 && (
-                        <div className="text-[11px] text-slate-400 dark:text-slate-500 text-center py-4">No area match.</div>
+                        <div className="text-xs text-slate-400 text-center py-4 font-medium">No area match.</div>
                       )}
                     </div>
                   </div>
@@ -519,16 +519,16 @@ export default function HubChat({ user, chatMode = 'admin' }) {
           </div>
 
           {/* Socket status */}
-          <div className="mt-4 pt-3.5 border-t border-slate-200 dark:border-slate-800/40 flex items-center justify-between text-xs shrink-0">
-            <span className="text-slate-500 dark:text-slate-400 font-medium">Live Server Status</span>
-            <span className="flex items-center gap-2 bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 px-2.5 py-1 rounded-full">
+          <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs shrink-0">
+            <span className="text-slate-500 dark:text-slate-400 font-medium text-[11px]">Live Server</span>
+            <span className="flex items-center gap-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 px-2 py-0.5 rounded-full">
               <span className="relative flex h-2 w-2">
                 {socketConnected && (
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-450 dark:bg-emerald-400 opacity-75" />
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                 )}
-                <span className={`relative inline-flex rounded-full h-2 w-2 ${socketConnected ? 'bg-emerald-500' : 'bg-rose-500 animate-pulse'}`} />
+                <span className={`relative inline-flex rounded-full h-2 w-2 ${socketConnected ? 'bg-emerald-500' : 'bg-rose-500'}`} />
               </span>
-              <span className={`text-[10px] font-extrabold uppercase tracking-wide ${socketConnected ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
+              <span className={`text-[10px] font-semibold uppercase tracking-wider ${socketConnected ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
                 {socketConnected ? 'Online' : 'Reconnecting'}
               </span>
             </span>
@@ -541,18 +541,18 @@ export default function HubChat({ user, chatMode = 'admin' }) {
         !showSidebar || mobileView === 'chat' ? 'flex' : 'hidden lg:flex'
       }`}>
         {/* Header */}
-        <div className="pb-4 border-b border-slate-200 dark:border-slate-800/40 flex items-center justify-between shrink-0 h-[57px]">
+        <div className="pb-4 border-b border-slate-100 dark:border-slate-800/80 flex items-center justify-between shrink-0 h-[57px]">
           <div className="flex items-center gap-3">
             {showSidebar && (
               <button
                 onClick={() => setMobileView('channels')}
-                className="lg:hidden p-2 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800 text-slate-500 hover:text-slate-855 dark:hover:text-white mr-1 cursor-pointer transition-colors"
+                className="lg:hidden p-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white mr-1 cursor-pointer transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" />
               </button>
             )}
             <div className="text-left">
-              <h4 className="font-extrabold text-slate-800 dark:text-slate-100 text-base tracking-wide flex items-center gap-2 uppercase leading-none">
+              <h4 className="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base tracking-tight flex items-center gap-2 uppercase leading-none">
                 {currentChannel === 'GH-Global' 
                   ? '🌐 Statewide Governance Lounge' 
                   : currentChannel.startsWith('Social-Sector-')
@@ -566,19 +566,19 @@ export default function HubChat({ user, chatMode = 'admin' }) {
         {/* Messages */}
         {socialNeedsLocation ? (
           <div className="flex-1 p-6 flex items-center justify-center">
-            <div className="max-w-xl text-center p-8 rounded-2xl border border-slate-200 dark:border-slate-800 bg-yellow-50 dark:bg-yellow-900/10">
-              <h3 className="font-extrabold text-lg text-amber-700 dark:text-amber-300 mb-2">Set your area to join Social Chat</h3>
-              <p className="text-sm text-slate-700 dark:text-slate-300 mb-4">Please set your campus or constituency in your profile before joining Social Chat. This ensures you are connected to your correct local lounge.</p>
-              <a href="/dashboard/student" className="inline-block px-4 py-2 rounded-xl bg-amber-500 text-white font-bold">Set Location</a>
+            <div className="max-w-xl text-center p-8 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs flex flex-col items-center gap-3">
+              <h3 className="font-bold text-base text-slate-900 dark:text-white">Set your area to join Social Chat</h3>
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">Please set your campus or constituency in your profile before joining Social Chat. This ensures you are connected to your correct local lounge.</p>
+              <a href="/dashboard/student" className="px-4 py-2 rounded-xl bg-blue-600 text-white font-semibold text-xs shadow-xs">Set Location</a>
             </div>
           </div>
         ) : (
-          <div className="flex-1 overflow-y-auto p-4 space-y-6 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
           {displayMessages.map((msg) => {
             if (msg.id === '__welcome__') {
               return (
-                <div key="__welcome__" className="flex justify-center py-4">
-                  <div className="text-center px-6 py-3 rounded-2xl bg-cyan-50 dark:bg-cyan-950/20 border border-cyan-200 dark:border-cyan-800/30 text-cyan-700 dark:text-cyan-300 text-sm font-semibold shadow-sm">
+                <div key="__welcome__" className="flex justify-center py-2">
+                  <div className="text-center px-4 py-2 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/50 text-blue-700 dark:text-blue-300 text-xs font-semibold shadow-xs">
                     {msg.message_text}
                   </div>
                 </div>
@@ -589,12 +589,12 @@ export default function HubChat({ user, chatMode = 'admin' }) {
             return (
               <div
                 key={msg.id}
-                className={`flex flex-col max-w-[80%] sm:max-w-[70%] transition-all duration-300 ${isMe ? 'ml-auto items-end' : 'mr-auto items-start'}`}
+                className={`flex flex-col max-w-[80%] sm:max-w-[70%] transition-all duration-200 ${isMe ? 'ml-auto items-end' : 'mr-auto items-start'}`}
               >
                 {/* Meta info header */}
-                <div className="flex items-center gap-2 mb-1.5 text-[10px]">
-                  <span className="font-bold text-slate-700 dark:text-slate-200">{msg.sender_name}</span>
-                  <span className={`px-2 py-0.5 rounded-full text-[8px] font-black border uppercase tracking-widest ${roleStyle.text}`}>
+                <div className="flex items-center gap-2 mb-1 text-[10px]">
+                  <span className="font-semibold text-slate-800 dark:text-slate-200">{msg.sender_name}</span>
+                  <span className={`px-2 py-0.5 rounded-full text-[8px] font-semibold border uppercase tracking-wider ${roleStyle.text}`}>
                     {formatRole(msg.sender_role)}
                   </span>
                   <span className="text-slate-400 dark:text-slate-500 font-medium">
@@ -607,7 +607,7 @@ export default function HubChat({ user, chatMode = 'admin' }) {
                         setEditingMessageId(msg.id);
                         setEditingText(msg.message_text);
                       }}
-                      className="text-slate-400 dark:text-slate-550 hover:text-cyan-650 dark:hover:text-cyan-400 ml-2 transition-colors duration-150 text-[10px] cursor-pointer flex items-center gap-1 font-semibold"
+                      className="text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 ml-1 transition-colors text-[10px] cursor-pointer flex items-center gap-1 font-semibold"
                       title="Edit message"
                     >
                       ✏️ Edit
@@ -617,10 +617,10 @@ export default function HubChat({ user, chatMode = 'admin' }) {
 
                 {/* Message Bubble */}
                 <div
-                  className={`p-3.5 rounded-2xl text-sm leading-relaxed border transition-all duration-300 ${
+                  className={`p-3 rounded-2xl text-xs sm:text-sm leading-relaxed transition-all duration-200 ${
                     isMe
-                      ? 'bg-gradient-to-br from-cyan-650 to-blue-700 dark:from-cyan-500 dark:to-blue-600 text-white border-0 shadow-md shadow-cyan-950/20 rounded-tr-none font-medium'
-                      : `bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700 rounded-tl-none ${roleStyle.glow}`
+                      ? 'bg-blue-600 text-white rounded-tr-xs shadow-xs font-medium'
+                      : `bg-slate-50 dark:bg-slate-800/80 text-slate-900 dark:text-slate-100 border border-slate-200/80 dark:border-slate-700/80 rounded-tl-xs ${roleStyle.glow}`
                   }`}
                 >
                   {editingMessageId === msg.id ? (
@@ -628,14 +628,14 @@ export default function HubChat({ user, chatMode = 'admin' }) {
                       <textarea
                         value={editingText}
                         onChange={(e) => setEditingText(e.target.value)}
-                        className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 text-xs text-slate-850 dark:text-slate-100 focus:outline-none focus:border-cyan-500/80 focus:ring-1 focus:ring-cyan-500/20"
+                        className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20"
                         rows={2}
                       />
                       <div className="flex justify-end gap-2 text-[10px]">
                         <button 
                           type="button"
                           onClick={() => setEditingMessageId(null)}
-                          className="px-2.5 py-1 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-300 dark:hover:bg-slate-700 font-bold transition-colors cursor-pointer"
+                          className="px-2.5 py-1 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-semibold transition-colors cursor-pointer"
                         >
                           Cancel
                         </button>
@@ -651,7 +651,7 @@ export default function HubChat({ user, chatMode = 'admin' }) {
                             }
                             setEditingMessageId(null);
                           }}
-                          className="px-2.5 py-1 rounded-lg bg-cyan-650 text-white hover:bg-cyan-600 font-bold shadow-md shadow-cyan-900/20 transition-all cursor-pointer"
+                          className="px-2.5 py-1 rounded-lg bg-blue-600 text-white font-semibold shadow-xs transition-all cursor-pointer"
                         >
                           Save
                         </button>
@@ -662,7 +662,7 @@ export default function HubChat({ user, chatMode = 'admin' }) {
                       <span className="break-all whitespace-pre-wrap">{msg.message_text}</span>
                       {msg.is_edited && (
                         <span 
-                          className="text-[8px] text-cyan-600 dark:text-cyan-300 bg-cyan-50 dark:bg-cyan-950/60 border border-cyan-200 dark:border-cyan-800/40 px-1.5 py-0.5 rounded-md ml-2 font-bold tracking-wider uppercase select-none align-middle" 
+                          className="text-[8px] text-blue-600 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-900/50 px-1.5 py-0.5 rounded-md ml-2 font-semibold tracking-wider uppercase select-none align-middle" 
                           title="Message edited. Stored permanently for security audits."
                         >
                           edited
@@ -676,7 +676,6 @@ export default function HubChat({ user, chatMode = 'admin' }) {
           })}
           
 
-
           <div ref={messagesEndRef} />
         </div>
       )}
@@ -684,7 +683,7 @@ export default function HubChat({ user, chatMode = 'admin' }) {
       {!socialNeedsLocation && (
           <>
             {/* Typing indicator bar */}
-            <div className="h-6 text-[10px] text-cyan-600 dark:text-cyan-400 font-medium pl-2 italic flex items-center mb-1 shrink-0">
+            <div className="h-6 text-[10px] text-blue-600 dark:text-blue-400 font-medium pl-2 italic flex items-center mb-1 shrink-0">
               <AnimatePresence>
                 {Object.keys(typingUsers).length > 0 && (
                   <motion.div
@@ -693,7 +692,7 @@ export default function HubChat({ user, chatMode = 'admin' }) {
                     exit={{ opacity: 0, y: 5 }}
                     className="flex items-center gap-2"
                   >
-                    <span className="w-1.5 h-1.5 bg-cyan-500 dark:bg-cyan-400 rounded-full animate-bounce" />
+                    <span className="w-1.5 h-1.5 bg-blue-600 dark:bg-blue-400 rounded-full animate-bounce" />
                     <span>
                       {Object.values(typingUsers).map(u => `${u.name} (${formatRole(u.role)})`).join(', ')}{' '}
                       {Object.keys(typingUsers).length === 1 ? 'is typing...' : 'are typing...'}
@@ -704,7 +703,7 @@ export default function HubChat({ user, chatMode = 'admin' }) {
             </div>
 
             {/* Input Bar */}
-            <form onSubmit={handleSendMessage} className="p-1 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl flex gap-2 items-center shrink-0">
+            <form onSubmit={handleSendMessage} className="p-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl flex gap-2 items-center shrink-0">
               <input
                 type="text"
                 value={newMessage}
@@ -713,12 +712,12 @@ export default function HubChat({ user, chatMode = 'admin' }) {
                   handleTyping();
                 }}
                 placeholder="Type operations update..."
-                className="flex-1 bg-transparent border-0 rounded-xl px-4 py-3 text-slate-800 dark:text-slate-200 focus:outline-none text-sm placeholder-slate-400 dark:placeholder-slate-605 focus:ring-0"
+                className="flex-1 bg-transparent border-0 rounded-xl px-4 py-2.5 text-slate-900 dark:text-slate-200 focus:outline-none text-xs sm:text-sm placeholder-slate-400 focus:ring-0 font-medium"
               />
               <button
                 type="submit"
                 disabled={!newMessage.trim()}
-                className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 disabled:opacity-30 disabled:pointer-events-none text-white p-3 rounded-xl transition-all duration-300 shadow-md shadow-cyan-950/40 hover:scale-102 active:scale-98 flex items-center justify-center cursor-pointer mr-1"
+                className="bg-blue-600 hover:bg-blue-700 disabled:opacity-30 disabled:pointer-events-none text-white p-2.5 rounded-xl transition-all shadow-xs flex items-center justify-center cursor-pointer"
               >
                 <Send className="w-4 h-4" />
               </button>

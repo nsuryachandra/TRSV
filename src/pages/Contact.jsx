@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Phone, MapPin, Send, ShieldAlert, CheckCircle, Lock, Sparkles, ChevronRight, ChevronLeft, UploadCloud, EyeOff, FileText, X, AlertTriangle, RefreshCw, Mic, Square, Trash2, User, Building, AlignLeft } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import GlassCard from '../components/GlassCard';
 import PremiumButton from '../components/PremiumButton';
 import AnimatedSection from '../components/AnimatedSection';
 import { uploadGrievanceMedia } from '../config/supabase';
@@ -395,28 +394,27 @@ export default function Contact() {
         <p className="text-base sm:text-lg text-slate-500 dark:text-slate-400 leading-relaxed text-center">
           Raise your academic, campus-safety, or administrative complaint directly into the TVRS Command Node. Every submission is digitally routed to local and statewide leaders.
         </p>
-      </AnimatedSection>
-
-      <section className="w-full flex flex-col gap-8">
+      </AnimatedSection>      <section className="w-full flex flex-col gap-8">
         
         {/* Main Complaint Submission Form Card */}
-        <GlassCard hoverEffect={false} className="p-6 sm:p-8 w-full border border-slate-200/50 dark:border-slate-850 relative">
+        <div className="p-6 sm:p-8 w-full rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 shadow-xs relative">
           {user ? (
             complaintSubmitted ? (
               // 1. Complaint Registered Success Screen
               <div className="text-center py-10 flex flex-col items-center gap-5 max-w-lg mx-auto animate-scaleUp">
-                <div className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-500 shadow-glow-emerald">
-                  <CheckCircle className="w-10 h-10" />
+                <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-900/60 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                  <CheckCircle className="w-8 h-8" />
                 </div>
                 
                 <div className="flex flex-col gap-2">
-                  <h3 className="font-extrabold text-2xl text-slate-850 dark:text-white">
+                  <h3 className="font-bold text-2xl text-slate-900 dark:text-white">
                     Complaint Logged Successfully
                   </h3>
-                  <span className="text-xs font-bold text-cyan-500 font-mono tracking-widest uppercase bg-cyan-500/10 px-3 py-1 rounded-full self-center border border-cyan-500/15">
+                  <span className="text-xs font-semibold text-blue-600 dark:text-blue-400 tracking-wider uppercase bg-blue-50 dark:bg-blue-950/50 px-3 py-1 rounded-full self-center border border-blue-200 dark:border-blue-900/50">
                     Ticket ID: #{assignedTicketId}
                   </span>
-                </div>                <p className="text-sm text-slate-555 dark:text-slate-400 leading-relaxed">
+                </div>
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400 leading-relaxed">
                   Your complaint has been successfully recorded in the database. The regional leaders mapped to your constituency area have been notified. You can track the real-time resolution progress of this ticket anytime on the dedicated Track Complaint page.
                 </p>
 
@@ -431,11 +429,11 @@ export default function Contact() {
 
                   {cooldownRemaining > 0 ? (
                     <div className="w-full flex flex-col items-center gap-2">
-                      <div className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-amber-500/10 border border-amber-500/25 text-amber-600 dark:text-amber-400">
-                        <span className="text-xs font-extrabold uppercase tracking-wider">⏳ Cooldown Active</span>
-                        <span className="font-mono font-black text-sm">{formatCooldown(cooldownRemaining)}</span>
+                      <div className="flex items-center gap-2 px-5 py-3 rounded-xl bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-900/50 text-amber-700 dark:text-amber-300">
+                        <span className="text-xs font-semibold uppercase tracking-wider">⏳ Cooldown Active</span>
+                        <span className="font-mono font-bold text-sm">{formatCooldown(cooldownRemaining)}</span>
                       </div>
-                      <p className="text-[10px] text-slate-400 text-center">You may submit another complaint once the cooldown expires.</p>
+                      <p className="text-[10px] text-slate-400 text-center font-medium">You may submit another complaint once the cooldown expires.</p>
                     </div>
                   ) : (
                     <PremiumButton
@@ -454,28 +452,28 @@ export default function Contact() {
             ) : (
               // 2. Complaint Raise Form
               <form onSubmit={handleRaiseComplaint} className="flex flex-col gap-6 w-full animate-scaleUp text-left">
-                <div className="flex flex-col gap-1 pb-3 border-b border-slate-200/50 dark:border-slate-850">
-                  <h3 className="font-black text-lg text-slate-850 dark:text-white flex items-center gap-2">
-                    <ShieldAlert className="w-5 h-5 text-cyan-500" />
+                <div className="flex flex-col gap-1 pb-3 border-b border-slate-100 dark:border-slate-800/80">
+                  <h3 className="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
+                    <ShieldAlert className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                     Get Official Help
                   </h3>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs font-medium text-slate-400">
                     All fields are mandatory. Filing false complaints will result in permanent credential suspension.
                   </p>
                 </div>
 
                 {/* MANDATORY DISCLAIMER BOX */}
-                <div className="p-4 text-xs bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 rounded-xl flex items-start gap-2.5 leading-relaxed animate-scaleUp">
-                  <AlertTriangle className="w-4.5 h-4.5 shrink-0 text-rose-500 mt-0.5" />
+                <div className="p-4 text-xs bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900/50 rounded-xl flex items-start gap-2.5 leading-relaxed">
+                  <AlertTriangle className="w-4.5 h-4.5 shrink-0 text-rose-600 dark:text-rose-400 mt-0.5" />
                   <div>
-                    <strong className="block font-extrabold uppercase mb-1">⚠️ Mandatory Disclaimer</strong>
+                    <strong className="block font-bold uppercase mb-1">⚠️ Mandatory Disclaimer</strong>
                     By submitting this complaint, you declare under union regulations that all facts, details, and attachments are genuine and true. Lodging simulated, fake, or false reports is strictly prohibited under the TVRS State Charter, and will result in immediate suspension of student credentials and potential legal actions.
                   </div>
                 </div>
 
                 {errorMsg && (
-                  <div className="p-4 rounded-xl bg-rose-500/10 text-rose-500 border border-rose-500/20 text-xs font-bold flex items-center gap-2 animate-bounce">
-                    <AlertTriangle className="w-4 h-4 shrink-0 animate-pulse" />
+                  <div className="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900/50 text-xs font-semibold flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 shrink-0 text-rose-600" />
                     <span>{errorMsg}</span>
                   </div>
                 )}
@@ -484,8 +482,8 @@ export default function Contact() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   {/* Complainant Name */}
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                      Complainant Full Name <span className="text-slate-500">(Optional)</span>
+                    <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+                      Complainant Full Name <span className="text-slate-400">(Optional)</span>
                     </label>
                     <div className="relative">
                       <input
@@ -493,22 +491,22 @@ export default function Contact() {
                         placeholder="Enter Complainant Name"
                         value={complainantName}
                         onChange={(e) => setComplainantName(e.target.value)}
-                        className="peer w-full pl-11 pr-4 py-3.5 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-805 dark:text-slate-100 font-bold"
+                        className="peer w-full pl-11 pr-4 py-3 rounded-xl border bg-slate-50/50 dark:bg-slate-955 text-sm focus:outline-none focus:border-blue-600 border-slate-200/80 dark:border-slate-800 text-slate-900 dark:text-white font-medium transition-colors"
                       />
-                      <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400 pointer-events-none z-10" strokeWidth={2.2} />
+                      <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-400 pointer-events-none z-10" />
                     </div>
                   </div>
 
                   {/* Constituency Selection Dropdown */}
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
                       Constituency / Area Node <span className="text-rose-500">*</span>
                     </label>
                     <div className="relative">
                       <select
                         value={selectedConstituencyId}
                         onChange={(e) => setSelectedConstituencyId(e.target.value)}
-                        className="peer w-full pl-11 pr-4 py-3.5 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-805 dark:text-slate-100 font-bold cursor-pointer"
+                        className="peer w-full pl-11 pr-4 py-3 rounded-xl border bg-slate-50/50 dark:bg-slate-955 text-sm focus:outline-none focus:border-blue-600 border-slate-200/80 dark:border-slate-800 text-slate-900 dark:text-white font-medium cursor-pointer transition-colors"
                         required
                       >
                         <option value="">Select constituency area</option>
@@ -518,20 +516,20 @@ export default function Contact() {
                           </option>
                         ))}
                       </select>
-                      <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400 pointer-events-none z-10" strokeWidth={2.2} />
+                      <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-400 pointer-events-none z-10" />
                     </div>
                   </div>
 
                   {/* Category Selection Dropdown */}
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
                       Complaint Category <span className="text-rose-500">*</span>
                     </label>
                     <div className="relative">
                       <select
                         value={category}
                         onChange={(e) => setCategory(e.target.value)}
-                        className="peer w-full pl-11 pr-4 py-3.5 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-855 dark:text-slate-100 font-bold cursor-pointer"
+                        className="peer w-full pl-11 pr-4 py-3 rounded-xl border bg-slate-50/50 dark:bg-slate-955 text-sm focus:outline-none focus:border-blue-600 border-slate-200/80 dark:border-slate-800 text-slate-900 dark:text-white font-medium cursor-pointer transition-colors"
                         required
                       >
                         <option value="Anti-Ragging">Anti-Ragging (Ragging protection)</option>
@@ -546,20 +544,20 @@ export default function Contact() {
                         <option value="Abuse">Physical or verbal abuse</option>
                         <option value="Other">Other complaints</option>
                       </select>
-                      <FileText className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400 pointer-events-none z-10" strokeWidth={2.2} />
+                      <FileText className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-400 pointer-events-none z-10" />
                     </div>
                   </div>
 
                   {/* Urgency selection dropdown */}
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
                       Urgency Level <span className="text-rose-500">*</span>
                     </label>
                     <div className="relative">
                       <select
                         value={urgency}
                         onChange={(e) => setUrgency(e.target.value)}
-                        className="peer w-full pl-11 pr-4 py-3.5 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-805 dark:text-slate-100 font-bold cursor-pointer"
+                        className="peer w-full pl-11 pr-4 py-3 rounded-xl border bg-slate-50/50 dark:bg-slate-955 text-sm focus:outline-none focus:border-blue-600 border-slate-200/80 dark:border-slate-800 text-slate-900 dark:text-white font-medium cursor-pointer transition-colors"
                         required
                       >
                         <option value="Low">Low - System resolution timeline</option>
@@ -567,7 +565,7 @@ export default function Contact() {
                         <option value="High">High - Priority response board</option>
                         <option value="Critical">Critical - Immediate security check</option>
                       </select>
-                      <AlertTriangle className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400 pointer-events-none z-10" strokeWidth={2.2} />
+                      <AlertTriangle className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-400 pointer-events-none z-10" />
                     </div>
                   </div>
 
@@ -577,7 +575,7 @@ export default function Contact() {
 
                 {/* College address */}
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
                     Full College / School Proper Address <span className="text-rose-500">*</span>
                   </label>
                   <div className="relative">
@@ -587,15 +585,15 @@ export default function Contact() {
                       placeholder="Enter College Name, Campus Block, City/District details"
                       value={collegeSchoolAddress}
                       onChange={(e) => setCollegeSchoolAddress(e.target.value)}
-                      className="peer w-full pl-11 pr-4 py-3.5 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-805 dark:text-slate-100 font-bold"
+                      className="peer w-full pl-11 pr-4 py-3 rounded-xl border bg-slate-50/50 dark:bg-slate-955 text-sm focus:outline-none focus:border-blue-600 border-slate-200/80 dark:border-slate-800 text-slate-900 dark:text-white font-medium transition-colors"
                     />
-                    <Building className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400 pointer-events-none z-10" strokeWidth={2.2} />
+                    <Building className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-400 pointer-events-none z-10" />
                   </div>
                 </div>
 
                 {/* Detailed description */}
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
                     Detailed Issue Description <span className="text-rose-500">*</span>
                   </label>
                   <div className="relative">
@@ -605,22 +603,22 @@ export default function Contact() {
                       placeholder="Provide a detailed description of the incident, names involved (if applicable), timings, and specific help required..."
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
-                      className="peer w-full pl-11 pr-4 py-3.5 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-805 dark:text-slate-100 font-bold"
+                      className="peer w-full pl-11 pr-4 py-3 rounded-xl border bg-slate-50/50 dark:bg-slate-955 text-sm focus:outline-none focus:border-blue-600 border-slate-200/80 dark:border-slate-800 text-slate-900 dark:text-white font-medium transition-colors resize-y"
                     />
-                    <AlignLeft className="absolute left-4 top-4.5 w-4.5 h-4.5 text-cyan-600 dark:text-cyan-400 pointer-events-none z-10" strokeWidth={2.2} />
+                    <AlignLeft className="absolute left-4 top-4 w-4.5 h-4.5 text-slate-400 pointer-events-none z-10" />
                   </div>
                 </div>
 
                 {/* Proofs Drag and Drop field */}
                 <div className="flex flex-col gap-3">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
-                    <span>Complaint Proof Attachments <span className="text-slate-500">(Optional)</span></span>
-                    <span className="text-[9px] text-cyan-555 font-extrabold uppercase">Evidence files are optional</span>
+                  <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+                    <span>Complaint Proof Attachments <span className="text-slate-400">(Optional)</span></span>
+                    <span className="text-[9px] text-blue-600 dark:text-blue-400 font-semibold uppercase">Evidence files are optional</span>
                   </label>
                   
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* File Dropzone */}
-                    <div className="relative group cursor-pointer border-2 border-dashed border-slate-200/60 dark:border-slate-800 hover:border-cyan-500/60 dark:hover:border-cyan-400/60 rounded-2xl bg-white/10 dark:bg-slate-900/10 p-6 text-center transition-all flex flex-col items-center justify-center min-h-[140px]">
+                    <div className="relative group cursor-pointer border border-dashed border-slate-200 dark:border-slate-800 hover:border-blue-600 rounded-2xl bg-slate-50/50 dark:bg-slate-955 p-6 text-center transition-all flex flex-col items-center justify-center min-h-[140px]">
                       <input
                         type="file"
                         multiple
@@ -629,24 +627,24 @@ export default function Contact() {
                         className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
                       />
                       <div className="flex flex-col items-center gap-2 pointer-events-none select-none">
-                        <UploadCloud className="w-7 h-7 text-cyan-500 group-hover:scale-120 group-hover:animate-bounce transition-transform duration-300" />
+                        <UploadCloud className="w-7 h-7 text-blue-600 dark:text-blue-400 group-hover:scale-105 transition-transform duration-200" />
                         <div className="flex flex-col gap-0.5">
-                          <span className="text-[11px] font-bold text-slate-700 dark:text-white block">Drag & Drop files here</span>
-                          <span className="text-[9px] text-slate-400 uppercase tracking-wider">PDF, MP4, Images up to 20MB</span>
+                          <span className="text-[11px] font-semibold text-slate-700 dark:text-slate-200 block">Drag & Drop files here</span>
+                          <span className="text-[9px] text-slate-400 uppercase tracking-wider font-medium">PDF, MP4, Images up to 20MB</span>
                         </div>
                       </div>
                     </div>
 
                     {/* Audio Recorder Panel */}
-                    <div className="rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-white/10 dark:bg-slate-900/10 p-5 flex flex-col justify-between min-h-[140px] text-left gap-3 group">
+                    <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-955 p-5 flex flex-col justify-between min-h-[140px] text-left gap-3 group">
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] font-extrabold text-slate-700 dark:text-white flex items-center gap-1.5">
-                          <Mic className="w-3.5 h-3.5 text-cyan-500 group-hover:scale-120 group-hover:animate-pulse transition-all duration-300" />
+                        <span className="text-[11px] font-semibold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+                          <Mic className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                           Voice Memo Evidence
                         </span>
                         {recording && (
-                          <span className="flex items-center gap-1 text-[9px] font-black text-rose-500 uppercase tracking-wider animate-pulse">
-                            <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                          <span className="flex items-center gap-1 text-[9px] font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider animate-pulse">
+                            <span className="w-1.5 h-1.5 rounded-full bg-rose-600" />
                             Recording {formatTimer(recordTime)}
                           </span>
                         )}
@@ -655,48 +653,44 @@ export default function Contact() {
                       {/* Display States */}
                       {!recording && !audioPreviewUrl ? (
                         <div className="flex-1 flex flex-col justify-center items-center text-center">
-                          <p className="text-[10px] text-slate-400 mb-2 leading-relaxed max-w-[200px]">
+                          <p className="text-[10px] text-slate-400 font-medium mb-2 leading-relaxed max-w-[200px]">
                             Record a brief audio statement explaining the issue directly from your microphone.
                           </p>
-                          <PremiumButton
+                          <button
                             type="button"
-                            variant="secondary"
-                            size="sm"
                             onClick={startRecording}
-                            className="!border-cyan-500/30 !text-cyan-500 hover:!bg-cyan-500 hover:!text-white font-extrabold text-[10px] py-1.5"
+                            className="px-3 py-1.5 rounded-xl border border-blue-200 dark:border-blue-900/60 bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 font-semibold text-[10px] hover:bg-blue-600 hover:text-white transition-colors cursor-pointer"
                           >
                             🎙️ Record Memo
-                          </PremiumButton>
+                          </button>
                         </div>
                       ) : recording ? (
                         <div className="flex-1 flex flex-col justify-center items-center gap-2.5">
                           {/* Animated Waveform indicator */}
                           <div className="flex items-center gap-1 h-6">
-                            <div className="w-1 bg-cyan-500 rounded animate-voice-bar-1 h-2" />
-                            <div className="w-1 bg-cyan-500 rounded animate-voice-bar-2 h-4" />
-                            <div className="w-1 bg-cyan-400 rounded animate-voice-bar-3 h-5" />
-                            <div className="w-1 bg-cyan-500 rounded animate-voice-bar-4 h-3" />
-                            <div className="w-1 bg-cyan-400 rounded animate-voice-bar-5 h-4" />
-                            <div className="w-1 bg-cyan-500 rounded animate-voice-bar-6 h-2" />
+                            <div className="w-1 bg-blue-600 rounded animate-voice-bar-1 h-2" />
+                            <div className="w-1 bg-blue-600 rounded animate-voice-bar-2 h-4" />
+                            <div className="w-1 bg-blue-500 rounded animate-voice-bar-3 h-5" />
+                            <div className="w-1 bg-blue-600 rounded animate-voice-bar-4 h-3" />
+                            <div className="w-1 bg-blue-500 rounded animate-voice-bar-5 h-4" />
+                            <div className="w-1 bg-blue-600 rounded animate-voice-bar-6 h-2" />
                           </div>
-                          <PremiumButton
+                          <button
                             type="button"
-                            variant="primary"
-                            size="sm"
                             onClick={stopRecording}
-                            className="bg-rose-500 hover:bg-rose-600 font-extrabold text-[10px] py-1.5 flex items-center gap-1.5"
+                            className="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-semibold text-[10px] flex items-center gap-1.5 cursor-pointer"
                           >
                             <Square className="w-3 h-3 fill-current" /> Stop & Preview
-                          </PremiumButton>
+                          </button>
                         </div>
                       ) : (
                         <div className="flex-1 flex flex-col justify-center gap-2">
-                          <audio src={audioPreviewUrl} controls className="w-full h-8 accent-cyan-500 mt-1" />
+                          <audio src={audioPreviewUrl} controls className="w-full h-8 accent-blue-600 mt-1" />
                           <div className="flex gap-2 w-full mt-1.5">
                             <button
                               type="button"
                               onClick={deleteRecording}
-                              className="p-2 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-500 hover:bg-rose-500 hover:text-white transition-all duration-200 cursor-pointer"
+                              className="p-2 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 text-rose-600 dark:text-rose-400 hover:bg-rose-600 hover:text-white transition-colors cursor-pointer"
                               title="Delete Recording"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -704,7 +698,7 @@ export default function Contact() {
                             <button
                               type="button"
                               onClick={attachAudioMemo}
-                              className="flex-1 py-2 px-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 hover:text-white font-extrabold text-[10px] transition-all duration-300 cursor-pointer"
+                              className="flex-1 py-2 px-3 rounded-xl border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-600 hover:text-white font-semibold text-[10px] transition-colors cursor-pointer"
                             >
                               ✓ Attach Voice Memo
                             </button>
@@ -717,15 +711,15 @@ export default function Contact() {
 
                 {/* File Preview List */}
                 {proofFiles.length > 0 && (
-                  <div className="flex flex-col gap-2 max-h-[150px] overflow-y-auto pr-1 custom-sidebar-scrollbar">
+                  <div className="flex flex-col gap-2 max-h-[150px] overflow-y-auto pr-1">
                     {proofFiles.map((file, idx) => (
-                      <div key={idx} className="flex items-center justify-between p-2.5 rounded-lg border bg-white/50 dark:bg-slate-850/50 border-slate-200/50 dark:border-slate-800">
+                      <div key={idx} className="flex items-center justify-between p-2.5 rounded-xl border bg-slate-50/50 dark:bg-slate-955 border-slate-200/80 dark:border-slate-800">
                         <div className="flex items-center gap-2 min-w-0">
-                           <FileText className="w-3.5 h-3.5 text-cyan-500 shrink-0" />
-                           <span className="text-[11px] font-bold text-slate-700 dark:text-slate-200 truncate">{file.name}</span>
+                           <FileText className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
+                           <span className="text-[11px] font-semibold text-slate-700 dark:text-slate-200 truncate">{file.name}</span>
                         </div>
                         <div className="flex items-center gap-3 shrink-0">
-                          <span className="text-[9px] text-slate-400">{(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                          <span className="text-[9px] font-medium text-slate-400">{(file.size / 1024 / 1024).toFixed(2)} MB</span>
                           <button type="button" onClick={() => removeFile(idx)} className="text-rose-500 hover:text-rose-600 p-1 cursor-pointer">
                             <X className="w-3.5 h-3.5" />
                           </button>
@@ -742,27 +736,27 @@ export default function Contact() {
                     id="anonymous"
                     checked={anonymous}
                     onChange={(e) => setAnonymous(e.target.checked)}
-                    className="rounded border-slate-300 dark:border-slate-800 text-cyan-500 focus:ring-cyan-400"
+                    className="rounded border-slate-300 dark:border-slate-800 text-blue-600 focus:ring-blue-500"
                   />
-                  <label htmlFor="anonymous" className="text-xs text-slate-550 dark:text-slate-400 font-bold select-none cursor-pointer">
+                  <label htmlFor="anonymous" className="text-xs text-slate-600 dark:text-slate-400 font-medium select-none cursor-pointer">
                     File anonymously (Hide my name from regional leaders)
                   </label>
                 </div>
 
                 {cooldownRemaining > 0 ? (
-                  <div className="w-full mt-2 flex flex-col items-center gap-2 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/25">
-                    <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
-                      <span className="text-xs font-extrabold uppercase tracking-wider">⏳ Submission Cooldown</span>
-                      <span className="font-mono font-black text-base">{formatCooldown(cooldownRemaining)}</span>
+                  <div className="w-full mt-2 flex flex-col items-center gap-2 p-4 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50">
+                    <div className="flex items-center gap-2 text-amber-700 dark:text-amber-300">
+                      <span className="text-xs font-semibold uppercase tracking-wider">⏳ Submission Cooldown</span>
+                      <span className="font-mono font-bold text-base">{formatCooldown(cooldownRemaining)}</span>
                     </div>
-                    <p className="text-[10px] text-slate-400 text-center">Your previous complaint was lodged recently. You can submit another once this timer expires.</p>
+                    <p className="text-[10px] text-slate-400 text-center font-medium">Your previous complaint was lodged recently. You can submit another once this timer expires.</p>
                   </div>
                 ) : (
                   <PremiumButton
                     type="submit"
                     variant="primary"
                     size="md"
-                    className={`w-full mt-2 ${isEmergency ? 'bg-rose-500 hover:bg-rose-600 shadow-glow-rose before:from-rose-400 before:to-rose-600' : ''}`}
+                    className={`w-full mt-2 ${isEmergency ? '!bg-rose-600 hover:!bg-rose-700' : ''}`}
                     disabled={submitting}
                     icon={submitting ? null : <Send className="w-4 h-4 text-white" strokeWidth={2.5} />}
                   >
@@ -774,13 +768,13 @@ export default function Contact() {
           ) : (
             // 3. Guest login warning fallback
             <div className="text-center py-10 flex flex-col items-center gap-5 max-w-md mx-auto animate-scaleUp">
-              <div className="w-16 h-16 rounded-full bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-500 shadow-glow-cyan">
-                <Lock className="w-10 h-10 animate-pulse" />
+              <div className="w-14 h-14 rounded-2xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-900/60 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                <Lock className="w-8 h-8" />
               </div>
-              <h3 className="font-extrabold text-xl text-slate-850 dark:text-white">
+              <h3 className="font-bold text-xl text-slate-900 dark:text-white">
                 Secure Submission Required
               </h3>
-              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed text-center">
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-medium text-center">
                 To raise an official student complaint and track its lifecycle, you must log in to your verified student advocate account first.
               </p>
               <div className="flex gap-3">
@@ -793,7 +787,7 @@ export default function Contact() {
               </div>
             </div>
           )}
-        </GlassCard>
+        </div>
       </section>
 
     </div>

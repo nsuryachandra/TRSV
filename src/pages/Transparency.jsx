@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { ShieldCheck, Activity, Users, Clock, AlertTriangle, ChevronRight, BarChart2, ShieldAlert } from 'lucide-react';
-import GlassCard from '../components/GlassCard';
 import AnimatedSection from '../components/AnimatedSection';
 import { useOrg } from '../context/OrgContext';
 
@@ -40,149 +39,143 @@ export default function Transparency() {
   if (loading) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center min-h-[70vh]">
-        <div className="w-16 h-16 border-4 border-slate-200 dark:border-slate-800 rounded-full relative">
-          <div className="absolute inset-0 border-4 border-transparent border-t-cyan-500 rounded-full animate-spin shadow-glow-cyan" />
-        </div>
-        <p className="mt-6 text-sm font-bold tracking-widest text-slate-500 uppercase animate-pulse">Syncing Accountability Nodes...</p>
+        <div className="w-10 h-10 border-2 border-slate-200 dark:border-slate-800 border-t-blue-600 rounded-full animate-spin" />
+        <p className="mt-4 text-xs font-semibold tracking-wider text-slate-400 uppercase animate-pulse">Syncing Accountability Data...</p>
       </div>
     );
   }
 
   return (
-    <div className="w-full flex flex-col gap-12 py-8 animate-fadeIn">
+    <div className="w-full flex flex-col gap-12 py-4 animate-fadeIn">
       
       {/* Hero Header */}
-      <AnimatedSection direction="up" className="text-center max-w-4xl mx-auto flex flex-col gap-4">
-        <span className="text-xs font-semibold text-blue-600 dark:text-blue-400 tracking-widest uppercase flex items-center justify-center gap-2">
-          <ShieldCheck className="w-4 h-4 text-amber-500" /> Open Governance & Telemetry
+      <AnimatedSection direction="up" className="text-center max-w-4xl mx-auto flex flex-col gap-3">
+        <span className="text-xs font-semibold text-blue-600 dark:text-blue-400 tracking-wider uppercase flex items-center justify-center gap-1.5">
+          <ShieldCheck className="w-3.5 h-3.5 text-amber-500" /> Open Governance & Telemetry
         </span>
-        <h1 className="fluid-heading-2 font-semibold text-slate-900 dark:text-white leading-tight">
+        <h1 className="fluid-heading-2 font-bold text-slate-900 dark:text-white leading-tight">
           Complaint Statistics
         </h1>
-        <p className="text-base sm:text-lg text-slate-500 dark:text-slate-400 leading-relaxed max-w-2xl mx-auto">
+        <p className="text-base sm:text-lg text-slate-500 dark:text-slate-400 leading-relaxed font-medium max-w-2xl mx-auto">
           {shortName} operates with 100% public accountability. Monitor organization-wide grievance metrics, resolution rates, and constituency performance statistics.
         </p>
       </AnimatedSection>
 
       {/* Top Metrics Row */}
       <AnimatedSection delay={0.1} className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-        <GlassCard className="p-6 flex flex-col items-center text-center gap-3">
-          <div className="p-3 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400">
-            <Activity className="w-6 h-6" />
+        <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 shadow-xs flex flex-col items-center text-center gap-3">
+          <div className="p-2.5 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-900/60">
+            <Activity className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-3xl font-bold text-slate-900 dark:text-white">{metrics?.totalComplaints || 0}</h3>
+            <h3 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">{metrics?.totalComplaints || 0}</h3>
             <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Total Tickets</span>
           </div>
-        </GlassCard>
+        </div>
 
-        <GlassCard className="p-6 flex flex-col items-center text-center gap-3 relative overflow-hidden group">
-          <div className="absolute inset-0 bg-green-500/5 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-          <div className="p-3 rounded-full bg-green-500/10 text-green-500 relative z-10">
-            <ShieldCheck className="w-6 h-6" />
+        <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 shadow-xs flex flex-col items-center text-center gap-3">
+          <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/60">
+            <ShieldCheck className="w-5 h-5" />
           </div>
-          <div className="relative z-10">
-            <h3 className="text-3xl font-bold text-slate-900 dark:text-white">{metrics?.resolvedComplaints || 0}</h3>
+          <div>
+            <h3 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">{metrics?.resolvedComplaints || 0}</h3>
             <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Resolved Issues</span>
           </div>
-        </GlassCard>
+        </div>
 
-        <GlassCard className="p-6 flex flex-col items-center text-center gap-3">
-          <div className="p-3 rounded-full bg-rose-500/10 text-rose-500">
-            <ShieldAlert className="w-6 h-6" />
+        <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 shadow-xs flex flex-col items-center text-center gap-3">
+          <div className="p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900/60">
+            <ShieldAlert className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-3xl font-bold text-rose-500">{metrics?.criticalEmergencies || 0}</h3>
+            <h3 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">{metrics?.criticalEmergencies || 0}</h3>
             <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Panic Responded</span>
           </div>
-        </GlassCard>
+        </div>
 
-        <GlassCard className="p-6 flex flex-col items-center text-center gap-3">
-          <div className="p-3 rounded-full bg-amber-500/10 text-amber-500">
-            <Clock className="w-6 h-6" />
+        <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 shadow-xs flex flex-col items-center text-center gap-3">
+          <div className="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-900/60">
+            <Clock className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-3xl font-bold text-slate-900 dark:text-white">{metrics?.averageResolutionHours || 0}<span className="text-lg">h</span></h3>
+            <h3 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">{metrics?.averageResolutionHours || 0}<span className="text-lg">h</span></h3>
             <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Avg Resolution</span>
           </div>
-        </GlassCard>
+        </div>
       </AnimatedSection>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
         {/* Constituency Leaderboard */}
-        <AnimatedSection delay={0.2} className="flex flex-col gap-6">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-500/10 rounded-lg text-blue-600 dark:text-blue-400">
-              <BarChart2 className="w-5 h-5" />
+        <AnimatedSection delay={0.2} className="flex flex-col gap-5 text-left">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 bg-blue-50 dark:bg-blue-950/60 rounded-xl text-blue-600 dark:text-blue-400 border border-blue-200/60 dark:border-blue-900/40">
+              <BarChart2 className="w-4.5 h-4.5" />
             </div>
-            <h2 className="font-semibold text-xl text-slate-900 dark:text-white tracking-tight">Performance Rankings</h2>
+            <h2 className="font-bold text-lg text-slate-900 dark:text-white tracking-tight">Performance Rankings</h2>
           </div>
           
-          <GlassCard className="flex flex-col gap-1 p-2">
+          <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 shadow-xs flex flex-col gap-1 p-2">
             {rankings.length > 0 ? rankings.map((con, idx) => (
-              <div key={idx} className="flex items-center p-4 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors gap-4">
-                <span className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ${idx === 0 ? 'bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30' : idx === 1 ? 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-white' : idx === 2 ? 'bg-amber-500/10 text-amber-500' : 'bg-slate-100 dark:bg-slate-900 text-slate-400'}`}>
+              <div key={idx} className="flex items-center p-3.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors gap-4">
+                <span className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 ${idx === 0 ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-900/60' : idx === 1 ? 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300' : idx === 2 ? 'bg-amber-50/50 dark:bg-amber-950/30 text-amber-500' : 'bg-slate-100 dark:bg-slate-900 text-slate-400'}`}>
                   #{idx + 1}
                 </span>
                 <div className="flex flex-col flex-1 min-w-0">
-                  <span className="font-medium text-sm text-slate-900 dark:text-white truncate">{con.name}</span>
-                  <span className="text-[10px] text-slate-400">{con.resolved_tickets} / {con.total_tickets} Resolved</span>
+                  <span className="font-semibold text-sm text-slate-900 dark:text-white truncate">{con.name}</span>
+                  <span className="text-[11px] font-medium text-slate-400">{con.resolved_tickets} / {con.total_tickets} Resolved</span>
                 </div>
                 <div className="flex flex-col items-end shrink-0">
-                  <span className="font-semibold text-blue-600 dark:text-blue-400">{con.resolution_rate}%</span>
-                  <span className="text-[9px] uppercase tracking-wider text-slate-500 font-semibold">Clear Rate</span>
+                  <span className="font-bold text-blue-600 dark:text-blue-400 text-sm">{con.resolution_rate}%</span>
+                  <span className="text-[9px] uppercase tracking-wider text-slate-400 font-semibold">Clear Rate</span>
                 </div>
               </div>
             )) : (
-              <div className="py-10 text-center text-sm font-semibold text-slate-400 uppercase tracking-wider">No active rankings yet.</div>
+              <div className="py-10 text-center text-xs font-semibold text-slate-400 uppercase tracking-wider">No active rankings yet.</div>
             )}
-          </GlassCard>
+          </div>
         </AnimatedSection>
 
         {/* Real-time Activity Ledger */}
-        <AnimatedSection delay={0.3} className="flex flex-col gap-6">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-slate-200 dark:bg-slate-800 rounded-lg text-slate-600 dark:text-slate-400">
-              <Activity className="w-5 h-5" />
+        <AnimatedSection delay={0.3} className="flex flex-col gap-5 text-left">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-slate-600 dark:text-slate-400 border border-slate-200/60 dark:border-slate-700/60">
+              <Activity className="w-4.5 h-4.5" />
             </div>
-            <h2 className="font-semibold text-xl text-slate-900 dark:text-white tracking-tight">Live Issue Tracker</h2>
+            <h2 className="font-bold text-lg text-slate-900 dark:text-white tracking-tight">Live Issue Tracker</h2>
           </div>
 
-          <GlassCard className="flex flex-col gap-1 p-2 overflow-hidden relative h-full max-h-[500px]">
-            <div className="absolute top-0 inset-x-0 h-6 bg-gradient-to-b from-white dark:from-slate-900 to-transparent z-10 pointer-events-none" />
-            <div className="absolute bottom-0 inset-x-0 h-10 bg-gradient-to-t from-white dark:from-slate-900 to-transparent z-10 pointer-events-none" />
-            
-            <div className="flex-1 overflow-y-auto pr-2 custom-sidebar-scrollbar flex flex-col gap-2 py-4">
+          <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 shadow-xs flex flex-col gap-1 p-3 overflow-hidden relative h-full max-h-[500px]">
+            <div className="flex-1 overflow-y-auto pr-1 flex flex-col gap-2.5">
               {activity.length > 0 ? activity.map((act) => (
-                <div key={act.id} className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800/80 flex flex-col gap-2">
+                <div key={act.id} className="p-3.5 rounded-xl bg-slate-50/70 dark:bg-slate-955/50 border border-slate-200/80 dark:border-slate-800/80 flex flex-col gap-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-[9px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                    <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-200/60 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
                       Ticket #{act.id}
                     </span>
-                    <span className="text-[10px] text-slate-400 font-mono">{new Date(act.updated_at).toLocaleString()}</span>
+                    <span className="text-[10px] text-slate-400 font-medium">{new Date(act.updated_at).toLocaleString()}</span>
                   </div>
-                  <div className="flex items-center justify-between mt-1">
+                  <div className="flex items-center justify-between mt-0.5">
                     <div className="flex flex-col min-w-0">
-                      <span className="font-semibold text-sm text-slate-800 dark:text-white truncate">{act.category} Dispute</span>
-                      <span className="text-xs text-slate-500 truncate flex items-center gap-1.5 mt-0.5">
-                        <Users className="w-3.5 h-3.5" /> 
+                      <span className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white truncate">{act.category} Dispute</span>
+                      <span className="text-[11px] font-medium text-slate-500 truncate flex items-center gap-1 mt-0.5">
+                        <Users className="w-3 h-3 text-slate-400" /> 
                         {act.constituency_name || 'State Scope'}
                       </span>
                     </div>
-                    <span className={`text-[10px] font-semibold px-2 py-1 rounded shrink-0 border ${
-                      act.status === 'Resolved' ? 'bg-green-500/10 text-green-500 border-green-500/20' : 
-                      act.status === 'Under Investigation' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' : 
-                      'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20'
+                    <span className={`text-[10px] font-semibold px-2.5 py-0.5 rounded-full shrink-0 border ${
+                      act.status === 'Resolved' ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/60' : 
+                      act.status === 'Under Investigation' ? 'bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800/60' : 
+                      'bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800/60'
                     }`}>
                       {act.status}
                     </span>
                   </div>
                 </div>
               )) : (
-                <div className="py-10 text-center text-sm font-bold text-slate-400 uppercase tracking-wider">Tracker currently silent.</div>
+                <div className="py-10 text-center text-xs font-semibold text-slate-400 uppercase tracking-wider">Tracker currently silent.</div>
               )}
             </div>
-          </GlassCard>
+          </div>
         </AnimatedSection>
       </div>
 

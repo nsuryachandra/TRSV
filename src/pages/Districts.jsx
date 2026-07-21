@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { MapPin, Search, Users, ShieldAlert, CheckCircle2, Shield, Building2, ChevronLeft, Lock, Info, ArrowRight, Phone } from 'lucide-react';
-import GlassCard from '../components/GlassCard';
 import AnimatedSection from '../components/AnimatedSection';
 import { useAuth } from '../context/AuthContext';
 import PremiumButton from '../components/PremiumButton';
@@ -28,11 +27,11 @@ const formatRole = (role, tier) => {
 const LeaderCard = ({ lead, tier, color = 'cyan', constName = '' }) => {
   const styles = {
     cyan: {
-      wrap: 'bg-slate-50/60 dark:bg-slate-900/50 border border-slate-200/40 dark:border-slate-800 hover:border-cyan-500/30',
-      bar: 'bg-cyan-500',
-      img: 'ring-2 ring-cyan-500/30',
+      wrap: 'bg-slate-50/60 dark:bg-slate-900/50 border border-slate-200/40 dark:border-slate-800 hover:border-blue-500/30',
+      bar: 'bg-blue-600',
+      img: 'ring-2 ring-blue-500/30',
       name: 'text-slate-900 dark:text-white',
-      role: 'text-cyan-600 dark:text-cyan-400',
+      role: 'text-blue-600 dark:text-blue-400',
     },
     emerald: {
       wrap: 'bg-emerald-500/5 border border-emerald-500/20 hover:border-emerald-500/40',
@@ -67,14 +66,14 @@ const LeaderCard = ({ lead, tier, color = 'cyan', constName = '' }) => {
 
       {/* Info */}
       <div className="flex flex-1 flex-col justify-center gap-0.5 py-3 pr-4 min-w-0">
-        <span className={`font-black text-xs leading-tight truncate ${s.name}`}>
+        <span className={`font-semibold text-xs leading-tight truncate ${s.name}`}>
           {lead.full_name}
         </span>
-        <span className={`text-[9px] font-black uppercase tracking-wider ${s.role}`}>
+        <span className={`text-[9px] font-semibold uppercase tracking-wider ${s.role}`}>
           {formatRole(lead.role, tier)}{constName && tier !== 'hub' && tier !== 'state' ? ` — ${constName}` : ''}
         </span>
         {lead.phone && (
-          <span className="text-[10px] text-slate-500 dark:text-slate-400 font-extrabold tracking-wider font-mono mt-1 flex items-center gap-1.5">
+          <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium tracking-wider font-mono mt-1 flex items-center gap-1.5">
             <Phone className={`w-3 h-3 ${s.role}`} />
             {lead.phone === '99999999' || lead.phone.toLowerCase() === 'revealing soon' ? 'REVEALING SOON' : lead.phone}
           </span>
@@ -86,16 +85,16 @@ const LeaderCard = ({ lead, tier, color = 'cyan', constName = '' }) => {
 
 const TierSection = ({ pulse, title, children, empty }) => (
   <div className="flex flex-col gap-4">
-    <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-900/60 pb-2">
+    <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800/80 pb-2">
       <span className={`w-2 h-2 rounded-full animate-pulse ${pulse}`} />
-      <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest">{title}</h3>
+      <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{title}</h3>
     </div>
     <div className="flex flex-col gap-3">
       {empty ? (
-        <div className="flex flex-col items-center justify-center py-6 px-4 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-900/10 text-center gap-2 min-h-[100px]">
+        <div className="flex flex-col items-center justify-center py-6 px-4 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-955 text-center gap-2 min-h-[100px]">
           <Users className="w-7 h-7 text-slate-400 stroke-[1.5]" />
-          <span className="font-bold text-xs text-slate-500 block">No officers assigned yet</span>
-          <span className="text-[9.5px] text-slate-400 block">Board assignments pending for this area.</span>
+          <span className="font-semibold text-xs text-slate-500 block">No officers assigned yet</span>
+          <span className="text-[9.5px] text-slate-400 block font-medium">Board assignments pending for this area.</span>
         </div>
       ) : children}
     </div>
@@ -191,13 +190,13 @@ export default function Districts() {
 
       {/* Header Banner */}
       <AnimatedSection direction="up" className="text-center max-w-3xl mx-auto flex flex-col gap-4">
-        <span className="text-xs font-bold text-cyan-600 dark:text-cyan-400 tracking-widest uppercase flex items-center justify-center gap-1.5">
+        <span className="text-xs font-semibold text-blue-600 dark:text-blue-400 tracking-wider uppercase flex items-center justify-center gap-1.5">
           <MapPin className="w-4 h-4" /> REGIONAL HOLOGRAPHIC COMMAND MAP
         </span>
-        <h1 className="fluid-heading-2 font-black text-slate-850 dark:text-white leading-tight">
+        <h1 className="fluid-heading-2 font-bold text-slate-900 dark:text-white leading-tight">
           Regional Command Hubs
         </h1>
-        <p className="text-base sm:text-lg text-slate-500 dark:text-slate-400 leading-relaxed">
+        <p className="text-base sm:text-lg text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
           Hover and interact with the WebGL 3D map to view regional metrics, or drill down into Greater Hyderabad assembly constituencies.
         </p>
       </AnimatedSection>
@@ -207,19 +206,19 @@ export default function Districts() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
           
           {/* WebGL 3D Map Viewport Panel */}
-          <GlassCard className="lg:col-span-2 p-5 border border-slate-200/50 dark:border-slate-900/60 relative overflow-hidden flex flex-col min-h-[500px]">
+          <div className="lg:col-span-2 p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 shadow-xs relative overflow-hidden flex flex-col min-h-[500px]">
             {/* Map UI Header */}
-            <div className="flex items-center justify-between border-b border-slate-200/40 dark:border-slate-800/60 pb-3 mb-4 shrink-0 z-10">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-3 mb-4 shrink-0 z-10">
               <div className="flex items-center gap-2">
-                <div className="w-2.5 h-2.5 rounded-full bg-cyan-500 animate-pulse shadow-glow-cyan" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                <div className="w-2.5 h-2.5 rounded-full bg-blue-600 animate-pulse" />
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
                   {mapLevel === 'state' ? '3D WebGL Telangana Command Center' : '3D WebGL Greater Hyderabad Hub'}
                 </span>
               </div>
               {mapLevel === 'gh' && (
                 <button
                   onClick={() => setMapLevel('state')}
-                  className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-[10px] font-extrabold uppercase border border-cyan-500/20 bg-cyan-500/10 text-cyan-500 hover:bg-cyan-500 hover:text-white transition-all cursor-pointer z-20"
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-[10px] font-semibold uppercase border border-blue-200 dark:border-blue-900/60 bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 hover:bg-blue-600 hover:text-white transition-colors cursor-pointer z-20"
                 >
                   <ChevronLeft className="w-3.5 h-3.5" /> Back to State Map
                 </button>
@@ -227,7 +226,7 @@ export default function Districts() {
             </div>
 
             {/* Three.js Container Canvas */}
-            <div className="w-full h-[450px] relative bg-slate-950/20 dark:bg-slate-950/40 rounded-2xl border border-slate-200/20 dark:border-slate-900/50 shadow-inner overflow-hidden">
+            <div className="w-full h-[450px] relative bg-slate-950/20 dark:bg-slate-950/40 rounded-xl border border-slate-200/60 dark:border-slate-800 shadow-inner overflow-hidden">
               <ThreeTelanganaMap
                 mapLevel={mapLevel}
                 setMapLevel={setMapLevel}
@@ -240,43 +239,42 @@ export default function Districts() {
               {/* Holographic Mouse Tooltip Overlay */}
               {hoveredRegion && (
                 <div 
-                  className="absolute p-3 rounded-xl border border-slate-700/40 bg-slate-900/95 text-left pointer-events-none z-45 shadow-premium-dark font-sans animate-fadeIn max-w-[210px]"
+                  className="absolute p-3 rounded-xl border border-slate-700/40 bg-slate-900/95 text-left pointer-events-none z-45 font-sans animate-fadeIn max-w-[210px]"
                   style={{ left: `${hoveredRegion.x + 15}px`, top: `${hoveredRegion.y + 15}px` }}
                 >
                   <div className="flex items-center gap-1.5">
                     {hoveredRegion.active ? (
-                      <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
                     ) : (
                       <Lock className="w-3 h-3 text-slate-500" />
                     )}
-                    <span className="text-xs font-black text-white uppercase tracking-wider">{hoveredRegion.name}</span>
+                    <span className="text-xs font-semibold text-white uppercase tracking-wider">{hoveredRegion.name}</span>
                   </div>
                   {hoveredRegion.active ? (
                     <div className="flex flex-col gap-1 mt-2 text-[10px] text-slate-350 font-medium">
                       {hoveredRegion.id === 'gh' ? (
-                        <span className="text-cyan-400 font-extrabold uppercase animate-pulse">Click district to zoom</span>
+                        <span className="text-blue-400 font-semibold uppercase animate-pulse">Click district to zoom</span>
                       ) : (
                         <>
-                          <span className="text-green-400 font-bold">Safety Index: {getRegionStats(hoveredRegion.name).safety}%</span>
-                          <span className="text-rose-400 font-bold">Active cases: {getRegionStats(hoveredRegion.name).active}</span>
+                          <span className="text-emerald-400 font-semibold">Safety Index: {getRegionStats(hoveredRegion.name).safety}%</span>
+                          <span className="text-rose-400 font-semibold">Active cases: {getRegionStats(hoveredRegion.name).active}</span>
                           <span className="text-[9px] text-slate-400 italic mt-0.5">Click boundary to filter</span>
                         </>
                       )}
                     </div>
                   ) : (
-                    <span className="text-[10px] text-slate-500 block mt-1.5 font-bold uppercase tracking-wider">🔒 Locked (Phase 2)</span>
+                    <span className="text-[10px] text-slate-500 block mt-1.5 font-semibold uppercase tracking-wider">🔒 Locked (Phase 2)</span>
                   )}
                 </div>
               )}
             </div>
-          </GlassCard>
+          </div>
 
           {/* Map Side HUD Panel (Holographic Stats Display) */}
-          <GlassCard className="p-5 border border-slate-200/50 dark:border-slate-900/60 flex flex-col justify-between text-left relative overflow-hidden bg-slate-950/10">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/5 blur-3xl pointer-events-none" />
+          <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 shadow-xs flex flex-col justify-between text-left relative overflow-hidden">
             
             <div className="flex flex-col gap-4">
-              <span className="text-[10px] font-black text-cyan-600 dark:text-cyan-400 tracking-widest uppercase block mb-1">
+              <span className="text-[10px] font-semibold text-blue-600 dark:text-blue-400 tracking-wider uppercase block mb-1">
                 SYSTEM HUB HUD
               </span>
 
@@ -284,24 +282,24 @@ export default function Districts() {
                 <div className="flex flex-col gap-5 animate-scaleUp">
                   {/* Title Area */}
                   <div>
-                    <h3 className="text-xl font-black text-slate-850 dark:text-white uppercase leading-tight flex items-center gap-1.5">
-                      <MapPin className="w-5 h-5 text-cyan-500 shrink-0" />
+                    <h3 className="text-xl font-bold text-slate-900 dark:text-white uppercase leading-tight flex items-center gap-1.5">
+                      <MapPin className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" />
                       {selectedConstituency.constituency_name}
                     </h3>
-                    <span className="text-xs text-slate-400 mt-1 block">
+                    <span className="text-xs text-slate-400 mt-1 block font-medium">
                       Constituency Hub — District: {selectedConstituency.district}
                     </span>
                   </div>
 
                   {/* Safety Ratio dial bar */}
-                  <div className="p-4 rounded-2xl bg-white/40 dark:bg-slate-900/50 border border-slate-200/40 dark:border-slate-800 flex flex-col gap-2">
+                  <div className="p-4 rounded-xl bg-slate-50/50 dark:bg-slate-955 border border-slate-200/80 dark:border-slate-800 flex flex-col gap-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-bold text-slate-450 uppercase">Safety Rating index</span>
-                      <span className="text-xs font-black text-green-500">{selectedStats?.safety}% Secure</span>
+                      <span className="text-[10px] font-semibold text-slate-400 uppercase">Safety Rating index</span>
+                      <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">{selectedStats?.safety}% Secure</span>
                     </div>
                     <div className="w-full h-1.5 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
                       <div 
-                        className="h-full bg-gradient-to-r from-cyan-500 to-green-500 transition-all duration-1000"
+                        className="h-full bg-gradient-to-r from-blue-600 to-emerald-500 transition-all duration-1000"
                         style={{ width: `${selectedStats?.safety || 100}%` }}
                       />
                     </div>
@@ -309,73 +307,73 @@ export default function Districts() {
 
                   {/* Mapped stats grid */}
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/30 border border-slate-200/30 dark:border-slate-800/80 flex items-center gap-2">
-                      <Building2 className="w-4 h-4 text-cyan-500" />
+                    <div className="p-3 rounded-xl bg-slate-50/50 dark:bg-slate-955 border border-slate-200/80 dark:border-slate-800 flex items-center gap-2">
+                      <Building2 className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                       <div className="flex flex-col">
-                        <span className="text-[9px] text-slate-400 uppercase font-bold">Colleges</span>
-                        <span className="text-xs font-black text-slate-850 dark:text-white">{selectedStats?.colleges}</span>
+                        <span className="text-[9px] text-slate-400 uppercase font-semibold">Colleges</span>
+                        <span className="text-xs font-bold text-slate-900 dark:text-white">{selectedStats?.colleges}</span>
                       </div>
                     </div>
-                    <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/30 border border-slate-200/30 dark:border-slate-800/80 flex items-center gap-2">
+                    <div className="p-3 rounded-xl bg-slate-50/50 dark:bg-slate-955 border border-slate-200/80 dark:border-slate-800 flex items-center gap-2">
                       <ShieldAlert className="w-4 h-4 text-rose-500" />
                       <div className="flex flex-col">
-                        <span className="text-[9px] text-slate-400 uppercase font-bold">Active Cases</span>
-                        <span className="text-xs font-black text-slate-850 dark:text-white">{selectedStats?.active}</span>
+                        <span className="text-[9px] text-slate-400 uppercase font-semibold">Active Cases</span>
+                        <span className="text-xs font-bold text-slate-900 dark:text-white">{selectedStats?.active}</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Mapped Coordinator Box */}
-                  <div className="p-4 rounded-xl border border-slate-200/50 dark:border-slate-850 bg-white/20 dark:bg-slate-900/20">
-                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider block mb-1">Chief Lead Coordinator</span>
-                    <span className="text-xs font-black text-slate-850 dark:text-white block">{selectedStats?.coordinator}</span>
-                    <span className="text-[10px] text-cyan-500 font-extrabold uppercase mt-0.5 block">
+                  <div className="p-4 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-955">
+                    <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">Chief Lead Coordinator</span>
+                    <span className="text-xs font-bold text-slate-900 dark:text-white block">{selectedStats?.coordinator}</span>
+                    <span className="text-[10px] text-blue-600 dark:text-blue-400 font-semibold uppercase mt-0.5 block">
                       {selectedConstituency.coordinator_role ? selectedConstituency.coordinator_role.replace(/_/g, ' ') : 'Pending Board Assignment'}
                     </span>
                   </div>
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center py-12 text-slate-400 text-xs text-center">
-                  <Info className="w-8 h-8 text-slate-500 mb-2 opacity-50" />
+                <div className="flex flex-col items-center justify-center py-12 text-slate-400 text-xs text-center font-medium">
+                  <Info className="w-8 h-8 text-slate-400 mb-2 opacity-50" />
                   Select an active constituency on the map to display system analytics.
                 </div>
               )}
             </div>
 
             {/* Quick Actions Shortcuts */}
-            <div className="flex flex-col gap-2.5 mt-6 border-t border-slate-200/50 dark:border-slate-800/60 pt-4 shrink-0">
+            <div className="flex flex-col gap-2.5 mt-6 border-t border-slate-100 dark:border-slate-800/80 pt-4 shrink-0">
               <PremiumButton
                 onClick={() => navigate('/contact')}
                 variant="primary"
                 size="sm"
-                className="w-full flex items-center justify-center gap-1 text-[10px] font-extrabold uppercase py-2.5"
+                className="w-full flex items-center justify-center gap-1 text-[10px] font-semibold uppercase py-2.5"
               >
                 Get Help <ArrowRight className="w-3 h-3" />
               </PremiumButton>
             </div>
-          </GlassCard>
+          </div>
 
         </div>
       </AnimatedSection>
 
       {/* 3-Tier Command Board */}
       <AnimatedSection direction="up" delay={0.1}>
-        <GlassCard className="p-6 md:p-8 border border-slate-200/50 dark:border-slate-900/60 flex flex-col gap-6 text-left">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-slate-200/40 dark:border-slate-800/60 pb-6">
+        <div className="p-6 md:p-8 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 shadow-xs flex flex-col gap-6 text-left">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800/80 pb-6">
             <div>
-              <span className="text-[10px] font-black text-cyan-600 dark:text-cyan-400 tracking-widest uppercase block mb-1">
+              <span className="text-[10px] font-semibold text-blue-600 dark:text-blue-400 tracking-wider uppercase block mb-1">
                 LIVE 3-TIER COMMAND BOARD
               </span>
-              <h2 className="text-xl md:text-2xl font-black text-slate-850 dark:text-white flex items-center gap-2">
-                <Shield className="w-6 h-6 text-cyan-500" />
+              <h2 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <Shield className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                 Constituency Governance Council
               </h2>
-              <p className="text-xs text-slate-400 mt-1">
-                Viewing command chain for <strong className="text-cyan-500">{selectedConstituency?.constituency_name || '...'}</strong>
+              <p className="text-xs text-slate-400 mt-1 font-medium">
+                Viewing command chain for <strong className="text-blue-600 dark:text-blue-400">{selectedConstituency?.constituency_name || '...'}</strong>
               </p>
             </div>
             <div className="w-full md:w-64 text-left">
-              <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5">
+              <label className="block text-[9px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
                 Select Constituency
               </label>
               <select
@@ -384,7 +382,7 @@ export default function Districts() {
                   const sel = constituencyList.find(c => c.id === parseInt(e.target.value));
                   if (sel) setSelectedConstituency(sel);
                 }}
-                className="w-full px-3 py-2 rounded-xl border bg-slate-50 dark:bg-slate-950/85 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-800 dark:text-slate-100 font-bold cursor-pointer"
+                className="w-full px-3 py-2 rounded-xl border bg-slate-50/50 dark:bg-slate-955 text-sm focus:outline-none focus:border-blue-600 border-slate-200/80 dark:border-slate-800 text-slate-900 dark:text-white font-medium cursor-pointer"
               >
                 {constituencyList.map(c => (
                   <option key={c.id} value={c.id}>{c.constituency_name}</option>
@@ -396,7 +394,7 @@ export default function Districts() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Tier 1: State */}
             <TierSection
-              pulse="bg-cyan-500 shadow-glow-cyan"
+              pulse="bg-blue-600"
               title="Tier 1 — State Command"
               empty={leadersData.statewideLeaders.length === 0}
             >
@@ -427,18 +425,18 @@ export default function Districts() {
               ))}
             </TierSection>
           </div>
-        </GlassCard>
+        </div>
       </AnimatedSection>
 
       {/* Constituency Directory Grid */}
       <section className="w-full flex flex-col gap-6">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
           <div className="text-left">
-            <h3 className="font-extrabold text-xl text-slate-850 dark:text-white flex items-center gap-2">
-              <Building2 className="w-5 h-5 text-cyan-500" />
+            <h3 className="font-bold text-xl text-slate-900 dark:text-white flex items-center gap-2">
+              <Building2 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               Hyderabad Constituency Directory
             </h3>
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="text-xs font-medium text-slate-400 mt-1">
               {filteredConstituencies.length} active regional student commands
             </p>
           </div>
@@ -449,13 +447,13 @@ export default function Districts() {
               placeholder="Search constituency, district or leader..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border bg-white/40 dark:bg-slate-900/40 text-sm focus:outline-none focus:border-cyan-400 border-slate-200/60 dark:border-slate-800 text-slate-800 dark:text-slate-100 font-medium"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl border bg-slate-50/50 dark:bg-slate-955 text-sm focus:outline-none focus:border-blue-600 border-slate-200/80 dark:border-slate-800 text-slate-900 dark:text-white font-medium"
             />
           </div>
         </div>
 
         {loading ? (
-          <div className="py-12 text-center text-sm text-slate-400">
+          <div className="py-12 text-center text-sm font-medium text-slate-400">
             Syncing constituency commands from Neon DB...
           </div>
         ) : (
@@ -475,57 +473,56 @@ export default function Districts() {
               const safetyRatio = totalTickets > 0 ? ((resolvedCount / totalTickets) * 100).toFixed(1) : '100.0';
 
               return (
-                <GlassCard
+                <div
                   key={dist.id}
                   id={`constituency-card-${dist.id}`}
-                  hoverEffect={true}
-                  className={`p-6 flex flex-col justify-between gap-6 border cursor-pointer transition-all duration-200
+                  className={`p-6 flex flex-col justify-between gap-6 rounded-2xl bg-white dark:bg-slate-900 border shadow-xs cursor-pointer transition-all duration-200
                     ${selectedConstituency?.id === dist.id
-                      ? 'border-cyan-500/40 bg-cyan-500/5 dark:bg-cyan-500/5'
-                      : 'border-slate-200/40 dark:border-slate-850'}`}
+                      ? 'border-blue-500/60 dark:border-blue-500/60 ring-2 ring-blue-500/20'
+                      : 'border-slate-200/80 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700'}`}
                   onClick={() => setSelectedConstituency(dist)}
                 >
                   <div className="flex flex-col gap-3">
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2 overflow-hidden">
-                        <MapPin className={`w-5 h-5 shrink-0 ${selectedConstituency?.id === dist.id ? 'text-cyan-400' : 'text-cyan-500'}`} />
-                        <span className="font-extrabold text-base sm:text-lg text-slate-800 dark:text-white truncate">
+                        <MapPin className={`w-5 h-5 shrink-0 ${selectedConstituency?.id === dist.id ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400'}`} />
+                        <span className="font-bold text-base sm:text-lg text-slate-900 dark:text-white truncate">
                           {dist.constituency_name}
                         </span>
                       </div>
-                      <span className="px-2 py-0.5 rounded-full text-[9px] font-black bg-cyan-500/10 text-cyan-500 border border-cyan-500/20 shrink-0">
+                      <span className="px-2.5 py-0.5 rounded-full text-[9px] font-semibold bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-900/50 shrink-0">
                         {safetyRatio}% Secure
                       </span>
                     </div>
-                    <span className="text-[10px] text-slate-400 block -mt-2">
+                    <span className="text-[10px] text-slate-400 block -mt-2 font-medium">
                       District: {dist.district}
                     </span>
-                    <div className="h-[1px] bg-slate-250/50 dark:bg-slate-800/80 my-1" />
+                    <div className="h-[1px] bg-slate-100 dark:bg-slate-800/80 my-1" />
                     <div className="grid grid-cols-2 gap-4 text-xs">
-                      <div className="flex items-center gap-2 text-slate-500">
+                      <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 font-medium">
                         <Users className="w-4 h-4 text-slate-400" />
-                        <span>Colleges: <strong className="text-slate-700 dark:text-white">{dist.college_count}</strong></span>
+                        <span>Colleges: <strong className="text-slate-900 dark:text-white">{dist.college_count}</strong></span>
                       </div>
-                      <div className="flex items-center gap-2 text-slate-500">
-                        <ShieldAlert className="w-4 h-4 text-rose-400" />
-                        <span>Active: <strong className="text-slate-700 dark:text-white">{dist.active_tickets}</strong></span>
+                      <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 font-medium">
+                        <ShieldAlert className="w-4 h-4 text-rose-500" />
+                        <span>Active: <strong className="text-slate-900 dark:text-white">{dist.active_tickets}</strong></span>
                       </div>
                     </div>
-                    <p className="text-xs text-slate-500 leading-relaxed mt-2">
-                      Chief Lead: <strong className="text-slate-700 dark:text-slate-350">{leadName}</strong>
-                      <span className="block text-[10px] text-cyan-500 font-bold mt-0.5">{leadRoleLabel}</span>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mt-2 font-medium">
+                      Chief Lead: <strong className="text-slate-800 dark:text-slate-200">{leadName}</strong>
+                      <span className="block text-[10px] text-blue-600 dark:text-blue-400 font-semibold mt-0.5">{leadRoleLabel}</span>
                     </p>
                   </div>
-                  <div className="flex items-center justify-end border-t border-slate-200/50 dark:border-slate-800/80 pt-4 text-xs">
-                    <span className="text-[10px] font-extrabold text-green-500 flex items-center gap-1">
+                  <div className="flex items-center justify-end border-t border-slate-100 dark:border-slate-800/80 pt-4 text-xs">
+                    <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                       <CheckCircle2 className="w-3.5 h-3.5" />
                       {resolvedCount} Resolved
                     </span>
                   </div>
-                </GlassCard>
+                </div>
               );
             }) : (
-              <div className="col-span-full py-12 text-center text-slate-450">
+              <div className="col-span-full py-12 text-center text-slate-400 font-medium">
                 No matching constituencies found.
               </div>
             )}

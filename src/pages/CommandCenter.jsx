@@ -502,23 +502,21 @@ export default function CommandCenter() {
     <div className="w-full flex flex-col gap-6 text-left select-none animate-fadeIn">
       
       {/* 1. Supreme Commander Greeting Header */}
-      <div className="relative overflow-hidden rounded-2xl glass-panel-light dark:glass-panel-dark border border-slate-200/50 dark:border-slate-850 p-8 shadow-premium-light dark:shadow-premium-dark flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-rose-500/10 to-transparent blur-xl pointer-events-none" />
-        
+      <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-sm flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
         <div className="flex items-center gap-5">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-rose-500 to-cyan-500 flex items-center justify-center text-white animate-pulse shadow-[0_0_20px_rgba(244,63,94,0.3)] shrink-0">
-            <Radio className="w-7 h-7" />
+          <div className="w-13 h-13 rounded-2xl bg-blue-600 flex items-center justify-center text-white shrink-0 shadow-sm">
+            <Radio className="w-6 h-6 animate-pulse" />
           </div>
           <div>
-            <div style={{fontFamily:'Inter,sans-serif',fontSize:'0.5625rem',fontWeight:600,letterSpacing:'0.1em'}} className="inline-flex items-center gap-1.5 self-start px-2.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-500 uppercase border border-cyan-500/20 animate-pulse mb-2">
+            <div className="inline-flex items-center gap-1.5 self-start px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[10px] font-bold uppercase tracking-wider border border-blue-500/20 mb-2">
               SUPREME ADMISSION TELEMETRY ACTIVE
             </div>
             
-            <h2 style={{fontFamily:'Satoshi,Inter,sans-serif',fontWeight:700,letterSpacing:'-0.03em',lineHeight:1.15}} className="text-2xl sm:text-3xl text-slate-900 dark:text-white flex flex-wrap items-center gap-x-2 gap-y-1">
-              Welcome, {userProfile?.full_name || 'Supreme Leader'} <span className="text-slate-300 dark:text-slate-700 hidden sm:inline">|</span> <span className="text-gradient-cyan block sm:inline">Supreme Commander</span>
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 dark:text-white flex flex-wrap items-center gap-x-2 gap-y-1">
+              Welcome, {userProfile?.full_name || 'Supreme Leader'} <span className="text-slate-300 dark:text-slate-700 hidden sm:inline">|</span> <span className="text-blue-600 dark:text-blue-400 font-bold block sm:inline">Supreme Commander</span>
             </h2>
             
-            <p style={{fontFamily:'Inter,sans-serif',fontSize:'0.8125rem',fontWeight:420,lineHeight:1.6,letterSpacing:'-0.003em'}} className="text-slate-400 dark:text-slate-500 mt-1 max-w-xl">
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1 max-w-xl leading-relaxed">
               Synchronizing state protection parameters, regional telemetry keys, and rapid incident response squad logs in real-time.
             </p>
           </div>
@@ -533,11 +531,10 @@ export default function CommandCenter() {
                   setActiveTab(tab);
                   setMessage({ text: '', type: '' });
                 }}
-                style={{fontFamily:'Inter,sans-serif',fontSize:'0.75rem',fontWeight:activeTab===tab?600:500,letterSpacing:'-0.01em'}}
-                className={`px-4 py-2 rounded-[10px] transition-all capitalize border ${
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all capitalize cursor-pointer border ${
                   activeTab === tab
-                    ? 'bg-rose-500 border-rose-500 text-white shadow-[0_2px_12px_-2px_rgba(239,68,68,0.5)]'
-                    : 'bg-slate-100/60 dark:bg-slate-900/60 border-slate-200/60 dark:border-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-white dark:hover:bg-slate-800'
+                    ? 'bg-blue-600 border-blue-600 text-white shadow-sm'
+                    : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
                 {tab === 'nodes' ? 'Academic Grid' : tab === 'applications' ? 'Join Requests' : tab === 'complaints' ? 'Complaints' : tab}
@@ -567,79 +564,79 @@ export default function CommandCenter() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full items-stretch animate-scaleUp">
           
           {/* Cell 1: Server Infrastructure (col-span-2) */}
-          <GlassCard hoverEffect={true} className="lg:col-span-2 p-6 flex flex-col justify-between gap-4">
+          <div className="lg:col-span-2 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-6 shadow-xs hover:shadow-sm transition-all duration-200 flex flex-col justify-between gap-4">
             <div>
-              <div className="flex items-center justify-between border-b border-slate-200/60 dark:border-slate-800 pb-3">
-                <span style={{fontFamily:'Inter,sans-serif',fontWeight:600,fontSize:'0.6875rem',letterSpacing:'0.08em'}} className="uppercase text-slate-500 dark:text-slate-400">Server Infrastructure</span>
-                <Server className="w-4 h-4 text-cyan-500 group-hover:scale-125 group-hover:rotate-6 transition-all duration-300" />
+              <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-3">
+                <span className="text-[11px] font-semibold tracking-wider uppercase text-slate-500 dark:text-slate-400">Server Infrastructure</span>
+                <Server className="w-4 h-4 text-blue-600 dark:text-blue-400" />
               </div>
-              <div className="flex flex-col gap-3 text-[13px] mt-3">
+              <div className="flex flex-col gap-3 text-xs mt-3">
                 <div className="flex justify-between items-center">
-                  <span style={{fontFamily:'Inter,sans-serif',fontWeight:420}} className="text-slate-500">Neon DB Cluster</span>
-                  <span className="text-green-500 font-semibold flex items-center gap-1.5" style={{fontFamily:'JetBrains Mono,monospace',fontSize:'0.75rem'}}>
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                  <span className="text-slate-600 dark:text-slate-400 font-medium">Neon DB Cluster</span>
+                  <span className="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1.5 font-mono text-[11px]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                     Active (8ms)
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span style={{fontFamily:'Inter,sans-serif',fontWeight:420}} className="text-slate-500">Firebase Token Validator</span>
-                  <span className="text-green-500 font-semibold flex items-center gap-1.5" style={{fontFamily:'JetBrains Mono,monospace',fontSize:'0.75rem'}}>
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                  <span className="text-slate-600 dark:text-slate-400 font-medium">Firebase Token Validator</span>
+                  <span className="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1.5 font-mono text-[11px]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                     Secure (JWT-256)
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span style={{fontFamily:'Inter,sans-serif',fontWeight:420}} className="text-slate-500">Active Coordinator Grids</span>
-                  <span className="text-green-500 font-semibold flex items-center gap-1.5" style={{fontFamily:'JetBrains Mono,monospace',fontSize:'0.75rem'}}>
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                  <span className="text-slate-600 dark:text-slate-400 font-medium">Active Coordinator Grids</span>
+                  <span className="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1.5 font-mono text-[11px]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                     Responsive
                   </span>
                 </div>
               </div>
             </div>
             
-            <div className="border-t border-slate-200/40 dark:border-slate-800 pt-3">
+            <div className="border-t border-slate-100 dark:border-slate-800/80 pt-3">
               <div className="grid grid-cols-3 gap-2 text-center">
                 <div className="flex flex-col gap-0.5">
-                  <span style={{fontFamily:'Inter,sans-serif',fontSize:'0.625rem',fontWeight:600,letterSpacing:'0.08em'}} className="text-slate-400 uppercase">Users</span>
-                  <AnimatedNumber value={stats.totalUsers} className="stat-number text-[1.375rem] font-bold text-slate-900 dark:text-white" />
+                  <span className="text-[10px] font-semibold tracking-wider text-slate-400 uppercase">Users</span>
+                  <AnimatedNumber value={stats.totalUsers} className="stat-number text-xl font-bold text-slate-900 dark:text-white" />
                 </div>
                 <div className="flex flex-col gap-0.5">
-                  <span style={{fontFamily:'Inter,sans-serif',fontSize:'0.625rem',fontWeight:600,letterSpacing:'0.08em'}} className="text-slate-400 uppercase">Leaders</span>
-                  <AnimatedNumber value={stats.totalLeaders} className="stat-number text-[1.375rem] font-bold text-slate-900 dark:text-white" />
+                  <span className="text-[10px] font-semibold tracking-wider text-slate-400 uppercase">Leaders</span>
+                  <AnimatedNumber value={stats.totalLeaders} className="stat-number text-xl font-bold text-slate-900 dark:text-white" />
                 </div>
                 <div className="flex flex-col gap-0.5">
-                  <span style={{fontFamily:'Inter,sans-serif',fontSize:'0.625rem',fontWeight:600,letterSpacing:'0.08em'}} className="text-slate-400 uppercase">Active Cases</span>
-                  <AnimatedNumber value={stats.totalComplaints - stats.resolvedComplaints} className="stat-number text-[1.375rem] font-bold text-slate-900 dark:text-white" />
+                  <span className="text-[10px] font-semibold tracking-wider text-slate-400 uppercase">Active Cases</span>
+                  <AnimatedNumber value={stats.totalComplaints - stats.resolvedComplaints} className="stat-number text-xl font-bold text-slate-900 dark:text-white" />
                 </div>
               </div>
             </div>
-          </GlassCard>
+          </div>
 
           {/* Cell 2: Emergency Dispatches (col-span-1) */}
-          <GlassCard hoverEffect={true} className="lg:col-span-1 p-6 flex flex-col justify-between gap-4 border-l-2 border-rose-500">
+          <div className="lg:col-span-1 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-6 shadow-xs hover:shadow-sm transition-all duration-200 flex flex-col justify-between gap-4 border-l-3 border-l-rose-500">
             <div>
-              <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
-                <span className="font-extrabold text-sm text-slate-700 dark:text-white uppercase tracking-wider">Emergency Response</span>
-                <ShieldAlert className="w-4 h-4 text-rose-500 group-hover:scale-120 group-hover:animate-bounce transition-all duration-300" />
+              <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-3">
+                <span className="font-semibold text-xs text-slate-900 dark:text-white uppercase tracking-wider">Emergency Response</span>
+                <ShieldAlert className="w-4 h-4 text-rose-500" />
               </div>
               <div className="flex items-baseline gap-2 py-2 mt-2">
-                <span className="text-3xl font-black text-rose-500">{stats.criticalComplaints}</span>
-                <span className="text-xs font-semibold text-slate-450 uppercase tracking-wider">Alarms</span>
+                <span className="text-3xl font-bold text-rose-600 dark:text-rose-400 tracking-tight">{stats.criticalComplaints}</span>
+                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Alarms</span>
               </div>
             </div>
-            <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
+            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
               {stats.criticalComplaints > 0 
                 ? `${stats.criticalComplaints} critical anti-ragging alarms currently escalated in the state grid.`
                 : "No anti-ragging panic signals detected from coordinate portals."}
             </p>
-          </GlassCard>
+          </div>
 
-          {/* Cell 3: Emergency Fallback Connection Control (col-span-1) */}
-          <GlassCard hoverEffect={true} className="lg:col-span-1 flex flex-col justify-stretch p-6">
-            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3 mb-3 shrink-0">
-              <span className="font-extrabold text-sm text-slate-700 dark:text-white uppercase tracking-wider">Terminal Node Health</span>
-              <Activity className="w-4 h-4 text-emerald-500 group-hover:scale-120 group-hover:animate-pulse transition-all duration-300" />
+          {/* Cell 3: Terminal Node Health (col-span-1) */}
+          <div className="lg:col-span-1 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl flex flex-col justify-stretch p-6 shadow-xs hover:shadow-sm transition-all duration-200">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-3 mb-3 shrink-0">
+              <span className="font-semibold text-xs text-slate-900 dark:text-white uppercase tracking-wider">Terminal Node Health</span>
+              <Activity className="w-4 h-4 text-emerald-500" />
             </div>
             <div className="flex-1 flex flex-col justify-center min-h-0">
               {connectionDropped ? (
@@ -660,39 +657,39 @@ export default function CommandCenter() {
                 <div className="flex flex-col items-start gap-3">
                   <div className="flex items-center gap-3">
                     <span className={`inline-flex items-center justify-center w-3.5 h-3.5 rounded-full ${nodeHealth && nodeHealth.status === 'healthy' ? 'bg-emerald-500' : 'bg-rose-500'}`} />
-                    <div className="text-sm font-semibold text-slate-700 dark:text-white">{nodeHealth ? (nodeHealth.status === 'healthy' ? 'Operational' : 'Degraded') : (healthLoading ? 'Checking...' : 'No health data')}</div>
+                    <div className="text-sm font-semibold text-slate-900 dark:text-white">{nodeHealth ? (nodeHealth.status === 'healthy' ? 'Operational' : 'Degraded') : (healthLoading ? 'Checking...' : 'No health data')}</div>
                   </div>
 
                   {nodeHealth ? (
-                    <div className="text-xs text-slate-500 dark:text-slate-400 font-mono">
+                    <div className="text-xs text-slate-500 dark:text-slate-400 font-mono space-y-1">
                       <div>Service: {nodeHealth.service}</div>
                       <div>Database: {nodeHealth.database}</div>
                       <div>Latency: {nodeHealth.ping_ms} ms</div>
-                      <div>Checked: {new Date(nodeHealth.timestamp || Date.now()).toLocaleString()}</div>
+                      <div>Checked: {new Date(nodeHealth.timestamp || Date.now()).toLocaleTimeString()}</div>
                     </div>
                   ) : (
                     <div className="flex items-center gap-2">
                       <div className="text-xs text-slate-400">No recent health data.</div>
-                      <button onClick={fetchHealth} className="text-xs font-bold text-rose-500 hover:underline">Retry</button>
+                      <button onClick={fetchHealth} className="text-xs font-semibold text-rose-500 hover:underline">Retry</button>
                     </div>
                   )}
                 </div>
               )}
             </div>
-          </GlassCard>
+          </div>
 
           {/* Cell 4: Statewide Incident Velocity (col-span-3, min-h-[350px]) */}
-          <GlassCard hoverEffect={true} className="lg:col-span-3 min-h-[350px] flex flex-col gap-3 p-6">
-            <span className="font-extrabold text-xs text-slate-700 dark:text-white uppercase tracking-wider pl-2 shrink-0">Statewide Incident Velocity (30 Days)</span>
+          <div className="lg:col-span-3 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl min-h-[350px] flex flex-col gap-3 p-6 shadow-xs">
+            <span className="font-semibold text-xs text-slate-900 dark:text-white uppercase tracking-wider pl-1 shrink-0">Statewide Incident Velocity (30 Days)</span>
             <div className="flex-1 min-h-0 min-w-0 overflow-hidden">
               <TrendChart data={trends} />
             </div>
-          </GlassCard>
+          </div>
 
           {/* Cell 5: RealtimeActivityFeed (col-span-1) */}
-          <GlassCard hoverEffect={true} className="lg:col-span-1 flex flex-col justify-stretch p-2">
+          <div className="lg:col-span-1 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl flex flex-col justify-stretch p-3 shadow-xs">
             <RealtimeActivityFeed activities={liveFeeds} />
-          </GlassCard>
+          </div>
 
         </div>
       )}
@@ -700,24 +697,24 @@ export default function CommandCenter() {
       {activeTab === 'nodes' && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full items-start animate-scaleUp">
           {/* Mapped regional constituencies list & inject form */}
-          <GlassCard hoverEffect={true} className="p-6 flex flex-col gap-4 text-left">
-            <h3 className="font-extrabold text-sm text-slate-700 dark:text-white uppercase tracking-wider flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
-              <MapPin className="w-4 h-4 text-cyan-500 group-hover:animate-bounce transition-transform duration-300" />
+          <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 shadow-xs flex flex-col gap-4 text-left">
+            <h3 className="font-semibold text-xs text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 dark:border-slate-800/80 pb-3">
+              <MapPin className="w-4 h-4 text-blue-600 dark:text-blue-400" />
               Telangana Constituency Registry
             </h3>
 
             <div className="flex flex-col gap-2 max-h-[220px] overflow-y-auto pr-1 custom-sidebar-scrollbar">
               {constituencies.map(con => (
-                <div key={con.id} className="flex items-center justify-between p-3 rounded-xl bg-slate-100/50 dark:bg-slate-900/40 border border-slate-200/30 dark:border-slate-850 text-xs">
+                <div key={con.id} className="flex items-center justify-between p-3 rounded-xl bg-slate-50/70 dark:bg-slate-950/50 border border-slate-200/80 dark:border-slate-800/80 text-xs">
                   <div>
-                    <strong className="text-slate-800 dark:text-white block">{con.constituency_name}</strong>
-                    <span className="text-slate-400">{con.district} District • Node ID #{con.id}</span>
+                    <strong className="text-slate-900 dark:text-white block font-semibold">{con.constituency_name}</strong>
+                    <span className="text-slate-500 text-[11px]">{con.district} District • Node ID #{con.id}</span>
                   </div>
                 </div>
               ))}
             </div>
-            <form onSubmit={handleAddConstituency} className="flex flex-col gap-3.5 border-t border-slate-200 dark:border-slate-800 pt-4 mt-1">
-              <span className="text-[10px] font-black text-slate-455 uppercase tracking-widest block">Inject Constituency</span>
+            <form onSubmit={handleAddConstituency} className="flex flex-col gap-3.5 border-t border-slate-100 dark:border-slate-800/80 pt-4 mt-1">
+              <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">Inject Constituency</span>
               <div className="grid grid-cols-2 gap-3">
                 <input
                   type="text"
@@ -725,7 +722,7 @@ export default function CommandCenter() {
                   placeholder="Kukatpally Constituency"
                   value={newConName}
                   onChange={(e) => setNewConName(e.target.value)}
-                  className="p-3 text-xs font-semibold"
+                  className="p-3 text-xs font-medium rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950 focus:outline-none focus:border-blue-600"
                 />
                 <input
                   type="text"
@@ -733,29 +730,29 @@ export default function CommandCenter() {
                   placeholder="Medchal-Malkajgiri"
                   value={newConDistrict}
                   onChange={(e) => setNewConDistrict(e.target.value)}
-                  className="p-3 text-xs font-semibold"
+                  className="p-3 text-xs font-medium rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950 focus:outline-none focus:border-blue-600"
                 />
               </div>
-              <PremiumButton type="submit" variant="primary" size="sm" className="w-full" disabled={loading}>
+              <button type="submit" className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold text-xs transition shadow-xs cursor-pointer" disabled={loading}>
                 Inject Constituency
-              </PremiumButton>
+              </button>
             </form>
-          </GlassCard>
+          </div>
 
           {/* Mapped academic campuses list & inject form */}
-          <GlassCard hoverEffect={true} className="p-6 flex flex-col gap-4 text-left">
-            <h3 className="font-extrabold text-sm text-slate-700 dark:text-white uppercase tracking-wider flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
-              <Building className="w-4 h-4 text-cyan-500 group-hover:scale-120 group-hover:rotate-6 transition-all duration-300" />
+          <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 shadow-xs flex flex-col gap-4 text-left">
+            <h3 className="font-semibold text-xs text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 dark:border-slate-800/80 pb-3">
+              <Building className="w-4 h-4 text-blue-600 dark:text-blue-400" />
               Academic Campus Nodes (Colleges)
             </h3>
 
-            <div className="flex flex-col gap-3.5 text-xs">
+            <div className="flex flex-col gap-3 text-xs">
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Select Constituency Territory</label>
+                <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Select Constituency Territory</label>
                 <select
                   value={selectedConId}
                   onChange={(e) => setSelectedConId(e.target.value)}
-                  className="p-2.5 text-xs font-semibold"
+                  className="p-2.5 text-xs font-medium rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950 focus:outline-none focus:border-blue-600"
                 >
                   {constituencies.map(con => (
                     <option key={con.id} value={con.id}>{con.constituency_name}</option>
@@ -766,23 +763,23 @@ export default function CommandCenter() {
               <div className="flex flex-col gap-2 max-h-[150px] overflow-y-auto pr-1 custom-sidebar-scrollbar my-1">
                 {filteredColleges.length > 0 ? (
                   filteredColleges.map(col => (
-                    <div key={col.id} className="flex items-center justify-between p-3 rounded-xl bg-slate-100/50 dark:bg-slate-900/40 border border-slate-200/30 dark:border-slate-850 text-xs">
+                    <div key={col.id} className="flex items-center justify-between p-3 rounded-xl bg-slate-50/70 dark:bg-slate-950/50 border border-slate-200/80 dark:border-slate-800/80 text-xs">
                       <div>
-                        <strong className="text-slate-800 dark:text-white block">{col.college_name}</strong>
-                        <span className="text-slate-400">Campus Code: {col.college_code} • ID #{col.id}</span>
+                        <strong className="text-slate-900 dark:text-white block font-semibold">{col.college_name}</strong>
+                        <span className="text-slate-500 text-[11px]">Campus Code: {col.college_code} • ID #{col.id}</span>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <div className="py-6 text-center text-slate-400 text-xs italic">
+                  <div className="py-6 text-center text-slate-500 text-xs italic">
                     No colleges listed in this constituency territory yet. Add one below!
                   </div>
                 )}
               </div>
             </div>
 
-            <form onSubmit={handleAddCollege} className="flex flex-col gap-3.5 border-t border-slate-200 dark:border-slate-800 pt-4 mt-1">
-              <span className="text-[10px] font-black text-slate-455 uppercase tracking-widest block">Inject Campus Academic Node</span>
+            <form onSubmit={handleAddCollege} className="flex flex-col gap-3.5 border-t border-slate-100 dark:border-slate-800/80 pt-4 mt-1">
+              <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">Inject Campus Academic Node</span>
               <div className="grid grid-cols-2 gap-3">
                 <input
                   type="text"
@@ -790,7 +787,7 @@ export default function CommandCenter() {
                   placeholder="JNTU Hyderabad"
                   value={newCollegeName}
                   onChange={(e) => setNewCollegeName(e.target.value)}
-                  className="p-3 text-xs font-semibold"
+                  className="p-3 text-xs font-medium rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950 focus:outline-none focus:border-blue-600"
                 />
                 <input
                   type="text"
@@ -798,37 +795,37 @@ export default function CommandCenter() {
                   placeholder="JNTUH-99"
                   value={newCollegeCode}
                   onChange={(e) => setNewCollegeCode(e.target.value)}
-                  className="p-3 text-xs font-semibold"
+                  className="p-3 text-xs font-medium rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950 focus:outline-none focus:border-blue-600"
                 />
               </div>
-              <PremiumButton type="submit" variant="primary" size="sm" className="w-full" disabled={loading}>
+              <button type="submit" className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold text-xs transition shadow-xs cursor-pointer" disabled={loading}>
                 Inject Campus Academic Node
-              </PremiumButton>
+              </button>
             </form>
-          </GlassCard>
+          </div>
         </div>
       )}
 
       {activeTab === 'promotions' && (
         <div className="w-full max-w-2xl mx-auto animate-scaleUp">
-          <GlassCard hoverEffect={false} className="p-8 flex flex-col gap-6 text-left">
-            <h3 className="font-extrabold text-sm text-slate-700 dark:text-white uppercase tracking-wider flex items-center gap-2 border-b border-slate-200/50 dark:border-slate-850 pb-4">
-              <UserCheck className="w-5 h-5 text-cyan-500" />
+          <div className="p-8 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 shadow-xs flex flex-col gap-6 text-left">
+            <h3 className="font-semibold text-sm text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 dark:border-slate-800/80 pb-4">
+              <UserCheck className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               Coordinator Promotion Grid
             </h3>
 
-            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed bg-slate-100/50 dark:bg-slate-900/60 p-4 rounded-xl border border-slate-200/40 dark:border-slate-850">
+            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed bg-slate-50/70 dark:bg-slate-950/50 p-4 rounded-xl border border-slate-200/80 dark:border-slate-800/80">
               Select any registered student representative profile from the network and calibrate their state administrative coordinates, authorizing specific local campus or constituency complaint dispatch permissions.
             </p>
 
             <form onSubmit={handlePromote} className="flex flex-col gap-5">
               {/* Select student to promote */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Select Registered Coordinator Profile</label>
+                <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Select Registered Coordinator Profile</label>
                 <select
                   value={promoUserId}
                   onChange={(e) => setPromoUserId(e.target.value)}
-                  className="w-full p-3 text-xs font-semibold"
+                  className="w-full p-3 text-xs font-medium rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950 focus:outline-none focus:border-blue-600"
                 >
                   {allUsers.map(user => (
                     <option key={user.id} value={user.id}>
@@ -841,11 +838,11 @@ export default function CommandCenter() {
               {/* Roles Selection */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Target Leader Command Rank</label>
+                  <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Target Leader Command Rank</label>
                   <select
                     value={promoRole}
                     onChange={(e) => setPromoRole(e.target.value)}
-                    className="w-full p-3 text-xs font-semibold"
+                    className="w-full p-3 text-xs font-medium rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950 focus:outline-none focus:border-blue-600"
                   >
                     <option value="secretary">Campus Secretary</option>
                     <option value="general_secretary">General Secretary</option>
@@ -855,11 +852,11 @@ export default function CommandCenter() {
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Map Constituency Territory</label>
+                  <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Map Constituency Territory</label>
                   <select
                     value={promoConId}
                     onChange={(e) => setPromoConId(e.target.value)}
-                    className="w-full p-3 text-xs font-semibold"
+                    className="w-full p-3 text-xs font-medium rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950 focus:outline-none focus:border-blue-600"
                   >
                     {constituencies.map(con => (
                       <option key={con.id} value={con.id}>{con.constituency_name}</option>
@@ -871,12 +868,12 @@ export default function CommandCenter() {
               {/* Map specific college node (only for Campus Secretary rank) */}
               {promoRole === 'secretary' && (
                 <div className="flex flex-col gap-1.5 animate-scaleUp">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Map Campus Academic Node</label>
+                  <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Map Campus Academic Node</label>
                   <select
                     value={promoColId}
                     onChange={(e) => setPromoColId(e.target.value)}
                     disabled={promoFilteredColleges.length === 0}
-                    className="w-full p-3 text-xs font-semibold disabled:opacity-50"
+                    className="w-full p-3 text-xs font-medium rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950 focus:outline-none focus:border-blue-600 disabled:opacity-50"
                   >
                     {promoFilteredColleges.length > 0 ? (
                       promoFilteredColleges.map(col => (
@@ -889,12 +886,12 @@ export default function CommandCenter() {
                 </div>
               )}
 
-              <PremiumButton type="submit" variant="primary" size="md" className="w-full mt-2" disabled={loading}>
+              <button type="submit" className="w-full mt-2 py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold text-xs transition shadow-xs cursor-pointer" disabled={loading}>
                 {loading ? 'Recalibrating Security Perms...' : 'Promote Representative & Assign Coordinates'}
-              </PremiumButton>
+              </button>
 
             </form>
-          </GlassCard>
+          </div>
         </div>
       )}
 

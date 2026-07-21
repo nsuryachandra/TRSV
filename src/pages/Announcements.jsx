@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Volume2, Bell, AlertOctagon, Calendar, ArrowRight, BookOpen, Send, PlusCircle, CheckCircle, ShieldAlert, User, Trash2, UploadCloud, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import GlassCard from '../components/GlassCard';
 import AnimatedSection from '../components/AnimatedSection';
 import PremiumButton from '../components/PremiumButton';
 import { uploadGrievanceMedia } from '../config/supabase';
@@ -159,26 +158,25 @@ export default function Announcements() {
     }
   };
 
-
   return (
     <div className="w-full flex flex-col gap-10 py-4 text-left">
       
       {/* Header Banner */}
-      <AnimatedSection direction="up" className="text-center max-w-3xl mx-auto flex flex-col gap-4">
-        <span className="text-xs font-bold text-cyan-600 dark:text-cyan-400 tracking-widest uppercase">
+      <AnimatedSection direction="up" className="text-center max-w-3xl mx-auto flex flex-col gap-3">
+        <span className="text-xs font-semibold text-blue-600 dark:text-blue-400 tracking-wider uppercase">
           OFFICIAL CIRCULARS
         </span>
-        <h1 className="fluid-heading-2 font-black text-slate-850 dark:text-white leading-tight">
+        <h1 className="fluid-heading-2 font-bold text-slate-900 dark:text-white leading-tight">
           Statewide Campaign Notices
         </h1>
-        <p className="text-base sm:text-lg text-slate-500 dark:text-slate-400 leading-relaxed text-center">
+        <p className="text-base sm:text-lg text-slate-500 dark:text-slate-400 leading-relaxed font-medium text-center">
           Review authentic circulars, anti-ragging notices, and statewide administrative bulletins issued directly by State Command.
         </p>
 
         {isAuthorizedToPost && (
           <div className="mt-2 flex justify-center">
             <PremiumButton
-              variant="glow"
+              variant="primary"
               size="md"
               onClick={() => setShowForm(!showForm)}
               icon={<PlusCircle className="w-4 h-4" />}
@@ -192,15 +190,15 @@ export default function Announcements() {
       {/* Publish Form (Only for authorized roles) */}
       {isAuthorizedToPost && showForm && (
         <AnimatedSection direction="down" className="w-full max-w-3xl mx-auto">
-          <GlassCard className="p-6 sm:p-8 border border-cyan-500/20 shadow-glow-cyan/5">
-            <h2 className="text-lg font-black text-slate-850 dark:text-white mb-6 uppercase tracking-wider flex items-center gap-2">
-              <Volume2 className="w-5 h-5 text-cyan-400" />
+          <div className="p-6 sm:p-8 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 shadow-xs">
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-6 uppercase tracking-wider flex items-center gap-2">
+              <Volume2 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               Publish State Command Circular
             </h2>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-5">
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
                   Circular Title
                 </label>
                 <input
@@ -209,19 +207,19 @@ export default function Announcements() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g. Mandatory Anti-Ragging Coordination Briefing"
-                  className="w-full bg-slate-100/50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-850 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-cyan-500 focus:border-cyan-500"
+                  className="w-full bg-slate-50/50 dark:bg-slate-955 border border-slate-200/80 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-blue-600 transition-colors"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                  <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
                     Target Audience Scope
                   </label>
                   <select
                     value={targetAudience}
                     onChange={(e) => setTargetAudience(e.target.value)}
-                    className="w-full bg-slate-100/50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-850 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-white focus:outline-none focus:ring-1 focus:ring-cyan-500 focus:border-cyan-500"
+                    className="w-full bg-slate-50/50 dark:bg-slate-955 border border-slate-200/80 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-medium text-slate-900 dark:text-white focus:outline-none focus:border-blue-600 transition-colors"
                   >
                     <option value="all">Everyone (Statewide)</option>
                     <option value="student">Students Only</option>
@@ -231,7 +229,7 @@ export default function Announcements() {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
                   Circular Content Bulletin
                 </label>
                 <textarea
@@ -240,29 +238,29 @@ export default function Announcements() {
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
                   placeholder="Type the detailed circular statement..."
-                  className="w-full bg-slate-100/50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-850 rounded-xl px-4 py-3 text-sm text-slate-800 dark:text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-cyan-500 focus:border-cyan-500 resize-y"
+                  className="w-full bg-slate-50/50 dark:bg-slate-955 border border-slate-200/80 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-blue-600 transition-colors resize-y"
                 />
               </div>
 
               {/* Image upload field */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
                   Announcement Graphic / Image (Optional)
                 </label>
                 
                 {imageUrl ? (
-                  <div className="relative rounded-xl overflow-hidden border border-slate-200/60 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/55 p-2 flex items-center justify-between">
+                  <div className="relative rounded-xl overflow-hidden border border-slate-200/80 dark:border-slate-800 bg-slate-50 dark:bg-slate-955 p-2 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <img 
                         src={imageUrl} 
                         alt="Uploaded Preview" 
-                        className="w-16 h-16 rounded-lg object-cover border border-slate-200/50 dark:border-slate-850"
+                        className="w-16 h-16 rounded-lg object-cover border border-slate-200 dark:border-slate-800"
                       />
                       <div className="flex flex-col text-left">
-                        <span className="text-xs font-bold text-slate-700 dark:text-white truncate max-w-[200px]">
+                        <span className="text-xs font-semibold text-slate-900 dark:text-white truncate max-w-[200px]">
                           {imageFile?.name || 'Uploaded Graphic'}
                         </span>
-                        <span className="text-[10px] text-emerald-500 font-bold uppercase tracking-wider">
+                        <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold uppercase tracking-wider">
                           ✓ Uploaded to System Node
                         </span>
                       </div>
@@ -270,13 +268,13 @@ export default function Announcements() {
                     <button 
                       type="button" 
                       onClick={removeImage}
-                      className="p-2 text-rose-500 hover:text-rose-600 rounded-lg hover:bg-rose-500/10 transition-colors cursor-pointer"
+                      className="p-2 text-rose-500 hover:text-rose-600 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
                     >
                       <X className="w-5 h-5" />
                     </button>
                   </div>
                 ) : (
-                  <div className="relative group cursor-pointer border border-dashed border-slate-200/60 dark:border-slate-850 hover:border-cyan-500/60 rounded-xl bg-slate-100/30 dark:bg-slate-900/30 p-4 text-center transition-all">
+                  <div className="relative group cursor-pointer border border-dashed border-slate-200 dark:border-slate-800 hover:border-blue-600 rounded-xl bg-slate-50/50 dark:bg-slate-955 p-4 text-center transition-all">
                     <input
                       type="file"
                       accept="image/*"
@@ -285,8 +283,8 @@ export default function Announcements() {
                       disabled={uploadingImage}
                     />
                     <div className="flex flex-col items-center gap-1.5 pointer-events-none select-none">
-                      <UploadCloud className="w-6 h-6 text-cyan-500 group-hover:scale-110 transition-transform duration-200" />
-                      <span className="text-xs font-bold text-slate-700 dark:text-white block">
+                      <UploadCloud className="w-6 h-6 text-blue-600 dark:text-blue-400 group-hover:scale-105 transition-transform duration-200" />
+                      <span className="text-xs font-medium text-slate-700 dark:text-slate-300 block">
                         {uploadingImage ? 'Uploading image...' : 'Click or drag image file here'}
                       </span>
                     </div>
@@ -297,13 +295,13 @@ export default function Announcements() {
               <button
                 type="submit"
                 disabled={submitting || !title.trim() || !content.trim()}
-                className="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 disabled:opacity-30 disabled:pointer-events-none text-white text-sm font-black transition-all duration-300 shadow-md shadow-cyan-950/20 hover:scale-101 active:scale-99 flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full py-3 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-40 disabled:pointer-events-none text-white text-sm font-semibold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer"
               >
                 {submitting ? 'Dispatching Circular...' : 'Dispatch Circular Alert'}
                 <Send className="w-4 h-4" />
               </button>
             </form>
-          </GlassCard>
+          </div>
         </AnimatedSection>
       )}
 
@@ -311,13 +309,13 @@ export default function Announcements() {
       {(successMsg || error) && (
         <div className="w-full max-w-3xl mx-auto">
           {successMsg && (
-            <div className="flex items-center gap-3 p-4 rounded-xl border border-green-500/20 bg-green-500/5 text-green-600 dark:text-green-400 text-xs font-semibold">
+            <div className="flex items-center gap-3 p-4 rounded-xl border border-emerald-200 dark:border-emerald-800/80 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 text-xs font-medium">
               <CheckCircle className="w-4.5 h-4.5 shrink-0" />
               {successMsg}
             </div>
           )}
           {error && (
-            <div className="flex items-center gap-3 p-4 rounded-xl border border-rose-500/20 bg-rose-500/5 text-rose-600 dark:text-rose-450 text-xs font-semibold">
+            <div className="flex items-center gap-3 p-4 rounded-xl border border-rose-200 dark:border-rose-800/80 bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 text-xs font-medium">
               <ShieldAlert className="w-4.5 h-4.5 shrink-0" />
               {error}
             </div>
@@ -328,19 +326,19 @@ export default function Announcements() {
       {/* Announcements Feed Grid */}
       <section className="flex flex-col gap-6 w-full max-w-4xl mx-auto">
         {loading ? (
-          <div className="py-20 text-center text-sm text-slate-400 dark:text-slate-550 animate-pulse">
+          <div className="py-20 text-center text-sm font-medium text-slate-400 animate-pulse">
             Syncing statewide circular dispatches...
           </div>
         ) : notices.length > 0 ? (
           notices.map((note) => (
-            <GlassCard key={note.id} hoverEffect={true} className="p-6 sm:p-8 flex flex-col sm:flex-row items-start gap-6 border-l-2 border-cyan-500 bg-white/40 dark:bg-slate-950/25">
-              <div className="p-3.5 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200/40 dark:border-slate-800 flex items-center justify-center shrink-0">
-                <Bell className="w-5 h-5 text-cyan-400" />
+            <div key={note.id} className="p-6 sm:p-8 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 shadow-xs flex flex-col sm:flex-row items-start gap-6 border-l-4 border-l-blue-600 dark:border-l-blue-500">
+              <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-900/60 flex items-center justify-center shrink-0">
+                <Bell className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               </div>
 
               <div className="flex-1 flex flex-col gap-3 min-w-0">
-                <div className="flex flex-wrap items-center justify-between text-[10px] font-black uppercase tracking-wider gap-2">
-                  <span className="text-cyan-500 bg-cyan-500/10 px-2.5 py-0.5 rounded-md border border-cyan-500/20">
+                <div className="flex flex-wrap items-center justify-between text-[11px] font-semibold uppercase tracking-wider gap-2">
+                  <span className="text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/50 px-2.5 py-0.5 rounded-full border border-blue-200 dark:border-blue-800/60">
                     Scope: {note.target_audience}
                   </span>
                   <div className="flex items-center gap-3">
@@ -355,7 +353,7 @@ export default function Announcements() {
                     {isAuthorizedToPost && (
                       <button
                         onClick={() => handleDelete(note.id)}
-                        className="text-slate-400 hover:text-rose-500 transition-colors p-1 rounded hover:bg-rose-500/10 cursor-pointer"
+                        className="text-slate-400 hover:text-rose-500 transition-colors p-1 rounded hover:bg-rose-50 dark:hover:bg-rose-950/40 cursor-pointer"
                         title="Delete Circular"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -364,16 +362,16 @@ export default function Announcements() {
                   </div>
                 </div>
 
-                <h2 className="font-extrabold text-xl text-slate-850 dark:text-white leading-snug">
+                <h2 className="font-bold text-lg sm:text-xl text-slate-900 dark:text-white leading-snug">
                   {note.title}
                 </h2>
                 
-                <p className="text-sm text-slate-600 dark:text-slate-350 leading-relaxed whitespace-pre-wrap">
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400 leading-relaxed whitespace-pre-wrap">
                   {note.content}
                 </p>
 
                 {note.image_url && (
-                  <div className="mt-3.5 rounded-xl overflow-hidden border border-slate-200/40 dark:border-slate-850/50 bg-slate-100/30 dark:bg-slate-900/30 max-h-[360px] flex items-center justify-center">
+                  <div className="mt-2 rounded-xl overflow-hidden border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-955 max-h-[360px] flex items-center justify-center">
                     <img 
                       src={note.image_url} 
                       alt={note.title} 
@@ -383,22 +381,22 @@ export default function Announcements() {
                 )}
 
                 {/* Author Credentials metadata */}
-                <div className="pt-3.5 border-t border-slate-200/40 dark:border-slate-850/50 flex items-center gap-2.5 text-[11px] text-slate-500 dark:text-slate-400">
-                  <User className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center gap-2 text-[11px] font-medium text-slate-400">
+                  <User className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
                   <span>
-                    Dispatched by: <strong className="text-slate-850 dark:text-slate-200">{note.author_name || 'Supreme Leader'}</strong> ({formatRole(note.author_role)})
+                    Dispatched by: <strong className="text-slate-700 dark:text-slate-300 font-semibold">{note.author_name || 'Supreme Leader'}</strong> ({formatRole(note.author_role)})
                     {note.author_constituency && (
                       <>
-                        {' '}from <strong className="text-cyan-500 dark:text-cyan-400">{note.author_constituency}</strong>
+                        {' '}from <strong className="text-blue-600 dark:text-blue-400 font-semibold">{note.author_constituency}</strong>
                       </>
                     )}
                   </span>
                 </div>
               </div>
-            </GlassCard>
+            </div>
           ))
         ) : (
-          <div className="py-20 text-center text-slate-400 dark:text-slate-550 border border-dashed border-slate-200 dark:border-slate-850 rounded-2xl bg-slate-50/10 dark:bg-slate-950/5 italic text-sm">
+          <div className="py-16 text-center text-slate-400 border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900 text-xs font-semibold uppercase tracking-wider">
             No official statewide circular notices found.
           </div>
         )}

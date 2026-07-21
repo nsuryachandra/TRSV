@@ -53,6 +53,8 @@ import identityRouter from './routes/identity.js';
 import chatRouter from './routes/chat.js';
 import notificationsRouter from './routes/notifications.js';
 import joinRouter from './routes/join.js';
+import leadersRouter from './routes/leaders.js';
+import { initLeadersTable } from './db/migrations_leaders.js';
 import { loadModules } from './services/moduleLoader.js';
 
 
@@ -193,6 +195,8 @@ app.use('/api/identity', identityRouter);
 app.use('/api/chat', chatRouter);
 app.use('/api/notifications', notificationsRouter);
 app.use('/api/join-tvrs', joinRouter);
+app.use('/api/leaders', leadersRouter);
+app.use('/api/dev/leaders', leadersRouter);
 
 // Register Dynamic plugin-based modules
 await loadModules(app);
@@ -989,6 +993,13 @@ httpServer.listen(PORT, async () => {
     console.log('🔹 [Database] FCM tokens schema synchronized.');
   } catch (fcmDbErr) {
     console.error('🚨 [Database] Failed to sync FCM tokens schema:', fcmDbErr.message);
+  }
+
+  // STEP 13: Initialize and seed Leaders Table CMS
+  try {
+    await initLeadersTable();
+  } catch (lTableErr) {
+    console.error('🚨 [Database] Failed to sync leaders table:', lTableErr.message);
   }
 
   // Background auto-escalation scheduler
